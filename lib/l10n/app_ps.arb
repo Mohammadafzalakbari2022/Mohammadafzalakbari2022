@@ -1,0 +1,830 @@
+{
+  "@@locale": "ps",
+  "appTitle": "Pride",
+  "tabOrders": "امرونه",
+  "tabCustomers": "پیرودونکي",
+  "tabCatalog": "کتلاګ",
+  "tabReports": "راپورونه",
+  "tabSettings": "تنظیمات",
+  "loginTitle": "Sign in",
+  "loginSubtitle": "Use your shop username and password. The server will verify this when the API is connected (plan-04).",
+  "loginMockHint": "In this build, any non-empty username and password will sign you in locally.",
+  "loginShopIdLabel": "Shop ID (optional)",
+  "loginShopIdHint": "Leave blank for single-shop dev",
+  "loginUsernameLabel": "Username",
+  "loginUsernameHint": "Your shop login name",
+  "loginPasswordLabel": "Password",
+  "loginSignInCta": "Sign in",
+  "loginFieldRequired": "Required",
+  "loginDevContinue": "Continue without account (dev)",
+  "modulePlaceholder": "{moduleName} — UI coming soon.",
+  "@modulePlaceholder": {
+    "description": "Placeholder body for a shell tab",
+    "placeholders": {
+      "moduleName": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardTitle": "Dashboard",
+  "dashboardSubtitle": "KPIs and shortcuts will load from local data (plan-09).",
+  "dashboardKpisPlaceholder": "Today at a glance",
+  "dashboardKpiNewOrders": "New orders",
+  "dashboardKpiInProgress": "In progress",
+  "dashboardKpiReady": "Ready",
+  "dashboardKpiUnpaid": "Unpaid balance",
+  "dashboardKpiValuePlaceholder": "—",
+  "dashboardOpenMenuTooltip": "Open menu",
+  "subscriptionTitle": "ګډون",
+  "subscriptionBody": "د نوي کولو یا د فعالولو کوړ د بلینګ نښلولو وخت کې (plan-06). د پای په دوره کې سمون محدود دی؛ لیست او جزئیات لیدل شته.",
+  "subscriptionListTileSubtitle": "جواز، ازمایښت او فعالول",
+  "licenseDevControlsTitle": "License (dev only)",
+  "licenseStatusTrial": "Trial",
+  "licenseStatusPaid": "Paid",
+  "licenseStatusExpired": "Expired",
+  "ordersNewTitle": "New order",
+  "ordersNewCta": "New order",
+  "ordersComposerPlaceholderBody": "Order composer will go here (plan-11).",
+  "ordersDetailTitle": "Order details",
+  "ordersDetailPlaceholderBody": "Order {orderId} — details UI coming soon (plan-12).",
+  "@ordersDetailPlaceholderBody": {
+    "placeholders": {
+      "orderId": {
+        "type": "String"
+      }
+    }
+  },
+  "orderStatusNew": "New",
+  "orderStatusInProgress": "In progress",
+  "orderStatusReady": "Ready",
+  "orderStatusDelivered": "Delivered",
+  "orderStatusCancelled": "Cancelled",
+  "ordersListEmpty": "No orders yet",
+  "ordersDeliveryOn": "Delivery: {date}",
+  "@ordersDeliveryOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersWebDataHint": "Web preview uses in-memory sample data (Isar runs on Android/iOS/desktop).",
+  "ordersNumberPrefix": "No. {number}",
+  "@ordersNumberPrefix": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersSearchHint": "Search order number, customer, or phone",
+  "ordersDateChipAny": "All dates",
+  "ordersDateChipToday": "Delivery today",
+  "ordersDateChipThisWeek": "Delivery this week",
+  "ordersDateChipCustom": "Custom range",
+  "ordersDateCustomPickerHelp": "Filter by delivery date (inclusive).",
+  "ordersCustomerFilterChip": "Customer: {name}",
+  "@ordersCustomerFilterChip": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersCustomerFilterUnknown": "Customer filter on",
+  "ordersClearFilterA11y": "Clear filter",
+  "ordersOnlyUnpaidChip": "Only unpaid",
+  "ordersFilterOverdueChip": "Overdue",
+  "ordersFilterDeliveredTodayChip": "Delivered today",
+  "ordersRemainingChip": "Remaining: {amount}",
+  "@ordersRemainingChip": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersFilteredEmpty": "No orders match your search or filters.",
+  "ordersDetailNotFound": "This order could not be found.",
+  "ordersDetailChangeStatus": "Change status",
+  "ordersDetailChangeStatusSubtitle": "Ready / Delivered / Cancel",
+  "ordersDetailConfirmTitle": "Confirm",
+  "ordersDetailConfirmBody": "Change status to {status}?",
+  "@ordersDetailConfirmBody": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersDetailConfirmCta": "Confirm",
+  "ordersDetailStatusUpdated": "Status updated: {status}",
+  "@ordersDetailStatusUpdated": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersDetailSectionCustomer": "Customer",
+  "ordersDetailSectionMeasurements": "Measurements",
+  "ordersDetailSectionStyle": "Style",
+  "ordersDetailSectionInternalNotes": "Internal notes",
+  "ordersDetailSectionPayments": "Payments",
+  "ordersDetailSectionAudit": "Audit",
+  "ordersDetailSectionPlaceholder": "Details will appear here as the module is built.",
+  "ordersDetailSnapshotEmpty": "Nothing recorded.",
+  "ordersDetailMeasurementsFromProfile": "Snapshot based on profile “{label}”.",
+  "@ordersDetailMeasurementsFromProfile": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersDetailMeasurementsNotes": "Notes on order",
+  "ordersDetailLockedHint": "This order is locked because it is Delivered or Cancelled (plan-12).",
+  "ordersDetailLockedStillInternalNotes": "You can still edit internal notes below.",
+  "ordersInternalNotesDialogTitle": "Internal notes",
+  "ordersInternalNotesHint": "Staff-only — not shown to the customer.",
+  "ordersInternalNotesSaved": "Internal notes saved.",
+  "licenseReadOnlyHint": "Read-only mode: editing is disabled while the license is expired.",
+  "ownerPasswordTitle": "Owner password",
+  "ownerPasswordLabel": "Enter owner password",
+  "ownerPasswordMismatch": "That password does not match the owner password for this device.",
+  "ordersDetailChangeStatusSoon": "Status changes will open a confirmation flow (plan-12).",
+  "addPaymentCta": "Add payment",
+  "addAdjustmentCta": "Add adjustment",
+  "paymentAdjustmentHint": "Use a negative amount to reduce recorded payments (append-only ledger).",
+  "paymentLedgerAdjustmentTag": "سمون",
+  "paymentAdjustmentAdded": "Adjustment recorded",
+  "paymentAdded": "Payment added",
+  "paymentsEmpty": "تر اوسه هېڅ ورکړه نشته.",
+  "paymentAmountLabel": "بېله",
+  "paymentAmountHint": "بېله ولیکئ (بې اعشار)",
+  "paymentAmount": "بېله: {amount}",
+  "@paymentAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentTotal": "ټول",
+  "paymentPaid": "ورکړل شوی",
+  "paymentRemaining": "پاتې",
+  "customersSearchHint": "Search name or phone",
+  "customersEmptyTitle": "No customers yet",
+  "customersAddCta": "Add customer",
+  "customersFilteredEmpty": "No customers match your search.",
+  "customersPhoneMissing": "No phone",
+  "customerProfileTitle": "Customer",
+  "customerNotFound": "This customer could not be found.",
+  "customerInfoSection": "Customer info",
+  "customerMeasurementProfilesSection": "Measurement profiles",
+  "customerTodayOrdersTitle": "Today’s orders",
+  "customerNoTodayOrders": "No orders for today.",
+  "customerViewAllOrders": "View all orders for this customer",
+  "customerViewAllOrdersSoon": "This will open Orders with a customer filter (plan-13).",
+  "customerSectionPlaceholder": "Details will appear here as the module is built.",
+  "customerNewPlaceholderBody": "New customer form will go here (plan-13).",
+  "measurementUnitCm": "Centimeters",
+  "measurementUnitInch": "Inches",
+  "measurementProfilesEmpty": "No saved profiles yet. Add one to reuse measurements on new orders.",
+  "measurementProfilesAddCta": "Add profile",
+  "measurementProfileEditorTitleNew": "New measurement profile",
+  "measurementProfileEditorTitleEdit": "Edit measurement profile",
+  "measurementProfileLabelField": "Profile name",
+  "measurementProfileBodyField": "Measurements",
+  "measurementProfileNotesField": "Extra notes",
+  "measurementProfileUnitSection": "Unit",
+  "measurementProfileSaveAsNew": "Save as new profile",
+  "measurementProfileCreated": "Profile saved",
+  "measurementProfileUpdated": "Profile updated",
+  "measurementProfilePickSheetTitle": "Saved profiles",
+  "settingsMeasurementTypesTitle": "د اندازې ساحې",
+  "settingsMeasurementTypesSubtitle": "د پیرودونکي پروفایل او امرونو لپاره لیبلونه",
+  "tasksTitle": "Tasks",
+  "tasksSettingsSubtitle": "Simple to-do list (offline)",
+  "tasksSearchHint": "Search tasks",
+  "tasksFilterAll": "All",
+  "tasksFilterOpen": "Open",
+  "tasksFilterDone": "Done",
+  "tasksEmpty": "No tasks yet. Add your first task.",
+  "tasksEmptyFiltered": "No tasks match this filter.",
+  "tasksAddTitle": "Add task",
+  "tasksEditTitle": "Edit task",
+  "tasksTitleLabel": "Title",
+  "tasksNotesLabel": "Notes",
+  "tasksDueDatePick": "Pick due date",
+  "tasksDueDateNone": "No due date",
+  "tasksDueDateSet": "Set",
+  "tasksDueDateClear": "Clear due date",
+  "tasksDueDateShort": "Due: {date}",
+  "@tasksDueDateShort": { "placeholders": { "date": { "type": "String" } } },
+  "tasksDueDateValue": "Due date: {date}",
+  "@tasksDueDateValue": { "placeholders": { "date": { "type": "String" } } },
+  "tasksSave": "Save",
+  "tasksDeleteAction": "Delete",
+  "tasksDeleteTitle": "Delete task?",
+  "tasksDeleteBody": "This will remove the task from your list.",
+  "tasksDeleteCancel": "Cancel",
+  "tasksDeleteConfirm": "Delete",
+  "measurementTypesScreenTitle": "Measurement fields",
+  "measurementTypesEmpty": "No fields yet. Add the sizes your shop records.",
+  "measurementTypesAddCta": "Add field",
+  "measurementTypesFieldNameLabel": "Field name",
+  "measurementTypesRenameTitle": "Rename field",
+  "measurementTypesDeleteTitle": "Remove field?",
+  "measurementTypesDeleteBody": "The field is hidden for new measurements. Values already saved on profiles and orders stay as they are.",
+  "measurementTypesActiveLabel": "In use",
+  "measurementTypesInactiveLabel": "Hidden",
+  "measurementTypesReorderHint": "Drag to reorder",
+  "measurementTypesCreated": "Field added",
+  "measurementTypesUpdated": "Field updated",
+  "measurementTypesDeleted": "Field removed",
+  "reportsOverviewTitle": "راپورونه",
+  "reportsUnpaidCardTitle": "نه ورکړل شوی",
+  "reportsUnpaidCardSubtitle": "ټول پاتې: {amount}",
+  "@reportsUnpaidCardSubtitle": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsMonthlyIncomeTitle": "میاشتنی عاید",
+  "reportsMonthlyIncomeSubtitle": "ورکړې او پاتې بېلې د میاشتې تقویم له مخې",
+  "reportsThisMonthOpenUnpaidTitle": "خلاص امرونه نه ورکړل شوي",
+  "reportsThisMonthOpenUnpaidSubtitle": "نوی / روان / چمتو: {amount}",
+  "@reportsThisMonthOpenUnpaidSubtitle": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsOrdersSummaryTitle": "امرونه د حالت له مخې",
+  "reportsOrdersSummaryEmpty": "تر اوسه امر نشته.",
+  "reportsDeliveredReportTitle": "تحویلي شوی",
+  "reportsDeliveredCardTitle": "تحویلي شوي امرونه",
+  "reportsDeliveredCardSubtitle": "د تحویلي میاشتې له مخې",
+  "reportsDeliveredEmpty": "په دې میاشت کې تحویلي شوی امر نشته.",
+  "reportsPaymentsLedgerTitle": "Payments ledger",
+  "reportsPaymentsLedgerSubtitle": "List payments by date range",
+  "reportsPaymentsPickRange": "Pick date range",
+  "reportsPaymentsApplyRange": "Apply",
+  "reportsPaymentsSelectedRangeLabel": "Selected range",
+  "reportsPaymentsRangeValue": "{from} → {to}",
+  "@reportsPaymentsRangeValue": {
+    "placeholders": {
+      "from": { "type": "String" },
+      "to": { "type": "String" }
+    }
+  },
+  "reportsPaymentsTotalLabel": "Total",
+  "reportsPaymentsEmpty": "No payments in this date range.",
+  "reportsPaymentsUnknownOrder": "Unknown order",
+  "reportsPaymentsAdjustmentChip": "Adjustment",
+  "reportsMonthlyIncomePlaceholder": "د میاشتې عاید راپور به دلته راشي (plan-16).",
+  "reportsThisMonthIncomeTitle": "د دې میاشتې عاید",
+  "reportsThisMonthIncomeSubtitle": "عاید: {amount}",
+  "@reportsThisMonthIncomeSubtitle": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsMonthlyIncomeCardLabel": "ترلاسه شوې ورکړې",
+  "reportsMonthlyUnpaidDueTitle": "نه ورکړل شوی (د دې میاشتې سررسید)",
+  "reportsMonthlyUnpaidDueBody": "د هغو امرونو پاتې بېلو مجموعه چې تحویلي نیټه یې په دې میاشت کې ده.",
+  "reportsPrevMonth": "تیره میاشت",
+  "reportsNextMonth": "بله میاشت",
+  "reportsUnpaidTotalLabel": "ټول پاتې",
+  "reportsUnpaidEmpty": "نه ورکړل شوی امر نشته.",
+  "reportsUnpaidFilteredEmpty": "No unpaid orders match this filter.",
+  "reportsUnpaidFilterSection": "Delivery window",
+  "reportsUnpaidFilterAll": "All",
+  "reportsUnpaidFilterOverdue": "Overdue",
+  "reportsUnpaidFilterDueSoon": "Due in 7 days",
+  "reportsUnpaidSortSection": "Sort",
+  "reportsUnpaidSortAmount": "Amount",
+  "reportsUnpaidSortDueDate": "Due date",
+  "reportsMonthlyCompareToggle": "Compare to previous month",
+  "reportsMonthlyPreviousPaymentsLabel": "Previous month (payments)",
+  "reportsMonthlyDeltaLabel": "Change from previous month",
+  "reportsMonthlyDeltaSame": "No change",
+  "reportsRemainingChip": "{amount} پاتې",
+  "@reportsRemainingChip": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogMyDesigns": "My designs",
+  "catalogSharedDesigns": "Shared designs",
+  "catalogGridView": "Grid view",
+  "catalogListView": "List view",
+  "catalogSearchHint": "Search design or shop name",
+  "catalogSortTooltip": "Sort",
+  "catalogSortSheetTitle": "Sort designs",
+  "catalogSortSectionTitle": "Sort by",
+  "catalogSortNewest": "Newest first",
+  "catalogSortOldest": "Oldest first",
+  "catalogSortNameAsc": "Name A–Z",
+  "catalogSortNameDesc": "Name Z–A",
+  "catalogResetSort": "Reset",
+  "catalogApplySort": "Apply",
+  "catalogSharedDirectoryEmpty": "No shared listings in the directory yet.",
+  "catalogCommunityReadOnlyBanner": "Shared directory entry — view only. You cannot edit or delete another shop’s listing.",
+  "catalogSharingToggleTitle": "Enable catalog sharing",
+  "catalogSharingToggleSubtitle": "Mutual opt-in: enable to browse and be listed in public directory (plan-14).",
+  "catalogSharedPlaceholder": "Shared designs directory will appear here when online (plan-14).",
+  "catalogEmptyMyDesigns": "No designs yet.",
+  "catalogAddDesignCta": "Add design",
+  "catalogAddDesignPlaceholder": "Camera / Gallery add will be implemented on Android/iOS only (plan-14).",
+  "catalogDetailTitle": "Catalog item",
+  "catalogDetailPlaceholder": "Catalog item {id} — detail screen coming soon.",
+  "@catalogDetailPlaceholder": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsSectionAccountAndShop": "حساب او هټۍ",
+  "settingsSectionUsers": "کارنان",
+  "settingsSectionBackupRestore": "بیکاپ او بیرته راوړل",
+  "settingsSectionNotifications": "خبرتیاوې",
+  "settingsSectionSyncDiagnostics": "سنک او تشخیص",
+  "settingsSectionAppearanceLanguage": "بڼه او ژبه",
+  "settingsSectionAbout": "په اړه",
+  "settingsSectionDeveloper": "پراختیاګر",
+  "settingsShopTileTitle": "د هټۍ پروفایل",
+  "settingsShopTileSubtitle": "د هټۍ جزئیات به دلته ښکاري (plan-15).",
+  "settingsCurrentUserTitle": "اوسنی کارن",
+  "settingsSignOutTitle": "وتل",
+  "settingsSignOutSubtitle": "په دې وسیله کې دا ناسته پای ته ورکړئ",
+  "settingsSignOutDialogTitle": "وتل؟",
+  "settingsSignOutDialogBody": "د دوام لپاره بیا باید ننوځئ.",
+  "settingsSignOutCancel": "لغوه",
+  "settingsSignOutConfirm": "وتل",
+  "settingsRoleOwner": "مالک",
+  "settingsRoleUser": "کارن",
+  "settingsOwnerOnly": "یوازې مالک",
+  "settingsUsersTitle": "کارن مدیریت",
+  "settingsUsersSubtitleOwner": "ازمایښت: ۲ کارن • ورکړل شوی: ۵ کارن",
+  "settingsUsersPlaceholder": "د کارنو مدیریت به په plan-15 کې پلي شي.",
+  "settingsBackupRestoreTitle": "بیکاپ او بیرته راوړل",
+  "settingsBackupRestoreSubtitleOwner": "د هټۍ ډیټا په خوندي ډول صادرول او بیرته راوړل",
+  "settingsBackupRestorePlaceholder": "بیکاپ/بیرته راوړل به په plan-15 کې پلي شي.",
+  "settingsMuteNotificationsTitle": "خبرتیاوې بې غږ",
+  "settingsMuteNotificationsSubtitle": "په اپ کې بنرونه او نښې بې غږ کړئ (تاریخ ساتل کېږي).",
+  "settingsNotificationsInboxTitle": "د خبرتیاو صندوق",
+  "settingsNotificationsInboxSubtitle": "تاریخ او فلټرونه (plan-15).",
+  "settingsNotificationsPlaceholder": "د خبرتیاو صندوق به په plan-15 کې پلي شي.",
+  "settingsSyncDiagnosticsTitle": "سنک او تشخیص",
+  "settingsNetworkStatusTitle": "شبکه",
+  "settingsNetworkStatusOnline": "نښلول شوی",
+  "settingsNetworkStatusOffline": "آفلاین — محلي کار",
+  "settingsSyncDiagnosticsSubtitle": "وروستی سنک، قطار، صندوق (plan-15).",
+  "settingsSyncDiagnosticsPlaceholder": "سنک او تشخیص به په plan-15 کې پلي شي.",
+  "settingsAppearanceLanguageTitle": "بڼه او ژبه",
+  "settingsAppearanceLanguageSubtitle": "تم او ژبه",
+  "settingsAboutTitle": "په اړه",
+  "settingsAboutSubtitle": "د اپ معلومات او نسخه",
+  "settingsVersionTitle": "نسخه",
+  "settingsBuildTitle": "بسته",
+  "settingsDeveloperPortalTitle": "د پراختیاګر پورټل",
+  "settingsDeveloperPortalSubtitle": "پرمختللې وسیلې (یوازې د پراختیاګر حسابونه).",
+  "settingsDeveloperPortalPlaceholder": "د پراختیاګر پورټل پاڼې به په plan-18 کې پلي شي.",
+  "settingsDevRolesTitle": "د رول بدلونونه (پراختیا)",
+  "settingsDevRoleOwnerTitle": "د مالک حساب تقلید",
+  "settingsDevRoleOwnerSubtitle": "یوازې د مالک برخې خلاصوي.",
+  "settingsDevRoleDeveloperTitle": "د پراختیاګر حساب تقلید",
+  "settingsDevRoleDeveloperSubtitle": "د پراختیا پورټل ننوت ښیي.",
+  "settingsThemeTitle": "تم",
+  "themeSystem": "سیستم",
+  "themeLight": "روښانه",
+  "themeDark": "تیاره",
+  "settingsLanguageTitle": "ژبه",
+  "languageSystem": "System",
+  "languageEnglish": "English",
+  "languageDari": "Dari",
+  "languagePashto": "Pashto",
+  "settingsDateCalendarTitle": "د نیټې تقویم",
+  "settingsDateCalendarSubtitle": "په اپ کې نیټې څنګه ښکاري او غوره کېږي",
+  "dateCalendarGregorian": "Gregorian (AD)",
+  "dateCalendarSolarHijri": "Solar Hijri (Afghan)",
+  "calendarMonthHamal": "حمل",
+  "calendarMonthSawr": "ثور",
+  "calendarMonthJawza": "جوزا",
+  "calendarMonthSaratan": "سرطان",
+  "calendarMonthAsad": "اسد",
+  "calendarMonthSonbola": "سنبله",
+  "calendarMonthMizan": "میزان",
+  "calendarMonthAqrab": "عقرب",
+  "calendarMonthQaws": "قوس",
+  "calendarMonthJadi": "جدی",
+  "calendarMonthDalw": "دلو",
+  "calendarMonthHut": "حوت",
+  "datePickerSolarHijriTitle": "Choose date (Solar Hijri)",
+  "datePickerSolarHijriRangeTitle": "Choose date range (Solar Hijri)",
+  "datePickerYearLabel": "Year",
+  "datePickerMonthLabel": "Month",
+  "datePickerDayLabel": "Day",
+  "dateRangeFromLabel": "From",
+  "dateRangeToLabel": "To",
+  "settingsComingSoon": "ژر راځي.",
+  "loading": "Loading…",
+  "genericError": "Something went wrong.",
+  "resetCta": "بیا تنظیم",
+  "licenseExpiredReadOnly": "License expired — read-only mode.",
+  "moneyAfn": "{amount} AFN",
+  "@moneyAfn": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersComposerCustomerTitle": "Customer",
+  "ordersComposerCustomerRequired": "Select customer (required)",
+  "ordersComposerMeasurementsTitle": "Measurements",
+  "ordersComposerMeasurementsRequired": "Add measurements (required)",
+  "ordersComposerMeasurementsSummary": "Measurements captured",
+  "ordersComposerMeasurementsLabel": "Measurements notes",
+  "ordersComposerMeasurementsHint": "Type measurements or load a saved customer profile.",
+  "ordersComposerLoadProfileCta": "Load from saved profile",
+  "ordersComposerProfileLinked": "From profile: {name}",
+  "@ordersComposerProfileLinked": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersComposerStyleTitle": "Style",
+  "ordersComposerStyleRequired": "Select style (required)",
+  "ordersComposerStyleLabel": "Design / style",
+  "ordersComposerStyleHint": "Example: Karzai, collar, pockets…",
+  "ordersComposerPaymentTitle": "Payment",
+  "ordersComposerPaymentRequired": "Enter totals (required)",
+  "ordersComposerPaymentSummary": "Total {total} • Paid {paid} • Remaining {remaining}",
+  "@ordersComposerPaymentSummary": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      },
+      "paid": {
+        "type": "String"
+      },
+      "remaining": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersComposerTotalLabel": "Total amount (AFN)",
+  "ordersComposerTotalHint": "Example: 150000",
+  "ordersComposerPaidLabel": "Initial paid (AFN)",
+  "ordersComposerPaidHint": "Example: 50000",
+  "ordersComposerDeliveryDateTitle": "Delivery date",
+  "ordersComposerDeliveryDateUnset": "Select delivery date",
+  "ordersComposerSaveCta": "Save order",
+  "ordersComposerSaved": "Order saved.",
+  "ordersComposerResetTitle": "Reset form?",
+  "ordersComposerResetBody": "This will clear all entered fields.",
+  "ordersComposerSelectCustomerFirstTitle": "Select customer first",
+  "ordersComposerSelectCustomerFirstBody": "Please select a customer before continuing.",
+  "ordersComposerRecentOrdersTitle": "Recent orders",
+  "ordersComposerRecentOrdersSubtitle": "For this customer",
+  "ordersComposerRecentOrderRowSubtitle": "{date} • {remaining} remaining",
+  "@ordersComposerRecentOrderRowSubtitle": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "remaining": {
+        "type": "String"
+      }
+    }
+  },
+  "saveCta": "ساتل",
+  "customersCreated": "Customer created.",
+  "customerNameLabel": "Name",
+  "customerNameHint": "Example: Ahmad Karimi",
+  "customerNameRequired": "Name is required.",
+  "customerNameTooShort": "Name is too short.",
+  "customerPhoneLabel": "Phone (optional)",
+  "customerPhoneHint": "Example: 0700000001",
+  "saved": "ساتل شو.",
+  "deleted": "Deleted.",
+  "editCta": "Edit",
+  "deleteCta": "Delete",
+  "deleteConfirmTitle": "Delete?",
+  "deleteConfirmBody": "This action cannot be undone.",
+  "catalogItemNotFound": "This catalog item could not be found.",
+  "catalogEditMetadataTitle": "Edit metadata",
+  "catalogDesignNameLabel": "Design name",
+  "catalogDesignNameHint": "Example: Karzai suit",
+  "catalogNotesLabel": "Notes (optional)",
+  "catalogNotesHint": "Any details you want to remember…",
+  "catalogDeleteConfirmBody": "Delete “{name}”?",
+  "@catalogDeleteConfirmBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogDesignerAndDate": "{shop} • {date}",
+  "@catalogDesignerAndDate": {
+    "placeholders": {
+      "shop": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogSharePublicTitle": "Share publicly",
+  "catalogSharePublicSubtitle": "If enabled, this design can appear in the public directory (metadata only).",
+  "catalogSharePublicDisabledSubtitle": "Enable catalog sharing in Catalog to use this.",
+  "catalogNotesTitle": "Notes",
+  "catalogNotesEmpty": "No notes",
+  "catalogAddNotAvailableOnWeb": "Adding images is not available on Web.",
+  "catalogDesignNameRequired": "Design name is required.",
+  "catalogImageRequired": "Please pick an image first.",
+  "catalogCreated": "Design added.",
+  "catalogMyShopNameFallback": "My Shop",
+  "cameraCta": "Camera",
+  "galleryCta": "Gallery",
+  "dashboardKpisSectionTitle": "At a glance",
+  "dashboardQuickLinksTitle": "Quick links",
+  "dashboardThisMonthIncomeTitle": "This month income",
+  "dashboardLicenseExpiredBanner": "Your license is expired. Renew to edit again.",
+  "dashboardTodayDeliveriesTitle": "Delivered today",
+  "dashboardTodayDeliveriesEmpty": "No orders delivered today.",
+  "dashboardSearchOrdersHint": "Search order #, customer, phone",
+  "dashboardSearchOrdersTooltip": "Search orders",
+  "dashboardOverdueTitle": "Overdue deliveries",
+  "dashboardOverdueEmpty": "No overdue open orders.",
+  "dashboardOverdueViewAll": "View all overdue",
+  "dashboardQuickLinkOverdue": "Overdue orders",
+  "dashboardQuickLinkDeliveredToday": "Delivered today",
+  "shellAppBarSyncA11y": "د سنک حالت",
+  "shellAppBarNotificationsA11y": "خبرتیاوې",
+  "shellAppBarNotificationsMutedA11y": "خبرتیاوې (بې غږ)",
+  "shellSyncStatusOfflineChip": "آفلاین",
+  "shellSyncTooltipNever": "د سرور سنک لا نښلول شوی نه دی. ستاسو ډیټا په دې وسیله پاتې ده.",
+  "shellSyncTooltipOffline": "شبکه نشته. کار دوام لري؛ بدلونونه په دې وسیله پاتې دي.",
+  "shellSyncTooltipLast": "وروستی بریالی سنک: {when}",
+  "@shellSyncTooltipLast": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardNotificationsPreviewTitle": "Recent notifications",
+  "dashboardNotificationsPreviewEmpty": "No notifications yet.",
+  "dashboardNotificationsMutedHint": "Notifications are muted. Change this in Settings → Notifications.",
+  "dashboardNotificationsViewAll": "View all notifications",
+  "notifSeedWelcomeTitle": "Welcome to Afghan Pride",
+  "notifSeedWelcomeBody": "Order updates and shop notices will appear here. Open any row to mark it read.",
+  "notifOrderStatusTitle": "Order {orderNo}",
+  "@notifOrderStatusTitle": {
+    "placeholders": {
+      "orderNo": {
+        "type": "String"
+      }
+    }
+  },
+  "notifOrderStatusBody": "Status updated to {status}.",
+  "@notifOrderStatusBody": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsNotifMarkAllRead": "ټول لوستل شوي وګرځوئ",
+  "subscriptionCurrentStatusTitle": "اوسنی حالت",
+  "subscriptionReadOnlyHint": "تر نوي کولو پورې یوازې لید.",
+  "subscriptionActivationTitle": "فعالول",
+  "subscriptionActivationCodeLabel": "د فعالولو کوډ",
+  "subscriptionActivationCodeHint": "د بلینګ نښلولو وخت کې کوډ ولیکئ",
+  "subscriptionActivateCta": "فعالول",
+  "subscriptionActivationComingSoon": "فعالول به سرور سره ونښلوي (plan-06).",
+  "subscriptionRefreshStatusCta": "د جواز حالت تازه کړئ",
+  "subscriptionRefreshComingSoon": "آنلاین تازه کول به د API نښلولو سره شتون ولري.",
+  "customersListView": "List view",
+  "customersCardView": "Card view",
+  "customerEditDialogTitle": "Edit customer",
+  "customerUpdated": "Customer updated.",
+  "customerAddressLabel": "Address",
+  "customerAddressHint": "Optional",
+  "customerNotesLabel": "Notes",
+  "customerNotesHint": "Optional",
+  "customerFieldEmpty": "—",
+  "customerDeleteMenu": "Delete customer",
+  "customerDeleteConfirmTitle": "Delete this customer?",
+  "customerDeleteConfirmBody": "They will be removed from your list. Existing orders stay in the Orders tab.",
+  "customerDeleted": "Customer removed",
+  "customersFinancialSectionTitle": "Balance",
+  "customersFinancialFilterAll": "Any balance",
+  "customersFilterHasUnpaid": "Has unpaid orders",
+  "customersSortMostOrders": "Most orders",
+  "customersRowMeta": "{orderCount} orders · {unpaid}",
+  "@customersRowMeta": {
+    "placeholders": {
+      "orderCount": {
+        "type": "int"
+      },
+      "unpaid": {
+        "type": "String"
+      }
+    }
+  },
+  "customersRowNoOrdersYet": "No orders yet",
+  "settingsUsersLimitsTitle": "د کارنو حدونه",
+  "settingsUsersLimitsBody": "ازمایښتې هټۍ: تر ۲ کارنو. ورکړل شوې هټۍ: تر ۵ کارنو. د مالک حساب نشي ړنګېدلی.",
+  "settingsUsersAddCta": "کارن زیاتول",
+  "settingsUsersAddDisabledHint": "د کارن مدیریت به سرور سره ونښلوي (plan-15).",
+  "settingsUsersListTitle": "ټیم",
+  "settingsUsersOwnerRowTitle": "د هټۍ مالک",
+  "settingsUsersOwnerRowSubtitle": "بشپړ لاسرسی",
+  "settingsUsersEmptyRowTitle": "اضافي کارنان",
+  "settingsUsersEmptyRowSubtitle": "لا نور کارن نشته",
+  "settingsBackupOwnerPasswordNote": "بیکاپ او بیرته راوړل به د مالک د ننوتلو پاسورډ ته اړتیا ولري (plan-15).",
+  "settingsBackupSectionTitle": "بیکاپ",
+  "settingsBackupOptionDataOnly": "یوازې ډیټا",
+  "settingsBackupOptionDataOnlySubtitle": "امرونه، پیرودونکي، ورکړې، کتلاګ میټاډیټا — کوچنی فایل",
+  "settingsBackupOptionDataAndImages": "ډیټا + د کتلاګ انځورونه",
+  "settingsBackupOptionDataAndImagesSubtitle": "په دې وسیله کې زیرمه شوي ډیزاین انځورونه شامل دي",
+  "settingsBackupCreateCta": "بیکاپ جوړول",
+  "settingsRestoreSectionTitle": "بیرته راوړل",
+  "settingsRestoreMergeNote": "بیرته راوړل تل ستاسو اوسني ډیټا سره یوځای کېږي (ټول ځای نه نیسي).",
+  "settingsRestorePickCta": "د بیکاپ فایل غوره کړئ",
+  "settingsBackupRestoreComingSoon": "د کتلاګ انځورونه لا تر اوسه په v1 بیکاپ کې شامل نه دي.",
+  "settingsBackupWebNotSupported": "بیکاپ او بیرته راوړل اصلي اپ ته اړتیا لري (Isar). اندروید، iOS یا ډیسکټاپ وکاروئ — نه ویب.",
+  "settingsBackupExportDone": "د بیکاپ فایل ساتل شو.",
+  "settingsBackupRestoreDone": "بیرته راوړل بشپړ شو.",
+  "settingsBackupRestoreSummaryTitle": "د بیرته راوړلو لنډیز",
+  "settingsBackupSummaryLineCustomers": "پیرودونکي: {inserted} نوی، {updated} یوځای شوی",
+  "@settingsBackupSummaryLineCustomers": {
+    "placeholders": {
+      "inserted": {
+        "type": "int"
+      },
+      "updated": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsBackupSummaryLineMeasurements": "اندازې: {types} د ساحې ډولونه، {profiles} پروفایلونه، {lines} ساتل شوې ارزښتونه",
+  "@settingsBackupSummaryLineMeasurements": {
+    "placeholders": {
+      "types": {
+        "type": "int"
+      },
+      "profiles": {
+        "type": "int"
+      },
+      "lines": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsBackupSummaryLineOrders": "امرونه: {count} ولیکل شول",
+  "@settingsBackupSummaryLineOrders": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsBackupSummaryLinePayments": "ورکړې: {inserted} زیاتې، {skipped} پرېښل شوې (دمخه وو)",
+  "@settingsBackupSummaryLinePayments": {
+    "placeholders": {
+      "inserted": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsBackupSummaryLineSnapshots": "د اندازو عکسونه: {headers} سرلیکونه، {items} کرښې",
+  "@settingsBackupSummaryLineSnapshots": {
+    "placeholders": {
+      "headers": {
+        "type": "int"
+      },
+      "items": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsBackupSummaryLineNotifications": "خبرتیاوې: {inserted} زیاتې، {skipped} پرېښل شوې",
+  "@settingsBackupSummaryLineNotifications": {
+    "placeholders": {
+      "inserted": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsBackupInvalidFile": "دا بیکاپ فایل نه شو لوستلی.",
+  "settingsNotificationsFiltersTitle": "فلټرونه (مخکتنه)",
+  "settingsNotifFilterAll": "ټول",
+  "settingsNotifFilterOrders": "امرونه",
+  "settingsNotifFilterLicense": "جواز",
+  "settingsNotifFilterBackup": "بیکاپ",
+  "settingsNotificationsInboxEmpty": "تر اوسه خبرتیا نشته",
+  "settingsNotificationsInboxEmptyHint": "د امر، جواز او بیکاپ پیښو لپاره تاریخ به دلته ښکاري.",
+  "settingsSyncLastSyncTitle": "وروستی بریالی سنک",
+  "settingsSyncLastSyncNever": "لا سنک نشته (لومړی آفلاین؛ API پاتې)",
+  "settingsSyncQueuedTitle": "محلي بدلونونه په قطار کې",
+  "settingsSyncQueuedZero": "هېڅ په تمه نه دی",
+  "settingsSyncQueuedCount": "{count} د سنک په تمه",
+  "@settingsSyncQueuedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsSyncOutboxTitle": "بهرنی صندوق",
+  "settingsSyncOutboxPlaceholderTitle": "په قطار کې بدلونونه",
+  "settingsSyncOutboxPlaceholderSubtitle": "بیا هڅه او جزئیات به د سنک فعالولو سره ښکاري",
+  "settingsSyncOutboxPendingListTitle": "په تمه بدلونونه (محلي)",
+  "settingsSyncOutboxPendingEmpty": "د سنک لپاره په قطار کې هېڅ نشته.",
+  "settingsDiagnosticsExportCta": "د تشخیص بسته صادرول",
+  "settingsDiagnosticsExportSoon": "د تشخیص صادرول به د سنک له رارسېدو سره شتون ولري.",
+  "settingsSyncDiagnosticsFooter": "ملاتړ ممکن د سنک ستونزو لپاره دا بسته وغواړي.",
+  "devPortalTitle": "Developer Portal",
+  "devPortalTabOverview": "Overview",
+  "devPortalTabCodes": "Codes",
+  "devPortalTabShops": "Shops",
+  "devPortalTabResets": "Resets",
+  "devPortalTabDiagnostics": "Diagnostics",
+  "devPortalOnlineRequired": "Developer tools require an online connection and a verified developer account.",
+  "devPortalRetryCta": "Retry",
+  "devPortalStubAction": "API not connected in this build.",
+  "devPortalEnvBadge": "Environment: dev",
+  "devPortalStatShops": "Total shops",
+  "devPortalStatActiveExpired": "Active / expired",
+  "devPortalStatTrials": "Trials running",
+  "devPortalStatActivations": "Activations (period)",
+  "devPortalApiHealthTitle": "API health",
+  "devPortalApiHealthUnknown": "Unknown — connect to the API",
+  "devPortalCodesStub": "Activation codes: search, create, and revoke will load from the admin API (plan-18).",
+  "devPortalShopsStub": "Shops & licenses: list and detail views will load from the admin API.",
+  "devPortalResetsStub": "Password reset requests: support queue will load from the admin API.",
+  "devPortalDiagStub": "Support diagnostics: link to exported bundles from Settings → Sync & Diagnostics.",
+  "settingsShopProfileTitle": "د هټۍ پروفایل",
+  "shopProfileIntro": "دا د هټۍ نوم ستاسو د کتلاګ توکو په ډیزاین لیبل کې ښکاري. د اړیکو ساحې ستاسو لپاره د مراجعې دي تر هغه چې بلینګ ونښلول شي.",
+  "shopProfileNameLabel": "د هټۍ نوم",
+  "shopProfileNameHint": "بېلګه: د پریډ خیاطي",
+  "shopProfileNameRequired": "د هټۍ نوم اړین دی.",
+  "shopProfileNameTooShort": "د هټۍ نوم ډېر لنډ دی.",
+  "shopProfileShopPhoneLabel": "د هټۍ تلیفون (اختیاري)",
+  "shopProfileShopPhoneHint": "بېلګه: 0700000000",
+  "shopProfileAddressLabel": "پته (اختیاري)",
+  "shopProfileAddressHint": "سړک، سیمه، ښار…",
+  "shopProfileNotesLabel": "یادښتونه (اختیاري)",
+  "shopProfileNotesHint": "ساعتونه، نښې، مالیاتي پېژند…",
+  "shopProfileSaved": "د هټۍ پروفایل وسو.",
+  "shopProfileReadOnlyBanner": "جواز پای ته رسېدلی — کتلای شئ خو سمون نشئ کولی.",
+  "settingsCurrentUserGuest": "میلمه",
+  "settingsShopIdChip": "هټۍ {shopId}",
+  "@settingsShopIdChip": {
+    "placeholders": {
+      "shopId": {
+        "type": "String"
+      }
+    }
+  },
+  "customersFilterTooltip": "Sort & filter",
+  "customersFilterSheetTitle": "Sort & filter",
+  "customersSortSectionTitle": "Sort",
+  "customersSortNameAsc": "A–Z",
+  "customersSortNameDesc": "Z–A",
+  "customersSortRecentActivity": "Recent activity",
+  "customersCreatedSectionTitle": "Added",
+  "customersCreatedFilterAll": "Any time",
+  "customersCreatedFilterToday": "Today",
+  "customersCreatedFilterThisWeek": "This week",
+  "customersActivitySectionTitle": "Activity",
+  "customersFilterAll": "All customers",
+  "customersFilterHasOrders": "Has orders",
+  "customersFilterNoOrders": "No orders yet",
+  "customersApplyFilters": "Apply",
+  "customersResetFilters": "Reset"
+}

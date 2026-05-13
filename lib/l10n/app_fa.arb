@@ -1,0 +1,830 @@
+{
+  "@@locale": "fa",
+  "appTitle": "افغان پراید",
+  "tabOrders": "سفارش‌ها",
+  "tabCustomers": "مشتریان",
+  "tabCatalog": "کاتالوگ",
+  "tabReports": "گزارش‌ها",
+  "tabSettings": "تنظیمات",
+  "loginTitle": "ورود",
+  "loginSubtitle": "نام کاربری و رمز فروشگاه را وارد کنید. سرور هنگام اتصال API تأیید می‌کند (plan-04).",
+  "loginMockHint": "در این نسخه هر نام کاربری و رمز غیرخالی به‌صورت محلی وارد می‌شود.",
+  "loginShopIdLabel": "شناسه فروشگاه (اختیاری)",
+  "loginShopIdHint": "برای توسعه تک‌فروشگاه خالی بگذارید",
+  "loginUsernameLabel": "نام کاربری",
+  "loginUsernameHint": "نام ورود فروشگاه شما",
+  "loginPasswordLabel": "رمز عبور",
+  "loginSignInCta": "ورود",
+  "loginFieldRequired": "الزامی",
+  "loginDevContinue": "ادامه بدون حساب (توسعه)",
+  "modulePlaceholder": "{moduleName} — رابط به‌زودی.",
+  "@modulePlaceholder": {
+    "description": "Placeholder body for a shell tab",
+    "placeholders": {
+      "moduleName": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardTitle": "داشبورد",
+  "dashboardSubtitle": "شاخص‌ها و میانبرها از دادهٔ محلی بارگذاری می‌شوند (plan-09).",
+  "dashboardKpisPlaceholder": "نمای کلی امروز",
+  "dashboardKpiNewOrders": "سفارش‌های جدید",
+  "dashboardKpiInProgress": "در حال انجام",
+  "dashboardKpiReady": "آماده",
+  "dashboardKpiUnpaid": "مانده پرداخت‌نشده",
+  "dashboardKpiValuePlaceholder": "—",
+  "dashboardOpenMenuTooltip": "باز کردن منو",
+  "subscriptionTitle": "اشتراک",
+  "subscriptionBody": "تمدید یا کد فعال‌سازی هنگام اتصال صورتحساب (plan-06). پس از انقضا ویرایش محدود است؛ مشاهده فهرست و جزئیات ممکن است.",
+  "subscriptionListTileSubtitle": "مجوز، آزمایش و فعال‌سازی",
+  "licenseDevControlsTitle": "مجوز (فقط توسعه)",
+  "licenseStatusTrial": "آزمایشی",
+  "licenseStatusPaid": "پرداخت‌شده",
+  "licenseStatusExpired": "منقضی",
+  "ordersNewTitle": "سفارش جدید",
+  "ordersNewCta": "سفارش جدید",
+  "ordersComposerPlaceholderBody": "فرم سفارش اینجا قرار می‌گیرد (plan-11).",
+  "ordersDetailTitle": "جزئیات سفارش",
+  "ordersDetailPlaceholderBody": "سفارش {orderId} — جزئیات به‌زودی (plan-12).",
+  "@ordersDetailPlaceholderBody": {
+    "placeholders": {
+      "orderId": {
+        "type": "String"
+      }
+    }
+  },
+  "orderStatusNew": "جدید",
+  "orderStatusInProgress": "در حال انجام",
+  "orderStatusReady": "آماده",
+  "orderStatusDelivered": "تحویل‌شده",
+  "orderStatusCancelled": "لغوشده",
+  "ordersListEmpty": "هنوز سفارشی نیست",
+  "ordersDeliveryOn": "تحویل: {date}",
+  "@ordersDeliveryOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersWebDataHint": "پیش‌نمایش وب از دادهٔ نمونه در حافظه استفاده می‌کند (Isar روی اندروید/iOS/دسکتاپ).",
+  "ordersNumberPrefix": "شماره {number}",
+  "@ordersNumberPrefix": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersSearchHint": "جستجوی شماره سفارش، مشتری یا تلفن",
+  "ordersDateChipAny": "همه تاریخ‌ها",
+  "ordersDateChipToday": "تحویل امروز",
+  "ordersDateChipThisWeek": "تحویل این هفته",
+  "ordersDateChipCustom": "بازه دلخواه",
+  "ordersDateCustomPickerHelp": "فیلتر بر اساس تاریخ تحویل (شامل).",
+  "ordersCustomerFilterChip": "مشتری: {name}",
+  "@ordersCustomerFilterChip": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersCustomerFilterUnknown": "فیلتر مشتری فعال است",
+  "ordersClearFilterA11y": "پاک کردن فیلتر",
+  "ordersOnlyUnpaidChip": "فقط پرداخت‌نشده",
+  "ordersFilterOverdueChip": "معوق",
+  "ordersFilterDeliveredTodayChip": "تحویل امروز",
+  "ordersRemainingChip": "مانده: {amount}",
+  "@ordersRemainingChip": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersFilteredEmpty": "هیچ سفارشی با جستجو یا فیلتر مطابقت ندارد.",
+  "ordersDetailNotFound": "این سفارش یافت نشد.",
+  "ordersDetailChangeStatus": "تغییر وضعیت",
+  "ordersDetailChangeStatusSubtitle": "آماده / تحویل‌شده / لغو",
+  "ordersDetailConfirmTitle": "تأیید",
+  "ordersDetailConfirmBody": "وضعیت به {status} تغییر کند؟",
+  "@ordersDetailConfirmBody": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersDetailConfirmCta": "تأیید",
+  "ordersDetailStatusUpdated": "وضعیت به‌روز شد: {status}",
+  "@ordersDetailStatusUpdated": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersDetailSectionCustomer": "مشتری",
+  "ordersDetailSectionMeasurements": "اندازه‌ها",
+  "ordersDetailSectionStyle": "استایل",
+  "ordersDetailSectionInternalNotes": "یادداشت داخلی",
+  "ordersDetailSectionPayments": "پرداخت‌ها",
+  "ordersDetailSectionAudit": "تاریخچه",
+  "ordersDetailSectionPlaceholder": "جزئیات هنگام تکمیل ماژول اینجا نمایش داده می‌شود.",
+  "ordersDetailSnapshotEmpty": "چیزی ثبت نشده.",
+  "ordersDetailMeasurementsFromProfile": "تصویر بر اساس پروفایل «{label}».",
+  "@ordersDetailMeasurementsFromProfile": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersDetailMeasurementsNotes": "یادداشت روی سفارش",
+  "ordersDetailLockedHint": "این سفارش به‌دلیل تحویل یا لغو قفل است (plan-12).",
+  "ordersDetailLockedStillInternalNotes": "هنوز می‌توانید یادداشت داخلی زیر را ویرایش کنید.",
+  "ordersInternalNotesDialogTitle": "یادداشت داخلی",
+  "ordersInternalNotesHint": "فقط کارکنان — به مشتری نشان داده نمی‌شود.",
+  "ordersInternalNotesSaved": "یادداشت داخلی ذخیره شد.",
+  "licenseReadOnlyHint": "حالت فقط‌خواندنی: ویرایش هنگام انقضای مجوز غیرفعال است.",
+  "ownerPasswordTitle": "رمز مالک",
+  "ownerPasswordLabel": "رمز مالک را وارد کنید",
+  "ownerPasswordMismatch": "این رمز با رمز مالک این دستگاه مطابقت ندارد.",
+  "ordersDetailChangeStatusSoon": "تغییر وضعیت با تأیید باز می‌شود (plan-12).",
+  "addPaymentCta": "افزودن پرداخت",
+  "addAdjustmentCta": "افزودن تعدیل",
+  "paymentAdjustmentHint": "برای کاهش پرداخت‌های ثبت‌شده مبلغ منفی وارد کنید (دفتر رویداد).",
+  "paymentLedgerAdjustmentTag": "تعدیل",
+  "paymentAdjustmentAdded": "تعدیل ثبت شد",
+  "paymentAdded": "پرداخت افزوده شد",
+  "paymentsEmpty": "هنوز پرداختی نیست.",
+  "paymentAmountLabel": "مبلغ",
+  "paymentAmountHint": "مبلغ را وارد کنید (بدون اعشار)",
+  "paymentAmount": "مبلغ: {amount}",
+  "@paymentAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentTotal": "جمع",
+  "paymentPaid": "پرداخت‌شده",
+  "paymentRemaining": "مانده",
+  "customersSearchHint": "جستجوی نام یا تلفن",
+  "customersEmptyTitle": "هنوز مشتری نیست",
+  "customersAddCta": "افزودن مشتری",
+  "customersFilteredEmpty": "هیچ مشتری با جستجو مطابقت ندارد.",
+  "customersPhoneMissing": "بدون تلفن",
+  "customerProfileTitle": "مشتری",
+  "customerNotFound": "این مشتری یافت نشد.",
+  "customerInfoSection": "اطلاعات مشتری",
+  "customerMeasurementProfilesSection": "پروفایل‌های اندازه",
+  "customerTodayOrdersTitle": "سفارش‌های امروز",
+  "customerNoTodayOrders": "برای امروز سفارشی نیست.",
+  "customerViewAllOrders": "همه سفارش‌های این مشتری",
+  "customerViewAllOrdersSoon": "با فیلتر مشتری تب سفارش‌ها باز می‌شود (plan-13).",
+  "customerSectionPlaceholder": "جزئیات هنگام تکمیل ماژول اینجا نمایش داده می‌شود.",
+  "customerNewPlaceholderBody": "فرم مشتری جدید اینجا قرار می‌گیرد (plan-13).",
+  "measurementUnitCm": "سانتی‌متر",
+  "measurementUnitInch": "اینچ",
+  "measurementProfilesEmpty": "هنوز پروفایلی نیست. برای استفاده مجدد در سفارش‌های جدید اضافه کنید.",
+  "measurementProfilesAddCta": "افزودن پروفایل",
+  "measurementProfileEditorTitleNew": "پروفایل اندازه جدید",
+  "measurementProfileEditorTitleEdit": "ویرایش پروفایل اندازه",
+  "measurementProfileLabelField": "نام پروفایل",
+  "measurementProfileBodyField": "اندازه‌ها",
+  "measurementProfileNotesField": "یادداشت اضافی",
+  "measurementProfileUnitSection": "واحد",
+  "measurementProfileSaveAsNew": "ذخیره به‌عنوان پروفایل جدید",
+  "measurementProfileCreated": "پروفایل ذخیره شد",
+  "measurementProfileUpdated": "پروفایل به‌روز شد",
+  "measurementProfilePickSheetTitle": "پروفایل‌های ذخیره‌شده",
+  "settingsMeasurementTypesTitle": "فیلدهای اندازه",
+  "settingsMeasurementTypesSubtitle": "برچسب‌ها برای پروفایل مشتری و سفارش‌ها",
+  "tasksTitle": "کارها",
+  "tasksSettingsSubtitle": "فهرست کارها (آفلاین)",
+  "tasksSearchHint": "جستجوی کارها",
+  "tasksFilterAll": "همه",
+  "tasksFilterOpen": "باز",
+  "tasksFilterDone": "انجام‌شده",
+  "tasksEmpty": "هنوز کاری نیست. اولین کار را اضافه کنید.",
+  "tasksEmptyFiltered": "هیچ کاری با این فیلتر پیدا نشد.",
+  "tasksAddTitle": "افزودن کار",
+  "tasksEditTitle": "ویرایش کار",
+  "tasksTitleLabel": "عنوان",
+  "tasksNotesLabel": "یادداشت",
+  "tasksDueDatePick": "انتخاب تاریخ سررسید",
+  "tasksDueDateNone": "بدون تاریخ سررسید",
+  "tasksDueDateSet": "تنظیم",
+  "tasksDueDateClear": "پاک کردن تاریخ سررسید",
+  "tasksDueDateShort": "سررسید: {date}",
+  "@tasksDueDateShort": { "placeholders": { "date": { "type": "String" } } },
+  "tasksDueDateValue": "تاریخ سررسید: {date}",
+  "@tasksDueDateValue": { "placeholders": { "date": { "type": "String" } } },
+  "tasksSave": "ذخیره",
+  "tasksDeleteAction": "حذف",
+  "tasksDeleteTitle": "کار حذف شود؟",
+  "tasksDeleteBody": "این کار از فهرست شما حذف می‌شود.",
+  "tasksDeleteCancel": "لغو",
+  "tasksDeleteConfirm": "حذف",
+  "measurementTypesScreenTitle": "فیلدهای اندازه",
+  "measurementTypesEmpty": "هنوز فیلدی نیست. اندازه‌هایی که فروشگاه ثبت می‌کند را اضافه کنید.",
+  "measurementTypesAddCta": "افزودن فیلد",
+  "measurementTypesFieldNameLabel": "نام فیلد",
+  "measurementTypesRenameTitle": "تغییر نام فیلد",
+  "measurementTypesDeleteTitle": "حذف فیلد؟",
+  "measurementTypesDeleteBody": "فیلد برای اندازه‌های جدید پنهان می‌شود. مقادیر ذخیره‌شده روی پروفایل‌ها و سفارش‌ها دست‌نخورده می‌ماند.",
+  "measurementTypesActiveLabel": "در حال استفاده",
+  "measurementTypesInactiveLabel": "پنهان",
+  "measurementTypesReorderHint": "برای مرتب‌سازی بکشید",
+  "measurementTypesCreated": "فیلد افزوده شد",
+  "measurementTypesUpdated": "فیلد به‌روز شد",
+  "measurementTypesDeleted": "فیلد حذف شد",
+  "reportsOverviewTitle": "گزارش‌ها",
+  "reportsUnpaidCardTitle": "پرداخت‌نشده",
+  "reportsUnpaidCardSubtitle": "کل مانده: {amount}",
+  "@reportsUnpaidCardSubtitle": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsMonthlyIncomeTitle": "درآمد ماهانه",
+  "reportsMonthlyIncomeSubtitle": "پرداخت‌ها و مانده‌ها بر اساس ماه تقویم",
+  "reportsThisMonthOpenUnpaidTitle": "سفارش‌های باز پرداخت‌نشده",
+  "reportsThisMonthOpenUnpaidSubtitle": "جدید / در حال انجام / آماده: {amount}",
+  "@reportsThisMonthOpenUnpaidSubtitle": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsOrdersSummaryTitle": "سفارش‌ها بر اساس وضعیت",
+  "reportsOrdersSummaryEmpty": "هنوز سفارشی نیست.",
+  "reportsDeliveredReportTitle": "تحویل‌شده",
+  "reportsDeliveredCardTitle": "سفارش‌های تحویل‌شده",
+  "reportsDeliveredCardSubtitle": "بر اساس ماه تحویل",
+  "reportsDeliveredEmpty": "در این ماه سفارش تحویل‌شده‌ای نیست.",
+  "reportsPaymentsLedgerTitle": "دفتر پرداخت‌ها",
+  "reportsPaymentsLedgerSubtitle": "فهرست پرداخت‌ها بر اساس بازهٔ تاریخ",
+  "reportsPaymentsPickRange": "انتخاب بازهٔ تاریخ",
+  "reportsPaymentsApplyRange": "اعمال",
+  "reportsPaymentsSelectedRangeLabel": "بازهٔ انتخاب‌شده",
+  "reportsPaymentsRangeValue": "{from} → {to}",
+  "@reportsPaymentsRangeValue": {
+    "placeholders": {
+      "from": { "type": "String" },
+      "to": { "type": "String" }
+    }
+  },
+  "reportsPaymentsTotalLabel": "جمع",
+  "reportsPaymentsEmpty": "در این بازهٔ تاریخ پرداختی وجود ندارد.",
+  "reportsPaymentsUnknownOrder": "سفارش نامشخص",
+  "reportsPaymentsAdjustmentChip": "اصلاحیه",
+  "reportsMonthlyIncomePlaceholder": "گزارش درآمد ماهانه اینجا قرار می‌گیرد (plan-16).",
+  "reportsThisMonthIncomeTitle": "درآمد این ماه",
+  "reportsThisMonthIncomeSubtitle": "درآمد: {amount}",
+  "@reportsThisMonthIncomeSubtitle": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsMonthlyIncomeCardLabel": "پرداخت‌های دریافت‌شده",
+  "reportsMonthlyUnpaidDueTitle": "پرداخت‌نشده (سررسید این ماه)",
+  "reportsMonthlyUnpaidDueBody": "جمع مانده‌های سفارش‌هایی که تاریخ تحویل در این ماه است.",
+  "reportsPrevMonth": "ماه قبل",
+  "reportsNextMonth": "ماه بعد",
+  "reportsUnpaidTotalLabel": "کل مانده",
+  "reportsUnpaidEmpty": "سفارش پرداخت‌نشده‌ای نیست.",
+  "reportsUnpaidFilteredEmpty": "No unpaid orders match this filter.",
+  "reportsUnpaidFilterSection": "Delivery window",
+  "reportsUnpaidFilterAll": "All",
+  "reportsUnpaidFilterOverdue": "Overdue",
+  "reportsUnpaidFilterDueSoon": "Due in 7 days",
+  "reportsUnpaidSortSection": "Sort",
+  "reportsUnpaidSortAmount": "Amount",
+  "reportsUnpaidSortDueDate": "Due date",
+  "reportsMonthlyCompareToggle": "Compare to previous month",
+  "reportsMonthlyPreviousPaymentsLabel": "Previous month (payments)",
+  "reportsMonthlyDeltaLabel": "Change from previous month",
+  "reportsMonthlyDeltaSame": "No change",
+  "reportsRemainingChip": "{amount} مانده",
+  "@reportsRemainingChip": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogMyDesigns": "طرح‌های من",
+  "catalogSharedDesigns": "طرح‌های اشتراکی",
+  "catalogGridView": "نمای شبکه‌ای",
+  "catalogListView": "نمای فهرستی",
+  "catalogSearchHint": "جستجوی طرح یا نام فروشگاه",
+  "catalogSortTooltip": "مرتب‌سازی",
+  "catalogSortSheetTitle": "مرتب‌سازی طرح‌ها",
+  "catalogSortSectionTitle": "مرتب‌سازی بر اساس",
+  "catalogSortNewest": "جدیدترین",
+  "catalogSortOldest": "قدیمی‌ترین",
+  "catalogSortNameAsc": "نام الفبایی",
+  "catalogSortNameDesc": "نام معکوس",
+  "catalogResetSort": "بازنشانی",
+  "catalogApplySort": "اعمال",
+  "catalogSharedDirectoryEmpty": "هنوز در فهرست اشتراکی موردی نیست.",
+  "catalogCommunityReadOnlyBanner": "ورودی فهرست اشتراکی — فقط مشاهده. نمی‌توانید فهرست فروشگاه دیگر را ویرایش یا حذف کنید.",
+  "catalogSharingToggleTitle": "فعال‌سازی اشتراک کاتالوگ",
+  "catalogSharingToggleSubtitle": "با رضایت دو طرف: برای مرور و نمایش در فهرست عمومی فعال کنید (plan-14).",
+  "catalogSharedPlaceholder": "فهرست طرح‌های اشتراکی هنگام اتصال آنلاین اینجا نمایش داده می‌شود (plan-14).",
+  "catalogEmptyMyDesigns": "هنوز طرحی نیست.",
+  "catalogAddDesignCta": "افزودن طرح",
+  "catalogAddDesignPlaceholder": "افزودن از دوربین / گالری فقط روی اندروید و iOS (plan-14).",
+  "catalogDetailTitle": "قلم کاتالوگ",
+  "catalogDetailPlaceholder": "قلم کاتالوگ {id} — صفحه جزئیات به‌زودی.",
+  "@catalogDetailPlaceholder": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsSectionAccountAndShop": "حساب و فروشگاه",
+  "settingsSectionUsers": "کاربران",
+  "settingsSectionBackupRestore": "پشتیبان و بازیابی",
+  "settingsSectionNotifications": "اعلان‌ها",
+  "settingsSectionSyncDiagnostics": "همگام‌سازی و تشخیص",
+  "settingsSectionAppearanceLanguage": "ظاهر و زبان",
+  "settingsSectionAbout": "درباره",
+  "settingsSectionDeveloper": "توسعه‌دهنده",
+  "settingsShopTileTitle": "پروفایل فروشگاه",
+  "settingsShopTileSubtitle": "جزئیات فروشگاه اینجا نمایش داده می‌شود (plan-15).",
+  "settingsCurrentUserTitle": "کاربر جاری",
+  "settingsSignOutTitle": "خروج",
+  "settingsSignOutSubtitle": "پایان این نشست روی این دستگاه",
+  "settingsSignOutDialogTitle": "خروج؟",
+  "settingsSignOutDialogBody": "برای ادامه باید دوباره وارد شوید.",
+  "settingsSignOutCancel": "لغو",
+  "settingsSignOutConfirm": "خروج",
+  "settingsRoleOwner": "مالک",
+  "settingsRoleUser": "کاربر",
+  "settingsOwnerOnly": "فقط مالک",
+  "settingsUsersTitle": "مدیریت کاربران",
+  "settingsUsersSubtitleOwner": "آزمایشی: ۲ کاربر • پرداخت‌شده: ۵ کاربر",
+  "settingsUsersPlaceholder": "مدیریت کاربران در plan-15 پیاده می‌شود.",
+  "settingsBackupRestoreTitle": "پشتیبان و بازیابی",
+  "settingsBackupRestoreSubtitleOwner": "خروجی امن و بازیابی دادهٔ فروشگاه",
+  "settingsBackupRestorePlaceholder": "پشتیبان/بازیابی در plan-15 پیاده می‌شود.",
+  "settingsMuteNotificationsTitle": "بی‌صدا کردن اعلان‌ها",
+  "settingsMuteNotificationsSubtitle": "بی‌صدا کردن بنر و نشان (تاریخچه حفظ می‌شود).",
+  "settingsNotificationsInboxTitle": "صندوق اعلان‌ها",
+  "settingsNotificationsInboxSubtitle": "تاریخچه و فیلترها (plan-15).",
+  "settingsNotificationsPlaceholder": "صندوق اعلان‌ها در plan-15 پیاده می‌شود.",
+  "settingsSyncDiagnosticsTitle": "همگام‌سازی و تشخیص",
+  "settingsNetworkStatusTitle": "شبکه",
+  "settingsNetworkStatusOnline": "متصل",
+  "settingsNetworkStatusOffline": "آفلاین — کار محلی",
+  "settingsSyncDiagnosticsSubtitle": "آخرین همگام‌سازی، صف، صندوق خروج (plan-15).",
+  "settingsSyncDiagnosticsPlaceholder": "همگام‌سازی و تشخیص در plan-15 پیاده می‌شود.",
+  "settingsAppearanceLanguageTitle": "ظاهر و زبان",
+  "settingsAppearanceLanguageSubtitle": "پوسته و زبان",
+  "settingsAboutTitle": "درباره",
+  "settingsAboutSubtitle": "اطلاعات برنامه و نسخه",
+  "settingsVersionTitle": "نسخه",
+  "settingsBuildTitle": "بسته",
+  "settingsDeveloperPortalTitle": "پورتال توسعه‌دهنده",
+  "settingsDeveloperPortalSubtitle": "ابزارهای پیشرفته (فقط حساب‌های توسعه‌دهنده).",
+  "settingsDeveloperPortalPlaceholder": "صفحات پورتال توسعه‌دهنده در plan-18 پیاده می‌شود.",
+  "settingsDevRolesTitle": "سوئیچ‌های نقش (توسعه)",
+  "settingsDevRoleOwnerTitle": "شبیه‌سازی حساب مالک",
+  "settingsDevRoleOwnerSubtitle": "بخش‌های فقط مالک را باز می‌کند.",
+  "settingsDevRoleDeveloperTitle": "شبیه‌سازی حساب توسعه‌دهنده",
+  "settingsDevRoleDeveloperSubtitle": "ورودی پورتال توسعه‌دهنده را نشان می‌دهد.",
+  "settingsThemeTitle": "پوسته",
+  "themeSystem": "سیستم",
+  "themeLight": "روشن",
+  "themeDark": "تیره",
+  "settingsLanguageTitle": "زبان",
+  "languageSystem": "سیستم",
+  "languageEnglish": "انگلیسی",
+  "languageDari": "دری",
+  "languagePashto": "پشتو",
+  "settingsDateCalendarTitle": "تقویم تاریخ",
+  "settingsDateCalendarSubtitle": "نحوهٔ نمایش و انتخاب تاریخ در برنامه",
+  "dateCalendarGregorian": "میلادی (میلادی غربی)",
+  "dateCalendarSolarHijri": "هجری شمسی (افغانستان)",
+  "calendarMonthHamal": "حمل",
+  "calendarMonthSawr": "ثور",
+  "calendarMonthJawza": "جوزا",
+  "calendarMonthSaratan": "سرطان",
+  "calendarMonthAsad": "اسد",
+  "calendarMonthSonbola": "سنبله",
+  "calendarMonthMizan": "میزان",
+  "calendarMonthAqrab": "عقرب",
+  "calendarMonthQaws": "قوس",
+  "calendarMonthJadi": "جدی",
+  "calendarMonthDalw": "دلو",
+  "calendarMonthHut": "حوت",
+  "datePickerSolarHijriTitle": "انتخاب تاریخ (هجری شمسی)",
+  "datePickerSolarHijriRangeTitle": "انتخاب بازهٔ تاریخ (هجری شمسی)",
+  "datePickerYearLabel": "سال",
+  "datePickerMonthLabel": "ماه",
+  "datePickerDayLabel": "روز",
+  "dateRangeFromLabel": "از",
+  "dateRangeToLabel": "تا",
+  "settingsComingSoon": "به‌زودی.",
+  "loading": "در حال بارگذاری…",
+  "genericError": "خطایی رخ داد.",
+  "resetCta": "بازنشانی",
+  "licenseExpiredReadOnly": "مجوز منقضی — حالت فقط‌خواندنی.",
+  "moneyAfn": "{amount} افغانی",
+  "@moneyAfn": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersComposerCustomerTitle": "مشتری",
+  "ordersComposerCustomerRequired": "مشتری را انتخاب کنید (الزامی)",
+  "ordersComposerMeasurementsTitle": "اندازه‌ها",
+  "ordersComposerMeasurementsRequired": "اندازه‌ها را اضافه کنید (الزامی)",
+  "ordersComposerMeasurementsSummary": "اندازه‌ها ثبت شد",
+  "ordersComposerMeasurementsLabel": "یادداشت اندازه‌ها",
+  "ordersComposerMeasurementsHint": "اندازه‌ها را تایپ کنید یا پروفایل مشتری را بارگذاری کنید.",
+  "ordersComposerLoadProfileCta": "بارگذاری از پروفایل ذخیره‌شده",
+  "ordersComposerProfileLinked": "از پروفایل: {name}",
+  "@ordersComposerProfileLinked": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersComposerStyleTitle": "استایل",
+  "ordersComposerStyleRequired": "استایل را انتخاب کنید (الزامی)",
+  "ordersComposerStyleLabel": "طرح / استایل",
+  "ordersComposerStyleHint": "مثال: کرزی، یقه، جیب…",
+  "ordersComposerPaymentTitle": "پرداخت",
+  "ordersComposerPaymentRequired": "جمع‌ها را وارد کنید (الزامی)",
+  "ordersComposerPaymentSummary": "جمع {total} • پرداخت {paid} • مانده {remaining}",
+  "@ordersComposerPaymentSummary": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      },
+      "paid": {
+        "type": "String"
+      },
+      "remaining": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersComposerTotalLabel": "مبلغ کل (افغانی)",
+  "ordersComposerTotalHint": "مثال: 150000",
+  "ordersComposerPaidLabel": "پرداخت اولیه (افغانی)",
+  "ordersComposerPaidHint": "مثال: 50000",
+  "ordersComposerDeliveryDateTitle": "تاریخ تحویل",
+  "ordersComposerDeliveryDateUnset": "تاریخ تحویل را انتخاب کنید",
+  "ordersComposerSaveCta": "ذخیره سفارش",
+  "ordersComposerSaved": "سفارش ذخیره شد.",
+  "ordersComposerResetTitle": "بازنشانی فرم؟",
+  "ordersComposerResetBody": "همه فیلدهای واردشده پاک می‌شود.",
+  "ordersComposerSelectCustomerFirstTitle": "ابتدا مشتری را انتخاب کنید",
+  "ordersComposerSelectCustomerFirstBody": "لطفاً پیش از ادامه مشتری را انتخاب کنید.",
+  "ordersComposerRecentOrdersTitle": "سفارش‌های اخیر",
+  "ordersComposerRecentOrdersSubtitle": "برای این مشتری",
+  "ordersComposerRecentOrderRowSubtitle": "{date} • مانده {remaining}",
+  "@ordersComposerRecentOrderRowSubtitle": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "remaining": {
+        "type": "String"
+      }
+    }
+  },
+  "saveCta": "ذخیره",
+  "customersCreated": "مشتری ایجاد شد.",
+  "customerNameLabel": "نام",
+  "customerNameHint": "مثال: احمد کریمی",
+  "customerNameRequired": "نام الزامی است.",
+  "customerNameTooShort": "نام بسیار کوتاه است.",
+  "customerPhoneLabel": "تلفن (اختیاری)",
+  "customerPhoneHint": "مثال: 0700000001",
+  "saved": "ذخیره شد.",
+  "deleted": "حذف شد.",
+  "editCta": "ویرایش",
+  "deleteCta": "حذف",
+  "deleteConfirmTitle": "حذف؟",
+  "deleteConfirmBody": "این عمل قابل بازگشت نیست.",
+  "catalogItemNotFound": "این قلم کاتالوگ یافت نشد.",
+  "catalogEditMetadataTitle": "ویرایش اطلاعات",
+  "catalogDesignNameLabel": "نام طرح",
+  "catalogDesignNameHint": "مثال: کت کرزی",
+  "catalogNotesLabel": "یادداشت (اختیاری)",
+  "catalogNotesHint": "هر جزئیاتی که می‌خواهید به‌خاطر بسپارید…",
+  "catalogDeleteConfirmBody": "«{name}» حذف شود؟",
+  "@catalogDeleteConfirmBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogDesignerAndDate": "{shop} • {date}",
+  "@catalogDesignerAndDate": {
+    "placeholders": {
+      "shop": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogSharePublicTitle": "اشتراک عمومی",
+  "catalogSharePublicSubtitle": "در صورت فعال بودن، این طرح می‌تواند در فهرست عمومی (فقط دادهٔ توصیفی) نمایش داده شود.",
+  "catalogSharePublicDisabledSubtitle": "برای استفاده، اشتراک کاتالوگ را در بخش کاتالوگ فعال کنید.",
+  "catalogNotesTitle": "یادداشت‌ها",
+  "catalogNotesEmpty": "یادداشتی نیست",
+  "catalogAddNotAvailableOnWeb": "در وب افزودن تصویر ممکن نیست.",
+  "catalogDesignNameRequired": "نام طرح الزامی است.",
+  "catalogImageRequired": "لطفاً ابتدا تصویر انتخاب کنید.",
+  "catalogCreated": "طرح افزوده شد.",
+  "catalogMyShopNameFallback": "فروشگاه من",
+  "cameraCta": "دوربین",
+  "galleryCta": "گالری",
+  "dashboardKpisSectionTitle": "در یک نگاه",
+  "dashboardQuickLinksTitle": "میانبرها",
+  "dashboardThisMonthIncomeTitle": "درآمد این ماه",
+  "dashboardLicenseExpiredBanner": "مجوز شما منقضی شده است. برای ویرایش مجدد تمدید کنید.",
+  "dashboardTodayDeliveriesTitle": "تحویل امروز",
+  "dashboardTodayDeliveriesEmpty": "امروز سفارش تحویل‌شده‌ای نیست.",
+  "dashboardSearchOrdersHint": "جستجوی شماره سفارش، مشتری، تلفن",
+  "dashboardSearchOrdersTooltip": "جستجوی سفارش‌ها",
+  "dashboardOverdueTitle": "تحویل‌های معوق",
+  "dashboardOverdueEmpty": "سفارش باز معوقی نیست.",
+  "dashboardOverdueViewAll": "همه معوق‌ها",
+  "dashboardQuickLinkOverdue": "سفارش‌های معوق",
+  "dashboardQuickLinkDeliveredToday": "تحویل امروز",
+  "shellAppBarSyncA11y": "وضعیت همگام‌سازی",
+  "shellAppBarNotificationsA11y": "اعلان‌ها",
+  "shellAppBarNotificationsMutedA11y": "اعلان‌ها (بی‌صدا)",
+  "shellSyncStatusOfflineChip": "آفلاین",
+  "shellSyncTooltipNever": "همگام‌سازی سرور هنوز متصل نیست. داده روی این دستگاه می‌ماند.",
+  "shellSyncTooltipOffline": "شبکه نیست. می‌توانید ادامه دهید؛ تغییرات روی این دستگاه می‌ماند.",
+  "shellSyncTooltipLast": "آخرین همگام‌سازی موفق: {when}",
+  "@shellSyncTooltipLast": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardNotificationsPreviewTitle": "اعلان‌های اخیر",
+  "dashboardNotificationsPreviewEmpty": "هنوز اعلانی نیست.",
+  "dashboardNotificationsMutedHint": "اعلان‌ها بی‌صدا هستند. در تنظیمات → اعلان‌ها تغییر دهید.",
+  "dashboardNotificationsViewAll": "همه اعلان‌ها",
+  "notifSeedWelcomeTitle": "به افغان پراید خوش آمدید",
+  "notifSeedWelcomeBody": "به‌روزرسانی سفارش‌ها و اعلان‌های فروشگاه اینجا نمایش داده می‌شود. برای خوانده‌شدن ردیف را باز کنید.",
+  "notifOrderStatusTitle": "سفارش {orderNo}",
+  "@notifOrderStatusTitle": {
+    "placeholders": {
+      "orderNo": {
+        "type": "String"
+      }
+    }
+  },
+  "notifOrderStatusBody": "وضعیت به {status} به‌روز شد.",
+  "@notifOrderStatusBody": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsNotifMarkAllRead": "علامت همه به‌عنوان خوانده‌شده",
+  "subscriptionCurrentStatusTitle": "وضعیت جاری",
+  "subscriptionReadOnlyHint": "فقط مشاهده تا تمدید.",
+  "subscriptionActivationTitle": "فعال‌سازی",
+  "subscriptionActivationCodeLabel": "کد فعال‌سازی",
+  "subscriptionActivationCodeHint": "هنگام اتصال صورتحساب کد را وارد کنید",
+  "subscriptionActivateCta": "فعال‌سازی",
+  "subscriptionActivationComingSoon": "فعال‌سازی به سرور متصل می‌شود (plan-06).",
+  "subscriptionRefreshStatusCta": "به‌روزرسانی وضعیت مجوز",
+  "subscriptionRefreshComingSoon": "به‌روزرسانی آنلاین با اتصال API در دسترس خواهد بود.",
+  "customersListView": "نمای فهرستی",
+  "customersCardView": "نمای کارتی",
+  "customerEditDialogTitle": "ویرایش مشتری",
+  "customerUpdated": "مشتری به‌روز شد.",
+  "customerAddressLabel": "آدرس",
+  "customerAddressHint": "اختیاری",
+  "customerNotesLabel": "یادداشت‌ها",
+  "customerNotesHint": "اختیاری",
+  "customerFieldEmpty": "—",
+  "customerDeleteMenu": "حذف مشتری",
+  "customerDeleteConfirmTitle": "این مشتری حذف شود؟",
+  "customerDeleteConfirmBody": "از فهرست شما حذف می‌شود. سفارش‌های موجود در تب سفارش‌ها می‌مانند.",
+  "customerDeleted": "مشتری حذف شد",
+  "customersFinancialSectionTitle": "مانده",
+  "customersFinancialFilterAll": "هر مانده‌ای",
+  "customersFilterHasUnpaid": "دارای سفارش پرداخت‌نشده",
+  "customersSortMostOrders": "بیشترین سفارش",
+  "customersRowMeta": "{orderCount} سفارش · {unpaid}",
+  "@customersRowMeta": {
+    "placeholders": {
+      "orderCount": {
+        "type": "int"
+      },
+      "unpaid": {
+        "type": "String"
+      }
+    }
+  },
+  "customersRowNoOrdersYet": "هنوز سفارشی نیست",
+  "settingsUsersLimitsTitle": "محدودیت کاربران",
+  "settingsUsersLimitsBody": "فروشگاه آزمایشی: حداکثر ۲ کاربر. فروشگاه پرداخت‌شده: حداکثر ۵ کاربر. حساب مالک حذف نمی‌شود.",
+  "settingsUsersAddCta": "افزودن کاربر",
+  "settingsUsersAddDisabledHint": "مدیریت کاربر به سرور متصل می‌شود (plan-15).",
+  "settingsUsersListTitle": "تیم",
+  "settingsUsersOwnerRowTitle": "مالک فروشگاه",
+  "settingsUsersOwnerRowSubtitle": "دسترسی کامل",
+  "settingsUsersEmptyRowTitle": "کاربران اضافی",
+  "settingsUsersEmptyRowSubtitle": "هنوز کاربر دیگری نیست",
+  "settingsBackupOwnerPasswordNote": "پشتیبان و بازیابی به رمز ورود مالک نیاز دارد (plan-15).",
+  "settingsBackupSectionTitle": "پشتیبان",
+  "settingsBackupOptionDataOnly": "فقط داده",
+  "settingsBackupOptionDataOnlySubtitle": "سفارش‌ها، مشتریان، پرداخت‌ها، فرادادهٔ کاتالوگ — فایل کوچک‌تر",
+  "settingsBackupOptionDataAndImages": "داده + تصاویر کاتالوگ",
+  "settingsBackupOptionDataAndImagesSubtitle": "شامل عکس‌های طرح ذخیره‌شده روی این دستگاه",
+  "settingsBackupCreateCta": "ایجاد پشتیبان",
+  "settingsRestoreSectionTitle": "بازیابی",
+  "settingsRestoreMergeNote": "بازیابی همیشه با دادهٔ جاری ادغام می‌شود (جایگزینی کامل نیست).",
+  "settingsRestorePickCta": "انتخاب فایل پشتیبان",
+  "settingsBackupRestoreComingSoon": "تصاویر کاتالوگ هنوز در پشتیبان نسخهٔ ۱ نیست.",
+  "settingsBackupWebNotSupported": "پشتیبان و بازیابی به اپ بومی نیاز دارد (Isar). از اندروید، iOS یا دسکتاپ استفاده کنید — نه وب.",
+  "settingsBackupExportDone": "فایل پشتیبان ذخیره شد.",
+  "settingsBackupRestoreDone": "بازیابی انجام شد.",
+  "settingsBackupRestoreSummaryTitle": "خلاصهٔ بازیابی",
+  "settingsBackupSummaryLineCustomers": "مشتریان: {inserted} جدید، {updated} ادغام‌شده",
+  "@settingsBackupSummaryLineCustomers": {
+    "placeholders": {
+      "inserted": {
+        "type": "int"
+      },
+      "updated": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsBackupSummaryLineMeasurements": "اندازه‌ها: {types} نوع فیلد، {profiles} پروفایل، {lines} مقدار ذخیره‌شده",
+  "@settingsBackupSummaryLineMeasurements": {
+    "placeholders": {
+      "types": {
+        "type": "int"
+      },
+      "profiles": {
+        "type": "int"
+      },
+      "lines": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsBackupSummaryLineOrders": "سفارش‌ها: {count} نوشته‌شده",
+  "@settingsBackupSummaryLineOrders": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsBackupSummaryLinePayments": "پرداخت‌ها: {inserted} افزوده، {skipped} ردشده (از قبل بود)",
+  "@settingsBackupSummaryLinePayments": {
+    "placeholders": {
+      "inserted": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsBackupSummaryLineSnapshots": "تصویر اندازه‌ها: {headers} سربرگ، {items} سطر",
+  "@settingsBackupSummaryLineSnapshots": {
+    "placeholders": {
+      "headers": {
+        "type": "int"
+      },
+      "items": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsBackupSummaryLineNotifications": "اعلان‌ها: {inserted} افزوده، {skipped} ردشده",
+  "@settingsBackupSummaryLineNotifications": {
+    "placeholders": {
+      "inserted": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsBackupInvalidFile": "خواندن این فایل پشتیبان ممکن نیست.",
+  "settingsNotificationsFiltersTitle": "فیلترها (پیش‌نمایش)",
+  "settingsNotifFilterAll": "همه",
+  "settingsNotifFilterOrders": "سفارش‌ها",
+  "settingsNotifFilterLicense": "مجوز",
+  "settingsNotifFilterBackup": "پشتیبان",
+  "settingsNotificationsInboxEmpty": "هنوز اعلانی نیست",
+  "settingsNotificationsInboxEmptyHint": "تاریخچه برای سفارش، مجوز و پشتیبان اینجا نمایش داده می‌شود.",
+  "settingsSyncLastSyncTitle": "آخرین همگام‌سازی موفق",
+  "settingsSyncLastSyncNever": "هنوز همگام نشده (آفلاین‌محور؛ API در انتظار)",
+  "settingsSyncQueuedTitle": "تغییرات محلی در صف",
+  "settingsSyncQueuedZero": "هیچ‌کدام در انتظار نیست",
+  "settingsSyncQueuedCount": "{count} در انتظار همگام‌سازی",
+  "@settingsSyncQueuedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsSyncOutboxTitle": "صندوق خروج",
+  "settingsSyncOutboxPlaceholderTitle": "تغییرات در صف",
+  "settingsSyncOutboxPlaceholderSubtitle": "تلاش مجدد و جزئیات هنگام فعال بودن همگام‌سازی نمایش داده می‌شود.",
+  "settingsSyncOutboxPendingListTitle": "تغییرات در انتظار (محلی)",
+  "settingsSyncOutboxPendingEmpty": "چیزی در صف همگام‌سازی نیست.",
+  "settingsDiagnosticsExportCta": "خروجی بستهٔ تشخیص",
+  "settingsDiagnosticsExportSoon": "خروجی تشخیص با عرضهٔ همگام‌سازی در دسترس خواهد بود.",
+  "settingsSyncDiagnosticsFooter": "پشتیبانی ممکن است این بسته را برای عیب‌یابی همگام‌سازی بخواهد.",
+  "devPortalTitle": "پورتال توسعه‌دهنده",
+  "devPortalTabOverview": "نمای کلی",
+  "devPortalTabCodes": "کدها",
+  "devPortalTabShops": "فروشگاه‌ها",
+  "devPortalTabResets": "بازنشانی‌ها",
+  "devPortalTabDiagnostics": "تشخیص",
+  "devPortalOnlineRequired": "ابزارهای توسعه‌دهنده به اتصال آنلاین و حساب تأییدشده نیاز دارند.",
+  "devPortalRetryCta": "تلاش مجدد",
+  "devPortalStubAction": "API در این نسخه متصل نیست.",
+  "devPortalEnvBadge": "محیط: توسعه",
+  "devPortalStatShops": "کل فروشگاه‌ها",
+  "devPortalStatActiveExpired": "فعال / منقضی",
+  "devPortalStatTrials": "آزمایش‌های جاری",
+  "devPortalStatActivations": "فعال‌سازی‌ها (دوره)",
+  "devPortalApiHealthTitle": "سلامت API",
+  "devPortalApiHealthUnknown": "نامشخص — به API متصل شوید",
+  "devPortalCodesStub": "کدهای فعال‌سازی: جستجو، ایجاد و لغو از API مدیریت بارگذاری می‌شود (plan-18).",
+  "devPortalShopsStub": "فروشگاه‌ها و مجوزها: فهرست و جزئیات از API مدیریت بارگذاری می‌شود.",
+  "devPortalResetsStub": "درخواست‌های بازنشانی رمز: صف پشتیبانی از API مدیریت بارگذاری می‌شود.",
+  "devPortalDiagStub": "پشتیبانی: پیوند به بسته‌های خروجی از تنظیمات → همگام‌سازی و تشخیص.",
+  "settingsShopProfileTitle": "پروفایل فروشگاه",
+  "shopProfileIntro": "این نام فروشگاه به‌عنوان برچسب طراح روی اقلام کاتالوگ نمایش داده می‌شود. تماس تا اتصال فاکتور برای مرجع شماست.",
+  "shopProfileNameLabel": "نام فروشگاه",
+  "shopProfileNameHint": "مثال: خیاطی پراید",
+  "shopProfileNameRequired": "نام فروشگاه الزامی است.",
+  "shopProfileNameTooShort": "نام فروشگاه بسیار کوتاه است.",
+  "shopProfileShopPhoneLabel": "تلفن فروشگاه (اختیاری)",
+  "shopProfileShopPhoneHint": "مثال: 0700000000",
+  "shopProfileAddressLabel": "آدرس (اختیاری)",
+  "shopProfileAddressHint": "خیابان، منطقه، شهر…",
+  "shopProfileNotesLabel": "یادداشت (اختیاری)",
+  "shopProfileNotesHint": "ساعات، نشانه، شناسه مالیاتی…",
+  "shopProfileSaved": "پروفایل فروشگاه ذخیره شد.",
+  "shopProfileReadOnlyBanner": "مجوز منقضی — می‌توانید ببینید اما ویرایش نکنید.",
+  "settingsCurrentUserGuest": "مهمان",
+  "settingsShopIdChip": "فروشگاه {shopId}",
+  "@settingsShopIdChip": {
+    "placeholders": {
+      "shopId": {
+        "type": "String"
+      }
+    }
+  },
+  "customersFilterTooltip": "مرتب‌سازی و فیلتر",
+  "customersFilterSheetTitle": "مرتب‌سازی و فیلتر",
+  "customersSortSectionTitle": "مرتب‌سازی",
+  "customersSortNameAsc": "الفبایی",
+  "customersSortNameDesc": "معکوس الفبا",
+  "customersSortRecentActivity": "آخرین فعالیت",
+  "customersCreatedSectionTitle": "افزوده‌شده",
+  "customersCreatedFilterAll": "هر زمان",
+  "customersCreatedFilterToday": "امروز",
+  "customersCreatedFilterThisWeek": "این هفته",
+  "customersActivitySectionTitle": "فعالیت",
+  "customersFilterAll": "همه مشتریان",
+  "customersFilterHasOrders": "دارای سفارش",
+  "customersFilterNoOrders": "هنوز سفارشی نیست",
+  "customersApplyFilters": "اعمال",
+  "customersResetFilters": "بازنشانی"
+}

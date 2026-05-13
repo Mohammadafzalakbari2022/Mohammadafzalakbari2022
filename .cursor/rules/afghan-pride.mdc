@@ -1,0 +1,31 @@
+---
+description: Afghan Pride (Pride-v3) — follow AGENTS.md; quality gates; three targets; Android+Web manual test focus.
+alwaysApply: true
+---
+
+# Afghan Pride — Cursor rule
+
+## Authority
+
+- Repo root **`AGENTS.md`** is binding for architecture, stack, l10n, routing, and three Flutter targets (**Web + Android + iOS**).
+- Feature contracts: **`plan-00-index.md`**, **`plan-01`** … **`plan-21`**. Canonical catalog: **`plan-14-ui-catalog.md`** (not `plan-14-ui-catalog-module.md`).
+
+## Anti-mistake workflow (do not skip)
+
+Before declaring a task **done**, you must:
+
+1. Run **`flutter analyze`** from the project root and fix **all** issues (errors, warnings you introduced, and avoid leaving new `info` from sloppy imports).
+2. If **`lib/l10n/*.arb`** changed, run **`flutter gen-l10n`** and fix any broken generated references.
+3. If **`pubspec.yaml`** changed, run **`flutter pub get`**.
+4. Run **`flutter test`** if tests exist or were touched; if you add behavior, add or update a minimal widget/unit test when reasonable.
+5. **Do not** “fix” analyzer issues by deleting imports or types blindly—read the file, understand the error, then apply a minimal correct fix.
+6. **Do not** add hardcoded user-visible English in widgets—use **ARB** + `AppLocalizations`.
+7. After **go_router** or **Riverpod** changes, mentally verify **auth + license redirects** still make sense (`plan-19`).
+8. Prefer **small diffs**: one concern per change set; avoid unrelated refactors.
+
+If you cannot run Flutter in the environment, say so explicitly and list the exact commands the human should run.
+
+## Product owner testing (human)
+
+- Primary manual targets today: **Android + Web** (`TESTING.md` has commands).
+- Code must still respect **iOS** compile safety and platform guards per **`AGENTS.md`**.
