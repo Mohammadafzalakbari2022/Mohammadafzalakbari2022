@@ -1,15 +1,11 @@
 # Render Blueprint — Afghan Pride API (NestJS in `api/`)
 # https://render.com/docs/blueprint-spec
 #
-# Connect this Git repo. If the dashboard asks for a root directory, use `api`.
+# Plan-07 default: Postgres on Supabase (external). Paste `DATABASE_URL` in the
+# dashboard after the blueprint creates the web service (sync: false).
 #
-# If you use Neon / Supabase / RDS instead of Render Postgres, delete the `databases`
-# block and set `DATABASE_URL` manually on the web service (Dashboard → Environment).
-
-databases:
-  - name: pride-postgres
-    plan: free
-    databaseName: pride_api
+# To use Render-managed Postgres instead: add a `databases` block and wire
+# `DATABASE_URL` with `fromDatabase` (see Render blueprint docs).
 
 services:
   - type: web
@@ -18,7 +14,7 @@ services:
     plan: free
     rootDir: api
     buildCommand: npm install && npm run build
-    # Runs after each successful build, before the new release goes live (needs DATABASE_URL).
+    # Needs DATABASE_URL (Supabase direct URI recommended for Nest).
     preDeployCommand: npx prisma migrate deploy
     startCommand: npm run start:prod
     healthCheckPath: /health
@@ -26,8 +22,6 @@ services:
       - key: NODE_ENV
         value: production
       - key: DATABASE_URL
-        fromDatabase:
-          name: pride-postgres
-          property: connectionString
+        sync: false
       - key: JWT_SECRET
         generateValue: true

@@ -5,6 +5,8 @@ export const SYNC_ENTITY_TYPES = [
   'payment',
   'notification',
   'measurement_type',
+  'measurement_profile',
+  'catalog_item',
   'task',
 ] as const;
 

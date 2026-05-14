@@ -57,4 +57,12 @@ abstract class MeasurementProfileRepository {
     required String operation,
     Object? data,
   });
+
+  /// Apply `measurement_profile` upsert/delete from sync.
+  Future<void> mergeRemoteMeasurementProfile({
+    required String shopId,
+    required String internalId,
+    required String operation,
+    Object? data,
+  });
 }

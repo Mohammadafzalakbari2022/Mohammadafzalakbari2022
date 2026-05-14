@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pride_v3/core/api/pride_api_auth.dart';
 import 'package:pride_v3/core/api/pride_api_config.dart';
 import 'package:pride_v3/core/api/pride_api_shop.dart';
@@ -245,6 +246,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       : Text(l10n.loginSignInCta),
                 ),
                 if (PrideApiConfig.isConfigured) ...[
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.center,
+                    child: TextButton(
+                      onPressed: _busy
+                          ? null
+                          : () => context.push('/auth/forgot-password'),
+                      child: Text(l10n.loginForgotPasswordCta),
+                    ),
+                  ),
                   const SizedBox(height: 24),
                   ExpansionTile(
                     title: Text(l10n.loginShopCreateSectionTitle),

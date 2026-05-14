@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:pride_v3/core/api/pride_api_config.dart';
+import 'package:pride_v3/core/api/pride_api_devices.dart';
 import 'package:pride_v3/core/calendar/app_calendar_format.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
 import 'package:pride_v3/core/diagnostics/diagnostics_export_payload.dart';
@@ -38,6 +39,15 @@ class _SettingsSyncDiagnosticsScreenState
     extends ConsumerState<SettingsSyncDiagnosticsScreen> {
   bool _syncBusy = false;
   bool _exportBusy = false;
+  final _pushTokenCtrl = TextEditingController();
+  String _pushPlatform = 'android';
+  bool _pushBusy = false;
+
+  @override
+  void dispose() {
+    _pushTokenCtrl.dispose();
+    super.dispose();
+  }
 
   String _licenseStatusExport() {
     final s = ref.read(licenseNotifierProvider).status;
@@ -163,6 +173,7 @@ class _SettingsSyncDiagnosticsScreenState
       final ordersRepo = await ref.read(orderListRepositoryProvider.future);
       final measurementRepo =
           await ref.read(measurementProfileRepositoryProvider.future);
+      final catalogRepo = await ref.read(catalogRepositoryProvider.future);
       final prefs = ref.read(sharedPreferencesProvider);
       final syncShopId = ref.read(effectiveShopIdProvider);
       final outcome = await runManualSyncWithOutbox(
@@ -176,6 +187,7 @@ class _SettingsSyncDiagnosticsScreenState
         payments: paymentsRepo,
         orders: ordersRepo,
         measurementProfiles: measurementRepo,
+        catalog: catalogRepo,
       );
       if (!mounted) return;
       switch (outcome) {
@@ -212,6 +224,44 @@ class _SettingsSyncDiagnosticsScreenState
       }
     } finally {
       if (mounted) setState(() => _syncBusy = false);
+    }
+  }
+
+  Future<void> _registerPushToken() async {
+    final l10n = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    final auth = ref.read(authSessionProvider);
+    final token = auth.accessToken;
+    if (!auth.hasApiSession || token == null) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.settingsSyncRetrySignIn)),
+      );
+      return;
+    }
+    final raw = _pushTokenCtrl.text.trim();
+    if (raw.isEmpty) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.loginFieldRequired)),
+      );
+      return;
+    }
+    setState(() => _pushBusy = true);
+    try {
+      final ok = await postPrideApiPushToken(
+        accessToken: token,
+        token: raw,
+        platform: _pushPlatform,
+      );
+      if (!mounted) return;
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            ok ? l10n.settingsPushRegisterOk : l10n.settingsPushRegisterFail,
+          ),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _pushBusy = false);
     }
   }
 
@@ -293,6 +343,71 @@ class _SettingsSyncDiagnosticsScreenState
           ),
           const SizedBox(height: 12),
           const SettingsApiConnectionCard(),
+          const SizedBox(height: 12),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    l10n.settingsPushTokenTitle,
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    l10n.settingsPushTokenHint,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _pushTokenCtrl,
+                    decoration: InputDecoration(
+                      labelText: l10n.settingsPushTokenFieldLabel,
+                    ),
+                    minLines: 1,
+                    maxLines: 3,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.settingsPushPlatformLabel,
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final p in const [
+                        'android',
+                        'ios',
+                        'web',
+                        'unknown',
+                      ])
+                        ChoiceChip(
+                          label: Text(p),
+                          selected: _pushPlatform == p,
+                          onSelected: _pushBusy
+                              ? null
+                              : (_) => setState(() => _pushPlatform = p),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  FilledButton(
+                    onPressed: _pushBusy ? null : _registerPushToken,
+                    child: _pushBusy
+                        ? const SizedBox(
+                            height: 22,
+                            width: 22,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text(l10n.settingsPushRegisterCta),
+                  ),
+                ],
+              ),
+            ),
+          ),
           const SizedBox(height: 16),
           Text(
             l10n.settingsSyncLocalSnapshotTitle,

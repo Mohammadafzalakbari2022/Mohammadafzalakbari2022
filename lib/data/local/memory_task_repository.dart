@@ -37,7 +37,7 @@ class MemoryTaskRepository implements TaskRepository {
   }
 
   @override
-  Future<void> upsertTask({
+  Future<String> upsertTask({
     required String shopId,
     required String? internalId,
     required String title,
@@ -63,7 +63,7 @@ class MemoryTaskRepository implements TaskRepository {
         ),
       );
       _emit();
-      return;
+      return id;
     }
 
     final prev = _tasks[idx];
@@ -79,6 +79,7 @@ class MemoryTaskRepository implements TaskRepository {
       deletedAt: null,
     );
     _emit();
+    return id;
   }
 
   @override

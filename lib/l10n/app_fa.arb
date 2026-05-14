@@ -15,6 +15,91 @@
   "loginUsernameHint": "نام ورود فروشگاه شما",
   "loginPasswordLabel": "رمز عبور",
   "loginSignInCta": "ورود",
+  "loginForgotPasswordCta": "رمز را فراموش کرده‌اید؟",
+  "loginForgotPasswordTitle": "بازنشانی رمز",
+  "loginForgotPasswordBody": "شناسهٔ فروشگاه و نام کاربری را وارد کنید. پس از ثبت در صف، توسعه‌دهنده از پرتال می‌تواند رمز جدید تعیین کند.",
+  "loginForgotPasswordSubmit": "ارسال درخواست",
+  "loginForgotPasswordQueued": "در صورت وجود حساب، درخواست بازنشانی در صف پشتیبانی ثبت شد.",
+  "loginForgotPasswordFieldsRequired": "شناسهٔ فروشگاه و نام کاربری الزامی است.",
+  "settingsPushTokenTitle": "توکن اعلان فشاری (آزمایشی)",
+  "settingsPushTokenHint": "توکن FCM را بچسبانید، پلتفرم را انتخاب کنید و ذخیره کنید. سرور برای ارسال آینده نگه می‌دارد.",
+  "settingsPushTokenFieldLabel": "توکن دستگاه",
+  "settingsPushPlatformLabel": "پلتفرم",
+  "settingsPushRegisterCta": "ذخیره روی سرور",
+  "settingsPushRegisterOk": "توکن ذخیره شد.",
+  "settingsPushRegisterFail": "ذخیرهٔ توکن ناموفق بود.",
+  "devPortalShopsLoadError": "بارگذاری فروشگاه‌ها ناموفق: {error}",
+  "@devPortalShopsLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "devPortalResetsLoadError": "بارگذاری صف بازنشانی ناموفق: {error}",
+  "@devPortalResetsLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "devPortalResetsEmpty": "درخواست بازنشانی رمز در انتظار نیست.",
+  "devPortalResetsSetPasswordTitle": "تنظیم رمز جدید",
+  "devPortalResetsSetPasswordHint": "حداقل ۶ نویسه.",
+  "devPortalResetsResolveCta": "اعمال رمز",
+  "devPortalResetsResolved": "رمز به‌روز شد.",
+  "devPortalResetsResolveFailed": "به‌روزرسانی ناموفق: {error}",
+  "@devPortalResetsResolveFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "devPortalShopsEmpty": "هنوز فروشگاهی روی سرور ثبت نشده است.",
+  "devPortalShopRowUsers": "{count, plural, one{۱ کاربر} other{{count} کاربر}}",
+  "@devPortalShopRowUsers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "devPortalCodesLoadError": "بارگذاری کدها ناموفق: {error}",
+  "@devPortalCodesLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "devPortalCodesEmpty": "هنوز کد فعال‌سازی وجود ندارد. برای اعمال زمان پولی یک کد بسازید.",
+  "devPortalCodesCreateTitle": "کد فعال‌سازی جدید",
+  "devPortalCodesPlanDaysLabel": "روزهای پولی پس از فعال‌سازی",
+  "devPortalCodesMaxUsesLabel": "حداکثر دفعات استفاده",
+  "devPortalCodesCreateCta": "تولید کد",
+  "devPortalCodesCreated": "ایجاد شد: {code}",
+  "@devPortalCodesCreated": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "devPortalCodesCreateFail": "ایجاد کد ناموفق بود.",
+  "devPortalCodesRevokeTitle": "لغو کد",
+  "devPortalCodesRevokeBody": "فروشگاه‌ها دیگر نمی‌توانند «{code}» را فعال کنند.",
+  "@devPortalCodesRevokeBody": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "devPortalCodesRevoked": "کد لغو شد.",
+  "devPortalCodesRevokeFail": "لغو ناموفق بود.",
+  "devPortalCodesRevokeCta": "لغو",
   "loginFieldRequired": "الزامی",
   "loginDevContinue": "ادامه بدون حساب (توسعه)",
   "loginApiHint": "API_BASE_URL تنظیم شده است. سرور شناسه فروشگاه، نام کاربری و رمز را تأیید می‌کند (POST /auth/login).",
@@ -955,14 +1040,14 @@
   "devPortalStubAction": "API در این نسخه متصل نیست.",
   "devPortalAdviceOfflineTitle": "به نظر آفلاین هستید",
   "devPortalAdviceOfflineBody": "برای آزمایش سلامت API عمومی به اینترنت وصل شوید. فهرست‌های مدیریتی پس از استقرار APIهای مدیریت در دسترس می‌شوند.",
-  "devPortalAdviceOnlineTitle": "APIهای فهرست مدیریت هنوز وصل نشده‌اند",
-  "devPortalAdviceOnlineBody": "در نمای کلی همچنان می‌توانید GET /health را بزنید. برای بستهٔ پشتیبانی دستگاه از تنظیمات → همگام‌سازی و تشخیص خروجی بگیرید.",
+  "devPortalAdviceOnlineTitle": "ابزارهای توسعه‌دهنده",
+  "devPortalAdviceOnlineBody": "نمای کلی GET /health را می‌زند. فروشگاه‌ها و بازنشانی‌ها وقتی با API به‌عنوان توسعه‌دهنده (PRIDE_DEVELOPER_IDS) وارد شده‌اید بارگذاری می‌شوند. بستهٔ تشخیص را از تنظیمات → همگام‌سازی و تشخیص بگیرید.",
   "devPortalApiHealthPrompt": "برای تازه‌سازی و فراخوانی GET /health، صفحه را به پایین بکشید.",
   "devPortalEnvBadge": "محیط: توسعه",
   "devPortalStatShops": "کل فروشگاه‌ها",
   "devPortalStatActiveExpired": "فعال / منقضی",
   "devPortalStatTrials": "آزمایش‌های جاری",
-  "devPortalStatActivations": "فعال‌سازی‌ها (دوره)",
+  "devPortalStatActivations": "ایجاد کد (نمونهٔ ممیزی)",
   "devPortalApiHealthTitle": "سلامت API",
   "devPortalApiHealthUnknown": "نامشخص — به API متصل شوید",
   "devPortalCodesStub": "کدهای فعال‌سازی: جستجو، ایجاد و لغو از API مدیریت بارگذاری می‌شود (plan-18).",
@@ -972,7 +1057,7 @@
   "devPortalDiagLocalTitle": "این دستگاه (حافظهٔ محلی)",
   "devPortalDiagLocalSubtitle": "شمارش از ذخیرهٔ محلی — وقتی API مدیریت آفلاین است مفید است.",
   "devPortalDiagCountLoading": "…",
-  "devPortalAdminAuditTitle": "گزارش ممیزی مدیریت (نیمه‌کاره)",
+  "devPortalAdminAuditTitle": "گزارش ممیزی مدیریت",
   "devPortalAdminAuditNeedSignIn": "با API وارد شوید، سپس برای تازه‌سازی به پایین بکشید.",
   "devPortalAdminAuditLine": "GET /admin/audit-log — {count} ردیف، نسخهٔ طرحواره {schema}",
   "@devPortalAdminAuditLine": {

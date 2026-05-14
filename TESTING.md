@@ -182,6 +182,9 @@ From the project root (`Pride-v3`):
 | Step | Command | Purpose |
 |------|---------|--------|
 | **Nest API (optional)** | `cd api` then `npm install` / `npm run build` / `npm test` / `npm run test:e2e` | Verify the NestJS service in [`api/`](api/) after backend edits. Endpoint list and env vars: [`api/README.md`](api/README.md). On Windows, if `npm install` fails with `ENOTEMPTY`, delete `api/node_modules` and retry. |
+
+**Developer portal (API):** set `PRIDE_DEVELOPER_IDS` to the **`shop_users.id`** of the account (this is the same value as JWT `sub`). Comma-separated for several users. Then the in-app Developer Portal can call `GET /admin/stats`, `GET /admin/activation-codes`, `POST /admin/activation-codes`, `GET /admin/audit-log`, etc. License redeem accepts codes created via the portal, or any code listed in `PRIDE_LEGACY_REDEEM_CODES` (default includes `pilot-2026` for dev/e2e).
+
 | Dependencies | `flutter pub get` | Sync packages after `pubspec.yaml` changes |
 | Localization | `flutter gen-l10n` | Regenerate `lib/l10n/*.dart` after editing `lib/l10n/*.arb` |
 | Isar / codegen | `dart run build_runner build --delete-conflicting-outputs` | Regenerate `*.g.dart` after editing `@collection` entities in `lib/data/local/entities/` |

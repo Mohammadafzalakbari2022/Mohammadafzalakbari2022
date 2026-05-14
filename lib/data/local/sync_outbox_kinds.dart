@@ -7,4 +7,12 @@ abstract final class SyncOutboxKinds {
   static const notificationAppend = 'notification_append';
   static const measurementTypeUpsert = 'measurement_type_upsert';
   static const measurementTypeDelete = 'measurement_type_delete';
+  static const customerUpsert = 'customer_upsert';
+  static const customerDelete = 'customer_delete';
+  static const taskUpsert = 'task_upsert';
+  static const taskDelete = 'task_delete';
+  static const measurementProfileUpsert = 'measurement_profile_upsert';
+  static const measurementProfileDelete = 'measurement_profile_delete';
+  static const catalogItemUpsert = 'catalog_item_upsert';
+  static const catalogItemDelete = 'catalog_item_delete';
 }

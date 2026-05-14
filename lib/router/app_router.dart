@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../auth/auth_providers.dart';
+import '../auth/forgot_password_screen.dart';
 import '../auth/login_screen.dart';
 import '../features/customers/customer_profile_screen.dart';
 import '../features/customers/customers_tab_screen.dart';
@@ -48,8 +49,9 @@ final goRouterProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final loggedIn = auth.authenticated;
       final atLogin = state.matchedLocation == '/auth/login';
+      final atForgot = state.matchedLocation == '/auth/forgot-password';
 
-      if (!loggedIn && !atLogin) {
+      if (!loggedIn && !atLogin && !atForgot) {
         return '/auth/login';
       }
       if (loggedIn && atLogin) {
@@ -69,6 +71,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/auth/login',
         builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: '/auth/forgot-password',
+        builder: (context, state) => const ForgotPasswordScreen(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {

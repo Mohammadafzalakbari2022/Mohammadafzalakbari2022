@@ -6,6 +6,7 @@ import 'catalog_item_summary.dart';
 import 'catalog_repository.dart';
 import 'dev_shop_constants.dart';
 import 'entities/catalog_item_entity.dart';
+import 'sync_pull_payload.dart';
 
 class IsarCatalogRepository implements CatalogRepository {
   IsarCatalogRepository(this._isar);
@@ -213,6 +214,73 @@ class IsarCatalogRepository implements CatalogRepository {
       if (existing == null) return;
       existing.deletedAt = DateTime.now();
       existing.updatedAt = DateTime.now();
+      await _isar.catalogItemEntitys.putByInternalId(existing);
+    });
+  }
+
+  @override
+  Future<void> mergeRemoteCatalogItem({
+    required String shopId,
+    required String internalId,
+    required String operation,
+    Object? data,
+  }) async {
+    if (operation == 'delete') {
+      await softDelete(internalId);
+      return;
+    }
+    final m = syncPullDataMap(data);
+    final designName = syncPullString(m, const ['design_name', 'designName']);
+    if (designName == null || designName.trim().isEmpty) return;
+    final designerShopName = syncPullString(m, const [
+          'designer_shop_name',
+          'designerShopName',
+        ]) ??
+        '';
+    final notes = syncPullString(m, const ['notes']);
+    final isShared =
+        syncPullBool(m, const ['is_shared_public', 'isSharedPublic']) ?? false;
+    final created =
+        syncPullDateTime(m, const ['created_at', 'createdAt']) ?? DateTime.now();
+    final updated =
+        syncPullDateTime(m, const ['updated_at', 'updatedAt']) ?? DateTime.now();
+    final imagePath = syncPullString(m, const ['image_path', 'imagePath']);
+    final thumbPath =
+        syncPullString(m, const ['thumbnail_path', 'thumbnailPath']);
+
+    await _isar.writeTxn(() async {
+      final existing =
+          await _isar.catalogItemEntitys.getByInternalId(internalId);
+      if (existing == null) {
+        final e = CatalogItemEntity()
+          ..internalId = internalId
+          ..shopId = shopId
+          ..designName = designName.trim()
+          ..designerShopName = designerShopName.trim().isEmpty
+              ? designName.trim()
+              : designerShopName.trim()
+          ..notes = notes
+          ..imagePath = imagePath
+          ..thumbnailPath = thumbPath
+          ..createdAt = created
+          ..updatedAt = updated
+          ..isSharedPublic = isShared
+          ..deletedAt = null;
+        await _isar.catalogItemEntitys.putByInternalId(e);
+        return;
+      }
+      existing
+        ..shopId = shopId
+        ..designName = designName.trim()
+        ..designerShopName = designerShopName.trim().isEmpty
+            ? existing.designerShopName
+            : designerShopName.trim()
+        ..notes = notes
+        ..imagePath = imagePath ?? existing.imagePath
+        ..thumbnailPath = thumbPath ?? existing.thumbnailPath
+        ..updatedAt = updated
+        ..isSharedPublic = isShared
+        ..deletedAt = null;
       await _isar.catalogItemEntitys.putByInternalId(existing);
     });
   }

@@ -1,11 +1,15 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../auth/auth_providers.dart';
+import '../../data/local/sync_outbox_kinds.dart';
 import '../../data/providers/local_data_providers.dart';
 import '../../licensing/license_providers.dart';
+import '../../shell/shell_sync_providers.dart';
 
 class NewCustomerScreen extends ConsumerStatefulWidget {
   const NewCustomerScreen({super.key});
@@ -53,6 +57,20 @@ class _NewCustomerScreenState extends ConsumerState<NewCustomerScreen> {
         phone: _phone.text,
         address: _address.text,
         notes: _notes.text,
+      );
+      final createdAt = DateTime.now();
+      recordSyncOutboxMutation(
+        ref,
+        kind: SyncOutboxKinds.customerUpsert,
+        entityRef: id,
+        shopId: shopId,
+        payloadJson: jsonEncode({
+          'name': _name.text.trim(),
+          if (_phone.text.trim().isNotEmpty) 'phone': _phone.text.trim(),
+          if (_address.text.trim().isNotEmpty) 'address': _address.text.trim(),
+          if (_notes.text.trim().isNotEmpty) 'notes': _notes.text.trim(),
+          'created_at': createdAt.toUtc().toIso8601String(),
+        }),
       );
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

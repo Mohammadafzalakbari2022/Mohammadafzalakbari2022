@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
+import { randomUUID } from 'crypto';
 import * as request from 'supertest';
 import { AppModule } from './../src/app.module';
 
@@ -12,6 +13,9 @@ describe('AppController (e2e)', () => {
   beforeEach(async () => {
     const prisma = new PrismaClient();
     await prisma.$executeRawUnsafe('TRUNCATE TABLE "shops" CASCADE');
+    await prisma.$executeRawUnsafe(
+      'TRUNCATE TABLE "password_reset_requests", "shop_push_tokens", "admin_audit_logs", "activation_codes"',
+    );
     await prisma.$disconnect();
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -306,5 +310,215 @@ describe('AppController (e2e)', () => {
       .get('/sync/pull?cursor=xyz')
       .set('Authorization', `Bearer ${token}`)
       .expect(400);
+  });
+
+  it('/auth/password-reset-request (POST) 200', () => {
+    return request(app.getHttpServer())
+      .post('/auth/password-reset-request')
+      .send({ shop_id: 'dev', username: 'owner' })
+      .expect(200)
+      .expect((res) => {
+        expect(res.body).toMatchObject({ ok: true });
+      });
+  });
+
+  it('/devices/push-token (POST) 401 without token', () => {
+    return request(app.getHttpServer())
+      .post('/devices/push-token')
+      .send({ token: 'x', platform: 'android' })
+      .expect(401);
+  });
+
+  it('/devices/push-token (POST) 200 with JWT', async () => {
+    const login = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ username: 'owner', password: 'changeme', shop_id: 'dev' })
+      .expect(200);
+    const token = login.body.access_token as string;
+    return request(app.getHttpServer())
+      .post('/devices/push-token')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ token: 'fcm-e2e-token', platform: 'android' })
+      .expect(200)
+      .expect((res) => {
+        expect(res.body).toMatchObject({ ok: true });
+      });
+  });
+
+  it('/admin/shops (GET) 403 for non-developer JWT', async () => {
+    const login = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ username: 'owner', password: 'changeme', shop_id: 'dev' })
+      .expect(200);
+    const token = login.body.access_token as string;
+    return request(app.getHttpServer())
+      .get('/admin/shops')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(403);
+  });
+
+  it('/admin/password-reset-requests (GET) 403 for non-developer JWT', async () => {
+    const login = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ username: 'owner', password: 'changeme', shop_id: 'dev' })
+      .expect(200);
+    const token = login.body.access_token as string;
+    return request(app.getHttpServer())
+      .get('/admin/password-reset-requests')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(403);
+  });
+
+  it('/license/redeem (POST) 400 unknown code', async () => {
+    const login = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ username: 'owner', password: 'changeme', shop_id: 'dev' })
+      .expect(200);
+    const token = login.body.access_token as string;
+    return request(app.getHttpServer())
+      .post('/license/redeem')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ code: 'not-a-valid-pride-code' })
+      .expect(400);
+  });
+
+  it('/license/redeem (POST) 200 with DB activation code', async () => {
+    const prisma = new PrismaClient();
+    try {
+      const login = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ username: 'owner', password: 'changeme', shop_id: 'dev' })
+        .expect(200);
+      const token = login.body.access_token as string;
+      await prisma.activationCode.create({
+        data: {
+          id: randomUUID(),
+          code: 'E2E-AC-STATIC',
+          status: 'active',
+          maxUses: 1,
+          usesCount: 0,
+          planDays: 30,
+        },
+      });
+      return request(app.getHttpServer())
+        .post('/license/redeem')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ code: 'E2E-AC-STATIC' })
+        .expect(200)
+        .expect((res) => {
+          expect(res.body.status).toBe('active');
+        });
+    } finally {
+      await prisma.$disconnect();
+    }
+  });
+
+  it('/admin/stats (GET) 403 for non-developer JWT', async () => {
+    const login = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ username: 'owner', password: 'changeme', shop_id: 'dev' })
+      .expect(200);
+    const token = login.body.access_token as string;
+    return request(app.getHttpServer())
+      .get('/admin/stats')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(403);
+  });
+
+  it('/admin/stats (GET) 200 for developer JWT', async () => {
+    const prisma = new PrismaClient();
+    try {
+      const login = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ username: 'owner', password: 'changeme', shop_id: 'dev' })
+        .expect(200);
+      const token = login.body.access_token as string;
+      const owner = await prisma.shopUser.findFirstOrThrow({
+        where: { shopId: 'dev', username: 'owner', deletedAt: null },
+      });
+      const prev = process.env.PRIDE_DEVELOPER_IDS;
+      process.env.PRIDE_DEVELOPER_IDS = owner.id;
+      try {
+        await request(app.getHttpServer())
+          .get('/admin/stats')
+          .set('Authorization', `Bearer ${token}`)
+          .expect(200)
+          .expect((res) => {
+            expect(typeof res.body.shop_count).toBe('number');
+            expect(res.body.shop_count).toBeGreaterThanOrEqual(1);
+          });
+      } finally {
+        process.env.PRIDE_DEVELOPER_IDS = prev;
+      }
+    } finally {
+      await prisma.$disconnect();
+    }
+  });
+
+  it('/admin/activation-codes (POST) 200 creates code for developer', async () => {
+    const prisma = new PrismaClient();
+    try {
+      const login = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ username: 'owner', password: 'changeme', shop_id: 'dev' })
+        .expect(200);
+      const token = login.body.access_token as string;
+      const owner = await prisma.shopUser.findFirstOrThrow({
+        where: { shopId: 'dev', username: 'owner', deletedAt: null },
+      });
+      const prev = process.env.PRIDE_DEVELOPER_IDS;
+      process.env.PRIDE_DEVELOPER_IDS = owner.id;
+      try {
+        const res = await request(app.getHttpServer())
+          .post('/admin/activation-codes')
+          .set('Authorization', `Bearer ${token}`)
+          .send({ plan_days: 90, max_uses: 2 })
+          .expect(200);
+        expect(typeof res.body.code).toBe('string');
+        expect(res.body.code).toMatch(/^PRIDE-/);
+      } finally {
+        process.env.PRIDE_DEVELOPER_IDS = prev;
+      }
+    } finally {
+      await prisma.$disconnect();
+    }
+  });
+
+  it('/admin/audit-log (GET) 200 returns rows for developer', async () => {
+    const prisma = new PrismaClient();
+    try {
+      const login = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ username: 'owner', password: 'changeme', shop_id: 'dev' })
+        .expect(200);
+      const token = login.body.access_token as string;
+      const owner = await prisma.shopUser.findFirstOrThrow({
+        where: { shopId: 'dev', username: 'owner', deletedAt: null },
+      });
+      const prev = process.env.PRIDE_DEVELOPER_IDS;
+      process.env.PRIDE_DEVELOPER_IDS = owner.id;
+      try {
+        await request(app.getHttpServer())
+          .post('/admin/activation-codes')
+          .set('Authorization', `Bearer ${token}`)
+          .send({ plan_days: 14, max_uses: 1 })
+          .expect(200);
+
+        await request(app.getHttpServer())
+          .get('/admin/audit-log')
+          .set('Authorization', `Bearer ${token}`)
+          .expect(200)
+          .expect((res) => {
+            expect(res.body.schema_version).toBe(2);
+            expect(Array.isArray(res.body.rows)).toBe(true);
+            expect(res.body.rows.length).toBeGreaterThanOrEqual(1);
+            expect(res.body.rows[0].action).toBeDefined();
+          });
+      } finally {
+        process.env.PRIDE_DEVELOPER_IDS = prev;
+      }
+    } finally {
+      await prisma.$disconnect();
+    }
   });
 });

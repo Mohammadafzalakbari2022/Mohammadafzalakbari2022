@@ -43,7 +43,7 @@ class IsarTaskRepository implements TaskRepository {
   }
 
   @override
-  Future<void> upsertTask({
+  Future<String> upsertTask({
     required String shopId,
     required String? internalId,
     required String title,
@@ -51,10 +51,12 @@ class IsarTaskRepository implements TaskRepository {
     required DateTime? dueDate,
   }) async {
     final now = DateTime.now();
+    late String outId;
     await _isar.writeTxn(() async {
       if (internalId == null || internalId.isEmpty) {
+        final newId = _uuid.v4();
         final e = TaskEntity()
-          ..internalId = _uuid.v4()
+          ..internalId = newId
           ..shopId = shopId
           ..title = title.trim()
           ..notes = notes
@@ -64,6 +66,7 @@ class IsarTaskRepository implements TaskRepository {
           ..updatedAt = now
           ..deletedAt = null;
         await _isar.taskEntitys.putByInternalId(e);
+        outId = newId;
         return;
       }
 
@@ -84,7 +87,9 @@ class IsarTaskRepository implements TaskRepository {
         ..deletedAt = null;
 
       await _isar.taskEntitys.putByInternalId(e);
+      outId = internalId;
     });
+    return outId;
   }
 
   @override

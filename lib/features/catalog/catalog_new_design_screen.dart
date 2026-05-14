@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,9 +7,11 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
-import '../../data/local/dev_shop_constants.dart';
+import '../../data/local/sync_outbox_kinds.dart';
 import '../../data/providers/local_data_providers.dart';
+import '../../auth/auth_providers.dart';
 import '../../licensing/license_providers.dart';
+import '../../shell/shell_sync_providers.dart';
 import '../settings/shop_profile_provider.dart';
 import 'catalog_storage_stub.dart'
     if (dart.library.io) 'catalog_storage_io.dart';
@@ -85,17 +89,35 @@ class _CatalogNewDesignScreenState extends ConsumerState<CatalogNewDesignScreen>
       if (!mounted) return;
 
       final repo = await ref.read(catalogRepositoryProvider.future);
+      final shopId = ref.read(effectiveShopIdProvider);
       final shopLabel = ref.read(shopDisplayNameProvider);
       final designerName = shopLabel.isNotEmpty
           ? shopLabel
           : l10n.catalogMyShopNameFallback;
       final id = await repo.createItem(
-        shopId: kDevShopId,
+        shopId: shopId,
         designName: name,
         designerShopName: designerName,
         notes: _notes.text.trim().isEmpty ? null : _notes.text.trim(),
         imagePath: stored.imagePath,
         thumbnailPath: stored.thumbnailPath,
+      );
+      final now = DateTime.now();
+      recordSyncOutboxMutation(
+        ref,
+        kind: SyncOutboxKinds.catalogItemUpsert,
+        entityRef: id,
+        shopId: shopId,
+        payloadJson: jsonEncode({
+          'design_name': name,
+          'designer_shop_name': designerName,
+          'notes': _notes.text.trim().isEmpty ? null : _notes.text.trim(),
+          'is_shared_public': false,
+          'created_at': now.toUtc().toIso8601String(),
+          'updated_at': now.toUtc().toIso8601String(),
+          'image_path': stored.imagePath,
+          'thumbnail_path': stored.thumbnailPath,
+        }),
       );
 
       if (!context.mounted) return;

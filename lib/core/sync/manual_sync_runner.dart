@@ -1,6 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../data/local/app_notification_repository.dart';
+import '../../data/local/catalog_repository.dart';
 import '../../data/local/customer_list_repository.dart';
 import '../../data/local/measurement_profile_repository.dart';
 import '../../data/local/order_list_repository.dart';
@@ -46,6 +47,7 @@ Future<ManualSyncOutcome> runManualSyncWithOutbox({
   required PaymentRepository payments,
   required OrderListRepository orders,
   required MeasurementProfileRepository measurementProfiles,
+  required CatalogRepository catalog,
 }) async {
   final applier = SyncInboundApplier(
     notifications: notifications,
@@ -54,6 +56,7 @@ Future<ManualSyncOutcome> runManualSyncWithOutbox({
     payments: payments,
     orders: orders,
     measurementProfiles: measurementProfiles,
+    catalog: catalog,
     shopId: syncShopId,
   );
 

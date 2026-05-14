@@ -1,5 +1,6 @@
 import 'sync_change_server_time.dart';
 import '../../data/local/app_notification_repository.dart';
+import '../../data/local/catalog_repository.dart';
 import '../../data/local/customer_list_repository.dart';
 import '../../data/local/measurement_profile_repository.dart';
 import '../../data/local/order_list_repository.dart';
@@ -15,6 +16,7 @@ class SyncInboundApplier {
     required this.payments,
     required this.orders,
     required this.measurementProfiles,
+    required this.catalog,
     required this.shopId,
   });
 
@@ -24,6 +26,7 @@ class SyncInboundApplier {
   final PaymentRepository payments;
   final OrderListRepository orders;
   final MeasurementProfileRepository measurementProfiles;
+  final CatalogRepository catalog;
   final String shopId;
 
   /// Returns number of rows applied (skipped kinds return 0 contribution per change).
@@ -77,6 +80,22 @@ class SyncInboundApplier {
         applied++;
       } else if (et == 'measurement_type') {
         await measurementProfiles.mergeRemoteMeasurementType(
+          shopId: shopId,
+          internalId: id,
+          operation: op,
+          data: raw['data'],
+        );
+        applied++;
+      } else if (et == 'measurement_profile') {
+        await measurementProfiles.mergeRemoteMeasurementProfile(
+          shopId: shopId,
+          internalId: id,
+          operation: op,
+          data: raw['data'],
+        );
+        applied++;
+      } else if (et == 'catalog_item') {
+        await catalog.mergeRemoteCatalogItem(
           shopId: shopId,
           internalId: id,
           operation: op,

@@ -3,7 +3,8 @@ import 'task_summary.dart';
 abstract class TaskRepository {
   Stream<List<TaskSummary>> watchTasks(String shopId);
 
-  Future<void> upsertTask({
+  /// Returns the task [internalId] (existing or newly generated).
+  Future<String> upsertTask({
     required String shopId,
     required String? internalId,
     required String title,

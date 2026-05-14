@@ -186,4 +186,20 @@ export class ShopRegistryService {
       data: { deletedAt: new Date() },
     });
   }
+
+  /** Used by developer password-reset flow (`plan-18`). */
+  async setUserPasswordPlain(
+    shopId: string,
+    userId: string,
+    plainPassword: string,
+  ): Promise<void> {
+    const row = await this.prisma.shopUser.findFirst({
+      where: { id: userId, shopId, deletedAt: null },
+    });
+    if (!row) throw new NotFoundException('user not found');
+    await this.prisma.shopUser.update({
+      where: { id: userId },
+      data: { passwordHash: sha256Hex(plainPassword) },
+    });
+  }
 }

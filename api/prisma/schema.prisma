@@ -60,3 +60,59 @@ model ShopLicense {
 
   @@map("shop_licenses")
 }
+
+/// User-initiated password reset queue for developer/support (`plan-18`).
+model PasswordResetRequest {
+  id         String    @id @default(uuid())
+  shopId     String    @map("shop_id")
+  userId     String    @map("user_id")
+  username   String
+  status     String    @default("pending")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  resolvedAt DateTime? @map("resolved_at")
+
+  @@index([shopId, status])
+  @@map("password_reset_requests")
+}
+
+/// FCM (or other) device token per shop user — future push delivery (`plan-22`).
+model ShopPushToken {
+  id        String   @id @default(uuid())
+  shopId    String   @map("shop_id")
+  userId    String   @map("user_id")
+  platform  String
+  token     String
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([shopId, userId, platform])
+  @@map("shop_push_tokens")
+}
+
+/// Developer-created license activation strings (`plan-18` / `plan-06`).
+model ActivationCode {
+  id                 String    @id @default(uuid())
+  code               String    @unique
+  status             String    @default("active")
+  maxUses            Int       @default(1) @map("max_uses")
+  usesCount          Int       @default(0) @map("uses_count")
+  planDays           Int       @default(365) @map("plan_days")
+  expiresAt          DateTime? @map("expires_at")
+  assignedShopId     String?   @map("assigned_shop_id")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  redeemedAt         DateTime? @map("redeemed_at")
+  lastRedeemedShopId String?   @map("last_redeemed_shop_id")
+
+  @@map("activation_codes")
+}
+
+/// Developer / admin actions (`plan-18`).
+model AdminAuditLog {
+  id            String   @id @default(uuid())
+  developerSub  String   @map("developer_sub")
+  action        String
+  payload       Json?
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@map("admin_audit_logs")
+}

@@ -395,6 +395,88 @@ class MemoryMeasurementProfileRepository
   }
 
   @override
+  Future<void> mergeRemoteMeasurementProfile({
+    required String shopId,
+    required String internalId,
+    required String operation,
+    Object? data,
+  }) async {
+    await seedIfEmpty();
+    if (operation == 'delete') {
+      _items.removeWhere((i) => i.profileInternalId == internalId);
+      _metas.removeWhere((p) => p.internalId == internalId);
+      _emit();
+      return;
+    }
+    final m = syncPullDataMap(data);
+    final customerId = syncPullString(m, const [
+      'customer_internal_id',
+      'customerInternalId',
+    ]);
+    final label = syncPullString(m, const ['label']);
+    if (customerId == null || label == null) return;
+    final notes = syncPullString(m, const ['notes', 'body']) ?? '';
+    final unitCode =
+        syncPullInt(m, const ['unit_code', 'unitCode']) ?? MeasurementUnitCodes.cm;
+    final created =
+        syncPullDateTime(m, const ['created_at', 'createdAt']) ?? DateTime.now();
+    final updated =
+        syncPullDateTime(m, const ['updated_at', 'updatedAt']) ?? DateTime.now();
+    final itemsRaw = m['items'];
+    final inputs = <MeasurementProfileItemInput>[];
+    if (itemsRaw is List) {
+      for (final el in itemsRaw) {
+        if (el is! Map) continue;
+        final em = Map<String, dynamic>.from(el);
+        final tid = syncPullString(em, const [
+          'measurement_type_internal_id',
+          'measurementTypeInternalId',
+        ]);
+        final val = syncPullString(em, const ['value']);
+        final uc = syncPullInt(em, const ['unit_code', 'unitCode']) ?? unitCode;
+        if (tid == null || val == null || val.trim().isEmpty) continue;
+        inputs.add(
+          MeasurementProfileItemInput(
+            measurementTypeInternalId: tid,
+            value: val.trim(),
+            unitCode: uc,
+          ),
+        );
+      }
+    }
+
+    final idx = _metas.indexWhere((p) => p.internalId == internalId);
+    if (idx == -1) {
+      _metas.add(
+        _ProfileMeta(
+          internalId: internalId,
+          shopId: shopId,
+          customerInternalId: customerId,
+          label: label.trim().isEmpty ? '—' : label.trim(),
+          notes: notes,
+          unitCode: unitCode,
+          createdAt: created,
+          updatedAt: updated,
+        ),
+      );
+    } else {
+      final prev = _metas[idx];
+      _metas[idx] = _ProfileMeta(
+        internalId: prev.internalId,
+        shopId: shopId,
+        customerInternalId: customerId,
+        label: label.trim().isEmpty ? '—' : label.trim(),
+        notes: notes,
+        unitCode: unitCode,
+        createdAt: prev.createdAt,
+        updatedAt: updated,
+      );
+    }
+    _replaceItems(shopId: shopId, profileInternalId: internalId, items: inputs);
+    _emit();
+  }
+
+  @override
   Stream<List<MeasurementProfileSummary>> watchForCustomer({
     required String shopId,
     required String customerInternalId,

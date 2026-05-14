@@ -458,4 +458,105 @@ class IsarMeasurementProfileRepository implements MeasurementProfileRepository {
       );
     });
   }
+
+  @override
+  Future<void> mergeRemoteMeasurementProfile({
+    required String shopId,
+    required String internalId,
+    required String operation,
+    Object? data,
+  }) async {
+    if (operation == 'delete') {
+      await _isar.writeTxn(() async {
+        final existing =
+            await _isar.measurementProfileEntitys.getByInternalId(internalId);
+        if (existing == null) return;
+        existing
+          ..deletedAt = DateTime.now()
+          ..updatedAt = DateTime.now();
+        await _isar.measurementProfileEntitys.putByInternalId(existing);
+        await _isar.measurementProfileItemEntitys
+            .filter()
+            .profileInternalIdEqualTo(internalId)
+            .deleteAll();
+      });
+      return;
+    }
+    final m = syncPullDataMap(data);
+    final customerId = syncPullString(m, const [
+      'customer_internal_id',
+      'customerInternalId',
+    ]);
+    final label = syncPullString(m, const ['label']);
+    if (customerId == null || label == null) return;
+    final notes = syncPullString(m, const ['notes', 'body']) ?? '';
+    final unitCode =
+        syncPullInt(m, const ['unit_code', 'unitCode']) ?? MeasurementUnitCodes.cm;
+    final created =
+        syncPullDateTime(m, const ['created_at', 'createdAt']) ?? DateTime.now();
+    final updated =
+        syncPullDateTime(m, const ['updated_at', 'updatedAt']) ?? DateTime.now();
+    final itemsRaw = m['items'];
+    final inputs = <MeasurementProfileItemInput>[];
+    if (itemsRaw is List) {
+      for (final el in itemsRaw) {
+        if (el is! Map) continue;
+        final em = Map<String, dynamic>.from(el);
+        final tid = syncPullString(em, const [
+          'measurement_type_internal_id',
+          'measurementTypeInternalId',
+        ]);
+        final val = syncPullString(em, const ['value']);
+        final uc = syncPullInt(em, const ['unit_code', 'unitCode']) ?? unitCode;
+        if (tid == null || val == null || val.trim().isEmpty) continue;
+        inputs.add(
+          MeasurementProfileItemInput(
+            measurementTypeInternalId: tid,
+            value: val.trim(),
+            unitCode: uc,
+          ),
+        );
+      }
+    }
+
+    await _isar.writeTxn(() async {
+      final existing =
+          await _isar.measurementProfileEntitys.getByInternalId(internalId);
+      if (existing == null) {
+        final e = MeasurementProfileEntity()
+          ..internalId = internalId
+          ..shopId = shopId
+          ..customerInternalId = customerId
+          ..label = label.trim().isEmpty ? '—' : label.trim()
+          ..body = notes
+          ..unitCode = unitCode
+          ..createdAt = created
+          ..updatedAt = updated
+          ..deletedAt = null;
+        await _isar.measurementProfileEntitys.putByInternalId(e);
+        await _replaceItemsInTxn(
+          isar: _isar,
+          shopId: shopId,
+          profileInternalId: internalId,
+          items: inputs,
+        );
+        return;
+      }
+      existing
+        ..shopId = shopId
+        ..customerInternalId = customerId
+        ..label = label.trim().isEmpty ? '—' : label.trim()
+        ..body = notes
+        ..unitCode = unitCode
+        ..updatedAt = updated
+        ..deletedAt = null;
+      await _isar.measurementProfileEntitys.putByInternalId(existing);
+      await _replaceItemsInTxn(
+        isar: _isar,
+        shopId: shopId,
+        profileInternalId: internalId,
+        items: inputs,
+      );
+    });
+  }
 }

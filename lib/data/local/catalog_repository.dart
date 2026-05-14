@@ -35,5 +35,13 @@ abstract class CatalogRepository {
   });
 
   Future<void> softDelete(String internalId);
+
+  /// Apply `catalog_item` from `GET /sync/pull` (`plan-03`).
+  Future<void> mergeRemoteCatalogItem({
+    required String shopId,
+    required String internalId,
+    required String operation,
+    Object? data,
+  });
 }
 

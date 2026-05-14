@@ -56,6 +56,79 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginSignInCta => 'Sign in';
 
   @override
+  String get loginForgotPasswordCta => 'Forgot password?';
+
+  @override
+  String get loginForgotPasswordTitle => 'Reset password';
+
+  @override
+  String get loginForgotPasswordBody =>
+      'Enter your shop ID and username. A developer can set a new password from the Developer Portal when your request appears in the queue.';
+
+  @override
+  String get loginForgotPasswordSubmit => 'Submit request';
+
+  @override
+  String get loginForgotPasswordQueued =>
+      'If the account exists, a reset request was queued for support.';
+
+  @override
+  String get loginForgotPasswordFieldsRequired =>
+      'Shop ID and username are required.';
+
+  @override
+  String get settingsPushTokenTitle => 'Push notification token (beta)';
+
+  @override
+  String get settingsPushTokenHint =>
+      'Paste an FCM device token, choose platform, then save. The server stores it for future push delivery.';
+
+  @override
+  String get settingsPushTokenFieldLabel => 'Device token';
+
+  @override
+  String get settingsPushPlatformLabel => 'Platform';
+
+  @override
+  String get settingsPushRegisterCta => 'Save token to server';
+
+  @override
+  String get settingsPushRegisterOk => 'Token saved.';
+
+  @override
+  String get settingsPushRegisterFail => 'Could not save token.';
+
+  @override
+  String devPortalShopsLoadError(String error) {
+    return 'Could not load shops: $error';
+  }
+
+  @override
+  String devPortalResetsLoadError(String error) {
+    return 'Could not load reset queue: $error';
+  }
+
+  @override
+  String get devPortalResetsEmpty => 'No pending password reset requests.';
+
+  @override
+  String get devPortalResetsSetPasswordTitle => 'Set new password';
+
+  @override
+  String get devPortalResetsSetPasswordHint => 'At least 6 characters.';
+
+  @override
+  String get devPortalResetsResolveCta => 'Apply password';
+
+  @override
+  String get devPortalResetsResolved => 'Password updated.';
+
+  @override
+  String devPortalResetsResolveFailed(String error) {
+    return 'Could not update: $error';
+  }
+
+  @override
   String get loginFieldRequired => 'Required';
 
   @override
@@ -1978,11 +2051,71 @@ class AppLocalizationsEn extends AppLocalizations {
       'Connect to the internet to test public API health. Admin lists (shops, codes, resets) need the deployed admin APIs.';
 
   @override
-  String get devPortalAdviceOnlineTitle => 'Admin list APIs not wired yet';
+  String get devPortalAdviceOnlineTitle => 'Developer tools';
 
   @override
   String get devPortalAdviceOnlineBody =>
-      'Overview can still ping GET /health. Export a device diagnostics bundle from Settings → Sync & Diagnostics for support.';
+      'Overview pings GET /health. Shops and Resets load when you are signed in with the API as a developer (PRIDE_DEVELOPER_IDS). Export diagnostics from Settings → Sync & Diagnostics.';
+
+  @override
+  String get devPortalShopsEmpty => 'No shops on the server yet.';
+
+  @override
+  String devPortalShopRowUsers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count users',
+      one: '1 user',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String devPortalCodesLoadError(String error) {
+    return 'Could not load codes: $error';
+  }
+
+  @override
+  String get devPortalCodesEmpty =>
+      'No activation codes yet. Generate one to issue paid time.';
+
+  @override
+  String get devPortalCodesCreateTitle => 'New activation code';
+
+  @override
+  String get devPortalCodesPlanDaysLabel => 'Paid days added on redeem';
+
+  @override
+  String get devPortalCodesMaxUsesLabel => 'Max redemptions';
+
+  @override
+  String get devPortalCodesCreateCta => 'Generate code';
+
+  @override
+  String devPortalCodesCreated(String code) {
+    return 'Created: $code';
+  }
+
+  @override
+  String get devPortalCodesCreateFail => 'Could not create code.';
+
+  @override
+  String get devPortalCodesRevokeTitle => 'Revoke code';
+
+  @override
+  String devPortalCodesRevokeBody(String code) {
+    return 'Shops can no longer redeem “$code”.';
+  }
+
+  @override
+  String get devPortalCodesRevoked => 'Code revoked.';
+
+  @override
+  String get devPortalCodesRevokeFail => 'Could not revoke.';
+
+  @override
+  String get devPortalCodesRevokeCta => 'Revoke';
 
   @override
   String get devPortalApiHealthPrompt =>
@@ -2001,7 +2134,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get devPortalStatTrials => 'Trials running';
 
   @override
-  String get devPortalStatActivations => 'Activations (period)';
+  String get devPortalStatActivations => 'Code creates (audit)';
 
   @override
   String get devPortalApiHealthTitle => 'API health';
@@ -2036,7 +2169,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get devPortalDiagCountLoading => '…';
 
   @override
-  String get devPortalAdminAuditTitle => 'Admin audit log (stub)';
+  String get devPortalAdminAuditTitle => 'Admin audit log';
 
   @override
   String get devPortalAdminAuditNeedSignIn =>

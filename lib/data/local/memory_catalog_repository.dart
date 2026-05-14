@@ -4,6 +4,7 @@ import 'catalog_item_summary.dart';
 import 'catalog_item_detail.dart';
 import 'catalog_repository.dart';
 import 'dev_shop_constants.dart';
+import 'sync_pull_payload.dart';
 import 'package:uuid/uuid.dart';
 
 class MemoryCatalogRepository implements CatalogRepository {
@@ -225,6 +226,78 @@ class MemoryCatalogRepository implements CatalogRepository {
   Future<void> softDelete(String internalId) async {
     _details.removeWhere((d) => d.internalId == internalId);
     _items.removeWhere((s) => s.internalId == internalId);
+    _emit();
+  }
+
+  @override
+  Future<void> mergeRemoteCatalogItem({
+    required String shopId,
+    required String internalId,
+    required String operation,
+    Object? data,
+  }) async {
+    await seedIfEmpty();
+    if (operation == 'delete') {
+      await softDelete(internalId);
+      return;
+    }
+    final m = syncPullDataMap(data);
+    final designName = syncPullString(m, const ['design_name', 'designName']);
+    if (designName == null || designName.trim().isEmpty) return;
+    final designerShopName = syncPullString(m, const [
+          'designer_shop_name',
+          'designerShopName',
+        ]) ??
+        '';
+    final notes = syncPullString(m, const ['notes']);
+    final isShared =
+        syncPullBool(m, const ['is_shared_public', 'isSharedPublic']) ?? false;
+    final created =
+        syncPullDateTime(m, const ['created_at', 'createdAt']) ?? DateTime.now();
+    final updated =
+        syncPullDateTime(m, const ['updated_at', 'updatedAt']) ?? DateTime.now();
+    final imagePath = syncPullString(m, const ['image_path', 'imagePath']);
+    final thumbPath =
+        syncPullString(m, const ['thumbnail_path', 'thumbnailPath']);
+
+    final idx = _details.indexWhere((d) => d.internalId == internalId);
+    if (idx == -1) {
+      final d = CatalogItemDetail(
+        internalId: internalId,
+        shopId: shopId,
+        designName: designName.trim(),
+        designerShopName: designerShopName.trim().isEmpty
+            ? designName.trim()
+            : designerShopName.trim(),
+        createdAt: created,
+        updatedAt: updated,
+        isSharedPublic: isShared,
+        notes: notes,
+        imagePath: imagePath,
+        thumbnailPath: thumbPath,
+      );
+      _details.add(d);
+      _items.add(_toSummary(d));
+    } else {
+      final prev = _details[idx];
+      final next = CatalogItemDetail(
+        internalId: prev.internalId,
+        shopId: shopId,
+        designName: designName.trim(),
+        designerShopName: designerShopName.trim().isEmpty
+            ? prev.designerShopName
+            : designerShopName.trim(),
+        createdAt: prev.createdAt,
+        updatedAt: updated,
+        isSharedPublic: isShared,
+        notes: notes ?? prev.notes,
+        imagePath: imagePath ?? prev.imagePath,
+        thumbnailPath: thumbPath ?? prev.thumbnailPath,
+      );
+      _details[idx] = next;
+      final si = _items.indexWhere((s) => s.internalId == internalId);
+      if (si >= 0) _items[si] = _toSummary(next);
+    }
     _emit();
   }
 }

@@ -7,9 +7,10 @@ import 'package:pride_v3/core/api/pride_api_health.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../shell/shell_sync_providers.dart';
+import 'developer_portal_codes_tab.dart';
 import 'developer_portal_diagnostics_tab.dart';
 
-/// Developer portal shell (plan-18). Admin list APIs ship separately; health ping works today.
+/// Developer portal shell (plan-18): overview, activation codes, shops, resets, diagnostics.
 class DeveloperPortalScreen extends ConsumerWidget {
   const DeveloperPortalScreen({super.key});
 
@@ -50,9 +51,9 @@ class DeveloperPortalScreen extends ConsumerWidget {
               child: TabBarView(
                 children: [
                   _OverviewTab(l10n: l10n),
-                  _PlaceholderTab(message: l10n.devPortalCodesStub),
-                  _PlaceholderTab(message: l10n.devPortalShopsStub),
-                  _PlaceholderTab(message: l10n.devPortalResetsStub),
+                  DeveloperPortalCodesTab(l10n: l10n),
+                  _DevPortalShopsTab(l10n: l10n),
+                  _DevPortalResetsTab(l10n: l10n),
                   const DeveloperPortalDiagnosticsTab(),
                 ],
               ),
@@ -120,6 +121,13 @@ class _OverviewTab extends ConsumerStatefulWidget {
 class _OverviewTabState extends ConsumerState<_OverviewTab> {
   PrideApiHealthResult? _health;
   PrideApiAdminAuditLogResult? _audit;
+  Map<String, dynamic>? _stats;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _refreshHealth());
+  }
 
   Future<void> _refreshHealth() async {
     if (!PrideApiConfig.isConfigured) return;
@@ -131,12 +139,19 @@ class _OverviewTabState extends ConsumerState<_OverviewTab> {
     final token = ref.read(authSessionProvider).accessToken;
     if (token == null) {
       if (!mounted) return;
-      setState(() => _audit = null);
+      setState(() {
+        _audit = null;
+        _stats = null;
+      });
       return;
     }
     final audit = await getPrideApiAdminAuditLog(accessToken: token);
+    final stats = await getPrideApiAdminStats(accessToken: token);
     if (!mounted) return;
-    setState(() => _audit = audit);
+    setState(() {
+      _audit = audit;
+      _stats = stats.ok ? stats.data : null;
+    });
   }
 
   String _healthSubtitle() {
@@ -167,8 +182,46 @@ class _OverviewTabState extends ConsumerState<_OverviewTab> {
     };
   }
 
+  String _statShops() {
+    final s = _stats;
+    if (s == null) return '—';
+    final n = s['shop_count'];
+    if (n is int) return '$n';
+    if (n is num) return '${n.toInt()}';
+    return '—';
+  }
+
+  String _statPaidExpired() {
+    final s = _stats;
+    if (s == null) return '—';
+    final paid = s['license_paid_active'];
+    final ex = s['license_expired'];
+    final pi = paid is int ? paid : (paid is num ? paid.toInt() : 0);
+    final ei = ex is int ? ex : (ex is num ? ex.toInt() : 0);
+    return '$pi / $ei';
+  }
+
+  String _statTrials() {
+    final s = _stats;
+    if (s == null) return '—';
+    final t = s['license_trial_active'];
+    if (t is int) return '$t';
+    if (t is num) return '${t.toInt()}';
+    return '—';
+  }
+
+  String _statActivations() {
+    final a = _audit;
+    if (a is! PrideApiAdminAuditLogOk) return '—';
+    final n = a.rows
+        .where((r) => '${r['action']}' == 'activation_code.create')
+        .length;
+    return '$n';
+  }
+
   @override
   Widget build(BuildContext context) {
+    final audit = _audit;
     return RefreshIndicator(
       onRefresh: _refreshHealth,
       child: ListView(
@@ -182,10 +235,16 @@ class _OverviewTabState extends ConsumerState<_OverviewTab> {
             ),
             const SizedBox(height: 12),
           ],
-          _StatCard(title: widget.l10n.devPortalStatShops, value: '—'),
-          _StatCard(title: widget.l10n.devPortalStatActiveExpired, value: '—'),
-          _StatCard(title: widget.l10n.devPortalStatTrials, value: '—'),
-          _StatCard(title: widget.l10n.devPortalStatActivations, value: '—'),
+          _StatCard(title: widget.l10n.devPortalStatShops, value: _statShops()),
+          _StatCard(
+            title: widget.l10n.devPortalStatActiveExpired,
+            value: _statPaidExpired(),
+          ),
+          _StatCard(title: widget.l10n.devPortalStatTrials, value: _statTrials()),
+          _StatCard(
+            title: widget.l10n.devPortalStatActivations,
+            value: _statActivations(),
+          ),
           Card(
             child: ListTile(
               leading: const Icon(Icons.cloud_outlined),
@@ -194,10 +253,31 @@ class _OverviewTabState extends ConsumerState<_OverviewTab> {
             ),
           ),
           Card(
-            child: ListTile(
+            clipBehavior: Clip.antiAlias,
+            child: ExpansionTile(
               leading: const Icon(Icons.receipt_long_outlined),
               title: Text(widget.l10n.devPortalAdminAuditTitle),
               subtitle: Text(_auditSubtitle()),
+              children: [
+                if (audit is PrideApiAdminAuditLogOk)
+                  for (final r in audit.rows.take(12))
+                    ListTile(
+                      dense: true,
+                      title: Text(
+                        '${r['action']}',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      subtitle: Text(
+                        '${r['created_at']}',
+                        style: Theme.of(context).textTheme.labelSmall,
+                      ),
+                    )
+                else if (audit is PrideApiAdminAuditLogFailure)
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(audit.message),
+                  ),
+              ],
             ),
           ),
         ],
@@ -227,21 +307,295 @@ class _StatCard extends StatelessWidget {
   }
 }
 
-class _PlaceholderTab extends StatelessWidget {
-  const _PlaceholderTab({required this.message});
+class _DevPortalShopsTab extends ConsumerStatefulWidget {
+  const _DevPortalShopsTab({required this.l10n});
 
-  final String message;
+  final AppLocalizations l10n;
+
+  @override
+  ConsumerState<_DevPortalShopsTab> createState() => _DevPortalShopsTabState();
+}
+
+class _DevPortalShopsTabState extends ConsumerState<_DevPortalShopsTab> {
+  bool _loading = true;
+  String? _error;
+  List<Map<String, dynamic>> _rows = const [];
+
+  Future<void> _load() async {
+    if (!PrideApiConfig.isConfigured) {
+      setState(() {
+        _loading = false;
+        _error = widget.l10n.devPortalStubAction;
+        _rows = const [];
+      });
+      return;
+    }
+    if (!ref.read(connectivityOnlineProvider)) {
+      setState(() {
+        _loading = false;
+        _error = widget.l10n.devPortalAdviceOfflineBody;
+        _rows = const [];
+      });
+      return;
+    }
+    final auth = ref.read(authSessionProvider);
+    final token = auth.accessToken;
+    if (!auth.hasApiSession || token == null) {
+      setState(() {
+        _loading = false;
+        _error = widget.l10n.devPortalAdminAuditNeedSignIn;
+        _rows = const [];
+      });
+      return;
+    }
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    final r = await getPrideApiAdminShops(accessToken: token);
+    if (!mounted) return;
+    if (!r.ok) {
+      setState(() {
+        _loading = false;
+        _error = widget.l10n.devPortalShopsLoadError(r.error ?? 'HTTP');
+        _rows = const [];
+      });
+      return;
+    }
+    setState(() {
+      _loading = false;
+      _error = null;
+      _rows = r.shops;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _load());
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
+    if (_loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_error != null) {
+      return ListView(
         padding: const EdgeInsets.all(24),
-        child: Text(
-          message,
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyLarge,
+        children: [
+          Text(_error!, textAlign: TextAlign.center),
+          const SizedBox(height: 16),
+          FilledButton(
+            onPressed: _load,
+            child: Text(widget.l10n.devPortalRetryCta),
+          ),
+        ],
+      );
+    }
+    if (_rows.isEmpty) {
+      return Center(child: Text(widget.l10n.devPortalShopsEmpty));
+    }
+    return RefreshIndicator(
+      onRefresh: _load,
+      child: ListView.separated(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16),
+        itemCount: _rows.length,
+        separatorBuilder: (context, index) => const SizedBox(height: 8),
+        itemBuilder: (context, i) {
+          final m = _rows[i];
+          final id = '${m['id'] ?? ''}';
+          final name = '${m['name'] ?? ''}';
+          final uc = m['user_count'];
+          final count = uc is int ? uc : int.tryParse('$uc') ?? 0;
+          final lic = '${m['license_status'] ?? ''}';
+          final exp = '${m['license_expires_at'] ?? ''}';
+          return Card(
+            child: ListTile(
+              title: Text(name.isEmpty ? id : name),
+              subtitle: Text(
+                '$id · ${widget.l10n.devPortalShopRowUsers(count)}\n$lic · $exp',
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _DevPortalResetsTab extends ConsumerStatefulWidget {
+  const _DevPortalResetsTab({required this.l10n});
+
+  final AppLocalizations l10n;
+
+  @override
+  ConsumerState<_DevPortalResetsTab> createState() => _DevPortalResetsTabState();
+}
+
+class _DevPortalResetsTabState extends ConsumerState<_DevPortalResetsTab> {
+  bool _loading = true;
+  String? _error;
+  List<Map<String, dynamic>> _rows = const [];
+
+  Future<void> _load() async {
+    if (!PrideApiConfig.isConfigured) {
+      setState(() {
+        _loading = false;
+        _error = widget.l10n.devPortalStubAction;
+        _rows = const [];
+      });
+      return;
+    }
+    if (!ref.read(connectivityOnlineProvider)) {
+      setState(() {
+        _loading = false;
+        _error = widget.l10n.devPortalAdviceOfflineBody;
+        _rows = const [];
+      });
+      return;
+    }
+    final auth = ref.read(authSessionProvider);
+    final token = auth.accessToken;
+    if (!auth.hasApiSession || token == null) {
+      setState(() {
+        _loading = false;
+        _error = widget.l10n.devPortalAdminAuditNeedSignIn;
+        _rows = const [];
+      });
+      return;
+    }
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    final r = await getPrideApiAdminPasswordResetRequests(accessToken: token);
+    if (!mounted) return;
+    if (!r.ok) {
+      setState(() {
+        _loading = false;
+        _error = widget.l10n.devPortalResetsLoadError(r.error ?? 'HTTP');
+        _rows = const [];
+      });
+      return;
+    }
+    setState(() {
+      _loading = false;
+      _error = null;
+      _rows = r.rows;
+    });
+  }
+
+  Future<void> _resolve(Map<String, dynamic> row) async {
+    final id = '${row['id'] ?? ''}';
+    if (id.isEmpty) return;
+    final pwCtrl = TextEditingController();
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(widget.l10n.devPortalResetsSetPasswordTitle),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(widget.l10n.devPortalResetsSetPasswordHint),
+            const SizedBox(height: 12),
+            TextField(
+              controller: pwCtrl,
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: widget.l10n.loginPasswordLabel,
+              ),
+            ),
+          ],
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(MaterialLocalizations.of(ctx).cancelButtonLabel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(widget.l10n.devPortalResetsResolveCta),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    final auth = ref.read(authSessionProvider);
+    final token = auth.accessToken;
+    if (token == null) return;
+    final res = await postPrideApiAdminResolvePasswordReset(
+      accessToken: token,
+      requestId: id,
+      newPassword: pwCtrl.text,
+    );
+    if (!mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    if (res.ok) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(widget.l10n.devPortalResetsResolved)),
+      );
+      await _load();
+    } else {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            widget.l10n.devPortalResetsResolveFailed(res.error ?? 'HTTP'),
+          ),
+        ),
+      );
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _load());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_error != null) {
+      return ListView(
+        padding: const EdgeInsets.all(24),
+        children: [
+          Text(_error!, textAlign: TextAlign.center),
+          const SizedBox(height: 16),
+          FilledButton(
+            onPressed: _load,
+            child: Text(widget.l10n.devPortalRetryCta),
+          ),
+        ],
+      );
+    }
+    if (_rows.isEmpty) {
+      return Center(child: Text(widget.l10n.devPortalResetsEmpty));
+    }
+    return RefreshIndicator(
+      onRefresh: _load,
+      child: ListView.separated(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16),
+        itemCount: _rows.length,
+        separatorBuilder: (context, index) => const SizedBox(height: 8),
+        itemBuilder: (context, i) {
+          final m = _rows[i];
+          final username = '${m['username'] ?? ''}';
+          final shopId = '${m['shop_id'] ?? ''}';
+          final created = '${m['created_at'] ?? ''}';
+          return Card(
+            child: ListTile(
+              title: Text(username),
+              subtitle: Text('$shopId · $created'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _resolve(m),
+            ),
+          );
+        },
       ),
     );
   }

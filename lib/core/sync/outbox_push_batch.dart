@@ -20,6 +20,22 @@ const int kSyncPushOutboxBatchLimit = 100;
       return (entityType: 'measurement_type', operation: 'upsert');
     case SyncOutboxKinds.measurementTypeDelete:
       return (entityType: 'measurement_type', operation: 'delete');
+    case SyncOutboxKinds.customerUpsert:
+      return (entityType: 'customer', operation: 'upsert');
+    case SyncOutboxKinds.customerDelete:
+      return (entityType: 'customer', operation: 'delete');
+    case SyncOutboxKinds.taskUpsert:
+      return (entityType: 'task', operation: 'upsert');
+    case SyncOutboxKinds.taskDelete:
+      return (entityType: 'task', operation: 'delete');
+    case SyncOutboxKinds.measurementProfileUpsert:
+      return (entityType: 'measurement_profile', operation: 'upsert');
+    case SyncOutboxKinds.measurementProfileDelete:
+      return (entityType: 'measurement_profile', operation: 'delete');
+    case SyncOutboxKinds.catalogItemUpsert:
+      return (entityType: 'catalog_item', operation: 'upsert');
+    case SyncOutboxKinds.catalogItemDelete:
+      return (entityType: 'catalog_item', operation: 'delete');
     default:
       return null;
   }

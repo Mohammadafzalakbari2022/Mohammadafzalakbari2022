@@ -190,6 +190,132 @@ abstract class AppLocalizations {
   /// **'Sign in'**
   String get loginSignInCta;
 
+  /// No description provided for @loginForgotPasswordCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get loginForgotPasswordCta;
+
+  /// No description provided for @loginForgotPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset password'**
+  String get loginForgotPasswordTitle;
+
+  /// No description provided for @loginForgotPasswordBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your shop ID and username. A developer can set a new password from the Developer Portal when your request appears in the queue.'**
+  String get loginForgotPasswordBody;
+
+  /// No description provided for @loginForgotPasswordSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit request'**
+  String get loginForgotPasswordSubmit;
+
+  /// No description provided for @loginForgotPasswordQueued.
+  ///
+  /// In en, this message translates to:
+  /// **'If the account exists, a reset request was queued for support.'**
+  String get loginForgotPasswordQueued;
+
+  /// No description provided for @loginForgotPasswordFieldsRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop ID and username are required.'**
+  String get loginForgotPasswordFieldsRequired;
+
+  /// No description provided for @settingsPushTokenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Push notification token (beta)'**
+  String get settingsPushTokenTitle;
+
+  /// No description provided for @settingsPushTokenHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste an FCM device token, choose platform, then save. The server stores it for future push delivery.'**
+  String get settingsPushTokenHint;
+
+  /// No description provided for @settingsPushTokenFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Device token'**
+  String get settingsPushTokenFieldLabel;
+
+  /// No description provided for @settingsPushPlatformLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform'**
+  String get settingsPushPlatformLabel;
+
+  /// No description provided for @settingsPushRegisterCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Save token to server'**
+  String get settingsPushRegisterCta;
+
+  /// No description provided for @settingsPushRegisterOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Token saved.'**
+  String get settingsPushRegisterOk;
+
+  /// No description provided for @settingsPushRegisterFail.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save token.'**
+  String get settingsPushRegisterFail;
+
+  /// No description provided for @devPortalShopsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load shops: {error}'**
+  String devPortalShopsLoadError(String error);
+
+  /// No description provided for @devPortalResetsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load reset queue: {error}'**
+  String devPortalResetsLoadError(String error);
+
+  /// No description provided for @devPortalResetsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No pending password reset requests.'**
+  String get devPortalResetsEmpty;
+
+  /// No description provided for @devPortalResetsSetPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set new password'**
+  String get devPortalResetsSetPasswordTitle;
+
+  /// No description provided for @devPortalResetsSetPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'At least 6 characters.'**
+  String get devPortalResetsSetPasswordHint;
+
+  /// No description provided for @devPortalResetsResolveCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply password'**
+  String get devPortalResetsResolveCta;
+
+  /// No description provided for @devPortalResetsResolved.
+  ///
+  /// In en, this message translates to:
+  /// **'Password updated.'**
+  String get devPortalResetsResolved;
+
+  /// No description provided for @devPortalResetsResolveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update: {error}'**
+  String devPortalResetsResolveFailed(String error);
+
   /// No description provided for @loginFieldRequired.
   ///
   /// In en, this message translates to:
@@ -3657,14 +3783,104 @@ abstract class AppLocalizations {
   /// No description provided for @devPortalAdviceOnlineTitle.
   ///
   /// In en, this message translates to:
-  /// **'Admin list APIs not wired yet'**
+  /// **'Developer tools'**
   String get devPortalAdviceOnlineTitle;
 
   /// No description provided for @devPortalAdviceOnlineBody.
   ///
   /// In en, this message translates to:
-  /// **'Overview can still ping GET /health. Export a device diagnostics bundle from Settings → Sync & Diagnostics for support.'**
+  /// **'Overview pings GET /health. Shops and Resets load when you are signed in with the API as a developer (PRIDE_DEVELOPER_IDS). Export diagnostics from Settings → Sync & Diagnostics.'**
   String get devPortalAdviceOnlineBody;
+
+  /// No description provided for @devPortalShopsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No shops on the server yet.'**
+  String get devPortalShopsEmpty;
+
+  /// No description provided for @devPortalShopRowUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 user} other{{count} users}}'**
+  String devPortalShopRowUsers(int count);
+
+  /// No description provided for @devPortalCodesLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load codes: {error}'**
+  String devPortalCodesLoadError(String error);
+
+  /// No description provided for @devPortalCodesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No activation codes yet. Generate one to issue paid time.'**
+  String get devPortalCodesEmpty;
+
+  /// No description provided for @devPortalCodesCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New activation code'**
+  String get devPortalCodesCreateTitle;
+
+  /// No description provided for @devPortalCodesPlanDaysLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid days added on redeem'**
+  String get devPortalCodesPlanDaysLabel;
+
+  /// No description provided for @devPortalCodesMaxUsesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Max redemptions'**
+  String get devPortalCodesMaxUsesLabel;
+
+  /// No description provided for @devPortalCodesCreateCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate code'**
+  String get devPortalCodesCreateCta;
+
+  /// No description provided for @devPortalCodesCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Created: {code}'**
+  String devPortalCodesCreated(String code);
+
+  /// No description provided for @devPortalCodesCreateFail.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not create code.'**
+  String get devPortalCodesCreateFail;
+
+  /// No description provided for @devPortalCodesRevokeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke code'**
+  String get devPortalCodesRevokeTitle;
+
+  /// No description provided for @devPortalCodesRevokeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Shops can no longer redeem “{code}”.'**
+  String devPortalCodesRevokeBody(String code);
+
+  /// No description provided for @devPortalCodesRevoked.
+  ///
+  /// In en, this message translates to:
+  /// **'Code revoked.'**
+  String get devPortalCodesRevoked;
+
+  /// No description provided for @devPortalCodesRevokeFail.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not revoke.'**
+  String get devPortalCodesRevokeFail;
+
+  /// No description provided for @devPortalCodesRevokeCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke'**
+  String get devPortalCodesRevokeCta;
 
   /// No description provided for @devPortalApiHealthPrompt.
   ///
@@ -3699,7 +3915,7 @@ abstract class AppLocalizations {
   /// No description provided for @devPortalStatActivations.
   ///
   /// In en, this message translates to:
-  /// **'Activations (period)'**
+  /// **'Code creates (audit)'**
   String get devPortalStatActivations;
 
   /// No description provided for @devPortalApiHealthTitle.
@@ -3759,7 +3975,7 @@ abstract class AppLocalizations {
   /// No description provided for @devPortalAdminAuditTitle.
   ///
   /// In en, this message translates to:
-  /// **'Admin audit log (stub)'**
+  /// **'Admin audit log'**
   String get devPortalAdminAuditTitle;
 
   /// No description provided for @devPortalAdminAuditNeedSignIn.

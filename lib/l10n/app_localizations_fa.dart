@@ -56,6 +56,79 @@ class AppLocalizationsFa extends AppLocalizations {
   String get loginSignInCta => 'ورود';
 
   @override
+  String get loginForgotPasswordCta => 'رمز را فراموش کرده‌اید؟';
+
+  @override
+  String get loginForgotPasswordTitle => 'بازنشانی رمز';
+
+  @override
+  String get loginForgotPasswordBody =>
+      'شناسهٔ فروشگاه و نام کاربری را وارد کنید. پس از ثبت در صف، توسعه‌دهنده از پرتال می‌تواند رمز جدید تعیین کند.';
+
+  @override
+  String get loginForgotPasswordSubmit => 'ارسال درخواست';
+
+  @override
+  String get loginForgotPasswordQueued =>
+      'در صورت وجود حساب، درخواست بازنشانی در صف پشتیبانی ثبت شد.';
+
+  @override
+  String get loginForgotPasswordFieldsRequired =>
+      'شناسهٔ فروشگاه و نام کاربری الزامی است.';
+
+  @override
+  String get settingsPushTokenTitle => 'توکن اعلان فشاری (آزمایشی)';
+
+  @override
+  String get settingsPushTokenHint =>
+      'توکن FCM را بچسبانید، پلتفرم را انتخاب کنید و ذخیره کنید. سرور برای ارسال آینده نگه می‌دارد.';
+
+  @override
+  String get settingsPushTokenFieldLabel => 'توکن دستگاه';
+
+  @override
+  String get settingsPushPlatformLabel => 'پلتفرم';
+
+  @override
+  String get settingsPushRegisterCta => 'ذخیره روی سرور';
+
+  @override
+  String get settingsPushRegisterOk => 'توکن ذخیره شد.';
+
+  @override
+  String get settingsPushRegisterFail => 'ذخیرهٔ توکن ناموفق بود.';
+
+  @override
+  String devPortalShopsLoadError(String error) {
+    return 'بارگذاری فروشگاه‌ها ناموفق: $error';
+  }
+
+  @override
+  String devPortalResetsLoadError(String error) {
+    return 'بارگذاری صف بازنشانی ناموفق: $error';
+  }
+
+  @override
+  String get devPortalResetsEmpty => 'درخواست بازنشانی رمز در انتظار نیست.';
+
+  @override
+  String get devPortalResetsSetPasswordTitle => 'تنظیم رمز جدید';
+
+  @override
+  String get devPortalResetsSetPasswordHint => 'حداقل ۶ نویسه.';
+
+  @override
+  String get devPortalResetsResolveCta => 'اعمال رمز';
+
+  @override
+  String get devPortalResetsResolved => 'رمز به‌روز شد.';
+
+  @override
+  String devPortalResetsResolveFailed(String error) {
+    return 'به‌روزرسانی ناموفق: $error';
+  }
+
+  @override
   String get loginFieldRequired => 'الزامی';
 
   @override
@@ -1976,12 +2049,71 @@ class AppLocalizationsFa extends AppLocalizations {
       'برای آزمایش سلامت API عمومی به اینترنت وصل شوید. فهرست‌های مدیریتی پس از استقرار APIهای مدیریت در دسترس می‌شوند.';
 
   @override
-  String get devPortalAdviceOnlineTitle =>
-      'APIهای فهرست مدیریت هنوز وصل نشده‌اند';
+  String get devPortalAdviceOnlineTitle => 'ابزارهای توسعه‌دهنده';
 
   @override
   String get devPortalAdviceOnlineBody =>
-      'در نمای کلی همچنان می‌توانید GET /health را بزنید. برای بستهٔ پشتیبانی دستگاه از تنظیمات → همگام‌سازی و تشخیص خروجی بگیرید.';
+      'نمای کلی GET /health را می‌زند. فروشگاه‌ها و بازنشانی‌ها وقتی با API به‌عنوان توسعه‌دهنده (PRIDE_DEVELOPER_IDS) وارد شده‌اید بارگذاری می‌شوند. بستهٔ تشخیص را از تنظیمات → همگام‌سازی و تشخیص بگیرید.';
+
+  @override
+  String get devPortalShopsEmpty => 'هنوز فروشگاهی روی سرور ثبت نشده است.';
+
+  @override
+  String devPortalShopRowUsers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count کاربر',
+      one: '۱ کاربر',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String devPortalCodesLoadError(String error) {
+    return 'بارگذاری کدها ناموفق: $error';
+  }
+
+  @override
+  String get devPortalCodesEmpty =>
+      'هنوز کد فعال‌سازی وجود ندارد. برای اعمال زمان پولی یک کد بسازید.';
+
+  @override
+  String get devPortalCodesCreateTitle => 'کد فعال‌سازی جدید';
+
+  @override
+  String get devPortalCodesPlanDaysLabel => 'روزهای پولی پس از فعال‌سازی';
+
+  @override
+  String get devPortalCodesMaxUsesLabel => 'حداکثر دفعات استفاده';
+
+  @override
+  String get devPortalCodesCreateCta => 'تولید کد';
+
+  @override
+  String devPortalCodesCreated(String code) {
+    return 'ایجاد شد: $code';
+  }
+
+  @override
+  String get devPortalCodesCreateFail => 'ایجاد کد ناموفق بود.';
+
+  @override
+  String get devPortalCodesRevokeTitle => 'لغو کد';
+
+  @override
+  String devPortalCodesRevokeBody(String code) {
+    return 'فروشگاه‌ها دیگر نمی‌توانند «$code» را فعال کنند.';
+  }
+
+  @override
+  String get devPortalCodesRevoked => 'کد لغو شد.';
+
+  @override
+  String get devPortalCodesRevokeFail => 'لغو ناموفق بود.';
+
+  @override
+  String get devPortalCodesRevokeCta => 'لغو';
 
   @override
   String get devPortalApiHealthPrompt =>
@@ -2000,7 +2132,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get devPortalStatTrials => 'آزمایش‌های جاری';
 
   @override
-  String get devPortalStatActivations => 'فعال‌سازی‌ها (دوره)';
+  String get devPortalStatActivations => 'ایجاد کد (نمونهٔ ممیزی)';
 
   @override
   String get devPortalApiHealthTitle => 'سلامت API';
@@ -2035,7 +2167,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get devPortalDiagCountLoading => '…';
 
   @override
-  String get devPortalAdminAuditTitle => 'گزارش ممیزی مدیریت (نیمه‌کاره)';
+  String get devPortalAdminAuditTitle => 'گزارش ممیزی مدیریت';
 
   @override
   String get devPortalAdminAuditNeedSignIn =>

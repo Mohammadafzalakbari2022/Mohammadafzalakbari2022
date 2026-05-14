@@ -15,6 +15,91 @@
   "loginUsernameHint": "Your shop login name",
   "loginPasswordLabel": "Password",
   "loginSignInCta": "Sign in",
+  "loginForgotPasswordCta": "Forgot password?",
+  "loginForgotPasswordTitle": "Reset password",
+  "loginForgotPasswordBody": "Enter your shop ID and username. A developer can set a new password from the Developer Portal when your request appears in the queue.",
+  "loginForgotPasswordSubmit": "Submit request",
+  "loginForgotPasswordQueued": "If the account exists, a reset request was queued for support.",
+  "loginForgotPasswordFieldsRequired": "Shop ID and username are required.",
+  "settingsPushTokenTitle": "Push notification token (beta)",
+  "settingsPushTokenHint": "Paste an FCM device token, pick a platform, then save. The server stores it for future push delivery.",
+  "settingsPushTokenFieldLabel": "Device token",
+  "settingsPushPlatformLabel": "Platform",
+  "settingsPushRegisterCta": "Save token to server",
+  "settingsPushRegisterOk": "Token saved.",
+  "settingsPushRegisterFail": "Could not save token.",
+  "devPortalShopsLoadError": "Could not load shops: {error}",
+  "@devPortalShopsLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "devPortalResetsLoadError": "Could not load reset queue: {error}",
+  "@devPortalResetsLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "devPortalResetsEmpty": "No pending password reset requests.",
+  "devPortalResetsSetPasswordTitle": "Set new password",
+  "devPortalResetsSetPasswordHint": "At least 6 characters.",
+  "devPortalResetsResolveCta": "Apply password",
+  "devPortalResetsResolved": "Password updated.",
+  "devPortalResetsResolveFailed": "Could not update: {error}",
+  "@devPortalResetsResolveFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "devPortalShopsEmpty": "No shops on the server yet.",
+  "devPortalShopRowUsers": "{count, plural, one{1 user} other{{count} users}}",
+  "@devPortalShopRowUsers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "devPortalCodesLoadError": "Could not load codes: {error}",
+  "@devPortalCodesLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "devPortalCodesEmpty": "No activation codes yet. Generate one to issue paid time.",
+  "devPortalCodesCreateTitle": "New activation code",
+  "devPortalCodesPlanDaysLabel": "Paid days added on redeem",
+  "devPortalCodesMaxUsesLabel": "Max redemptions",
+  "devPortalCodesCreateCta": "Generate code",
+  "devPortalCodesCreated": "Created: {code}",
+  "@devPortalCodesCreated": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "devPortalCodesCreateFail": "Could not create code.",
+  "devPortalCodesRevokeTitle": "Revoke code",
+  "devPortalCodesRevokeBody": "Shops can no longer redeem “{code}”.",
+  "@devPortalCodesRevokeBody": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "devPortalCodesRevoked": "Code revoked.",
+  "devPortalCodesRevokeFail": "Could not revoke.",
+  "devPortalCodesRevokeCta": "Revoke",
   "loginFieldRequired": "Required",
   "loginDevContinue": "Continue without account (dev)",
   "loginApiHint": "API_BASE_URL is set. The server verifies shop ID, username, and password (POST /auth/login).",
@@ -955,14 +1040,14 @@
   "devPortalStubAction": "API not connected in this build.",
   "devPortalAdviceOfflineTitle": "You appear offline",
   "devPortalAdviceOfflineBody": "Connect to the internet to test public API health. Admin lists need the deployed admin APIs.",
-  "devPortalAdviceOnlineTitle": "Admin list APIs not wired yet",
-  "devPortalAdviceOnlineBody": "Pull down on Overview to call GET /health. Export a device bundle from Settings → Sync & Diagnostics.",
+  "devPortalAdviceOnlineTitle": "Developer tools",
+  "devPortalAdviceOnlineBody": "Overview pings GET /health. Shops and Resets load when you are signed in with the API as a developer (PRIDE_DEVELOPER_IDS). Export diagnostics from Settings → Sync & Diagnostics.",
   "devPortalApiHealthPrompt": "Pull down to refresh and call GET /health.",
   "devPortalEnvBadge": "Environment: dev",
   "devPortalStatShops": "Total shops",
   "devPortalStatActiveExpired": "Active / expired",
   "devPortalStatTrials": "Trials running",
-  "devPortalStatActivations": "Activations (period)",
+  "devPortalStatActivations": "Code creates (audit)",
   "devPortalApiHealthTitle": "API health",
   "devPortalApiHealthUnknown": "Unknown — connect to the API",
   "devPortalCodesStub": "Activation codes: search, create, and revoke will load from the admin API (plan-18).",
@@ -972,7 +1057,7 @@
   "devPortalDiagLocalTitle": "This device (offline cache)",
   "devPortalDiagLocalSubtitle": "Counts from local storage — useful when the admin API is offline.",
   "devPortalDiagCountLoading": "…",
-  "devPortalAdminAuditTitle": "Admin audit log (stub)",
+  "devPortalAdminAuditTitle": "Admin audit log",
   "devPortalAdminAuditNeedSignIn": "Sign in with the API, then pull to refresh.",
   "devPortalAdminAuditLine": "GET /admin/audit-log — {count} row(s), schema v{schema}",
   "@devPortalAdminAuditLine": {

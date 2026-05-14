@@ -32,12 +32,13 @@
 
 - `GET /health`
 - `GET /license/status` — **Bearer JWT** required; per-shop license row (`trial_active` / `active` / `expired` from `expires_at`).
-- `POST /license/redeem` — **Bearer JWT** required; body `{ "code": "..." }`; stub sets shop license to `active` (+365d) for any non-empty code (`plan-04`).
+- `POST /license/redeem` — **Bearer JWT** required; body `{ "code": "..." }`. Redeems a row from **`activation_codes`** when the string matches an active, non-expired code (extends license by `plan_days`). Codes listed in **`PRIDE_LEGACY_REDEEM_CODES`** (default includes `pilot-2026`) still work for dev/e2e without a DB row.
 - `POST /auth/login` — body `{ "shop_id"?, "username", "password" }`; returns **JWT** `access_token`, `license_snapshot`, `user` (`plan-04`).
 - `POST /shop/create` — body `{ "shop_name", "owner_username", "owner_password" }`; creates **Postgres** shop + owner + trial license; response same as login.
 - `POST /shop/join` — same body and response as `POST /auth/login` (shop bootstrap for an existing shop; `plan-04`).
 - `GET /shop/users`, `POST /shop/users`, `DELETE /shop/users/:userId` — **Bearer JWT** required; **owner only**; trial max **2** users, paid max **5** (`plan-04`).
-- `GET /admin/me` — **Bearer JWT** required; body `{ "is_developer": boolean }` (`plan-18`). Default `false`; set comma-separated JWT `sub` values in `PRIDE_DEVELOPER_IDS` to grant developer access.
+- `GET /admin/me` — **Bearer JWT** required; body `{ "is_developer": boolean }` (`plan-18`). Set comma-separated **`shop_users.id`** values (same as JWT `sub`) in `PRIDE_DEVELOPER_IDS` to grant developer access.
+- `GET /admin/stats`, `GET /admin/shops`, `GET /admin/activation-codes`, `POST /admin/activation-codes`, `POST /admin/activation-codes/:id/revoke`, `GET /admin/password-reset-requests`, `POST /admin/password-reset-requests/:id/resolve`, `GET /admin/audit-log` — **developer-only** (`plan-18`); **403** if not in `PRIDE_DEVELOPER_IDS`.
 - `POST /sync/push`, `GET /sync/pull?cursor=` — **Bearer JWT** required; JSON contract in [`plan-04-backend-api.md`](../plan-04-backend-api.md). Mutations are persisted in **Postgres** (`shop_sync_mutations`); pull returns appended rows. **403** `{ "error": "license_expired", ... }` when license is expired (`plan-03`).
 
 **JWT:** set `JWT_SECRET` in production (min 32 chars recommended). Default dev secret is embedded for local runs only.

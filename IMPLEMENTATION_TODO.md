@@ -1,47 +1,43 @@
 # Pride — implementation backlog (prioritized)
 
-Aligned with `plan-00-index.md`, `plan-25-implementation-backlog.md`, and `AGENTS.md`. Check off items as you ship them.
+Aligned with `plan-00-index.md`, `plan-25-implementation-backlog.md`, and `AGENTS.md`.
 
 ## P0 — Foundation (server + client contract)
 
-- [x] **`POST /auth/login`** (NestJS in-memory seed + **JWT**) + Flutter login when `API_BASE_URL` is set (`lib/core/api/pride_api_auth.dart`, `lib/auth/login_screen.dart`).
-- [x] **Persist API session** — `AuthSessionStorage` + restore in `main.dart` before `runApp`; cleared on mock sign-in, dev bypass, and Settings sign-out (`lib/auth/auth_session_storage.dart`).
-- [x] **JWT** + Nest guard on protected routes — **`JwtAuthGuard`** on `/shop/users*`, `/admin/me`, `/sync/*`, **`/license/*`**; `POST /auth/login` and `POST /shop/create` issue **JWT** (`api/src/core/api-core.module.ts`, `auth/jwt-auth.guard.ts`).
-- [ ] **Supabase** (RLS, optional managed auth, hosted DB) — not wired; **Nest uses PostgreSQL + Prisma** for shops/users/licenses (`api/prisma/`).
-- [x] **`POST /shop/create`** — **Postgres** shop + owner + trial license (`shop-bootstrap.controller.ts`); **`GET/POST/DELETE /shop/users`** owner-only + limits (`shop-users.controller.ts`).
-- [x] **`POST /shop/join`** — `plan-04` shop bootstrap; delegates to login (`auth/shop-join.controller.ts`) until invite-based join is specified in plans.
+- [x] **`POST /auth/login`** + Flutter login when `API_BASE_URL` is set.
+- [x] **Persist API session** — restore / clear paths wired.
+- [x] **JWT** + guards on protected routes.
+- [ ] **Supabase-managed RLS / optional managed auth** — not the default path; **Nest + Postgres + Prisma** is what ships (`api/prisma/`). Hosted Postgres (e.g. Supabase connection string) works as the database only.
+- [x] **`POST /shop/create`**, **`POST /shop/join`** (login-shaped until invite spec exists).
 
-## P1 — Licensing & users (plan-04 / plan-06 / plan-15)
+## P1 — Licensing & users
 
-- [x] **`POST /license/redeem`** — **Postgres** per-shop row (non-empty code → `active` +365d stub) + Flutter subscription when `API_BASE_URL` is set (`pride_api_license.dart`, `subscription_screen.dart`).
-- [x] **Shop users**: `POST/GET/DELETE /shop/users` + Settings → Users (Flutter) when API + JWT session; owner-only + trial/paid caps enforced on server (**Postgres**).
+- [x] **`POST /license/redeem`** — DB-backed **`activation_codes`** + optional **`PRIDE_LEGACY_REDEEM_CODES`** (default `pilot-2026`) for dev/e2e.
+- [x] **Shop users** — API + Settings UI when JWT session.
 
 ## P2 — Sync (plan-03 / plan-04)
 
-- [x] **`POST /sync/push`**, **`GET /sync/pull?cursor=`** — Nest **Postgres** append log `shop_sync_mutations` + `shops.last_mutation_revision`; plan-04 **HTTP contract** in `plan-04-backend-api.md` + e2e (`api/src/sync/`).
-- [x] **Client manual path** — `pride_api_sync.dart` + **Sync now** in Settings → Sync & diagnostics: pull, push mapped outbox batch, mark accepted rows synced (`lib/core/sync/`). **Not** full replay/merge/conflict UI.
-- [ ] **Durable sync (remaining)** — client applies **pull** for **orders/customers/payments/tasks/measurement_type** + **conflict** UI (`plan-03`); **notifications** merged from pull today. Server append log only; tombstones / multi-writer rules TBD.
+- [x] **`POST /sync/push`**, **`GET /sync/pull`**, manual Sync in Settings, inbound applier for plan entity types including **`measurement_profile`** and **`catalog_item`**, outbox from UI for those entities.
+- [ ] **Conflict inspector UI** — orders use `server_updated_at` LWW skip; no dedicated merge/conflict screen yet.
 
 ## P3 — Catalog & P2P (plan-14)
 
-- [ ] **Catalog metadata** on server; `GET /catalog/public`, share flags, mutual opt-in enforcement.
-- [ ] **WebRTC signaling** (`POST /p2p/signal`, `GET /p2p/inbox`) + mobile download flow + progress UI.
-- [ ] **Replace** `catalogSharingEnabledProvider` dev stub with API-driven shop flag.
+- [x] **Local catalog** + sync outbox for catalog items.
+- [ ] **Server public catalog feed + WebRTC P2P download** — large vertical; `GET /catalog/public` remains minimal vs full plan-14.
 
 ## P4 — Developer portal (plan-18)
 
-- [x] **`GET /admin/me`** + Nest `is_developer` via `PRIDE_DEVELOPER_IDS`; Flutter `adminMeProvider` + Settings portal entry (`api/src/admin/`, `lib/auth/admin_me_provider.dart`).
-- [ ] **Activation codes, shops, password reset queue** — Nest **`POST/GET /admin/...`** beyond `/me` + replace Flutter placeholder tabs with real API + audit.
+- [x] **`GET /admin/me`**, **`GET /admin/stats`**, **`GET/POST /admin/activation-codes`**, **`POST .../revoke`**, **`GET /admin/shops`** (with license summary), **`GET/POST` password reset queue**, **`GET /admin/audit-log`** (persisted rows), Flutter tabs wired (Overview stats + audit expansion, Codes, Shops, Resets, Diagnostics).
 
-## P5 — Ops & launch (plan-07 / plan-08 / plan-21)
+## P5 — Ops & launch
 
-- [x] **CI (in repo):** [`.github/workflows/flutter_ci.yml`](.github/workflows/flutter_ci.yml) — `flutter pub get` / `gen-l10n` / `analyze` / `test`, plus **`api/`** `npm ci` / `build` / `test` / `test:e2e` on `main`/`master` PRs and pushes.
-- [x] **Deploy runbooks:** Render Blueprint + Postgres in [`render.yaml`](../render.yaml); env + first-login steps in [`api/DEPLOY.md`](../api/DEPLOY.md); smoke in [`TESTING.md`](../TESTING.md) (hosted API).
-- [ ] **Play / App Store / Web** checklist: signing, listings, privacy, PWA smoke (`plan-21`).
+- [x] **CI** — Flutter + API unit + e2e where configured.
+- [x] **Deploy runbooks** — `api/DEPLOY.md`, `render.yaml`, smoke notes in `TESTING.md`.
+- [ ] **Play / App Store / Web** production checklist (`plan-21`) — signing, listings, privacy, PWA smoke (ops).
 
-## P6 — Deferred / nice-to-have
+## P6 — Deferred / larger scope
 
-- [ ] **Push notifications** (server-driven; out of wave 1 per `plan-22`).
-- [ ] **Backup bundle** including catalog image binaries (`plan-15`).
-- [ ] **Dashboard global search** (`plan-09` future).
-- [ ] **Password reset request** from login → developer portal flow end-to-end.
+- [ ] **Server-driven push delivery** (FCM/APNs send path) — device **token registration** exists; full delivery pipeline not done.
+- [ ] **Backup bundle including catalog image binaries** (`plan-15` extension).
+- [ ] **Dashboard global search** (`plan-09`) — deferred when timeboxed.
+- [x] **Password reset request** (login → queue) + **developer resolve** + audit.

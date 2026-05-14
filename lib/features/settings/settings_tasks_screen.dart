@@ -1,15 +1,38 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../auth/auth_providers.dart';
+import '../../data/local/sync_outbox_kinds.dart';
 import '../../data/local/task_summary.dart';
 import '../../data/providers/local_data_providers.dart';
+import '../../shell/shell_sync_providers.dart';
 
 enum _TasksFilter { all, open, done }
 
 DateTime _dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
+
+String _taskUpsertPayloadJson({
+  required String title,
+  required String notes,
+  required bool isDone,
+  required DateTime? dueDate,
+  required DateTime createdAt,
+  required DateTime updatedAt,
+}) {
+  return jsonEncode({
+    'title': title.trim(),
+    'notes': notes,
+    'is_done': isDone,
+    if (dueDate != null)
+      'due_date': _dateOnly(dueDate).toUtc().toIso8601String(),
+    'created_at': createdAt.toUtc().toIso8601String(),
+    'updated_at': updatedAt.toUtc().toIso8601String(),
+  });
+}
 
 class SettingsTasksScreen extends ConsumerStatefulWidget {
   const SettingsTasksScreen({super.key});
@@ -178,6 +201,13 @@ class _SettingsTasksScreenState extends ConsumerState<SettingsTasksScreen> {
                                 ),
                               );
                               if (confirmed != true) return;
+                              final shopId = ref.read(effectiveShopIdProvider);
+                              recordSyncOutboxMutation(
+                                ref,
+                                kind: SyncOutboxKinds.taskDelete,
+                                entityRef: task.internalId,
+                                shopId: shopId,
+                              );
                               await repo.softDeleteTask(task.internalId);
                               if (context.mounted) {
                                 Navigator.of(sheetContext).pop();
@@ -190,12 +220,28 @@ class _SettingsTasksScreenState extends ConsumerState<SettingsTasksScreen> {
                           onPressed: () async {
                             final title = titleCtrl.text.trim();
                             if (title.isEmpty) return;
-                            await repo.upsertTask(
-                              shopId: ref.read(effectiveShopIdProvider),
+                            final shopId = ref.read(effectiveShopIdProvider);
+                            final now = DateTime.now();
+                            final id = await repo.upsertTask(
+                              shopId: shopId,
                               internalId: task?.internalId,
                               title: title,
                               notes: notesCtrl.text.trim(),
                               dueDate: due,
+                            );
+                            recordSyncOutboxMutation(
+                              ref,
+                              kind: SyncOutboxKinds.taskUpsert,
+                              entityRef: id,
+                              shopId: shopId,
+                              payloadJson: _taskUpsertPayloadJson(
+                                title: title,
+                                notes: notesCtrl.text.trim(),
+                                isDone: task?.isDone ?? false,
+                                dueDate: due,
+                                createdAt: task?.createdAt ?? now,
+                                updatedAt: now,
+                              ),
                             );
                             if (context.mounted) {
                               Navigator.of(sheetContext).pop();
@@ -305,9 +351,26 @@ class _SettingsTasksScreenState extends ConsumerState<SettingsTasksScreen> {
                         onChanged: (v) async {
                           final repo =
                               await ref.read(taskRepositoryProvider.future);
+                          final isDone = v == true;
                           await repo.setTaskDone(
                             internalId: t.internalId,
-                            isDone: v == true,
+                            isDone: isDone,
+                          );
+                          final shopId = ref.read(effectiveShopIdProvider);
+                          final now = DateTime.now();
+                          recordSyncOutboxMutation(
+                            ref,
+                            kind: SyncOutboxKinds.taskUpsert,
+                            entityRef: t.internalId,
+                            shopId: shopId,
+                            payloadJson: _taskUpsertPayloadJson(
+                              title: t.title,
+                              notes: t.notes,
+                              isDone: isDone,
+                              dueDate: t.dueDate,
+                              createdAt: t.createdAt,
+                              updatedAt: now,
+                            ),
                           );
                         },
                       ),

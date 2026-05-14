@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -11,8 +13,10 @@ import '../../data/local/measurement_profile_item_input.dart';
 import '../../data/local/measurement_profile_summary.dart';
 import '../../data/local/measurement_type_summary.dart';
 import '../../data/local/measurement_unit_codes.dart';
+import '../../data/local/sync_outbox_kinds.dart';
 import '../../data/providers/local_data_providers.dart';
 import '../../licensing/license_providers.dart';
+import '../../shell/shell_sync_providers.dart';
 import '../orders/order_status_label.dart';
 
 class CustomerProfileScreen extends ConsumerWidget {
@@ -24,6 +28,8 @@ class CustomerProfileScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     AppLocalizations l10n, {
+    required String customerId,
+    required DateTime customerCreatedAt,
     required String currentName,
     required String? currentPhone,
     required String? currentAddress,
@@ -138,6 +144,21 @@ class CustomerProfileScreen extends ConsumerWidget {
       notes: notesText,
     );
 
+    final shopId = ref.read(effectiveShopIdProvider);
+    recordSyncOutboxMutation(
+      ref,
+      kind: SyncOutboxKinds.customerUpsert,
+      entityRef: customerId,
+      shopId: shopId,
+      payloadJson: jsonEncode({
+        'name': nextName,
+        if (phoneText.trim().isNotEmpty) 'phone': phoneText.trim(),
+        if (addressText.trim().isNotEmpty) 'address': addressText.trim(),
+        if (notesText.trim().isNotEmpty) 'notes': notesText.trim(),
+        'created_at': customerCreatedAt.toUtc().toIso8601String(),
+      }),
+    );
+
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(l10n.customerUpdated)),
@@ -175,6 +196,14 @@ class CustomerProfileScreen extends ConsumerWidget {
       ),
     );
     if (ok != true || !context.mounted) return;
+
+    final shopId = ref.read(effectiveShopIdProvider);
+    recordSyncOutboxMutation(
+      ref,
+      kind: SyncOutboxKinds.customerDelete,
+      entityRef: customerId,
+      shopId: shopId,
+    );
 
     final repo = await ref.read(customerListRepositoryProvider.future);
     await repo.softDeleteCustomer(customerId);
@@ -246,6 +275,8 @@ class CustomerProfileScreen extends ConsumerWidget {
                   context,
                   ref,
                   l10n,
+                  customerId: customerId,
+                  customerCreatedAt: c.createdAt,
                   currentName: customerName,
                   currentPhone: customerPhone,
                   currentAddress: customerAddress,
@@ -503,6 +534,34 @@ class CustomerProfileScreen extends ConsumerWidget {
   }
 }
 
+String _measurementProfileSyncPayloadJson({
+  required String customerInternalId,
+  required String label,
+  required String notes,
+  required int unitCode,
+  required List<MeasurementProfileItemInput> items,
+  required DateTime createdAt,
+  required DateTime updatedAt,
+}) {
+  return jsonEncode({
+    'customer_internal_id': customerInternalId,
+    'label': label,
+    'notes': notes,
+    'unit_code': unitCode,
+    'created_at': createdAt.toUtc().toIso8601String(),
+    'updated_at': updatedAt.toUtc().toIso8601String(),
+    'items': [
+      for (final i in items)
+        if (i.value.trim().isNotEmpty)
+          {
+            'measurement_type_internal_id': i.measurementTypeInternalId,
+            'value': i.value.trim(),
+            'unit_code': i.unitCode,
+          },
+    ],
+  });
+}
+
 Future<void> _openMeasurementProfileEditor(
   BuildContext context,
   WidgetRef ref,
@@ -625,18 +684,37 @@ class _MeasurementProfileEditorBodyState
     ];
   }
 
-  Future<void> _saveNew({required String label}) async {
+  Future<String> _saveNew({required String label}) async {
     final repo = await widget.ref.read(
       measurementProfileRepositoryProvider.future,
     );
-    await repo.createProfile(
-      shopId: widget.ref.read(effectiveShopIdProvider),
+    final shopId = widget.ref.read(effectiveShopIdProvider);
+    final now = DateTime.now();
+    final trimmedLabel = label.trim().isEmpty ? '—' : label.trim();
+    final id = await repo.createProfile(
+      shopId: shopId,
       customerInternalId: widget.customerId,
-      label: label,
+      label: trimmedLabel,
       notes: _notesCtrl.text.trim(),
       unitCode: _unit,
       items: _collectItems(),
     );
+    recordSyncOutboxMutation(
+      widget.ref,
+      kind: SyncOutboxKinds.measurementProfileUpsert,
+      entityRef: id,
+      shopId: shopId,
+      payloadJson: _measurementProfileSyncPayloadJson(
+        customerInternalId: widget.customerId,
+        label: trimmedLabel,
+        notes: _notesCtrl.text.trim(),
+        unitCode: _unit,
+        items: _collectItems(),
+        createdAt: now,
+        updatedAt: now,
+      ),
+    );
+    return id;
   }
 
   @override
@@ -752,10 +830,12 @@ class _MeasurementProfileEditorBodyState
                                 final repo = await widget.ref.read(
                                   measurementProfileRepositoryProvider.future,
                                 );
-                                await repo.createProfile(
-                                  shopId: widget.ref.read(
-                                    effectiveShopIdProvider,
-                                  ),
+                                final shopId = widget.ref.read(
+                                  effectiveShopIdProvider,
+                                );
+                                final now = DateTime.now();
+                                final newId = await repo.createProfile(
+                                  shopId: shopId,
                                   customerInternalId: widget.customerId,
                                   label: _labelCtrl.text.trim().isEmpty
                                       ? '${existing.label} (2)'
@@ -763,6 +843,26 @@ class _MeasurementProfileEditorBodyState
                                   notes: _notesCtrl.text.trim(),
                                   unitCode: _unit,
                                   items: _collectItems(),
+                                );
+                                final lbl = _labelCtrl.text.trim().isEmpty
+                                    ? '${existing.label} (2)'
+                                    : _labelCtrl.text.trim();
+                                recordSyncOutboxMutation(
+                                  widget.ref,
+                                  kind:
+                                      SyncOutboxKinds.measurementProfileUpsert,
+                                  entityRef: newId,
+                                  shopId: shopId,
+                                  payloadJson:
+                                      _measurementProfileSyncPayloadJson(
+                                    customerInternalId: widget.customerId,
+                                    label: lbl,
+                                    notes: _notesCtrl.text.trim(),
+                                    unitCode: _unit,
+                                    items: _collectItems(),
+                                    createdAt: now,
+                                    updatedAt: now,
+                                  ),
                                 );
                                 if (widget.sheetContext.mounted) {
                                   Navigator.pop(widget.sheetContext);
@@ -813,6 +913,29 @@ class _MeasurementProfileEditorBodyState
                                   notes: _notesCtrl.text.trim(),
                                   unitCode: _unit,
                                   items: _collectItems(),
+                                );
+                                final shopId = widget.ref.read(
+                                  effectiveShopIdProvider,
+                                );
+                                final now = DateTime.now();
+                                recordSyncOutboxMutation(
+                                  widget.ref,
+                                  kind:
+                                      SyncOutboxKinds.measurementProfileUpsert,
+                                  entityRef: existing.internalId,
+                                  shopId: shopId,
+                                  payloadJson:
+                                      _measurementProfileSyncPayloadJson(
+                                    customerInternalId: widget.customerId,
+                                    label: _labelCtrl.text.trim().isEmpty
+                                        ? '—'
+                                        : _labelCtrl.text.trim(),
+                                    notes: _notesCtrl.text.trim(),
+                                    unitCode: _unit,
+                                    items: _collectItems(),
+                                    createdAt: existing.createdAt,
+                                    updatedAt: now,
+                                  ),
                                 );
                                 if (widget.sheetContext.mounted) {
                                   Navigator.pop(widget.sheetContext);
