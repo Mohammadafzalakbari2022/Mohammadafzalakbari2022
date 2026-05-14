@@ -34,7 +34,7 @@ you replace it manually.
 3. **Render:** **New** → **Blueprint** → select the repo (`render.yaml` at repo root).
 4. When Render asks for **synchronized environment variables**, set **`DATABASE_URL`**
    to the Supabase URI. Leave **`JWT_SECRET`** as generated, or set your own long secret.
-5. **Build** runs `npm install && npm run build` (`prisma generate` + Nest compile).
+5. **Build** runs `npm install --include=dev && npm run build` (`prisma generate` + Nest compile). On Render, `NODE_ENV=production` during build would otherwise **omit devDependencies**, so `nest` is missing — **`--include=dev`** fixes `sh: nest: not found`.
    **`preDeployCommand`** runs `npx prisma migrate deploy` against that URL before the
    new release goes live (creates `shops`, `shop_users`, etc.).
 6. Open the service URL (e.g. `https://pride-api.onrender.com`) and confirm
@@ -60,6 +60,10 @@ Add a `databases` entry to `render.yaml` and wire `DATABASE_URL` with `fromDatab
 Create a **Web Service** with **root directory** `api`, same **build** / **preDeploy** /
 **start** as in `render.yaml`, and set **`DATABASE_URL`**, **`JWT_SECRET`**, **`NODE_ENV=production`**
 by hand. Do **not** commit secrets to git.
+
+**Build command on Render (manual service):** use  
+`npm install --include=dev && npm run build`  
+(not plain `npm install && npm run build`), for the reason above.
 
 ### Flutter client
 

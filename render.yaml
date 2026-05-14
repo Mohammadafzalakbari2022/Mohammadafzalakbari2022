@@ -13,7 +13,9 @@ services:
     runtime: node
     plan: free
     rootDir: api
-    buildCommand: npm install && npm run build
+    # Install devDependencies too (@nestjs/cli); Render sets NODE_ENV=production
+    # during build, which otherwise skips devDeps and breaks `nest build`.
+    buildCommand: npm install --include=dev && npm run build
     # Needs DATABASE_URL (Supabase direct URI recommended for Nest).
     preDeployCommand: npx prisma migrate deploy
     startCommand: npm run start:prod
