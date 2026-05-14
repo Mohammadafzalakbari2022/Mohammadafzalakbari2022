@@ -181,6 +181,7 @@ From the project root (`Pride-v3`):
 
 | Step | Command | Purpose |
 |------|---------|--------|
+| **Nest API (optional)** | `cd api` then `npm install` / `npm run build` / `npm test` / `npm run test:e2e` | Verify the NestJS service in [`api/`](api/) after backend edits. Endpoint list and env vars: [`api/README.md`](api/README.md). On Windows, if `npm install` fails with `ENOTEMPTY`, delete `api/node_modules` and retry. |
 | Dependencies | `flutter pub get` | Sync packages after `pubspec.yaml` changes |
 | Localization | `flutter gen-l10n` | Regenerate `lib/l10n/*.dart` after editing `lib/l10n/*.arb` |
 | Isar / codegen | `dart run build_runner build --delete-conflicting-outputs` | Regenerate `*.g.dart` after editing `@collection` entities in `lib/data/local/entities/` |
@@ -261,6 +262,28 @@ Output: `build/app/outputs/flutter-apk/app-release.apk`.
 
 ---
 
+## Hosted Nest API (smoke against Render or any URL)
+
+Full steps: **[`api/DEPLOY.md`](api/DEPLOY.md)** (Blueprint, migrations, first shop / `PRIDE_AUTH_SEED`).
+
+1. Deploy the API and note the base URL, e.g. `https://pride-api.onrender.com` (no trailing slash).
+2. Run the app with that base URL baked in:
+
+   ```powershell
+   cd C:\Users\Moh.Akbari\Desktop\Pride-v3
+   flutter run -d chrome --dart-define=API_BASE_URL=https://pride-api.onrender.com
+   ```
+
+3. From a shell, confirm health:
+
+   ```powershell
+   curl.exe -sS https://pride-api.onrender.com/health
+   ```
+
+4. Sign in from the Flutter **Login** screen using credentials that exist on the server (either **`PRIDE_AUTH_SEED`** on the service, or the owner account from **`POST /shop/create`**).
+
+---
+
 ## What to click-test (current app shell)
 
 Use this pass after merges that touch **orders**, **notifications**, **sync UI**, or **licensing**:
@@ -268,19 +291,20 @@ Use this pass after merges that touch **orders**, **notifications**, **sync UI**
 1. **Login** — Dev **Continue without account** (debug only) → lands on **Orders**.
 2. **Bottom nav** — All five tabs open without errors.
 3. **Orders list** — Sample orders (in-memory on Web, **Isar** on Android/iOS after first launch). **Search** (order number or customer) and **status chips** (multi-select). Row → **Order details**.
-4. **Order details** — Sections: **Customer**, **Measurements**, **Style**, **Internal notes**, **Payments**, **Audit** (placeholder). **Change status** → confirm → for **Delivered** or **Cancelled**, enter **owner password** (see below). **Delivered/Cancelled** shows a lock hint; **internal notes** stay editable if the license is valid. **Payments**: add payment / adjustment when license is valid (append-only ledger).
+4. **Order details** — Sections: **Customer**, **Measurements**, **Style**, **Internal notes**, **Payments**, **Audit** (local timestamps, internal ID copy, payment-ledger range). **Change status** → confirm → for **Delivered** or **Cancelled**, enter **owner password** (see below). **Delivered/Cancelled** shows a lock hint; **internal notes** stay editable if the license is valid. **Payments**: add payment / adjustment when license is valid (append-only ledger).
 5. **Owner password (local, offline)** — Default development password is **`pride-dev-owner`** (verified via SHA-256 in `lib/security/owner_password_verify.dart`). For release-style builds, set the digest with  
    `--dart-define=PRIDE_OWNER_PASSWORD_SHA256=<64-char lowercase hex>`  
    (hash the shop owner password with SHA-256). Wrong password → snackbar; no status change.
-6. **Notifications** — App bar bell → inbox; unread **badge** when not muted. **Settings → Notifications** — list, mark read, **Mark all read**. **Menu / dashboard drawer** — **Recent notifications** + **View all**.
-7. **Sync & diagnostics** — **Settings → Sync & diagnostics** — **Queued local changes** reflects rows in the **persisted outbox** (Isar on device; in-memory on Web). **Pending mutations** lists recent queue entries (kind + time). Push/retry is still **not** implemented.
+6. **Notifications** — App bar bell → inbox; unread **badge** when not muted. **Settings → Notifications** — list, mark read, **Mark all read**. **Menu / dashboard drawer** — **Recent notifications** + **View all**; quick links include **Tasks**.
+7. **Sync & diagnostics** — **Settings → Sync & diagnostics** — **Local data snapshot** counts match expectations; **API server** shows whether `API_BASE_URL` was passed at build time; when online and a URL is set, **Test connection** calls `GET /health` (expect `200` when the NestJS app exposes that route). **Sync now**: when **signed in with the online API** (JWT), runs **`GET /sync/pull`** then **`POST /sync/push`**; accepted outbox rows are marked synced — the server persists mutations in Postgres and pull returns the append log for that shop (see `plan-04-backend-api.md`). **Queued local changes** reflects rows in the **persisted outbox** (Isar on device; in-memory on Web). **Pending mutations** lists recent queue entries (kind + time).
 8. **New order** — From Orders toolbar → **composer** (customer, measurements/profile, delivery, totals, save) → detail for new id.
 9. **Settings → Subscription** — Opens; back returns.
 10. **License (debug)** — Settings → set **Expired** → **New order** should redirect to **Subscription**; order detail and internal notes become read-only where enforced.
 11. **Backup & restore (native only)** — **Settings → Backup & restore**: owner password (`pride-dev-owner` in dev). Exports **v2 JSON** (`pride_backup_v2_*.json`): customers, **measurement types + profiles + profile lines**, orders (including **internal notes**), payments, order measurement snapshots, notifications. **v1** backup files still restore (without measurement tables). Restore **merges** as before. **Web** shows “use native app” (no Isar).
-12. **Reports** — **Reports** → **Unpaid**: segments **All / Overdue / Due in 7 days**, sort **Amount** vs **Due date**, totals update, row opens order detail. **Monthly income**: toggle **Compare to previous month**; change the month with arrows and confirm previous-month payment total and **Change from previous month** line.
-13. **Reports** — **Reports** → **Payments ledger**: pick a date range, verify total updates, and tapping a row opens the order (when the order still exists locally).
+12. **Reports** — **Reports** → **Unpaid**: segments **All / Overdue / Due in 7 days**, **remaining balance** dropdown (Any / brackets), sort **Amount** vs **Due date**, totals update, row opens order detail. **Monthly income**: **Daily payments** bar strip for the selected month; toggle **Compare to previous month**; change the month with arrows and confirm previous-month payment total and **Change from previous month** line. **Reports** tab overview: **This month income** respects **Settings → calendar** (Gregorian vs solar Hijri month).
+13. **Reports** — **Reports** → **Payments ledger**: pick a date range, verify total updates; use **Group by** **Day / Week / Month** and confirm section headers and subtotals; tapping a row opens the order (when the order still exists locally).
 14. **Tasks** — **Settings → Tasks**: add a task (title + optional notes), set/clear due date, mark done/undone, edit, and delete (soft delete) with confirmation.
+15. **Developer portal (debug)** — Enable **Developer account** in Settings → **Diagnostics** tab shows **local** entity counts (offline).
 
 When you add **RTL** or **new strings**, repeat on **Web** and **Android** at least once.
 
@@ -306,3 +330,11 @@ Document new suites in this file when you add them.
 - *“Android SDK / `flutter doctor` issues — follow `TESTING.md` Android SDK section.”*
 
 Point the agent at **`AGENTS.md`**, **`TESTING.md`**, and the relevant **`plan-NN-*.md`** for the feature.
+
+---
+
+## Optional Sentry (crash / performance)
+
+- **Default:** no DSN → Sentry is not initialized; tests and local runs behave as before.
+- **Enable:** pass `--dart-define=PRIDE_SENTRY_DSN=<your DSN>` (see **`plan-20-flutter-tooling-and-environments.md`** for `PRIDE_SENTRY_ENV` and `PRIDE_SENTRY_TRACES_SAMPLE_RATE`).
+- **Smoke:** after enabling, trigger a handled error or use Sentry’s test event from the dashboard to confirm events arrive for the correct environment.

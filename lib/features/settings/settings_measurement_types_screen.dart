@@ -1,12 +1,45 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
-import '../../data/local/dev_shop_constants.dart';
+import '../../auth/auth_providers.dart';
 import '../../data/local/measurement_type_summary.dart';
+import '../../data/local/sync_outbox_kinds.dart';
 import '../../data/providers/local_data_providers.dart';
 import '../../licensing/license_providers.dart';
+import '../../shell/shell_sync_providers.dart';
+
+void _enqueueMeasurementTypeUpsert(
+  WidgetRef ref, {
+  required String internalId,
+  required String name,
+  int? sortOrder,
+  bool? isActive,
+}) {
+  final map = <String, dynamic>{'name': name};
+  if (sortOrder != null) map['sort_order'] = sortOrder;
+  if (isActive != null) map['is_active'] = isActive;
+  recordSyncOutboxMutation(
+    ref,
+    kind: SyncOutboxKinds.measurementTypeUpsert,
+    entityRef: internalId,
+    shopId: ref.read(effectiveShopIdProvider),
+    payloadJson: jsonEncode(map),
+  );
+}
+
+void _enqueueMeasurementTypeDelete(WidgetRef ref, {required String internalId}) {
+  recordSyncOutboxMutation(
+    ref,
+    kind: SyncOutboxKinds.measurementTypeDelete,
+    entityRef: internalId,
+    shopId: ref.read(effectiveShopIdProvider),
+    payloadJson: '{}',
+  );
+}
 
 Future<void> _applyReorder(
   WidgetRef ref,
@@ -21,10 +54,18 @@ Future<void> _applyReorder(
   final repo = await ref.read(measurementProfileRepositoryProvider.future);
   for (var i = 0; i < list.length; i++) {
     final t = list[i];
+    final sortOrder = (i + 1) * 10;
     await repo.updateMeasurementType(
       internalId: t.internalId,
       name: t.name,
-      sortOrder: (i + 1) * 10,
+      sortOrder: sortOrder,
+      isActive: t.isActive,
+    );
+    _enqueueMeasurementTypeUpsert(
+      ref,
+      internalId: t.internalId,
+      name: t.name,
+      sortOrder: sortOrder,
       isActive: t.isActive,
     );
   }
@@ -100,9 +141,15 @@ class SettingsMeasurementTypesScreen extends ConsumerWidget {
                     final repo = await ref.read(
                       measurementProfileRepositoryProvider.future,
                     );
-                    await repo.createMeasurementType(
-                      shopId: kDevShopId,
+                    final id = await repo.createMeasurementType(
+                      shopId: ref.read(effectiveShopIdProvider),
                       name: name,
+                    );
+                    _enqueueMeasurementTypeUpsert(
+                      ref,
+                      internalId: id,
+                      name: name.trim(),
+                      isActive: true,
                     );
                     if (!context.mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -163,6 +210,13 @@ class SettingsMeasurementTypesScreen extends ConsumerWidget {
                                 sortOrder: t.sortOrder,
                                 isActive: v,
                               );
+                              _enqueueMeasurementTypeUpsert(
+                                ref,
+                                internalId: t.internalId,
+                                name: t.name,
+                                sortOrder: t.sortOrder,
+                                isActive: v,
+                              );
                             },
                             onRename: () async {
                               await _showNameDialog(
@@ -177,6 +231,13 @@ class SettingsMeasurementTypesScreen extends ConsumerWidget {
                                   await repo.updateMeasurementType(
                                     internalId: t.internalId,
                                     name: name,
+                                    sortOrder: t.sortOrder,
+                                    isActive: t.isActive,
+                                  );
+                                  _enqueueMeasurementTypeUpsert(
+                                    ref,
+                                    internalId: t.internalId,
+                                    name: name.trim(),
                                     sortOrder: t.sortOrder,
                                     isActive: t.isActive,
                                   );
@@ -215,6 +276,10 @@ class SettingsMeasurementTypesScreen extends ConsumerWidget {
                                 ),
                               );
                               if (ok != true || !context.mounted) return;
+                              _enqueueMeasurementTypeDelete(
+                                ref,
+                                internalId: t.internalId,
+                              );
                               final repo = await ref.read(
                                 measurementProfileRepositoryProvider.future,
                               );

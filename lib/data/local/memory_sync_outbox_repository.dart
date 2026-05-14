@@ -84,6 +84,7 @@ class MemorySyncOutboxRepository implements SyncOutboxRepository {
             kind: e.kind,
             entityRef: e.entityRef,
             queuedAt: e.queuedAt,
+            payloadJson: e.payloadJson,
           ),
       ];
     }
@@ -92,5 +93,38 @@ class MemorySyncOutboxRepository implements SyncOutboxRepository {
     await for (final _ in _signal.stream) {
       yield mapRows();
     }
+  }
+
+  @override
+  Future<List<SyncOutboxPendingView>> listPendingEntries(
+    String shopId, {
+    int limit = 100,
+  }) async {
+    final list = _pendingFor(shopId);
+    final take = list.length > limit ? list.sublist(0, limit) : list;
+    return [
+      for (final e in take)
+        SyncOutboxPendingView(
+          entryId: e.entryId,
+          kind: e.kind,
+          entityRef: e.entityRef,
+          queuedAt: e.queuedAt,
+          payloadJson: e.payloadJson,
+        ),
+    ];
+  }
+
+  @override
+  Future<void> markPendingSynced(String shopId, List<String> entryIds) async {
+    if (entryIds.isEmpty) return;
+    final now = DateTime.now();
+    for (final r in _rows) {
+      if (entryIds.contains(r.entryId) &&
+          r.shopId == shopId &&
+          r.syncedAt == null) {
+        r.syncedAt = now;
+      }
+    }
+    _emit();
   }
 }

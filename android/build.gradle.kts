@@ -36,6 +36,36 @@ subprojects {
         }
     }
 }
+
+// `package:jni` defaults to compileSdk 31 and no `ndkVersion`. That forces a separate
+// Android SDK Platform 31 download (slow on weak links) and lets AGP pick NDK 27.
+// Match Flutter's template (`FlutterExtension.kt`: compileSdk 36, NDK 28.2).
+subprojects {
+    afterEvaluate {
+        if (name != "jni") return@afterEvaluate
+        val androidExt = extensions.findByName("android") ?: return@afterEvaluate
+        val intType = Integer.TYPE
+        runCatching {
+                val setCompile =
+                    androidExt.javaClass.methods.firstOrNull { m ->
+                        (m.name == "setCompileSdk" || m.name == "setCompileSdkVersion") &&
+                            m.parameterTypes.size == 1 &&
+                            m.parameterTypes[0] == intType
+                    }
+                setCompile?.invoke(androidExt, 36)
+            }
+            .getOrNull()
+        runCatching {
+                androidExt
+                    .javaClass
+                    .methods
+                    .firstOrNull { it.name == "setNdkVersion" && it.parameterTypes.size == 1 }
+                    ?.invoke(androidExt, "28.2.13676358")
+            }
+            .getOrNull()
+    }
+}
+
 subprojects {
     project.evaluationDependsOn(":app")
 }

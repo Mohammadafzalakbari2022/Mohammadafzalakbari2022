@@ -1,6 +1,6 @@
 # Afghan Pride — agent / AI coding contract
 
-This file applies **only to this repository**. Humans and automated agents must follow it during implementation so behavior stays consistent with `plan-00-index.md` through `plan-21-launch-deployment.md` and `plans.md`.
+This file applies **only to this repository**. Humans and automated agents must follow it during implementation so behavior stays consistent with `plan-00-index.md` through **`plan-25-implementation-backlog.md`** and `plans.md`.
 
 ## How I work (product owner testing vs. engineering targets)
 

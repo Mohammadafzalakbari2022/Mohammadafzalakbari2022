@@ -62,8 +62,48 @@ class IsarSyncOutboxRepository implements SyncOutboxRepository {
             kind: e.kind,
             entityRef: e.entityRef,
             queuedAt: e.queuedAt,
+            payloadJson: e.payloadJson,
           ),
       ];
+    });
+  }
+
+  @override
+  Future<List<SyncOutboxPendingView>> listPendingEntries(
+    String shopId, {
+    int limit = 100,
+  }) async {
+    final list = await _isar.syncOutboxEntitys
+        .filter()
+        .shopIdEqualTo(shopId)
+        .and()
+        .syncedAtIsNull()
+        .sortByQueuedAtDesc()
+        .findAll();
+    final take = list.length > limit ? list.sublist(0, limit) : list;
+    return [
+      for (final e in take)
+        SyncOutboxPendingView(
+          entryId: e.entryId,
+          kind: e.kind,
+          entityRef: e.entityRef,
+          queuedAt: e.queuedAt,
+          payloadJson: e.payloadJson,
+        ),
+    ];
+  }
+
+  @override
+  Future<void> markPendingSynced(String shopId, List<String> entryIds) async {
+    if (entryIds.isEmpty) return;
+    final now = DateTime.now();
+    await _isar.writeTxn(() async {
+      for (final id in entryIds) {
+        final e = await _isar.syncOutboxEntitys.getByEntryId(id);
+        if (e == null || e.shopId != shopId || e.syncedAt != null) continue;
+        e.syncedAt = now;
+        await _isar.syncOutboxEntitys.putByEntryId(e);
+      }
     });
   }
 }

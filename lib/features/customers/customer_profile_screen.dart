@@ -5,8 +5,8 @@ import 'package:pride_v3/core/calendar/app_calendar_format.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
+import '../../auth/auth_providers.dart';
 import '../../data/local/customer_summary.dart';
-import '../../data/local/dev_shop_constants.dart';
 import '../../data/local/measurement_profile_item_input.dart';
 import '../../data/local/measurement_profile_summary.dart';
 import '../../data/local/measurement_type_summary.dart';
@@ -630,7 +630,7 @@ class _MeasurementProfileEditorBodyState
       measurementProfileRepositoryProvider.future,
     );
     await repo.createProfile(
-      shopId: kDevShopId,
+      shopId: widget.ref.read(effectiveShopIdProvider),
       customerInternalId: widget.customerId,
       label: label,
       notes: _notesCtrl.text.trim(),
@@ -753,7 +753,9 @@ class _MeasurementProfileEditorBodyState
                                   measurementProfileRepositoryProvider.future,
                                 );
                                 await repo.createProfile(
-                                  shopId: kDevShopId,
+                                  shopId: widget.ref.read(
+                                    effectiveShopIdProvider,
+                                  ),
                                   customerInternalId: widget.customerId,
                                   label: _labelCtrl.text.trim().isEmpty
                                       ? '${existing.label} (2)'

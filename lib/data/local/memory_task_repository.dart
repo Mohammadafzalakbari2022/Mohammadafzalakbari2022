@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 
 import 'task_repository.dart';
 import 'task_summary.dart';
+import 'sync_pull_payload.dart';
 
 class MemoryTaskRepository implements TaskRepository {
   final _uuid = const Uuid();
@@ -117,6 +118,62 @@ class MemoryTaskRepository implements TaskRepository {
       createdAt: prev.createdAt,
       updatedAt: DateTime.now(),
       deletedAt: DateTime.now(),
+    );
+    _emit();
+  }
+
+  @override
+  Future<void> mergeRemoteTask({
+    required String shopId,
+    required String internalId,
+    required String operation,
+    Object? data,
+  }) async {
+    if (operation == 'delete') {
+      await softDeleteTask(internalId);
+      return;
+    }
+    final m = syncPullDataMap(data);
+    final title = syncPullString(m, const ['title']);
+    if (title == null || title.trim().isEmpty) return;
+    final notes = syncPullString(m, const ['notes']) ?? '';
+    final isDone = syncPullBool(m, const ['is_done', 'isDone']) ?? false;
+    final dueDate = syncPullDateTime(m, const ['due_date', 'dueDate']);
+    final now = DateTime.now();
+    final createdRemote =
+        syncPullDateTime(m, const ['created_at', 'createdAt']) ?? now;
+    final updatedRemote =
+        syncPullDateTime(m, const ['updated_at', 'updatedAt']) ?? now;
+
+    final idx = _tasks.indexWhere((t) => t.internalId == internalId);
+    if (idx == -1) {
+      _tasks.add(
+        TaskSummary(
+          internalId: internalId,
+          shopId: shopId,
+          title: title.trim(),
+          notes: notes,
+          isDone: isDone,
+          dueDate: dueDate,
+          createdAt: createdRemote,
+          updatedAt: updatedRemote,
+          deletedAt: null,
+        ),
+      );
+      _emit();
+      return;
+    }
+    final prev = _tasks[idx];
+    _tasks[idx] = TaskSummary(
+      internalId: prev.internalId,
+      shopId: shopId,
+      title: title.trim(),
+      notes: notes,
+      isDone: isDone,
+      dueDate: dueDate,
+      createdAt: prev.createdAt,
+      updatedAt: updatedRemote,
+      deletedAt: null,
     );
     _emit();
   }

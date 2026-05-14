@@ -51,6 +51,7 @@ Empty state:
 3) Style (view/edit while not delivered/cancelled)
 4) Payment ledger (append-only)
 5) Audit trail (optional later; at least show created_by + timestamps)
+   - **Implemented (MVP):** local `createdAt` / `updatedAt`, internal id, current status/delivery, and payment-ledger time range (append-only payments).
 
 ### Status banner + actions
 - Status shown prominently at top (chip + last updated time)

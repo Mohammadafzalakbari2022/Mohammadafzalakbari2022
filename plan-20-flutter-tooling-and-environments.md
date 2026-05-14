@@ -21,6 +21,8 @@ Flow: build and integrate in **dev**, then point builds at **staging** for QA, t
   - `API_BASE_URL` — REST API root (e.g. `https://api-dev.example.com`)
   - `SUPABASE_URL` / `SUPABASE_ANON_KEY` — public client keys only (never service role in app)
 
+**Flutter wiring:** `API_BASE_URL` is read at compile time in `lib/core/api/pride_api_config.dart`. **Settings → Sync & diagnostics** can call `GET {API_BASE_URL}/health` (see `lib/core/api/pride_api_health.dart`) to verify the server is reachable before full sync is implemented (plan-04).
+
 Example (conceptual):
 
 - dev: `--dart-define=ENV=dev` + `--dart-define=API_BASE_URL=...`
@@ -113,3 +115,23 @@ Before writing feature code, confirm these are aligned (no contradictions in doc
 **Current snapshot (example):** Flutter stable + Web/Chrome OK; `flutter analyze` clean after `pub get`. Resolve any `flutter doctor` Android warnings before relying on `flutter build apk` in CI.
 
 **AI / agent contract:** follow root [`AGENTS.md`](AGENTS.md) for non-negotiable project rules during implementation.
+
+## Optional crash reporting (Sentry)
+
+The app can send crashes and performance traces to **Sentry** when a DSN is provided at compile time. If the DSN is **empty**, the app runs normally with **no** Sentry initialization (default for local dev and CI).
+
+Keep **`sentry_flutter` on a recent 9.x** (see `pubspec.yaml`): older **8.x** Android builds used Kotlin **language version 1.6**, which **fails** with current **Kotlin 2.x** Android toolchains (`Language version 1.6 is no longer supported` during `:sentry_flutter:compileDebugKotlin`).
+
+| Dart define | Purpose |
+|-------------|---------|
+| `PRIDE_SENTRY_DSN` | Sentry project DSN (HTTPS URL). Omit or leave empty to disable. |
+| `PRIDE_SENTRY_ENV` | Release environment label (default `development`). |
+| `PRIDE_SENTRY_TRACES_SAMPLE_RATE` | Performance sample rate `0.0`–`1.0` (default `0.2`). |
+
+Example (staging / QA):
+
+```bash
+flutter run --dart-define=PRIDE_SENTRY_DSN=https://examplePublicKey@o0.ingest.sentry.io/0 --dart-define=PRIDE_SENTRY_ENV=staging
+```
+
+Do **not** commit production DSNs or auth tokens in source. Document team-specific run commands in `TESTING.md`.

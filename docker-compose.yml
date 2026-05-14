@@ -1,0 +1,18 @@
+# Local Postgres for pride-api (`plan-04` / P0). Start: `docker compose up -d`
+#
+# Host port **5433** → container 5432 avoids clashing with a Windows PostgreSQL
+# install that already uses 127.0.0.1:5432 (wrong server = Prisma P1000 for user `pride`).
+services:
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: pride
+      POSTGRES_PASSWORD: pride
+      POSTGRES_DB: pride_api
+    volumes:
+      - pride_pg_data:/var/lib/postgresql/data
+
+volumes:
+  pride_pg_data:

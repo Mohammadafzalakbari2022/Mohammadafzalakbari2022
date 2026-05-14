@@ -1,4 +1,5 @@
-# Required status check for branch protection: job name shows as "analyze-and-test".
+# Required status check for branch protection: Flutter job name shows as "analyze-and-test".
+# Optional: also require "nestjs-build-test-e2e" once the branch protection UI lists it after a run.
 name: CI
 
 on:
@@ -26,3 +27,39 @@ jobs:
       - run: flutter gen-l10n
       - run: flutter analyze
       - run: flutter test
+
+  api:
+    name: nestjs-build-test-e2e
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: pride
+          POSTGRES_PASSWORD: pride
+          POSTGRES_DB: pride_api
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://pride:pride@localhost:5432/pride_api
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+      - run: npm run test:e2e

@@ -11,6 +11,15 @@ abstract class PaymentRepository {
     required int amountMinor,
     required String method,
     required bool isAdjustment,
+    String? internalId,
+  });
+
+  /// Apply one row from `GET /sync/pull` (`plan-03`).
+  Future<void> mergeRemotePayment({
+    required String shopId,
+    required String internalId,
+    required String operation,
+    Object? data,
   });
 }
 

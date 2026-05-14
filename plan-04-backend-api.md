@@ -89,6 +89,82 @@ Password reset (selected)
 - `POST /sync/push` (batch upserts/deletes)
 - `GET /sync/pull?cursor=...` (delta changes)
 
+#### Sync HTTP contract (v1 scaffold; in-memory until Postgres)
+
+**Auth:** both endpoints require `Authorization: Bearer <JWT>`. All mutations apply to the JWT’s `shop_id` only (ignore any `shop_id` inside `data` for authorization; server uses the token).
+
+**License:** if `GET /license/status` would return `status: "expired"`, both endpoints respond **403** with JSON body `{ "error": "license_expired", "message": "..." }` and the client must not retry until license is valid again (`plan-03`).
+
+---
+
+**`POST /sync/push`**
+
+Request body:
+
+```json
+{
+  "mutations": [
+    {
+      "internal_id": "<uuid|ulid string>",
+      "entity_type": "order|customer|payment|notification|measurement_type|task",
+      "operation": "upsert|delete",
+      "client_updated_at": "<ISO-8601 instant>",
+      "data": {}
+    }
+  ]
+}
+```
+
+Rules:
+- `mutations` is required; may be an empty array (heartbeat / cursor bump).
+- `data` is required for `operation: "upsert"` (may be `{}`); ignored for `delete`.
+- `entity_type` must be one of the literals above (extend later per `plan-02`).
+
+Response **200:**
+
+```json
+{
+  "server_now": "<ISO-8601>",
+  "results": [
+    {
+      "internal_id": "<same as request>",
+      "status": "accepted|conflict|rejected",
+      "message": null
+    }
+  ],
+  "next_cursor": "<opaque string; client may store as pull cursor hint>"
+}
+```
+
+Scaffold behavior: server returns `accepted` for every well-formed mutation and does not persist rows yet. `conflict` / `rejected` are reserved for when the real merge engine exists (`plan-03`).
+
+---
+
+**`GET /sync/pull?cursor=<string>`**
+
+Query:
+- `cursor` optional. Opaque token returned by the last successful **pull** or **push** (`next_cursor`). Omit or empty string means “from beginning” for that shop.
+
+Response **200:**
+
+```json
+{
+  "server_now": "<ISO-8601>",
+  "changes": [
+    {
+      "internal_id": "<string>",
+      "entity_type": "order|customer|payment|notification|measurement_type|task",
+      "operation": "upsert|delete",
+      "server_updated_at": "<ISO-8601>",
+      "data": {}
+    }
+  ],
+  "next_cursor": "<opaque string>"
+}
+```
+
+Scaffold behavior: `changes` is always an empty array until server-side history exists; `next_cursor` still advances so clients can test cursor plumbing.
+
 ### Licensing
 - `POST /license/redeem` (activation code)
 - `GET /license/status`

@@ -224,7 +224,7 @@ class _CatalogTabScreenState extends ConsumerState<CatalogTabScreen> {
             subtitle: Text(l10n.catalogSharingToggleSubtitle),
             value: sharedEnabled,
             onChanged: (v) {
-              ref.read(catalogSharingEnabledProvider.notifier).state = v;
+              ref.read(catalogSharingEnabledProvider.notifier).set(v);
               if (!v && _segment == _CatalogSegment.sharedDesigns) {
                 setState(() => _segment = _CatalogSegment.myDesigns);
               }

@@ -15,4 +15,18 @@ class LicenseNotifier extends ChangeNotifier {
     _status = value;
     notifyListeners();
   }
+
+  /// Applies `license_snapshot` from `POST /auth/login` or `GET /license/status`.
+  void applyLicenseSnapshotMap(Map<String, dynamic> json) {
+    final raw = json['status'];
+    if (raw is! String) return;
+    final next = switch (raw) {
+      'trial_active' => LicenseStatus.trialActive,
+      'active' => LicenseStatus.active,
+      'expired' => LicenseStatus.expired,
+      _ => null,
+    };
+    if (next == null) return;
+    setStatus(next);
+  }
 }

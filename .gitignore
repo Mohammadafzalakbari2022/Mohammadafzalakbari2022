@@ -44,6 +44,10 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# Path-override plugins under `third_party/` (e.g. isar_flutter_libs) may create their
+# own Gradle cache when Android Studio / Gradle syncs that subproject — do not commit.
+third_party/**/.gradle/
+
 # Local env & signing (never commit secrets)
 .env
 .env.*
@@ -61,3 +65,8 @@ android/key.properties
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+# NestJS API (`api/`)
+api/node_modules/
+api/dist/
+api/coverage/

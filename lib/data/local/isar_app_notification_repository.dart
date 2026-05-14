@@ -62,9 +62,11 @@ class IsarAppNotificationRepository implements AppNotificationRepository {
     required String title,
     required String body,
     String? relatedOrderInternalId,
+    String? internalId,
   }) async {
+    final id = internalId ?? _uuid.v4();
     final e = AppNotificationEntity()
-      ..internalId = _uuid.v4()
+      ..internalId = id
       ..shopId = shopId
       ..title = title
       ..body = body
@@ -73,6 +75,48 @@ class IsarAppNotificationRepository implements AppNotificationRepository {
       ..relatedOrderInternalId = relatedOrderInternalId;
 
     await _isar.writeTxn(() async {
+      await _isar.appNotificationEntitys.putByInternalId(e);
+    });
+  }
+
+  @override
+  Future<void> mergeRemoteNotification({
+    required String shopId,
+    required String internalId,
+    required String operation,
+    Object? data,
+  }) async {
+    if (operation == 'delete') {
+      await _isar.writeTxn(() async {
+        await _isar.appNotificationEntitys.deleteByInternalId(internalId);
+      });
+      return;
+    }
+    if (operation != 'upsert') return;
+    if (data is! Map) return;
+    final m = Map<String, dynamic>.from(data);
+    final title = m['title'];
+    final body = m['body'];
+    if (title is! String || body is! String) return;
+    final rel = m['related_order_internal_id'];
+    final createdRaw = m['created_at'];
+    final createdAt = createdRaw is String
+        ? (DateTime.tryParse(createdRaw) ?? DateTime.now())
+        : DateTime.now();
+    DateTime? readAt;
+    final readRaw = m['read_at'];
+    if (readRaw is String) readAt = DateTime.tryParse(readRaw);
+
+    await _isar.writeTxn(() async {
+      final e = AppNotificationEntity()
+        ..internalId = internalId
+        ..shopId = shopId
+        ..title = title
+        ..body = body
+        ..createdAt = createdAt
+        ..readAt = readAt
+        ..relatedOrderInternalId =
+            rel is String && rel.isNotEmpty ? rel : null;
       await _isar.appNotificationEntitys.putByInternalId(e);
     });
   }

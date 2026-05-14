@@ -10,6 +10,7 @@ import 'measurement_profile_summary.dart';
 import 'measurement_type_summary.dart';
 import 'measurement_unit_codes.dart';
 import 'seed_data.dart';
+import 'sync_pull_payload.dart';
 
 class _TypeRow {
   _TypeRow({
@@ -346,6 +347,50 @@ class MemoryMeasurementProfileRepository
     final t = _typeByInternalId(internalId);
     if (t == null || t.deletedAt != null) return;
     t.deletedAt = DateTime.now();
+    _emit();
+  }
+
+  @override
+  Future<void> mergeRemoteMeasurementType({
+    required String shopId,
+    required String internalId,
+    required String operation,
+    Object? data,
+  }) async {
+    await seedIfEmpty();
+    if (operation == 'delete') {
+      await softDeleteMeasurementType(internalId);
+      return;
+    }
+    final m = syncPullDataMap(data);
+    final name = syncPullString(m, const ['name']);
+    if (name == null || name.trim().isEmpty) return;
+    final sortOrderIn = syncPullInt(m, const ['sort_order', 'sortOrder']);
+    final isActive = syncPullBool(m, const ['is_active', 'isActive']) ?? true;
+
+    final existing = _typeByInternalId(internalId);
+    if (existing == null) {
+      var maxOrder = 0;
+      for (final t in _types) {
+        if (t.shopId != shopId || t.deletedAt != null) continue;
+        if (t.sortOrder > maxOrder) maxOrder = t.sortOrder;
+      }
+      _types.add(
+        _TypeRow(
+          internalId: internalId,
+          shopId: shopId,
+          name: name.trim(),
+          sortOrder: sortOrderIn ?? maxOrder + 10,
+          isActive: isActive,
+        ),
+      );
+      _emit();
+      return;
+    }
+    existing.name = name.trim();
+    if (sortOrderIn != null) existing.sortOrder = sortOrderIn;
+    existing.isActive = isActive;
+    existing.deletedAt = null;
     _emit();
   }
 

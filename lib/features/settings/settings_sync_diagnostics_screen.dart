@@ -1,18 +1,222 @@
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:pride_v3/core/api/pride_api_config.dart';
 import 'package:pride_v3/core/calendar/app_calendar_format.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
+import 'package:pride_v3/core/diagnostics/diagnostics_export_payload.dart';
+import 'package:pride_v3/core/diagnostics/diagnostics_share.dart';
+import 'package:pride_v3/core/persistence/shared_preferences_provider.dart';
+import 'package:pride_v3/core/persistence/sync_diagnostics_storage.dart';
+import 'package:pride_v3/core/sync/manual_sync_runner.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
+import 'package:pride_v3/licensing/license_notifier.dart';
+import 'package:pride_v3/licensing/license_providers.dart';
 
+import '../../auth/auth_providers.dart';
 import '../../data/providers/local_data_providers.dart';
 import '../../shell/shell_sync_providers.dart';
+import 'settings_api_connection_card.dart';
+
+String _asyncListLen<T>(AsyncValue<List<T>> v, String loading) {
+  return v.maybeWhen(data: (l) => '${l.length}', orElse: () => loading);
+}
 
 /// Sync & diagnostics shell (plan-15).
-class SettingsSyncDiagnosticsScreen extends ConsumerWidget {
+class SettingsSyncDiagnosticsScreen extends ConsumerStatefulWidget {
   const SettingsSyncDiagnosticsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SettingsSyncDiagnosticsScreen> createState() =>
+      _SettingsSyncDiagnosticsScreenState();
+}
+
+class _SettingsSyncDiagnosticsScreenState
+    extends ConsumerState<SettingsSyncDiagnosticsScreen> {
+  bool _syncBusy = false;
+  bool _exportBusy = false;
+
+  String _licenseStatusExport() {
+    final s = ref.read(licenseNotifierProvider).status;
+    return switch (s) {
+      LicenseStatus.trialActive => 'trial_active',
+      LicenseStatus.active => 'active',
+      LicenseStatus.expired => 'expired',
+    };
+  }
+
+  int _listCount<T>(AsyncValue<List<T>> v) =>
+      v.maybeWhen(data: (list) => list.length, orElse: () => 0);
+
+  Future<void> _exportDiagnostics() async {
+    final l10n = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    final locale = Localizations.localeOf(context).toString();
+    setState(() => _exportBusy = true);
+    try {
+      final info = await PackageInfo.fromPlatform();
+      if (!mounted) return;
+      final auth = ref.read(authSessionProvider);
+      final online = ref.read(connectivityOnlineProvider);
+      final base = PrideApiConfig.normalizedBase;
+      String? apiHost;
+      if (base != null) {
+        try {
+          apiHost = Uri.parse(base).host;
+        } catch (_) {
+          apiHost = null;
+        }
+      }
+      final authMode = auth.hasApiSession
+          ? 'api'
+          : auth.authenticated
+              ? 'local'
+              : 'none';
+
+      final lastSync = ref.read(lastSuccessfulSyncAtProvider);
+      final shopId = ref.read(effectiveShopIdProvider);
+      final snapshot = DiagnosticsExportSnapshot(
+        appName: info.appName,
+        appVersion: info.version,
+        buildNumber: info.buildNumber,
+        isWeb: kIsWeb,
+        defaultTargetPlatformName: defaultTargetPlatform.name,
+        locale: locale,
+        connectivityOnline: online,
+        apiBaseConfigured: PrideApiConfig.isConfigured,
+        apiBaseHost: apiHost,
+        authMode: authMode,
+        authHasSession: auth.authenticated,
+        shopId: auth.shopId,
+        isShopOwner: auth.isShopOwner,
+        licenseStatus: _licenseStatusExport(),
+        lastSuccessfulSyncUtcIso: lastSync?.toUtc().toIso8601String(),
+        outboxPendingCount: ref
+            .read(syncPendingOutboxCountProvider)
+            .maybeWhen(data: (n) => n, orElse: () => 0),
+        countOrders: _listCount(ref.read(ordersListStreamProvider)),
+        countCustomers: _listCount(ref.read(customersListStreamProvider)),
+        countPayments: _listCount(ref.read(paymentsForShopProvider(shopId))),
+        countTasks: _listCount(ref.read(tasksForShopProvider(shopId))),
+        countNotifications:
+            _listCount(ref.read(appNotificationsStreamProvider)),
+        countUnreadNotifications: ref.read(unreadAppNotificationCountProvider),
+      );
+
+      final json = const JsonEncoder.withIndent('  ')
+          .convert(buildDiagnosticsExportMap(snapshot));
+      final stamp = DateTime.now()
+          .toUtc()
+          .toIso8601String()
+          .replaceAll(':', '-')
+          .split('.')
+          .first;
+      final filename = 'pride-diagnostics-$stamp.json';
+      await shareDiagnosticsBundle(json, filename);
+      if (!mounted) return;
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.settingsDiagnosticsExportSuccess)),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.settingsDiagnosticsExportError('$e'))),
+      );
+    } finally {
+      if (mounted) setState(() => _exportBusy = false);
+    }
+  }
+
+  Future<void> _onRetrySync() async {
+    final l10n = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    if (!ref.read(connectivityOnlineProvider)) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.settingsSyncRetryOffline)),
+      );
+      return;
+    }
+    if (!PrideApiConfig.isConfigured) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.settingsSyncRetryConfigureApi)),
+      );
+      return;
+    }
+    final auth = ref.read(authSessionProvider);
+    final token = auth.accessToken;
+    if (!auth.hasApiSession || token == null) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.settingsSyncRetrySignIn)),
+      );
+      return;
+    }
+    setState(() => _syncBusy = true);
+    try {
+      final repo = await ref.read(syncOutboxRepositoryProvider.future);
+      final notifRepo = await ref.read(appNotificationRepositoryProvider.future);
+      final customersRepo = await ref.read(customerListRepositoryProvider.future);
+      final tasksRepo = await ref.read(taskRepositoryProvider.future);
+      final paymentsRepo = await ref.read(paymentRepositoryProvider.future);
+      final ordersRepo = await ref.read(orderListRepositoryProvider.future);
+      final measurementRepo =
+          await ref.read(measurementProfileRepositoryProvider.future);
+      final prefs = ref.read(sharedPreferencesProvider);
+      final syncShopId = ref.read(effectiveShopIdProvider);
+      final outcome = await runManualSyncWithOutbox(
+        outboxRepo: repo,
+        accessToken: token,
+        prefs: prefs,
+        syncShopId: syncShopId,
+        notifications: notifRepo,
+        customers: customersRepo,
+        tasks: tasksRepo,
+        payments: paymentsRepo,
+        orders: ordersRepo,
+        measurementProfiles: measurementRepo,
+      );
+      if (!mounted) return;
+      switch (outcome) {
+        case ManualSyncSuccess(
+            :final pushedMutationCount,
+            :final remoteChangeCount,
+          ):
+          final at = DateTime.now();
+          ref.read(lastSuccessfulSyncAtProvider.notifier).state = at;
+          await SyncDiagnosticsStorage.recordSuccessfulSync(
+            ref.read(sharedPreferencesProvider),
+            at,
+          );
+          messenger.showSnackBar(
+            SnackBar(
+              content: Text(
+                l10n.settingsSyncRetrySuccess(
+                  pushedMutationCount,
+                  remoteChangeCount,
+                ),
+              ),
+            ),
+          );
+        case ManualSyncFailure(:final message):
+          if (message == 'license_expired') {
+            messenger.showSnackBar(
+              SnackBar(content: Text(l10n.settingsSyncRetryLicenseExpired)),
+            );
+          } else {
+            messenger.showSnackBar(
+              SnackBar(content: Text(l10n.settingsSyncRetryFailed(message))),
+            );
+          }
+      }
+    } finally {
+      if (mounted) setState(() => _syncBusy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).toString();
     final calendar = ref.watch(dateCalendarSystemProvider);
@@ -30,6 +234,15 @@ class SettingsSyncDiagnosticsScreen extends ConsumerWidget {
     final queueSubtitle = queued == 0
         ? l10n.settingsSyncQueuedZero
         : l10n.settingsSyncQueuedCount(queued);
+
+    final shopId = ref.watch(effectiveShopIdProvider);
+    final ordersAsync = ref.watch(ordersListStreamProvider);
+    final customersAsync = ref.watch(customersListStreamProvider);
+    final paymentsAsync = ref.watch(paymentsForShopProvider(shopId));
+    final tasksAsync = ref.watch(tasksForShopProvider(shopId));
+    final notificationsAsync = ref.watch(appNotificationsStreamProvider);
+    final unread = ref.watch(unreadAppNotificationCountProvider);
+    final loading = l10n.devPortalDiagCountLoading;
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.settingsSyncDiagnosticsTitle)),
@@ -74,6 +287,49 @@ class SettingsSyncDiagnosticsScreen extends ConsumerWidget {
                   leading: const Icon(Icons.queue_outlined),
                   title: Text(l10n.settingsSyncQueuedTitle),
                   subtitle: Text(queueSubtitle),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          const SettingsApiConnectionCard(),
+          const SizedBox(height: 16),
+          Text(
+            l10n.settingsSyncLocalSnapshotTitle,
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
+          const SizedBox(height: 8),
+          Card(
+            child: Column(
+              children: [
+                ListTile(
+                  title: Text(l10n.settingsSyncLocalOrders),
+                  trailing: Text(_asyncListLen(ordersAsync, loading)),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  title: Text(l10n.settingsSyncLocalCustomers),
+                  trailing: Text(_asyncListLen(customersAsync, loading)),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  title: Text(l10n.settingsSyncLocalPayments),
+                  trailing: Text(_asyncListLen(paymentsAsync, loading)),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  title: Text(l10n.settingsSyncLocalTasks),
+                  trailing: Text(_asyncListLen(tasksAsync, loading)),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  title: Text(l10n.settingsSyncLocalNotifications),
+                  trailing: Text(_asyncListLen(notificationsAsync, loading)),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  title: Text(l10n.settingsSyncLocalUnread),
+                  trailing: Text('$unread'),
                 ),
               ],
             ),
@@ -137,22 +393,42 @@ class SettingsSyncDiagnosticsScreen extends ConsumerWidget {
           const SizedBox(height: 8),
           Card(
             child: ListTile(
+              leading: const Icon(Icons.cloud_upload_outlined),
+              title: Text(l10n.settingsSyncRetryTitle),
+              subtitle: Text(l10n.settingsSyncRetrySubtitle),
+              trailing: _syncBusy
+                  ? const SizedBox(
+                      width: 28,
+                      height: 28,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.chevron_right),
+              onTap: _syncBusy ? null : _onRetrySync,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Card(
+            child: ListTile(
               leading: const Icon(Icons.outbox_outlined),
               title: Text(l10n.settingsSyncOutboxPlaceholderTitle),
               subtitle: Text(l10n.settingsSyncOutboxPlaceholderSubtitle),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: null,
             ),
           ),
           const SizedBox(height: 16),
           FilledButton.icon(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.settingsDiagnosticsExportSoon)),
-              );
-            },
-            icon: const Icon(Icons.ios_share_outlined),
-            label: Text(l10n.settingsDiagnosticsExportCta),
+            onPressed: _exportBusy ? null : _exportDiagnostics,
+            icon: _exportBusy
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.ios_share_outlined),
+            label: Text(
+              _exportBusy
+                  ? l10n.settingsDiagnosticsExportBusy
+                  : l10n.settingsDiagnosticsExportCta,
+            ),
           ),
           const SizedBox(height: 8),
           Text(

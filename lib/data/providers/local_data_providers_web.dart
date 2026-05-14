@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../auth/auth_providers.dart';
 import '../local/dev_shop_constants.dart';
 import '../local/customer_list_repository.dart';
 import '../local/customer_summary.dart';
@@ -40,7 +41,8 @@ final orderListRepositoryProvider =
 final ordersListStreamProvider =
     StreamProvider<List<OrderSummary>>((ref) async* {
   final repo = await ref.watch(orderListRepositoryProvider.future);
-  yield* repo.watchOrders(kDevShopId);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchOrders(shopId);
 });
 
 final paymentRepositoryProvider = FutureProvider<PaymentRepository>((ref) async {
@@ -82,7 +84,8 @@ final customerListRepositoryProvider =
 final customersListStreamProvider =
     StreamProvider<List<CustomerSummary>>((ref) async* {
   final repo = await ref.watch(customerListRepositoryProvider.future);
-  yield* repo.watchCustomers(kDevShopId);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchCustomers(shopId);
 });
 
 final catalogRepositoryProvider = FutureProvider<CatalogRepository>((ref) async {
@@ -94,7 +97,8 @@ final catalogRepositoryProvider = FutureProvider<CatalogRepository>((ref) async 
 final myCatalogStreamProvider =
     StreamProvider<List<CatalogItemSummary>>((ref) async* {
   final repo = await ref.watch(catalogRepositoryProvider.future);
-  yield* repo.watchMyDesigns(kDevShopId);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchMyDesigns(shopId);
 });
 
 final sharedCatalogStreamProvider =
@@ -120,8 +124,9 @@ final measurementProfileRepositoryProvider =
 final measurementProfilesForCustomerProvider = StreamProvider.family<
     List<MeasurementProfileSummary>, String>((ref, customerId) async* {
   final repo = await ref.watch(measurementProfileRepositoryProvider.future);
+  final shopId = ref.watch(effectiveShopIdProvider);
   yield* repo.watchForCustomer(
-    shopId: kDevShopId,
+    shopId: shopId,
     customerInternalId: customerId,
   );
 });
@@ -129,13 +134,15 @@ final measurementProfilesForCustomerProvider = StreamProvider.family<
 final measurementTypesStreamProvider =
     StreamProvider<List<MeasurementTypeSummary>>((ref) async* {
   final repo = await ref.watch(measurementProfileRepositoryProvider.future);
-  yield* repo.watchActiveMeasurementTypes(kDevShopId);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchActiveMeasurementTypes(shopId);
 });
 
 final measurementTypesAdminStreamProvider =
     StreamProvider<List<MeasurementTypeSummary>>((ref) async* {
   final repo = await ref.watch(measurementProfileRepositoryProvider.future);
-  yield* repo.watchMeasurementTypesAdmin(kDevShopId);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchMeasurementTypesAdmin(shopId);
 });
 
 final orderMeasurementSnapshotProvider = StreamProvider.family<
@@ -152,7 +159,8 @@ final appNotificationRepositoryProvider =
 final appNotificationsStreamProvider =
     StreamProvider<List<AppNotificationSummary>>((ref) async* {
   final repo = await ref.watch(appNotificationRepositoryProvider.future);
-  yield* repo.watchNotifications(kDevShopId);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchNotifications(shopId);
 });
 
 final unreadAppNotificationCountProvider = Provider<int>((ref) {
@@ -170,11 +178,13 @@ final syncOutboxRepositoryProvider =
 
 final syncPendingOutboxCountProvider = StreamProvider<int>((ref) async* {
   final repo = await ref.watch(syncOutboxRepositoryProvider.future);
-  yield* repo.watchPendingCount(kDevShopId);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchPendingCount(shopId);
 });
 
 final syncPendingOutboxEntriesProvider =
     StreamProvider<List<SyncOutboxPendingView>>((ref) async* {
   final repo = await ref.watch(syncOutboxRepositoryProvider.future);
-  yield* repo.watchPendingEntries(kDevShopId, limit: 50);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchPendingEntries(shopId, limit: 50);
 });

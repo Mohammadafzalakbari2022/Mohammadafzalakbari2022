@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../auth/auth_providers.dart';
 import '../data/local/dev_shop_constants.dart';
 import '../data/providers/local_data_providers.dart';
 
@@ -24,7 +25,9 @@ final connectivityOnlineProvider = Provider<bool>((ref) {
   );
 });
 
-/// Last time a successful server sync completed (null until API exists; plan-03).
+/// Last time a successful server sync completed (plan-03).
+///
+/// Seeded from [SyncDiagnosticsStorage] in [main.dart]; updated after manual sync.
 final lastSuccessfulSyncAtProvider = StateProvider<DateTime?>((ref) => null);
 
 /// Enqueue a local mutation for a future sync worker (plan-03). Fire-and-forget.
@@ -33,12 +36,14 @@ void recordSyncOutboxMutation(
   required String kind,
   String entityRef = '',
   String payloadJson = '{}',
-  String shopId = kDevShopId,
+  String? shopId,
 }) {
   unawaited(Future(() async {
     final repo = await ref.read(syncOutboxRepositoryProvider.future);
+    final sid =
+        shopId ?? effectiveShopIdFromAuth(ref.read(authSessionProvider).shopId);
     await repo.enqueue(
-      shopId: shopId,
+      shopId: sid,
       kind: kind,
       entityRef: entityRef,
       payloadJson: payloadJson,

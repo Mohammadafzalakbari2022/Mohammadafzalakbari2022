@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
-import '../../data/local/dev_shop_constants.dart';
+import '../../auth/auth_providers.dart';
 import '../../data/providers/local_data_providers.dart';
 import '../../licensing/license_providers.dart';
 
@@ -46,8 +46,9 @@ class _NewCustomerScreenState extends ConsumerState<NewCustomerScreen> {
     setState(() => _saving = true);
     try {
       final repo = await ref.read(customerListRepositoryProvider.future);
+      final shopId = ref.read(effectiveShopIdProvider);
       final id = await repo.createCustomer(
-        shopId: kDevShopId,
+        shopId: shopId,
         name: _name.text,
         phone: _phone.text,
         address: _address.text,

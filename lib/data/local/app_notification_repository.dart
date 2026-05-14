@@ -16,6 +16,15 @@ abstract class AppNotificationRepository {
     required String title,
     required String body,
     String? relatedOrderInternalId,
+    String? internalId,
+  });
+
+  /// Remote sync pull (`plan-03`) — upsert or delete a notification by server id.
+  Future<void> mergeRemoteNotification({
+    required String shopId,
+    required String internalId,
+    required String operation,
+    Object? data,
   });
 
   Future<void> markRead(String internalId);

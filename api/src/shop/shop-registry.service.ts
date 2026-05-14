@@ -1,0 +1,189 @@
+import {
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { createHash, randomUUID, timingSafeEqual } from 'crypto';
+
+import { PrismaService } from '../prisma/prisma.service';
+
+export type ShopRow = { id: string; name: string };
+
+export type UserRow = {
+  id: string;
+  shop_id: string;
+  username: string;
+  password_hash: Buffer;
+  is_shop_owner: boolean;
+  deleted_at: string | null;
+};
+
+function sha256Hex(password: string): string {
+  return createHash('sha256').update(password, 'utf8').digest('hex');
+}
+
+function safeEqualPassword(password: string, hashHex: string): boolean {
+  const digest = createHash('sha256').update(password, 'utf8').digest();
+  let stored: Buffer;
+  try {
+    stored = Buffer.from(hashHex, 'hex');
+  } catch {
+    return false;
+  }
+  if (digest.length !== stored.length) return false;
+  return timingSafeEqual(digest, stored);
+}
+
+function toUserRow(u: {
+  id: string;
+  shopId: string;
+  username: string;
+  passwordHash: string;
+  isShopOwner: boolean;
+  deletedAt: Date | null;
+}): UserRow {
+  return {
+    id: u.id,
+    shop_id: u.shopId,
+    username: u.username,
+    password_hash: Buffer.from(u.passwordHash, 'hex'),
+    is_shop_owner: u.isShopOwner,
+    deleted_at: u.deletedAt?.toISOString() ?? null,
+  };
+}
+
+/** Shops + users in Postgres (`plan-04`). */
+@Injectable()
+export class ShopRegistryService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async verifyLogin(
+    shopIdRaw: string | undefined,
+    username: string,
+    password: string,
+  ): Promise<UserRow | null> {
+    const u = username.trim();
+    const s = shopIdRaw?.trim() ?? '';
+    const active = await this.prisma.shopUser.findMany({
+      where: {
+        username: u,
+        deletedAt: null,
+        ...(s ? { shopId: s } : {}),
+      },
+    });
+    if (!s && active.length > 1) {
+      throw new BadRequestException('shop_id is required for this username');
+    }
+    const row = active[0];
+    if (!row || !safeEqualPassword(password, row.passwordHash)) return null;
+    return toUserRow(row);
+  }
+
+  async createShopWithOwner(
+    shopName: string,
+    ownerUsername: string,
+    ownerPassword: string,
+  ): Promise<{ shop: ShopRow; user: UserRow }> {
+    const name = shopName.trim();
+    const ou = ownerUsername.trim();
+    if (!name) throw new BadRequestException('shop_name is required');
+    if (!ou) throw new BadRequestException('owner_username is required');
+    if (!ownerPassword) throw new BadRequestException('owner_password is required');
+
+    const shopId = randomUUID();
+    const now = new Date();
+    const trialEnd = new Date(now.getTime());
+    trialEnd.setUTCDate(trialEnd.getUTCDate() + 15);
+
+    const result = await this.prisma.$transaction(async (tx) => {
+      const shop = await tx.shop.create({
+        data: { id: shopId, name },
+      });
+      const user = await tx.shopUser.create({
+        data: {
+          id: randomUUID(),
+          shopId,
+          username: ou,
+          passwordHash: sha256Hex(ownerPassword),
+          isShopOwner: true,
+        },
+      });
+      await tx.shopLicense.create({
+        data: {
+          shopId,
+          statusStored: 'trial_active',
+          expiresAt: trialEnd,
+          trialStartedAt: now,
+        },
+      });
+      return { shop, user };
+    });
+
+    return {
+      shop: { id: result.shop.id, name: result.shop.name },
+      user: toUserRow(result.user),
+    };
+  }
+
+  async listActiveUsers(shopId: string): Promise<UserRow[]> {
+    const rows = await this.prisma.shopUser.findMany({
+      where: { shopId, deletedAt: null },
+      orderBy: { username: 'asc' },
+    });
+    return rows.map(toUserRow);
+  }
+
+  async countActiveUsers(shopId: string): Promise<number> {
+    return this.prisma.shopUser.count({
+      where: { shopId, deletedAt: null },
+    });
+  }
+
+  async addMemberUser(
+    shopId: string,
+    username: string,
+    plainPassword: string,
+  ): Promise<UserRow> {
+    const un = username.trim();
+    if (!un) throw new BadRequestException('username is required');
+    if (!plainPassword) throw new BadRequestException('password is required');
+    const existing = await this.prisma.shopUser.findFirst({
+      where: { shopId, username: un, deletedAt: null },
+    });
+    if (existing) {
+      throw new ConflictException('username already exists in this shop');
+    }
+    const user = await this.prisma.shopUser.create({
+      data: {
+        id: randomUUID(),
+        shopId,
+        username: un,
+        passwordHash: sha256Hex(plainPassword),
+        isShopOwner: false,
+      },
+    });
+    return toUserRow(user);
+  }
+
+  async getUser(shopId: string, userId: string): Promise<UserRow | undefined> {
+    const u = await this.prisma.shopUser.findFirst({
+      where: { id: userId, shopId },
+    });
+    if (!u) return undefined;
+    return toUserRow(u);
+  }
+
+  async softDeleteUser(shopId: string, userId: string): Promise<void> {
+    const u = await this.getUser(shopId, userId);
+    if (!u) throw new NotFoundException('user not found');
+    if (u.is_shop_owner) {
+      throw new ForbiddenException('owner account cannot be deleted');
+    }
+    await this.prisma.shopUser.update({
+      where: { id: userId },
+      data: { deletedAt: new Date() },
+    });
+  }
+}

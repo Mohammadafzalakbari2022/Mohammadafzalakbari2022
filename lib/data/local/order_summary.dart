@@ -16,6 +16,8 @@ class OrderSummary {
     this.sourceMeasurementProfileLabel = '',
     required this.status,
     required this.deliveryDate,
+    required this.createdAt,
+    required this.updatedAt,
     required this.totalAmountMinor,
     required this.paidAmountMinor,
   });
@@ -33,6 +35,8 @@ class OrderSummary {
   final String sourceMeasurementProfileLabel;
   final OrderLocalStatus status;
   final DateTime deliveryDate;
+  final DateTime createdAt;
+  final DateTime updatedAt;
   final int totalAmountMinor;
   final int paidAmountMinor;
 

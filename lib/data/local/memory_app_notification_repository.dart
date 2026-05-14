@@ -53,10 +53,11 @@ class MemoryAppNotificationRepository implements AppNotificationRepository {
     required String title,
     required String body,
     String? relatedOrderInternalId,
+    String? internalId,
   }) async {
     _items.add(
       AppNotificationSummary(
-        internalId: _uuid.v4(),
+        internalId: internalId ?? _uuid.v4(),
         shopId: shopId,
         title: title,
         body: body,
@@ -65,6 +66,51 @@ class MemoryAppNotificationRepository implements AppNotificationRepository {
         relatedOrderInternalId: relatedOrderInternalId,
       ),
     );
+    _emit();
+  }
+
+  @override
+  Future<void> mergeRemoteNotification({
+    required String shopId,
+    required String internalId,
+    required String operation,
+    Object? data,
+  }) async {
+    if (operation == 'delete') {
+      _items.removeWhere((n) => n.internalId == internalId);
+      _emit();
+      return;
+    }
+    if (operation != 'upsert' || data is! Map) return;
+    final m = Map<String, dynamic>.from(data);
+    final title = m['title'];
+    final body = m['body'];
+    if (title is! String || body is! String) return;
+    final rel = m['related_order_internal_id'];
+    final createdRaw = m['created_at'];
+    final createdAt = createdRaw is String
+        ? (DateTime.tryParse(createdRaw) ?? DateTime.now())
+        : DateTime.now();
+    DateTime? readAt;
+    final readRaw = m['read_at'];
+    if (readRaw is String) readAt = DateTime.tryParse(readRaw);
+
+    final idx = _items.indexWhere((n) => n.internalId == internalId);
+    final row = AppNotificationSummary(
+      internalId: internalId,
+      shopId: shopId,
+      title: title,
+      body: body,
+      createdAt: createdAt,
+      readAt: readAt,
+      relatedOrderInternalId:
+          rel is String && rel.isNotEmpty ? rel : null,
+    );
+    if (idx >= 0) {
+      _items[idx] = row;
+    } else {
+      _items.add(row);
+    }
     _emit();
   }
 

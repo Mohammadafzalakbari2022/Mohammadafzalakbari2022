@@ -49,4 +49,12 @@ abstract class MeasurementProfileRepository {
     required int unitCode,
     required List<MeasurementProfileItemInput> items,
   });
+
+  /// Apply one row from `GET /sync/pull` (`plan-03`).
+  Future<void> mergeRemoteMeasurementType({
+    required String shopId,
+    required String internalId,
+    required String operation,
+    Object? data,
+  });
 }

@@ -10,6 +10,7 @@ import 'order_measurement_snapshot_item_input.dart';
 import 'order_measurement_snapshot_view.dart';
 import 'order_summary.dart';
 import 'seed_data.dart';
+import 'sync_pull_payload.dart';
 
 /// Web / non-native: in-memory list (Isar does not run on Flutter Web).
 class MemoryOrderRepository implements OrderListRepository {
@@ -134,6 +135,8 @@ class MemoryOrderRepository implements OrderListRepository {
           sourceMeasurementProfileLabel: o.sourceMeasurementProfileLabel,
           status: o.status,
           deliveryDate: o.deliveryDate,
+          createdAt: o.createdAt,
+          updatedAt: DateTime.now(),
           totalAmountMinor: o.totalAmountMinor,
           paidAmountMinor: o.paidAmountMinor + deltaMinor,
         );
@@ -160,6 +163,7 @@ class MemoryOrderRepository implements OrderListRepository {
     await seedIfEmpty();
     final nextNo = _nextOrderNo();
     final internalId = _uuid.v4();
+    final now = DateTime.now();
     _orders.add(
       OrderSummary(
         shopId: shopId,
@@ -176,6 +180,8 @@ class MemoryOrderRepository implements OrderListRepository {
         sourceMeasurementProfileLabel: sourceMeasurementProfileLabel,
         status: OrderLocalStatus.newOrder,
         deliveryDate: deliveryDate,
+        createdAt: now,
+        updatedAt: now,
         totalAmountMinor: totalAmountMinor,
         paidAmountMinor: 0,
       ),
@@ -235,6 +241,8 @@ class MemoryOrderRepository implements OrderListRepository {
         sourceMeasurementProfileLabel: '',
         status: OrderLocalStatus.newOrder,
         deliveryDate: DateTime.now(),
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
         totalAmountMinor: 0,
         paidAmountMinor: 0,
       ),
@@ -264,6 +272,8 @@ class MemoryOrderRepository implements OrderListRepository {
           sourceMeasurementProfileLabel: o.sourceMeasurementProfileLabel,
           status: newStatus,
           deliveryDate: o.deliveryDate,
+          createdAt: o.createdAt,
+          updatedAt: DateTime.now(),
           totalAmountMinor: o.totalAmountMinor,
           paidAmountMinor: o.paidAmountMinor,
         );
@@ -295,6 +305,8 @@ class MemoryOrderRepository implements OrderListRepository {
           sourceMeasurementProfileLabel: o.sourceMeasurementProfileLabel,
           status: o.status,
           deliveryDate: o.deliveryDate,
+          createdAt: o.createdAt,
+          updatedAt: DateTime.now(),
           totalAmountMinor: o.totalAmountMinor,
           paidAmountMinor: o.paidAmountMinor,
         );
@@ -302,5 +314,129 @@ class MemoryOrderRepository implements OrderListRepository {
         return;
       }
     }
+  }
+
+  @override
+  Future<void> mergeRemoteOrder({
+    required String shopId,
+    required String internalId,
+    required String operation,
+    Object? data,
+    DateTime? serverUpdatedAt,
+  }) async {
+    await seedIfEmpty();
+    if (operation == 'delete') {
+      _orders.removeWhere((o) => o.internalId == internalId);
+      _measurementSnapshotsByOrder.remove(internalId);
+      _emitOrders();
+      _emitSnapshots();
+      return;
+    }
+
+    final m = syncPullDataMap(data);
+    final now = DateTime.now();
+    final idx = _orders.indexWhere((o) => o.internalId == internalId);
+    final existing = idx == -1 ? null : _orders[idx];
+    if (serverUpdatedAt != null &&
+        existing != null &&
+        existing.updatedAt.isAfter(serverUpdatedAt)) {
+      return;
+    }
+
+    final customerId =
+        syncPullString(m, const ['customer_internal_id', 'customerInternalId']) ??
+            existing?.customerInternalId;
+    if (customerId == null || customerId.isEmpty) return;
+
+    final delivery = syncPullDateTime(
+          m,
+          const ['delivery_date', 'deliveryDate'],
+        ) ??
+        existing?.deliveryDate;
+    if (delivery == null) return;
+
+    final total = syncPullInt(m, const ['total_amount_minor', 'totalAmountMinor']) ??
+        existing?.totalAmountMinor ??
+        0;
+
+    final statusIdx = syncPullInt(m, const ['status_index', 'statusIndex']) ??
+        existing?.status.code ??
+        OrderLocalStatus.newOrder.code;
+    final status = orderStatusFromCode(statusIdx);
+
+    final measurements = syncPullString(
+          m,
+          const ['measurements_snapshot', 'measurementsSnapshot'],
+        ) ??
+        existing?.measurementsSnapshot ??
+        '';
+
+    final styleNotes = syncPullString(m, const ['style_notes', 'styleNotes']) ??
+        existing?.styleNotes ??
+        '';
+
+    final internalNotes = syncPullString(
+          m,
+          const ['internal_notes', 'internalNotes'],
+        ) ??
+        existing?.internalNotes ??
+        '';
+
+    final profileId = syncPullString(
+      m,
+      const ['source_measurement_profile_id', 'sourceMeasurementProfileId'],
+    );
+    final profileLabel = syncPullString(
+      m,
+      const [
+        'source_measurement_profile_label',
+        'sourceMeasurementProfileLabel',
+      ],
+    );
+
+    final displayNo = syncPullString(
+          m,
+          const ['display_order_no', 'displayOrderNo'],
+        ) ??
+        existing?.displayOrderNo;
+
+    final createdAt =
+        syncPullDateTime(m, const ['created_at', 'createdAt']) ??
+            existing?.createdAt ??
+            now;
+    final updatedAt =
+        syncPullDateTime(m, const ['updated_at', 'updatedAt']) ?? now;
+
+    final resolvedDisplay = (displayNo != null && displayNo.isNotEmpty)
+        ? displayNo
+        : (existing == null ? _nextOrderNo() : existing.displayOrderNo);
+
+    final row = OrderSummary(
+      shopId: shopId,
+      internalId: internalId,
+      displayOrderNo: resolvedDisplay,
+      customerInternalId: customerId,
+      customerName: existing?.customerName ?? _resolveCustomerName(customerId),
+      customerPhone: existing?.customerPhone,
+      measurementsSnapshot: measurements,
+      styleNotes: styleNotes,
+      internalNotes: internalNotes,
+      sourceMeasurementProfileId: profileId ?? existing?.sourceMeasurementProfileId,
+      sourceMeasurementProfileLabel:
+          profileLabel ?? existing?.sourceMeasurementProfileLabel ?? '',
+      status: status,
+      deliveryDate: delivery,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      totalAmountMinor: total,
+      paidAmountMinor: existing?.paidAmountMinor ?? 0,
+    );
+
+    if (idx == -1) {
+      _orders.add(row);
+    } else {
+      _orders[idx] = row;
+    }
+    _emitOrders();
   }
 }

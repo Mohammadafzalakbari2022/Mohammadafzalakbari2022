@@ -25,6 +25,9 @@ class OrderEntity {
   @Index()
   late DateTime deliveryDate;
 
+  /// First creation time on this device (nullable for legacy rows before this field existed).
+  DateTime? createdAt;
+
   @Index()
   late DateTime updatedAt;
 

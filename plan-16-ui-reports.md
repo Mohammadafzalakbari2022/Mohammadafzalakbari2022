@@ -69,8 +69,15 @@ Tap → Order Details
 
 ## Definition of Done
 - Reports tab works offline: this-month payment income, open-order unpaid total, status summary, and shortcuts to unpaid / monthly / delivered reports.
+- **This month income** on the Reports overview uses the **same calendar system** as Settings (Gregorian vs solar Hijri) for month boundaries.
 - Monthly income screen shows payments received for the selected month plus unpaid remaining on orders due in that month (by delivery date).
+- Unpaid report supports **delivery window** filters, **remaining balance amount range** (optional), and sort.
 - Delivered report lists delivered orders by delivery month with navigation to Order Details.
+- Payments ledger supports grouping **by day, week, or month** in the selected date range.
 - Money amounts use the same formatted currency style as the rest of the app (`moneyAfn`).
 - RTL/LTR verified (layout uses standard Material / directional widgets).
+
+## Implementation status (Flutter repo)
+
+As of **plan-25-implementation-backlog.md**, the items above are implemented in the client. Server sync, push notifications, and other backend-dependent features remain documented separately.
 

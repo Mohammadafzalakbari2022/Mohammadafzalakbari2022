@@ -11,6 +11,8 @@ import 'report_money_format.dart';
 
 enum _UnpaidDeliveryFilter { all, overdue, dueWithin7Days }
 
+enum _UnpaidAmountFilter { any, under5000, band5000to20000, over20000 }
+
 DateTime _dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
 
 class UnpaidReportScreen extends ConsumerStatefulWidget {
@@ -22,6 +24,7 @@ class UnpaidReportScreen extends ConsumerStatefulWidget {
 
 class _UnpaidReportScreenState extends ConsumerState<UnpaidReportScreen> {
   _UnpaidDeliveryFilter _deliveryFilter = _UnpaidDeliveryFilter.all;
+  _UnpaidAmountFilter _amountFilter = _UnpaidAmountFilter.any;
   bool _sortByAmountDesc = true;
 
   List<OrderSummary> _filterUnpaid(
@@ -56,6 +59,38 @@ class _UnpaidReportScreenState extends ConsumerState<UnpaidReportScreen> {
     }
   }
 
+  List<OrderSummary> _filterAmount(List<OrderSummary> list) {
+    switch (_amountFilter) {
+      case _UnpaidAmountFilter.any:
+        return list;
+      case _UnpaidAmountFilter.under5000:
+        return list.where((o) => o.remainingAmountMinor < 5000).toList();
+      case _UnpaidAmountFilter.band5000to20000:
+        return list
+            .where(
+              (o) =>
+                  o.remainingAmountMinor >= 5000 &&
+                  o.remainingAmountMinor <= 20000,
+            )
+            .toList();
+      case _UnpaidAmountFilter.over20000:
+        return list.where((o) => o.remainingAmountMinor > 20000).toList();
+    }
+  }
+
+  String _amountFilterLabel(AppLocalizations l10n, _UnpaidAmountFilter f) {
+    switch (f) {
+      case _UnpaidAmountFilter.any:
+        return l10n.reportsUnpaidAmountAny;
+      case _UnpaidAmountFilter.under5000:
+        return l10n.reportsUnpaidAmountUnder5000;
+      case _UnpaidAmountFilter.band5000to20000:
+        return l10n.reportsUnpaidAmount5000to20000;
+      case _UnpaidAmountFilter.over20000:
+        return l10n.reportsUnpaidAmountOver20000;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -75,7 +110,8 @@ class _UnpaidReportScreenState extends ConsumerState<UnpaidReportScreen> {
         data: (orders) {
           final unpaidBase =
               orders.where((o) => o.remainingAmountMinor > 0).toList();
-          final filtered = _filterUnpaid(unpaidBase, DateTime.now());
+          final filtered =
+              _filterAmount(_filterUnpaid(unpaidBase, DateTime.now()));
           _applySort(filtered);
           final totalRemaining =
               filtered.fold<int>(0, (s, o) => s + o.remainingAmountMinor);
@@ -124,6 +160,26 @@ class _UnpaidReportScreenState extends ConsumerState<UnpaidReportScreen> {
                 onSelectionChanged: (s) {
                   setState(() => _deliveryFilter = s.first);
                 },
+              ),
+              const SizedBox(height: 16),
+              Text(
+                l10n.reportsUnpaidAmountSection,
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final f in _UnpaidAmountFilter.values)
+                    FilterChip(
+                      label: Text(_amountFilterLabel(l10n, f)),
+                      selected: _amountFilter == f,
+                      onSelected: (_) {
+                        setState(() => _amountFilter = f);
+                      },
+                    ),
+                ],
               ),
               const SizedBox(height: 16),
               Text(

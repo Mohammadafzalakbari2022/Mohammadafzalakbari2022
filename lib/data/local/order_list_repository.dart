@@ -49,4 +49,16 @@ abstract class OrderListRepository {
     required String orderInternalId,
     required String internalNotes,
   });
+
+  /// Apply one row from `GET /sync/pull` (`plan-03` / phase-1b).
+  ///
+  /// When [serverUpdatedAt] is set and the local row is newer, upserts are skipped
+  /// (last-write-wins for conflicts). Deletes always apply.
+  Future<void> mergeRemoteOrder({
+    required String shopId,
+    required String internalId,
+    required String operation,
+    Object? data,
+    DateTime? serverUpdatedAt,
+  });
 }

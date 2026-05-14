@@ -62,6 +62,48 @@ class AppLocalizationsPs extends AppLocalizations {
   String get loginDevContinue => 'Continue without account (dev)';
 
   @override
+  String get loginApiHint =>
+      'API_BASE_URL is set. The server verifies shop ID, username, and password (POST /auth/login).';
+
+  @override
+  String get loginSigningIn => 'Signing in…';
+
+  @override
+  String get loginApiUnauthorized => 'Invalid shop, username, or password.';
+
+  @override
+  String loginApiError(String error) {
+    return 'Could not sign in: $error';
+  }
+
+  @override
+  String get loginShopCreateSectionTitle => 'New shop (API)';
+
+  @override
+  String get loginShopCreateSubtitle =>
+      'Create a shop on the server and sign in as owner (plan-04).';
+
+  @override
+  String get loginShopCreateNameLabel => 'Shop name';
+
+  @override
+  String get loginShopCreateOwnerUsernameLabel => 'Owner username';
+
+  @override
+  String get loginShopCreateOwnerPasswordLabel => 'Owner password';
+
+  @override
+  String get loginShopCreateCta => 'Create shop & sign in';
+
+  @override
+  String get loginShopCreating => 'Creating shop…';
+
+  @override
+  String loginShopCreateError(String error) {
+    return 'Could not create shop: $error';
+  }
+
+  @override
   String modulePlaceholder(String moduleName) {
     return '$moduleName — UI coming soon.';
   }
@@ -259,6 +301,42 @@ class AppLocalizationsPs extends AppLocalizations {
   @override
   String get ordersDetailSectionPlaceholder =>
       'Details will appear here as the module is built.';
+
+  @override
+  String get ordersDetailAuditIntro =>
+      'Local record metadata on this device. Full status-change history is not logged yet; use Payments for dated ledger entries.';
+
+  @override
+  String get ordersAuditInternalId => 'Internal ID';
+
+  @override
+  String get ordersAuditCopyIdTooltip => 'Copy ID';
+
+  @override
+  String get ordersAuditCopiedId => 'Copied order ID';
+
+  @override
+  String get ordersAuditCreatedAt => 'Created';
+
+  @override
+  String get ordersAuditUpdatedAt => 'Last updated';
+
+  @override
+  String get ordersAuditStatus => 'Status';
+
+  @override
+  String get ordersAuditDelivery => 'Delivery date';
+
+  @override
+  String get ordersAuditPaymentsTitle => 'Payment ledger';
+
+  @override
+  String get ordersAuditPaymentsEmpty => 'No payment rows for this order yet.';
+
+  @override
+  String ordersAuditPaymentsLine(int count, String first, String last) {
+    return '$count payment rows · earliest $first · latest $last';
+  }
 
   @override
   String get ordersDetailSnapshotEmpty => 'Nothing recorded.';
@@ -641,6 +719,28 @@ class AppLocalizationsPs extends AppLocalizations {
   String get reportsPaymentsAdjustmentChip => 'Adjustment';
 
   @override
+  String reportsPaymentsSectionHeader(String title, String total) {
+    return '$title — $total';
+  }
+
+  @override
+  String reportsPaymentsWeekOfLabel(String weekStart) {
+    return 'د اونۍ پیل $weekStart';
+  }
+
+  @override
+  String get reportsPaymentsGroupByLabel => 'ډلې';
+
+  @override
+  String get reportsPaymentsGroupByDay => 'ورځ';
+
+  @override
+  String get reportsPaymentsGroupByWeek => 'اونۍ';
+
+  @override
+  String get reportsPaymentsGroupByMonth => 'میاشت';
+
+  @override
   String get reportsMonthlyIncomePlaceholder =>
       'د میاشتې عاید راپور به دلته راشي (plan-16).';
 
@@ -654,6 +754,9 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get reportsMonthlyIncomeCardLabel => 'ترلاسه شوې ورکړې';
+
+  @override
+  String get reportsMonthlyDailyPaymentsLabel => 'ورځنی ورکړې (د دې میاشتې)';
 
   @override
   String get reportsMonthlyUnpaidDueTitle =>
@@ -690,6 +793,21 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get reportsUnpaidFilterDueSoon => 'Due in 7 days';
+
+  @override
+  String get reportsUnpaidAmountSection => 'پاتې بېله';
+
+  @override
+  String get reportsUnpaidAmountAny => 'هره بېله';
+
+  @override
+  String get reportsUnpaidAmountUnder5000 => 'د ۵٬۰۰۰ لاندې';
+
+  @override
+  String get reportsUnpaidAmount5000to20000 => '۵٬۰۰۰ – ۲۰٬۰۰۰';
+
+  @override
+  String get reportsUnpaidAmountOver20000 => 'د ۲۰٬۰۰۰ پورته';
 
   @override
   String get reportsUnpaidSortSection => 'Sort';
@@ -908,6 +1026,33 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get settingsNetworkStatusOffline => 'آفلاین — محلي کار';
+
+  @override
+  String get settingsApiServerTitle => 'API پالنه';
+
+  @override
+  String get settingsApiServerNotConfigured =>
+      'URL نه دی. د چلولو یا build کې --dart-define=API_BASE_URL=https://... وکاروئ.';
+
+  @override
+  String settingsApiServerConfigured(String url) {
+    return 'بنسټ URL: $url';
+  }
+
+  @override
+  String get settingsApiTestConnection => 'پیوستون ازموینه';
+
+  @override
+  String get settingsApiTestNeedOnline =>
+      'د پالن ازموینې لپاره انټرنټ ته ونښلئ.';
+
+  @override
+  String get settingsApiHealthOk => 'پالن ځواب ورکړ (GET /health).';
+
+  @override
+  String settingsApiHealthFailed(String message) {
+    return 'پالن نشي رسېدلی: $message';
+  }
 
   @override
   String get settingsSyncDiagnosticsSubtitle =>
@@ -1423,6 +1568,29 @@ class AppLocalizationsPs extends AppLocalizations {
       'آنلاین تازه کول به د API نښلولو سره شتون ولري.';
 
   @override
+  String get subscriptionActivationCodeHintApi =>
+      'Enter the activation code from your distributor.';
+
+  @override
+  String get subscriptionApplying => 'Applying…';
+
+  @override
+  String get subscriptionRefreshing => 'Refreshing…';
+
+  @override
+  String get subscriptionRedeemSuccess => 'License updated.';
+
+  @override
+  String subscriptionRedeemError(String error) {
+    return 'Activation failed: $error';
+  }
+
+  @override
+  String subscriptionRefreshError(String error) {
+    return 'Could not refresh: $error';
+  }
+
+  @override
   String get customersListView => 'List view';
 
   @override
@@ -1510,6 +1678,51 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get settingsUsersEmptyRowSubtitle => 'لا نور کارن نشته';
+
+  @override
+  String get settingsUsersSubtitleTeam =>
+      'View accounts on the server (read-only unless you are the owner).';
+
+  @override
+  String settingsUsersLoadError(String error) {
+    return 'Could not load users: $error';
+  }
+
+  @override
+  String get settingsUsersRetryCta => 'Retry';
+
+  @override
+  String get settingsUsersDeleteConfirmTitle => 'Remove user?';
+
+  @override
+  String get settingsUsersDeleteConfirmBody =>
+      'They will no longer be able to sign in.';
+
+  @override
+  String get settingsUsersDeleteCta => 'Remove';
+
+  @override
+  String get settingsUsersAddDialogTitle => 'Add user';
+
+  @override
+  String get settingsUsersAddUsernameLabel => 'Username';
+
+  @override
+  String get settingsUsersAddPasswordLabel => 'Password';
+
+  @override
+  String get settingsUsersAddSubmitCta => 'Create';
+
+  @override
+  String settingsUsersAddError(String error) {
+    return 'Could not add user: $error';
+  }
+
+  @override
+  String get settingsUsersAddedSnackbar => 'User created.';
+
+  @override
+  String get settingsUsersRemovedSnackbar => 'User removed.';
 
   @override
   String get settingsBackupOwnerPasswordNote =>
@@ -1640,6 +1853,60 @@ class AppLocalizationsPs extends AppLocalizations {
   }
 
   @override
+  String get settingsSyncLocalSnapshotTitle => 'Local data snapshot';
+
+  @override
+  String get settingsSyncLocalOrders => 'Orders';
+
+  @override
+  String get settingsSyncLocalCustomers => 'Customers';
+
+  @override
+  String get settingsSyncLocalPayments => 'Payments';
+
+  @override
+  String get settingsSyncLocalTasks => 'Tasks';
+
+  @override
+  String get settingsSyncLocalNotifications => 'Notifications';
+
+  @override
+  String get settingsSyncLocalUnread => 'Unread notifications';
+
+  @override
+  String get settingsSyncRetryTitle => 'Sync now';
+
+  @override
+  String get settingsSyncRetrySubtitle =>
+      'Pull from the server, then push the local queue when API_BASE_URL is set and you are signed in online (plan-04).';
+
+  @override
+  String get settingsSyncRetryOffline =>
+      'You appear offline. Connect to the internet and try again.';
+
+  @override
+  String get settingsSyncRetryConfigureApi =>
+      'Set API_BASE_URL at build time, then open Settings → API connection.';
+
+  @override
+  String get settingsSyncRetrySignIn =>
+      'Sign in with your online server account first.';
+
+  @override
+  String get settingsSyncRetryLicenseExpired =>
+      'The server refused sync because the license is expired. Open Subscription.';
+
+  @override
+  String settingsSyncRetrySuccess(int pushed, int pulled) {
+    return 'Sync OK: pushed $pushed mutation(s); received $pulled server change(s).';
+  }
+
+  @override
+  String settingsSyncRetryFailed(String detail) {
+    return 'Sync failed: $detail';
+  }
+
+  @override
   String get settingsSyncOutboxTitle => 'بهرنی صندوق';
 
   @override
@@ -1660,8 +1927,16 @@ class AppLocalizationsPs extends AppLocalizations {
   String get settingsDiagnosticsExportCta => 'د تشخیص بسته صادرول';
 
   @override
-  String get settingsDiagnosticsExportSoon =>
-      'د تشخیص صادرول به د سنک له رارسېدو سره شتون ولري.';
+  String get settingsDiagnosticsExportBusy => 'بسته چمتو کېږي…';
+
+  @override
+  String get settingsDiagnosticsExportSuccess =>
+      'تشخیص بسته د شریکولو لپاره چمته ده.';
+
+  @override
+  String settingsDiagnosticsExportError(String error) {
+    return 'تشخیص صادرول ناکام شو: $error';
+  }
 
   @override
   String get settingsSyncDiagnosticsFooter =>
@@ -1694,6 +1969,24 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get devPortalStubAction => 'API not connected in this build.';
+
+  @override
+  String get devPortalAdviceOfflineTitle => 'You appear offline';
+
+  @override
+  String get devPortalAdviceOfflineBody =>
+      'Connect to the internet to test public API health. Admin lists need the deployed admin APIs.';
+
+  @override
+  String get devPortalAdviceOnlineTitle => 'Admin list APIs not wired yet';
+
+  @override
+  String get devPortalAdviceOnlineBody =>
+      'Pull down on Overview to call GET /health. Export a device bundle from Settings → Sync & Diagnostics.';
+
+  @override
+  String get devPortalApiHealthPrompt =>
+      'Pull down to refresh and call GET /health.';
 
   @override
   String get devPortalEnvBadge => 'Environment: dev';
@@ -1730,7 +2023,29 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get devPortalDiagStub =>
-      'Support diagnostics: link to exported bundles from Settings → Sync & Diagnostics.';
+      'For a full device bundle, use Settings → Sync & Diagnostics → Export diagnostics bundle.';
+
+  @override
+  String get devPortalDiagLocalTitle => 'This device (offline cache)';
+
+  @override
+  String get devPortalDiagLocalSubtitle =>
+      'Counts from local storage — useful when the admin API is offline.';
+
+  @override
+  String get devPortalDiagCountLoading => '…';
+
+  @override
+  String get devPortalAdminAuditTitle => 'Admin audit log (stub)';
+
+  @override
+  String get devPortalAdminAuditNeedSignIn =>
+      'Sign in with the API, then pull to refresh.';
+
+  @override
+  String devPortalAdminAuditLine(int count, int schema) {
+    return 'GET /admin/audit-log — $count row(s), schema v$schema';
+  }
 
   @override
   String get settingsShopProfileTitle => 'د هټۍ پروفایل';

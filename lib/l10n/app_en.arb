@@ -17,6 +17,32 @@
   "loginSignInCta": "Sign in",
   "loginFieldRequired": "Required",
   "loginDevContinue": "Continue without account (dev)",
+  "loginApiHint": "API_BASE_URL is set. The server verifies shop ID, username, and password (POST /auth/login).",
+  "loginSigningIn": "Signing in…",
+  "loginApiUnauthorized": "Invalid shop, username, or password.",
+  "loginApiError": "Could not sign in: {error}",
+  "@loginApiError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "loginShopCreateSectionTitle": "New shop (API)",
+  "loginShopCreateSubtitle": "Create a shop on the server and sign in as owner (plan-04).",
+  "loginShopCreateNameLabel": "Shop name",
+  "loginShopCreateOwnerUsernameLabel": "Owner username",
+  "loginShopCreateOwnerPasswordLabel": "Owner password",
+  "loginShopCreateCta": "Create shop & sign in",
+  "loginShopCreating": "Creating shop…",
+  "loginShopCreateError": "Could not create shop: {error}",
+  "@loginShopCreateError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "modulePlaceholder": "{moduleName} — UI coming soon.",
   "@modulePlaceholder": {
     "description": "Placeholder body for a shell tab",
@@ -131,6 +157,24 @@
   "ordersDetailSectionPayments": "Payments",
   "ordersDetailSectionAudit": "Audit",
   "ordersDetailSectionPlaceholder": "Details will appear here as the module is built.",
+  "ordersDetailAuditIntro": "Local record metadata on this device. Full status-change history is not logged yet; use Payments for dated ledger entries.",
+  "ordersAuditInternalId": "Internal ID",
+  "ordersAuditCopyIdTooltip": "Copy ID",
+  "ordersAuditCopiedId": "Copied order ID",
+  "ordersAuditCreatedAt": "Created",
+  "ordersAuditUpdatedAt": "Last updated",
+  "ordersAuditStatus": "Status",
+  "ordersAuditDelivery": "Delivery date",
+  "ordersAuditPaymentsTitle": "Payment ledger",
+  "ordersAuditPaymentsEmpty": "No payment rows for this order yet.",
+  "ordersAuditPaymentsLine": "{count} payment rows · earliest {first} · latest {last}",
+  "@ordersAuditPaymentsLine": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "first": { "type": "String" },
+      "last": { "type": "String" }
+    }
+  },
   "ordersDetailSnapshotEmpty": "Nothing recorded.",
   "ordersDetailMeasurementsFromProfile": "Snapshot based on profile “{label}”.",
   "@ordersDetailMeasurementsFromProfile": {
@@ -282,6 +326,29 @@
   "reportsPaymentsEmpty": "No payments in this date range.",
   "reportsPaymentsUnknownOrder": "Unknown order",
   "reportsPaymentsAdjustmentChip": "Adjustment",
+  "reportsPaymentsSectionHeader": "{title} — {total}",
+  "@reportsPaymentsSectionHeader": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsPaymentsWeekOfLabel": "Week of {weekStart}",
+  "@reportsPaymentsWeekOfLabel": {
+    "placeholders": {
+      "weekStart": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsPaymentsGroupByLabel": "Group by",
+  "reportsPaymentsGroupByDay": "Day",
+  "reportsPaymentsGroupByWeek": "Week",
+  "reportsPaymentsGroupByMonth": "Month",
   "reportsMonthlyIncomePlaceholder": "Monthly income report will go here (plan-16).",
   "reportsThisMonthIncomeTitle": "This month income",
   "reportsThisMonthIncomeSubtitle": "Income: {amount}",
@@ -293,6 +360,7 @@
     }
   },
   "reportsMonthlyIncomeCardLabel": "Payments received",
+  "reportsMonthlyDailyPaymentsLabel": "Daily payments (this month)",
   "reportsMonthlyUnpaidDueTitle": "Unpaid (due this month)",
   "reportsMonthlyUnpaidDueBody": "Sum of remaining balances on orders with a delivery date in this month.",
   "reportsPrevMonth": "Previous month",
@@ -304,6 +372,11 @@
   "reportsUnpaidFilterAll": "All",
   "reportsUnpaidFilterOverdue": "Overdue",
   "reportsUnpaidFilterDueSoon": "Due in 7 days",
+  "reportsUnpaidAmountSection": "Remaining balance",
+  "reportsUnpaidAmountAny": "Any amount",
+  "reportsUnpaidAmountUnder5000": "Under 5,000",
+  "reportsUnpaidAmount5000to20000": "5,000 – 20,000",
+  "reportsUnpaidAmountOver20000": "Over 20,000",
   "reportsUnpaidSortSection": "Sort",
   "reportsUnpaidSortAmount": "Amount",
   "reportsUnpaidSortDueDate": "Due date",
@@ -383,6 +456,27 @@
   "settingsNetworkStatusTitle": "Network",
   "settingsNetworkStatusOnline": "Connected",
   "settingsNetworkStatusOffline": "Offline — working locally",
+  "settingsApiServerTitle": "API server",
+  "settingsApiServerNotConfigured": "No URL set. Use --dart-define=API_BASE_URL=https://your-api when you run or build.",
+  "settingsApiServerConfigured": "Base URL: {url}",
+  "@settingsApiServerConfigured": {
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsApiTestConnection": "Test connection",
+  "settingsApiTestNeedOnline": "Connect to the internet to test the server.",
+  "settingsApiHealthOk": "Server responded OK (GET /health).",
+  "settingsApiHealthFailed": "Could not reach server: {message}",
+  "@settingsApiHealthFailed": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
   "settingsSyncDiagnosticsSubtitle": "Last sync, queue, outbox (plan-15).",
   "settingsSyncDiagnosticsPlaceholder": "Sync & diagnostics will be implemented in plan-15.",
   "settingsAppearanceLanguageTitle": "Appearance & language",
@@ -595,6 +689,26 @@
   "subscriptionActivationComingSoon": "Activation will connect to the server (plan-06).",
   "subscriptionRefreshStatusCta": "Refresh license status",
   "subscriptionRefreshComingSoon": "Online refresh will be available when the API is connected.",
+  "subscriptionActivationCodeHintApi": "Enter the activation code from your distributor.",
+  "subscriptionApplying": "Applying…",
+  "subscriptionRefreshing": "Refreshing…",
+  "subscriptionRedeemSuccess": "License updated.",
+  "subscriptionRedeemError": "Activation failed: {error}",
+  "@subscriptionRedeemError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "subscriptionRefreshError": "Could not refresh: {error}",
+  "@subscriptionRefreshError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "customersListView": "List view",
   "customersCardView": "Card view",
   "customerEditDialogTitle": "Edit customer",
@@ -633,6 +747,33 @@
   "settingsUsersOwnerRowSubtitle": "Full access",
   "settingsUsersEmptyRowTitle": "Additional users",
   "settingsUsersEmptyRowSubtitle": "No other users yet",
+  "settingsUsersSubtitleTeam": "View accounts on the server (read-only unless you are the owner).",
+  "settingsUsersLoadError": "Could not load users: {error}",
+  "@settingsUsersLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsUsersRetryCta": "Retry",
+  "settingsUsersDeleteConfirmTitle": "Remove user?",
+  "settingsUsersDeleteConfirmBody": "They will no longer be able to sign in.",
+  "settingsUsersDeleteCta": "Remove",
+  "settingsUsersAddDialogTitle": "Add user",
+  "settingsUsersAddUsernameLabel": "Username",
+  "settingsUsersAddPasswordLabel": "Password",
+  "settingsUsersAddSubmitCta": "Create",
+  "settingsUsersAddError": "Could not add user: {error}",
+  "@settingsUsersAddError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsUsersAddedSnackbar": "User created.",
+  "settingsUsersRemovedSnackbar": "User removed.",
   "settingsBackupOwnerPasswordNote": "Backup and restore will require the owner’s login password (plan-15).",
   "settingsBackupSectionTitle": "Backup",
   "settingsBackupOptionDataOnly": "Data only",
@@ -708,13 +849,48 @@
       }
     }
   },
+  "settingsSyncLocalSnapshotTitle": "Local data snapshot",
+  "settingsSyncLocalOrders": "Orders",
+  "settingsSyncLocalCustomers": "Customers",
+  "settingsSyncLocalPayments": "Payments",
+  "settingsSyncLocalTasks": "Tasks",
+  "settingsSyncLocalNotifications": "Notifications",
+  "settingsSyncLocalUnread": "Unread notifications",
+  "settingsSyncRetryTitle": "Sync now",
+  "settingsSyncRetrySubtitle": "Pull from the server, then push the local queue when API_BASE_URL is set and you are signed in online (plan-04).",
+  "settingsSyncRetryOffline": "You appear offline. Connect to the internet and try again.",
+  "settingsSyncRetryConfigureApi": "Set API_BASE_URL at build time, then open Settings → API connection.",
+  "settingsSyncRetrySignIn": "Sign in with your online server account first.",
+  "settingsSyncRetryLicenseExpired": "The server refused sync because the license is expired. Open Subscription.",
+  "settingsSyncRetrySuccess": "Sync OK: pushed {pushed} mutation(s); received {pulled} server change(s).",
+  "@settingsSyncRetrySuccess": {
+    "placeholders": {
+      "pushed": { "type": "int" },
+      "pulled": { "type": "int" }
+    }
+  },
+  "settingsSyncRetryFailed": "Sync failed: {detail}",
+  "@settingsSyncRetryFailed": {
+    "placeholders": {
+      "detail": { "type": "String" }
+    }
+  },
   "settingsSyncOutboxTitle": "Outbox",
   "settingsSyncOutboxPlaceholderTitle": "Queued changes",
   "settingsSyncOutboxPlaceholderSubtitle": "Retry and details will appear when sync is enabled",
   "settingsSyncOutboxPendingListTitle": "Pending mutations (local)",
   "settingsSyncOutboxPendingEmpty": "Nothing queued for sync.",
   "settingsDiagnosticsExportCta": "Export diagnostics bundle",
-  "settingsDiagnosticsExportSoon": "Diagnostics export will be available when sync ships.",
+  "settingsDiagnosticsExportBusy": "Preparing bundle…",
+  "settingsDiagnosticsExportSuccess": "Diagnostics bundle ready to share.",
+  "settingsDiagnosticsExportError": "Could not export diagnostics: {error}",
+  "@settingsDiagnosticsExportError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "settingsSyncDiagnosticsFooter": "Support can ask for this bundle to troubleshoot sync issues.",
   "devPortalTitle": "Developer Portal",
   "devPortalTabOverview": "Overview",
@@ -725,6 +901,11 @@
   "devPortalOnlineRequired": "Developer tools require an online connection and a verified developer account.",
   "devPortalRetryCta": "Retry",
   "devPortalStubAction": "API not connected in this build.",
+  "devPortalAdviceOfflineTitle": "You appear offline",
+  "devPortalAdviceOfflineBody": "Connect to the internet to test public API health. Admin lists (shops, codes, resets) need the deployed admin APIs.",
+  "devPortalAdviceOnlineTitle": "Admin list APIs not wired yet",
+  "devPortalAdviceOnlineBody": "Overview can still ping GET /health. Export a device diagnostics bundle from Settings → Sync & Diagnostics for support.",
+  "devPortalApiHealthPrompt": "Pull down to refresh and call GET /health.",
   "devPortalEnvBadge": "Environment: dev",
   "devPortalStatShops": "Total shops",
   "devPortalStatActiveExpired": "Active / expired",
@@ -735,7 +916,23 @@
   "devPortalCodesStub": "Activation codes: search, create, and revoke will load from the admin API (plan-18).",
   "devPortalShopsStub": "Shops & licenses: list and detail views will load from the admin API.",
   "devPortalResetsStub": "Password reset requests: support queue will load from the admin API.",
-  "devPortalDiagStub": "Support diagnostics: link to exported bundles from Settings → Sync & Diagnostics.",
+  "devPortalDiagStub": "For a full device bundle, use Settings → Sync & Diagnostics → Export diagnostics bundle.",
+  "devPortalDiagLocalTitle": "This device (offline cache)",
+  "devPortalDiagLocalSubtitle": "Counts from local storage — useful when the admin API is offline.",
+  "devPortalDiagCountLoading": "…",
+  "devPortalAdminAuditTitle": "Admin audit log (stub)",
+  "devPortalAdminAuditNeedSignIn": "Sign in with the API, then pull to refresh.",
+  "devPortalAdminAuditLine": "GET /admin/audit-log — {count} row(s), schema v{schema}",
+  "@devPortalAdminAuditLine": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "schema": {
+        "type": "int"
+      }
+    }
+  },
   "settingsShopProfileTitle": "Shop profile",
   "shopProfileIntro": "This shop name appears as the designer label on your catalog items. Contact fields are for your reference until invoicing is connected.",
   "shopProfileNameLabel": "Shop name",

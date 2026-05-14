@@ -14,6 +14,7 @@ import 'order_measurement_snapshot_item_input.dart';
 import 'order_measurement_snapshot_view.dart';
 import 'order_summary.dart';
 import 'seed_data.dart';
+import 'sync_pull_payload.dart';
 
 class IsarOrderRepository implements OrderListRepository {
   IsarOrderRepository(this._isar);
@@ -54,6 +55,7 @@ class IsarOrderRepository implements OrderListRepository {
         ..displayOrderNo = '00000001'
         ..statusIndex = OrderLocalStatus.inProgress.code
         ..deliveryDate = now.add(const Duration(days: 2))
+        ..createdAt = now
         ..updatedAt = now
         ..totalAmountMinor = 150000
         ..measurementsSnapshot =
@@ -68,6 +70,7 @@ class IsarOrderRepository implements OrderListRepository {
         ..displayOrderNo = '00000002'
         ..statusIndex = OrderLocalStatus.newOrder.code
         ..deliveryDate = now.add(const Duration(days: 5))
+        ..createdAt = now
         ..updatedAt = now
         ..totalAmountMinor = 80000
         ..measurementsSnapshot = 'Shoulder: 46 cm\nSleeve: 62 cm'
@@ -81,6 +84,7 @@ class IsarOrderRepository implements OrderListRepository {
         ..displayOrderNo = '00000003'
         ..statusIndex = OrderLocalStatus.ready.code
         ..deliveryDate = now
+        ..createdAt = now
         ..updatedAt = now
         ..totalAmountMinor = 120000
         ..measurementsSnapshot = 'Full suit — see notes'
@@ -260,6 +264,8 @@ class IsarOrderRepository implements OrderListRepository {
           sourceMeasurementProfileLabel: o.sourceMeasurementProfileLabel,
           status: orderStatusFromCode(o.statusIndex),
           deliveryDate: o.deliveryDate,
+          createdAt: o.createdAt ?? o.updatedAt,
+          updatedAt: o.updatedAt,
           totalAmountMinor: o.totalAmountMinor,
           paidAmountMinor: paidMinor,
         ),
@@ -334,6 +340,7 @@ class IsarOrderRepository implements OrderListRepository {
       ..displayOrderNo = displayOrderNo
       ..statusIndex = OrderLocalStatus.newOrder.code
       ..deliveryDate = deliveryDate
+      ..createdAt = now
       ..updatedAt = now
       ..totalAmountMinor = totalAmountMinor
       ..measurementsSnapshot = measurementsSnapshot
@@ -384,6 +391,154 @@ class IsarOrderRepository implements OrderListRepository {
       existing.internalNotes = internalNotes;
       existing.updatedAt = DateTime.now();
       await _isar.orderEntitys.putByInternalId(existing);
+    });
+  }
+
+  @override
+  Future<void> mergeRemoteOrder({
+    required String shopId,
+    required String internalId,
+    required String operation,
+    Object? data,
+    DateTime? serverUpdatedAt,
+  }) async {
+    if (operation == 'delete') {
+      await _isar.writeTxn(() async {
+        final e = await _isar.orderEntitys.getByInternalId(internalId);
+        if (e == null) return;
+        final now = DateTime.now();
+        e
+          ..deletedAt = now
+          ..updatedAt = now;
+        await _isar.orderEntitys.putByInternalId(e);
+      });
+      return;
+    }
+
+    final m = syncPullDataMap(data);
+    final now = DateTime.now();
+
+    final existing = await _isar.orderEntitys.getByInternalId(internalId);
+    if (serverUpdatedAt != null &&
+        existing != null &&
+        existing.deletedAt == null &&
+        existing.updatedAt.isAfter(serverUpdatedAt)) {
+      return;
+    }
+    final customerId =
+        syncPullString(m, const ['customer_internal_id', 'customerInternalId']) ??
+            existing?.customerInternalId;
+    if (customerId == null || customerId.isEmpty) return;
+
+    final delivery = syncPullDateTime(
+          m,
+          const ['delivery_date', 'deliveryDate'],
+        ) ??
+        existing?.deliveryDate;
+    if (delivery == null) return;
+
+    final total = syncPullInt(m, const ['total_amount_minor', 'totalAmountMinor']) ??
+        existing?.totalAmountMinor ??
+        0;
+
+    final statusIdx = syncPullInt(m, const ['status_index', 'statusIndex']) ??
+        existing?.statusIndex ??
+        OrderLocalStatus.newOrder.code;
+
+    final measurements = syncPullString(
+          m,
+          const ['measurements_snapshot', 'measurementsSnapshot'],
+        ) ??
+        existing?.measurementsSnapshot ??
+        '';
+
+    final styleNotes = syncPullString(m, const ['style_notes', 'styleNotes']) ??
+        existing?.styleNotes ??
+        '';
+
+    final internalNotes = syncPullString(
+          m,
+          const ['internal_notes', 'internalNotes'],
+        ) ??
+        existing?.internalNotes ??
+        '';
+
+    final profileId = syncPullString(
+          m,
+          const ['source_measurement_profile_id', 'sourceMeasurementProfileId'],
+        );
+    final profileLabel = syncPullString(
+          m,
+          const [
+            'source_measurement_profile_label',
+            'sourceMeasurementProfileLabel',
+          ],
+    );
+
+    final displayNo = syncPullString(
+          m,
+          const ['display_order_no', 'displayOrderNo'],
+        ) ??
+        existing?.displayOrderNo;
+
+    final createdAt =
+        syncPullDateTime(m, const ['created_at', 'createdAt']) ??
+            existing?.createdAt ??
+            now;
+    final updatedAt =
+        syncPullDateTime(m, const ['updated_at', 'updatedAt']) ?? now;
+
+    await _isar.writeTxn(() async {
+      OrderEntity e;
+      if (existing == null) {
+        final count = await _isar.orderEntitys
+            .filter()
+            .shopIdEqualTo(shopId)
+            .and()
+            .deletedAtIsNull()
+            .count();
+        final resolvedDisplay = (displayNo != null && displayNo.isNotEmpty)
+            ? displayNo
+            : (count + 1).toString().padLeft(8, '0');
+        e = OrderEntity()
+          ..internalId = internalId
+          ..shopId = shopId
+          ..customerInternalId = customerId
+          ..displayOrderNo = resolvedDisplay
+          ..statusIndex = statusIdx
+          ..deliveryDate = delivery
+          ..createdAt = createdAt
+          ..updatedAt = updatedAt
+          ..totalAmountMinor = total
+          ..measurementsSnapshot = measurements
+          ..styleNotes = styleNotes
+          ..internalNotes = internalNotes
+          ..sourceMeasurementProfileId = profileId
+          ..sourceMeasurementProfileLabel = profileLabel ?? ''
+          ..deletedAt = null;
+      } else {
+        final row = await _isar.orderEntitys.getByInternalId(internalId);
+        if (row == null) return;
+        e = row;
+        e
+          ..shopId = shopId
+          ..customerInternalId = customerId
+          ..displayOrderNo =
+              (displayNo != null && displayNo.isNotEmpty) ? displayNo : e.displayOrderNo
+          ..statusIndex = statusIdx
+          ..deliveryDate = delivery
+          ..updatedAt = updatedAt
+          ..totalAmountMinor = total
+          ..measurementsSnapshot = measurements
+          ..styleNotes = styleNotes
+          ..internalNotes = internalNotes
+          ..sourceMeasurementProfileId = profileId ?? e.sourceMeasurementProfileId
+          ..sourceMeasurementProfileLabel =
+              profileLabel ?? e.sourceMeasurementProfileLabel
+          ..deletedAt = null;
+        e.createdAt ??= createdAt;
+      }
+      await _isar.orderEntitys.putByInternalId(e);
     });
   }
 }

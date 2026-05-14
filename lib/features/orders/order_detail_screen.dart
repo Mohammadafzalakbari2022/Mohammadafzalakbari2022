@@ -1,13 +1,21 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pride_v3/core/calendar/app_calendar_format.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
+import 'package:pride_v3/core/calendar/date_calendar_system.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
+import 'package:uuid/uuid.dart';
+
+import '../../auth/auth_providers.dart';
 import '../../data/local/dev_shop_constants.dart';
 import '../../data/local/measurement_profile_formatting.dart';
 import '../../data/local/order_summary.dart';
+import '../../data/local/payment_summary.dart';
 import '../../data/local/sync_outbox_kinds.dart';
 import '../../data/local/entities/order_status.dart';
 import '../../data/providers/local_data_providers.dart';
@@ -215,6 +223,11 @@ class OrderDetailScreen extends ConsumerWidget {
       ref,
       kind: SyncOutboxKinds.orderInternalNotes,
       entityRef: o.internalId,
+      shopId: o.shopId,
+      payloadJson: jsonEncode({
+        'internal_notes': text,
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
+      }),
     );
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -383,22 +396,48 @@ class OrderDetailScreen extends ConsumerWidget {
                             ref,
                             kind: SyncOutboxKinds.orderStatus,
                             entityRef: o.internalId,
+                            shopId: o.shopId,
+                            payloadJson: jsonEncode({
+                              'status_index': picked.code,
+                              'display_order_no': o.displayOrderNo,
+                              'updated_at':
+                                  DateTime.now().toUtc().toIso8601String(),
+                            }),
                           );
                           final notifRepo = await ref.read(
                             appNotificationRepositoryProvider.future,
                           );
+                          final shopForNotif =
+                              ref.read(authSessionProvider).shopId?.trim();
+                          final notifShopId =
+                              (shopForNotif != null && shopForNotif.isNotEmpty)
+                                  ? shopForNotif
+                                  : kDevShopId;
+                          final notifId = const Uuid().v4();
+                          final title =
+                              l10n.notifOrderStatusTitle(o.displayOrderNo);
+                          final body = l10n.notifOrderStatusBody(
+                            orderStatusLabel(picked, l10n),
+                          );
                           await notifRepo.append(
-                            shopId: kDevShopId,
-                            title: l10n.notifOrderStatusTitle(o.displayOrderNo),
-                            body: l10n.notifOrderStatusBody(
-                              orderStatusLabel(picked, l10n),
-                            ),
+                            shopId: notifShopId,
+                            title: title,
+                            body: body,
                             relatedOrderInternalId: o.internalId,
+                            internalId: notifId,
                           );
                           recordSyncOutboxMutation(
                             ref,
                             kind: SyncOutboxKinds.notificationAppend,
-                            entityRef: o.internalId,
+                            entityRef: notifId,
+                            shopId: notifShopId,
+                            payloadJson: jsonEncode({
+                              'title': title,
+                              'body': body,
+                              'related_order_internal_id': o.internalId,
+                              'created_at':
+                                  DateTime.now().toUtc().toIso8601String(),
+                            }),
                           );
                           if (!context.mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -625,6 +664,7 @@ class OrderDetailScreen extends ConsumerWidget {
                                       await _promptAmount(context, l10n);
                                   if (!context.mounted) return;
                                   if (amount == null) return;
+                                  final paymentId = const Uuid().v4();
                                   final repo = await ref.read(
                                     paymentRepositoryProvider.future,
                                   );
@@ -634,11 +674,22 @@ class OrderDetailScreen extends ConsumerWidget {
                                     amountMinor: amount,
                                     method: 'cash',
                                     isAdjustment: false,
+                                    internalId: paymentId,
                                   );
                                   recordSyncOutboxMutation(
                                     ref,
                                     kind: SyncOutboxKinds.paymentAppend,
-                                    entityRef: o.internalId,
+                                    entityRef: paymentId,
+                                    shopId: o.shopId,
+                                    payloadJson: jsonEncode({
+                                      'order_internal_id': o.internalId,
+                                      'amount_minor': amount,
+                                      'method': 'cash',
+                                      'is_adjustment': false,
+                                      'created_at': DateTime.now()
+                                          .toUtc()
+                                          .toIso8601String(),
+                                    }),
                                   );
                                   if (!context.mounted) return;
                                   ScaffoldMessenger.of(context).showSnackBar(
@@ -661,6 +712,7 @@ class OrderDetailScreen extends ConsumerWidget {
                                   );
                                   if (!context.mounted) return;
                                   if (amount == null) return;
+                                  final paymentId = const Uuid().v4();
                                   final repo = await ref.read(
                                     paymentRepositoryProvider.future,
                                   );
@@ -670,11 +722,22 @@ class OrderDetailScreen extends ConsumerWidget {
                                     amountMinor: amount,
                                     method: 'adjustment',
                                     isAdjustment: true,
+                                    internalId: paymentId,
                                   );
                                   recordSyncOutboxMutation(
                                     ref,
                                     kind: SyncOutboxKinds.paymentAppend,
-                                    entityRef: o.internalId,
+                                    entityRef: paymentId,
+                                    shopId: o.shopId,
+                                    payloadJson: jsonEncode({
+                                      'order_internal_id': o.internalId,
+                                      'amount_minor': amount,
+                                      'method': 'adjustment',
+                                      'is_adjustment': true,
+                                      'created_at': DateTime.now()
+                                          .toUtc()
+                                          .toIso8601String(),
+                                    }),
                                   );
                                   if (!context.mounted) return;
                                   ScaffoldMessenger.of(context).showSnackBar(
@@ -743,9 +806,22 @@ class OrderDetailScreen extends ConsumerWidget {
               ExpansionTile(
                 title: Text(l10n.ordersDetailSectionAudit),
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                    child: Text(l10n.ordersDetailSectionPlaceholder),
+                  asyncPayments.when(
+                    data: (payments) => _OrderAuditSection(
+                      o: o,
+                      payments: payments,
+                      l10n: l10n,
+                      calendar: calendar,
+                      locale: locale,
+                    ),
+                    loading: () => const Padding(
+                      padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                    error: (e, _) => Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                      child: Text('$e'),
+                    ),
                   ),
                 ],
               ),
@@ -772,6 +848,137 @@ class OrderDetailScreen extends ConsumerWidget {
           title: Text(l10n.ordersDetailTitle),
         ),
         body: Center(child: Text('$e')),
+      ),
+    );
+  }
+}
+
+class _OrderAuditSection extends StatelessWidget {
+  const _OrderAuditSection({
+    required this.o,
+    required this.payments,
+    required this.l10n,
+    required this.calendar,
+    required this.locale,
+  });
+
+  final OrderSummary o;
+  final List<PaymentSummary> payments;
+  final AppLocalizations l10n;
+  final DateCalendarSystem calendar;
+  final String locale;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final sorted = [...payments]
+      ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    final paySubtitle = payments.isEmpty
+        ? l10n.ordersAuditPaymentsEmpty
+        : l10n.ordersAuditPaymentsLine(
+            payments.length,
+            AppCalendarFormat.dateTimeMedium(
+              l10n,
+              calendar,
+              sorted.first.createdAt,
+              locale,
+            ),
+            AppCalendarFormat.dateTimeMedium(
+              l10n,
+              calendar,
+              sorted.last.createdAt,
+              locale,
+            ),
+          );
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            l10n.ordersDetailAuditIntro,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
+          ),
+          const SizedBox(height: 8),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.fingerprint_outlined),
+            title: Text(l10n.ordersAuditInternalId),
+            subtitle: SelectableText(
+              o.internalId,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            trailing: IconButton(
+              tooltip: l10n.ordersAuditCopyIdTooltip,
+              icon: const Icon(Icons.copy_outlined),
+              onPressed: () async {
+                await Clipboard.setData(ClipboardData(text: o.internalId));
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(l10n.ordersAuditCopiedId)),
+                );
+              },
+            ),
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.schedule_outlined),
+            title: Text(l10n.ordersAuditCreatedAt),
+            subtitle: Text(
+              AppCalendarFormat.dateTimeMedium(
+                l10n,
+                calendar,
+                o.createdAt,
+                locale,
+              ),
+            ),
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.update_outlined),
+            title: Text(l10n.ordersAuditUpdatedAt),
+            subtitle: Text(
+              AppCalendarFormat.dateTimeMedium(
+                l10n,
+                calendar,
+                o.updatedAt,
+                locale,
+              ),
+            ),
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.flag_outlined),
+            title: Text(l10n.ordersAuditStatus),
+            subtitle: Text(orderStatusLabel(o.status, l10n)),
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.event_outlined),
+            title: Text(l10n.ordersAuditDelivery),
+            subtitle: Text(
+              AppCalendarFormat.mediumDate(
+                l10n,
+                calendar,
+                o.deliveryDate,
+                locale,
+              ),
+            ),
+          ),
+          const Divider(height: 24),
+          Text(
+            l10n.ordersAuditPaymentsTitle,
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            paySubtitle,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+        ],
       ),
     );
   }

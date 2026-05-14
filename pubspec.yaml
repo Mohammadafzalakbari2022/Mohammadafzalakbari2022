@@ -48,6 +48,9 @@ dependencies:
   shamsi_date: 1.1.1
   shared_preferences: 2.5.3
   file_picker: ^11.0.2
+  sentry_flutter: ^9.5.0
+  http: ^1.6.0
+  share_plus: ^10.1.4
 
 dev_dependencies:
   flutter_test:

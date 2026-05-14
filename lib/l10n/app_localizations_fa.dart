@@ -62,6 +62,49 @@ class AppLocalizationsFa extends AppLocalizations {
   String get loginDevContinue => 'ادامه بدون حساب (توسعه)';
 
   @override
+  String get loginApiHint =>
+      'API_BASE_URL تنظیم شده است. سرور شناسه فروشگاه، نام کاربری و رمز را تأیید می‌کند (POST /auth/login).';
+
+  @override
+  String get loginSigningIn => 'در حال ورود…';
+
+  @override
+  String get loginApiUnauthorized =>
+      'شناسه فروشگاه، نام کاربری یا رمز نادرست است.';
+
+  @override
+  String loginApiError(String error) {
+    return 'ورود ناموفق: $error';
+  }
+
+  @override
+  String get loginShopCreateSectionTitle => 'فروشگاه جدید (API)';
+
+  @override
+  String get loginShopCreateSubtitle =>
+      'فروشگاه را روی سرور بسازید و به‌عنوان مالک وارد شوید (plan-04).';
+
+  @override
+  String get loginShopCreateNameLabel => 'نام فروشگاه';
+
+  @override
+  String get loginShopCreateOwnerUsernameLabel => 'نام کاربری مالک';
+
+  @override
+  String get loginShopCreateOwnerPasswordLabel => 'رمز مالک';
+
+  @override
+  String get loginShopCreateCta => 'ایجاد فروشگاه و ورود';
+
+  @override
+  String get loginShopCreating => 'در حال ایجاد فروشگاه…';
+
+  @override
+  String loginShopCreateError(String error) {
+    return 'ایجاد فروشگاه ناموفق: $error';
+  }
+
+  @override
   String modulePlaceholder(String moduleName) {
     return '$moduleName — رابط به‌زودی.';
   }
@@ -259,6 +302,43 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get ordersDetailSectionPlaceholder =>
       'جزئیات هنگام تکمیل ماژول اینجا نمایش داده می‌شود.';
+
+  @override
+  String get ordersDetailAuditIntro =>
+      'اطلاعات محلی روی این دستگاه. تاریخچهٔ تغییر وضعیت هنوز به‌صورت رویداد جدا ثبت نمی‌شود؛ برای زمان‌بندی از بخش پرداخت‌ها استفاده کنید.';
+
+  @override
+  String get ordersAuditInternalId => 'شناسهٔ داخلی';
+
+  @override
+  String get ordersAuditCopyIdTooltip => 'کپی شناسه';
+
+  @override
+  String get ordersAuditCopiedId => 'شناسهٔ سفارش کپی شد';
+
+  @override
+  String get ordersAuditCreatedAt => 'ایجاد';
+
+  @override
+  String get ordersAuditUpdatedAt => 'آخرین به‌روزرسانی';
+
+  @override
+  String get ordersAuditStatus => 'وضعیت';
+
+  @override
+  String get ordersAuditDelivery => 'تاریخ تحویل';
+
+  @override
+  String get ordersAuditPaymentsTitle => 'دفتر پرداخت‌ها';
+
+  @override
+  String get ordersAuditPaymentsEmpty =>
+      'هنوز ردیف پرداختی برای این سفارش نیست.';
+
+  @override
+  String ordersAuditPaymentsLine(int count, String first, String last) {
+    return '$count ردیف پرداخت · قدیمی‌ترین $first · جدیدترین $last';
+  }
 
   @override
   String get ordersDetailSnapshotEmpty => 'چیزی ثبت نشده.';
@@ -642,6 +722,28 @@ class AppLocalizationsFa extends AppLocalizations {
   String get reportsPaymentsAdjustmentChip => 'اصلاحیه';
 
   @override
+  String reportsPaymentsSectionHeader(String title, String total) {
+    return '$title — $total';
+  }
+
+  @override
+  String reportsPaymentsWeekOfLabel(String weekStart) {
+    return 'هفته از $weekStart';
+  }
+
+  @override
+  String get reportsPaymentsGroupByLabel => 'گروه‌بندی';
+
+  @override
+  String get reportsPaymentsGroupByDay => 'روز';
+
+  @override
+  String get reportsPaymentsGroupByWeek => 'هفته';
+
+  @override
+  String get reportsPaymentsGroupByMonth => 'ماه';
+
+  @override
   String get reportsMonthlyIncomePlaceholder =>
       'گزارش درآمد ماهانه اینجا قرار می‌گیرد (plan-16).';
 
@@ -655,6 +757,9 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get reportsMonthlyIncomeCardLabel => 'پرداخت‌های دریافت‌شده';
+
+  @override
+  String get reportsMonthlyDailyPaymentsLabel => 'پرداخت‌های روزانه (این ماه)';
 
   @override
   String get reportsMonthlyUnpaidDueTitle => 'پرداخت‌نشده (سررسید این ماه)';
@@ -690,6 +795,21 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get reportsUnpaidFilterDueSoon => 'Due in 7 days';
+
+  @override
+  String get reportsUnpaidAmountSection => 'مانده سفارش';
+
+  @override
+  String get reportsUnpaidAmountAny => 'هر مبلغ';
+
+  @override
+  String get reportsUnpaidAmountUnder5000 => 'زیر ۵٬۰۰۰';
+
+  @override
+  String get reportsUnpaidAmount5000to20000 => '۵٬۰۰۰ – ۲۰٬۰۰۰';
+
+  @override
+  String get reportsUnpaidAmountOver20000 => 'بالای ۲۰٬۰۰۰';
 
   @override
   String get reportsUnpaidSortSection => 'Sort';
@@ -907,6 +1027,33 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get settingsNetworkStatusOffline => 'آفلاین — کار محلی';
+
+  @override
+  String get settingsApiServerTitle => 'سرور API';
+
+  @override
+  String get settingsApiServerNotConfigured =>
+      'آدرس تنظیم نشده. هنگام اجرا یا بیلد از --dart-define=API_BASE_URL=https://... استفاده کنید.';
+
+  @override
+  String settingsApiServerConfigured(String url) {
+    return 'آدرس پایه: $url';
+  }
+
+  @override
+  String get settingsApiTestConnection => 'آزمایش اتصال';
+
+  @override
+  String get settingsApiTestNeedOnline =>
+      'برای آزمایش سرور به اینترنت وصل شوید.';
+
+  @override
+  String get settingsApiHealthOk => 'سرور پاسخ داد (GET /health).';
+
+  @override
+  String settingsApiHealthFailed(String message) {
+    return 'سرور در دسترس نیست: $message';
+  }
 
   @override
   String get settingsSyncDiagnosticsSubtitle =>
@@ -1422,6 +1569,29 @@ class AppLocalizationsFa extends AppLocalizations {
       'به‌روزرسانی آنلاین با اتصال API در دسترس خواهد بود.';
 
   @override
+  String get subscriptionActivationCodeHintApi =>
+      'کد فعال‌سازی را از توزیع‌کننده وارد کنید.';
+
+  @override
+  String get subscriptionApplying => 'در حال اعمال…';
+
+  @override
+  String get subscriptionRefreshing => 'در حال به‌روزرسانی…';
+
+  @override
+  String get subscriptionRedeemSuccess => 'مجوز به‌روز شد.';
+
+  @override
+  String subscriptionRedeemError(String error) {
+    return 'فعال‌سازی ناموفق: $error';
+  }
+
+  @override
+  String subscriptionRefreshError(String error) {
+    return 'به‌روزرسانی ناموفق: $error';
+  }
+
+  @override
   String get customersListView => 'نمای فهرستی';
 
   @override
@@ -1509,6 +1679,50 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get settingsUsersEmptyRowSubtitle => 'هنوز کاربر دیگری نیست';
+
+  @override
+  String get settingsUsersSubtitleTeam =>
+      'مشاهدهٔ حساب‌ها روی سرور (فقط خواندنی مگر مالک باشید).';
+
+  @override
+  String settingsUsersLoadError(String error) {
+    return 'بارگذاری کاربران ناموفق: $error';
+  }
+
+  @override
+  String get settingsUsersRetryCta => 'تلاش دوباره';
+
+  @override
+  String get settingsUsersDeleteConfirmTitle => 'حذف کاربر؟';
+
+  @override
+  String get settingsUsersDeleteConfirmBody => 'دیگر نمی‌تواند وارد شود.';
+
+  @override
+  String get settingsUsersDeleteCta => 'حذف';
+
+  @override
+  String get settingsUsersAddDialogTitle => 'افزودن کاربر';
+
+  @override
+  String get settingsUsersAddUsernameLabel => 'نام کاربری';
+
+  @override
+  String get settingsUsersAddPasswordLabel => 'رمز عبور';
+
+  @override
+  String get settingsUsersAddSubmitCta => 'ایجاد';
+
+  @override
+  String settingsUsersAddError(String error) {
+    return 'افزودن کاربر ناموفق: $error';
+  }
+
+  @override
+  String get settingsUsersAddedSnackbar => 'کاربر ایجاد شد.';
+
+  @override
+  String get settingsUsersRemovedSnackbar => 'کاربر حذف شد.';
 
   @override
   String get settingsBackupOwnerPasswordNote =>
@@ -1639,6 +1853,59 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String get settingsSyncLocalSnapshotTitle => 'تصویر دادهٔ محلی';
+
+  @override
+  String get settingsSyncLocalOrders => 'سفارش‌ها';
+
+  @override
+  String get settingsSyncLocalCustomers => 'مشتریان';
+
+  @override
+  String get settingsSyncLocalPayments => 'پرداخت‌ها';
+
+  @override
+  String get settingsSyncLocalTasks => 'کارها';
+
+  @override
+  String get settingsSyncLocalNotifications => 'اعلان‌ها';
+
+  @override
+  String get settingsSyncLocalUnread => 'اعلان‌های خوانده‌نشده';
+
+  @override
+  String get settingsSyncRetryTitle => 'هم‌اکنون همگام‌سازی';
+
+  @override
+  String get settingsSyncRetrySubtitle =>
+      'دریافت از سرور، سپس ارسال صف محلی وقتی API_BASE_URL تنظیم شده و با سرور آنلاین وارد شده‌اید (plan-04).';
+
+  @override
+  String get settingsSyncRetryOffline =>
+      'به نظر آفلاین هستید. اینترنت را وصل کنید و دوباره تلاش کنید.';
+
+  @override
+  String get settingsSyncRetryConfigureApi =>
+      'ابتدا API_BASE_URL را در زمان بیلد تنظیم کنید، سپس تنظیمات → اتصال API را باز کنید.';
+
+  @override
+  String get settingsSyncRetrySignIn => 'ابتدا با حساب آنلاین سرور وارد شوید.';
+
+  @override
+  String get settingsSyncRetryLicenseExpired =>
+      'سرور همگام‌سازی را رد کرد چون مجوز منقضی شده است. اشتراک را باز کنید.';
+
+  @override
+  String settingsSyncRetrySuccess(int pushed, int pulled) {
+    return 'همگام‌سازی انجام شد: $pushed تغییر ارسال شد؛ $pulled تغییر از سرور دریافت شد.';
+  }
+
+  @override
+  String settingsSyncRetryFailed(String detail) {
+    return 'همگام‌سازی ناموفق: $detail';
+  }
+
+  @override
   String get settingsSyncOutboxTitle => 'صندوق خروج';
 
   @override
@@ -1658,8 +1925,16 @@ class AppLocalizationsFa extends AppLocalizations {
   String get settingsDiagnosticsExportCta => 'خروجی بستهٔ تشخیص';
 
   @override
-  String get settingsDiagnosticsExportSoon =>
-      'خروجی تشخیص با عرضهٔ همگام‌سازی در دسترس خواهد بود.';
+  String get settingsDiagnosticsExportBusy => 'در حال آماده‌سازی بسته…';
+
+  @override
+  String get settingsDiagnosticsExportSuccess =>
+      'بستهٔ تشخیص آمادهٔ اشتراک است.';
+
+  @override
+  String settingsDiagnosticsExportError(String error) {
+    return 'خروجی تشخیص انجام نشد: $error';
+  }
 
   @override
   String get settingsSyncDiagnosticsFooter =>
@@ -1692,6 +1967,25 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get devPortalStubAction => 'API در این نسخه متصل نیست.';
+
+  @override
+  String get devPortalAdviceOfflineTitle => 'به نظر آفلاین هستید';
+
+  @override
+  String get devPortalAdviceOfflineBody =>
+      'برای آزمایش سلامت API عمومی به اینترنت وصل شوید. فهرست‌های مدیریتی پس از استقرار APIهای مدیریت در دسترس می‌شوند.';
+
+  @override
+  String get devPortalAdviceOnlineTitle =>
+      'APIهای فهرست مدیریت هنوز وصل نشده‌اند';
+
+  @override
+  String get devPortalAdviceOnlineBody =>
+      'در نمای کلی همچنان می‌توانید GET /health را بزنید. برای بستهٔ پشتیبانی دستگاه از تنظیمات → همگام‌سازی و تشخیص خروجی بگیرید.';
+
+  @override
+  String get devPortalApiHealthPrompt =>
+      'برای تازه‌سازی و فراخوانی GET /health، صفحه را به پایین بکشید.';
 
   @override
   String get devPortalEnvBadge => 'محیط: توسعه';
@@ -1728,7 +2022,29 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get devPortalDiagStub =>
-      'پشتیبانی: پیوند به بسته‌های خروجی از تنظیمات → همگام‌سازی و تشخیص.';
+      'برای بستهٔ کامل دستگاه از تنظیمات → همگام‌سازی و تشخیص → خروجی بستهٔ تشخیص استفاده کنید.';
+
+  @override
+  String get devPortalDiagLocalTitle => 'این دستگاه (حافظهٔ محلی)';
+
+  @override
+  String get devPortalDiagLocalSubtitle =>
+      'شمارش از ذخیرهٔ محلی — وقتی API مدیریت آفلاین است مفید است.';
+
+  @override
+  String get devPortalDiagCountLoading => '…';
+
+  @override
+  String get devPortalAdminAuditTitle => 'گزارش ممیزی مدیریت (نیمه‌کاره)';
+
+  @override
+  String get devPortalAdminAuditNeedSignIn =>
+      'با API وارد شوید، سپس برای تازه‌سازی به پایین بکشید.';
+
+  @override
+  String devPortalAdminAuditLine(int count, int schema) {
+    return 'GET /admin/audit-log — $count ردیف، نسخهٔ طرحواره $schema';
+  }
 
   @override
   String get settingsShopProfileTitle => 'پروفایل فروشگاه';

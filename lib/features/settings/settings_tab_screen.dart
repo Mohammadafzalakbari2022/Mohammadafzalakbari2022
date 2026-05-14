@@ -2,9 +2,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pride_v3/core/api/pride_api_config.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
+import '../../auth/admin_me_provider.dart';
 import '../../auth/auth_providers.dart';
+import '../../auth/auth_session_storage.dart';
+import '../../core/persistence/shared_preferences_provider.dart';
+import '../../core/persistence/sync_cursor_storage.dart';
+import '../../core/persistence/sync_diagnostics_storage.dart';
+import '../../shell/shell_sync_providers.dart';
 import '../../licensing/license_notifier.dart';
 import '../../licensing/license_providers.dart';
 import 'settings_providers.dart';
@@ -30,6 +37,14 @@ Future<void> _showSignOutDialog(BuildContext context, WidgetRef ref) async {
     ),
   );
   if (confirmed == true && context.mounted) {
+    final prefs = ref.read(sharedPreferencesProvider);
+    final sid = ref.read(authSessionProvider).shopId?.trim();
+    await AuthSessionStorage.clear(prefs);
+    if (sid != null && sid.isNotEmpty) {
+      await SyncCursorStorage.clearForShop(prefs, sid);
+    }
+    await SyncDiagnosticsStorage.clear(prefs);
+    ref.read(lastSuccessfulSyncAtProvider.notifier).state = null;
     ref.read(authSessionProvider).signOut();
   }
 }
@@ -98,9 +113,18 @@ class SettingsTabScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final license = ref.watch(licenseNotifierProvider);
-    final isOwner = ref.watch(isOwnerProvider);
-    final isDeveloper = ref.watch(isDeveloperProvider);
+    final isOwnerDev = ref.watch(isOwnerProvider);
+    final devSimulated = ref.watch(isDeveloperProvider);
+    final serverDeveloper =
+        ref.watch(adminMeProvider).valueOrNull?.isDeveloper == true;
+    final showDeveloperPortalEntry = devSimulated || serverDeveloper;
 
+    final auth = ref.watch(authSessionProvider);
+    final effectiveOwner =
+        auth.hasApiSession ? auth.isShopOwner : isOwnerDev;
+    final apiOn = PrideApiConfig.isConfigured;
+    final roleLabel =
+        effectiveOwner ? l10n.settingsRoleOwner : l10n.settingsRoleUser;
     final shopAsync = ref.watch(shopProfileProvider);
     final shopSubtitle = shopAsync.maybeWhen(
       data: (s) {
@@ -110,8 +134,6 @@ class SettingsTabScreen extends ConsumerWidget {
       orElse: () => l10n.settingsShopTileSubtitle,
     );
 
-    final auth = ref.watch(authSessionProvider);
-    final roleLabel = isOwner ? l10n.settingsRoleOwner : l10n.settingsRoleUser;
     final userSubtitle = () {
       final u = auth.username?.trim();
       if (u == null || u.isEmpty) {
@@ -184,10 +206,14 @@ class SettingsTabScreen extends ConsumerWidget {
             _LockedTile(
               leading: Icons.group_outlined,
               title: l10n.settingsUsersTitle,
-              subtitle: isOwner
-                  ? l10n.settingsUsersSubtitleOwner
-                  : l10n.settingsOwnerOnly,
-              enabled: isOwner,
+              subtitle: apiOn
+                  ? (effectiveOwner
+                      ? l10n.settingsUsersSubtitleOwner
+                      : l10n.settingsUsersSubtitleTeam)
+                  : (isOwnerDev
+                      ? l10n.settingsUsersSubtitleOwner
+                      : l10n.settingsOwnerOnly),
+              enabled: apiOn ? auth.authenticated : isOwnerDev,
               onTap: () => context.push('/app/settings/users'),
             ),
           ],
@@ -199,10 +225,10 @@ class SettingsTabScreen extends ConsumerWidget {
             _LockedTile(
               leading: Icons.backup_outlined,
               title: l10n.settingsBackupRestoreTitle,
-              subtitle: isOwner
+              subtitle: effectiveOwner
                   ? l10n.settingsBackupRestoreSubtitleOwner
                   : l10n.settingsOwnerOnly,
-              enabled: isOwner,
+              enabled: effectiveOwner,
               onTap: () => context.push('/app/settings/backup-restore'),
             ),
           ],
@@ -268,7 +294,7 @@ class SettingsTabScreen extends ConsumerWidget {
             ),
           ],
         ),
-        if (isDeveloper) ...[
+        if (showDeveloperPortalEntry) ...[
           const SizedBox(height: 16),
           _SettingsSection(
             title: l10n.settingsSectionDeveloper,
@@ -319,13 +345,13 @@ class SettingsTabScreen extends ConsumerWidget {
           SwitchListTile(
             title: Text(l10n.settingsDevRoleOwnerTitle),
             subtitle: Text(l10n.settingsDevRoleOwnerSubtitle),
-            value: isOwner,
+            value: isOwnerDev,
             onChanged: (v) => ref.read(isOwnerProvider.notifier).state = v,
           ),
           SwitchListTile(
             title: Text(l10n.settingsDevRoleDeveloperTitle),
             subtitle: Text(l10n.settingsDevRoleDeveloperSubtitle),
-            value: isDeveloper,
+            value: devSimulated,
             onChanged: (v) =>
                 ref.read(isDeveloperProvider.notifier).state = v,
           ),

@@ -6,6 +6,7 @@ import 'customer_list_repository.dart';
 import 'customer_summary.dart';
 import 'dev_shop_constants.dart';
 import 'seed_data.dart';
+import 'sync_pull_payload.dart';
 
 /// Web: in-memory customers list (derived from seed IDs).
 class MemoryCustomerRepository implements CustomerListRepository {
@@ -122,6 +123,53 @@ class MemoryCustomerRepository implements CustomerListRepository {
   Future<void> softDeleteCustomer(String internalId) async {
     await seedIfEmpty();
     _softDeletedIds.add(internalId);
+    _emit();
+  }
+
+  @override
+  Future<void> mergeRemoteCustomer({
+    required String shopId,
+    required String internalId,
+    required String operation,
+    Object? data,
+  }) async {
+    await seedIfEmpty();
+    if (operation == 'delete') {
+      await softDeleteCustomer(internalId);
+      return;
+    }
+    final m = syncPullDataMap(data);
+    final name = syncPullString(m, const ['name']);
+    if (name == null || name.trim().isEmpty) return;
+    final createdAt =
+        syncPullDateTime(m, const ['created_at', 'createdAt']) ?? DateTime.now();
+    _softDeletedIds.remove(internalId);
+    for (var i = 0; i < _customers.length; i++) {
+      if (_customers[i].internalId != internalId) continue;
+      final prev = _customers[i];
+      _customers[i] = CustomerSummary(
+        shopId: shopId,
+        internalId: internalId,
+        name: name.trim(),
+        phone: _opt(syncPullString(m, const ['phone'])),
+        address: _opt(syncPullString(m, const ['address'])),
+        notes: _opt(syncPullString(m, const ['notes'])),
+        createdAt: prev.createdAt,
+      );
+      _emit();
+      return;
+    }
+    _customers.add(
+      CustomerSummary(
+        shopId: shopId,
+        internalId: internalId,
+        name: name.trim(),
+        phone: _opt(syncPullString(m, const ['phone'])),
+        address: _opt(syncPullString(m, const ['address'])),
+        notes: _opt(syncPullString(m, const ['notes'])),
+        createdAt: createdAt,
+      ),
+    );
     _emit();
   }
 }

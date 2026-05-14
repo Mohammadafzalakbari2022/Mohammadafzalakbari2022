@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -6,7 +8,9 @@ import 'package:pride_v3/core/calendar/app_calendar_format.dart';
 import 'package:pride_v3/core/calendar/app_date_picker.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
+import 'package:uuid/uuid.dart';
 
+import '../../auth/auth_providers.dart';
 import '../../data/local/customer_summary.dart';
 import '../../data/local/dev_shop_constants.dart';
 import '../../data/local/order_measurement_snapshot_item_input.dart';
@@ -132,11 +136,14 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     final paidMinor = int.tryParse(_paidController.text.trim()) ?? 0;
     final deliveryDate = _deliveryDate!;
 
+    final shopId =
+        effectiveShopIdFromAuth(ref.read(authSessionProvider).shopId);
+
     final ordersRepo = await ref.read(orderListRepositoryProvider.future);
     final paymentsRepo = await ref.read(paymentRepositoryProvider.future);
 
     final orderId = await ordersRepo.createOrder(
-      shopId: kDevShopId,
+      shopId: shopId,
       customerInternalId: customerId,
       deliveryDate: deliveryDate,
       totalAmountMinor: totalMinor,
@@ -154,20 +161,47 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       ref,
       kind: SyncOutboxKinds.orderCreate,
       entityRef: orderId,
+      shopId: shopId,
+      payloadJson: jsonEncode({
+        'customer_internal_id': customerId,
+        'delivery_date': deliveryDate.toUtc().toIso8601String(),
+        'total_amount_minor': totalMinor,
+        'initial_paid_minor': paidMinor,
+        'measurements_snapshot': _measurementsController.text.trim(),
+        'style_notes': _styleController.text.trim(),
+        if (_selectedCustomerName != null && _selectedCustomerName!.trim().isNotEmpty)
+          'customer_snapshot_name': _selectedCustomerName!.trim(),
+        if (_selectedCustomerPhone != null && _selectedCustomerPhone!.trim().isNotEmpty)
+          'customer_snapshot_phone': _selectedCustomerPhone!.trim(),
+        if (_measurementSourceProfileId != null &&
+            _measurementSourceProfileId!.trim().isNotEmpty)
+          'source_measurement_profile_id': _measurementSourceProfileId!.trim(),
+        'source_measurement_profile_label': _measurementSourceProfileLabel.trim(),
+      }),
     );
 
     if (paidMinor > 0) {
+      final paymentId = const Uuid().v4();
       await paymentsRepo.addPayment(
-        shopId: kDevShopId,
+        shopId: shopId,
         orderInternalId: orderId,
         amountMinor: paidMinor,
         method: 'cash',
         isAdjustment: false,
+        internalId: paymentId,
       );
       recordSyncOutboxMutation(
         ref,
         kind: SyncOutboxKinds.paymentAppend,
-        entityRef: orderId,
+        entityRef: paymentId,
+        shopId: shopId,
+        payloadJson: jsonEncode({
+          'order_internal_id': orderId,
+          'amount_minor': paidMinor,
+          'method': 'cash',
+          'is_adjustment': false,
+          'created_at': DateTime.now().toUtc().toIso8601String(),
+        }),
       );
     }
 

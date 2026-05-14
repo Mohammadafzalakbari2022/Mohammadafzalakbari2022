@@ -308,6 +308,7 @@ abstract final class IsarBackupV1 {
         'displayOrderNo': o.displayOrderNo,
         'statusIndex': o.statusIndex,
         'deliveryDate': o.deliveryDate.toUtc().toIso8601String(),
+        'createdAt': o.createdAt?.toUtc().toIso8601String(),
         'updatedAt': o.updatedAt.toUtc().toIso8601String(),
         'totalAmountMinor': o.totalAmountMinor,
         'measurementsSnapshot': o.measurementsSnapshot,
@@ -335,6 +336,9 @@ abstract final class IsarBackupV1 {
           m['sourceMeasurementProfileId'] as String?
       ..sourceMeasurementProfileLabel =
           m['sourceMeasurementProfileLabel'] as String? ?? '';
+    final createdRaw = m['createdAt'] as String?;
+    o.createdAt =
+        createdRaw == null ? null : DateTime.parse(createdRaw).toLocal();
     final del = m['deletedAt'] as String?;
     o.deletedAt = del == null ? null : DateTime.parse(del).toLocal();
     return o;

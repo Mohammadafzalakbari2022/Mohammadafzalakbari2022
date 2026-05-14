@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
-import '../../data/local/dev_shop_constants.dart';
+import '../../auth/auth_providers.dart';
 import '../../data/local/task_summary.dart';
 import '../../data/providers/local_data_providers.dart';
 
@@ -191,7 +191,7 @@ class _SettingsTasksScreenState extends ConsumerState<SettingsTasksScreen> {
                             final title = titleCtrl.text.trim();
                             if (title.isEmpty) return;
                             await repo.upsertTask(
-                              shopId: kDevShopId,
+                              shopId: ref.read(effectiveShopIdProvider),
                               internalId: task?.internalId,
                               title: title,
                               notes: notesCtrl.text.trim(),
@@ -218,7 +218,8 @@ class _SettingsTasksScreenState extends ConsumerState<SettingsTasksScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final asyncTasks = ref.watch(tasksForShopProvider(kDevShopId));
+    final shopId = ref.watch(effectiveShopIdProvider);
+    final asyncTasks = ref.watch(tasksForShopProvider(shopId));
 
     return Scaffold(
       appBar: AppBar(

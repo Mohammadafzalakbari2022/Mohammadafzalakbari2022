@@ -24,5 +24,13 @@ abstract class CustomerListRepository {
 
   /// Soft-delete (plan-13); hidden from [watchCustomers] results.
   Future<void> softDeleteCustomer(String internalId);
+
+  /// Apply one row from `GET /sync/pull` (`plan-03`). [data] is the server payload map.
+  Future<void> mergeRemoteCustomer({
+    required String shopId,
+    required String internalId,
+    required String operation,
+    Object? data,
+  });
 }
 

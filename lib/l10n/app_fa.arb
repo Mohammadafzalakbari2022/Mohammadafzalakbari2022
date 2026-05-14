@@ -17,6 +17,32 @@
   "loginSignInCta": "ورود",
   "loginFieldRequired": "الزامی",
   "loginDevContinue": "ادامه بدون حساب (توسعه)",
+  "loginApiHint": "API_BASE_URL تنظیم شده است. سرور شناسه فروشگاه، نام کاربری و رمز را تأیید می‌کند (POST /auth/login).",
+  "loginSigningIn": "در حال ورود…",
+  "loginApiUnauthorized": "شناسه فروشگاه، نام کاربری یا رمز نادرست است.",
+  "loginApiError": "ورود ناموفق: {error}",
+  "@loginApiError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "loginShopCreateSectionTitle": "فروشگاه جدید (API)",
+  "loginShopCreateSubtitle": "فروشگاه را روی سرور بسازید و به‌عنوان مالک وارد شوید (plan-04).",
+  "loginShopCreateNameLabel": "نام فروشگاه",
+  "loginShopCreateOwnerUsernameLabel": "نام کاربری مالک",
+  "loginShopCreateOwnerPasswordLabel": "رمز مالک",
+  "loginShopCreateCta": "ایجاد فروشگاه و ورود",
+  "loginShopCreating": "در حال ایجاد فروشگاه…",
+  "loginShopCreateError": "ایجاد فروشگاه ناموفق: {error}",
+  "@loginShopCreateError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "modulePlaceholder": "{moduleName} — رابط به‌زودی.",
   "@modulePlaceholder": {
     "description": "Placeholder body for a shell tab",
@@ -133,6 +159,24 @@
   "ordersDetailSectionPayments": "پرداخت‌ها",
   "ordersDetailSectionAudit": "تاریخچه",
   "ordersDetailSectionPlaceholder": "جزئیات هنگام تکمیل ماژول اینجا نمایش داده می‌شود.",
+  "ordersDetailAuditIntro": "اطلاعات محلی روی این دستگاه. تاریخچهٔ تغییر وضعیت هنوز به‌صورت رویداد جدا ثبت نمی‌شود؛ برای زمان‌بندی از بخش پرداخت‌ها استفاده کنید.",
+  "ordersAuditInternalId": "شناسهٔ داخلی",
+  "ordersAuditCopyIdTooltip": "کپی شناسه",
+  "ordersAuditCopiedId": "شناسهٔ سفارش کپی شد",
+  "ordersAuditCreatedAt": "ایجاد",
+  "ordersAuditUpdatedAt": "آخرین به‌روزرسانی",
+  "ordersAuditStatus": "وضعیت",
+  "ordersAuditDelivery": "تاریخ تحویل",
+  "ordersAuditPaymentsTitle": "دفتر پرداخت‌ها",
+  "ordersAuditPaymentsEmpty": "هنوز ردیف پرداختی برای این سفارش نیست.",
+  "ordersAuditPaymentsLine": "{count} ردیف پرداخت · قدیمی‌ترین {first} · جدیدترین {last}",
+  "@ordersAuditPaymentsLine": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "first": { "type": "String" },
+      "last": { "type": "String" }
+    }
+  },
   "ordersDetailSnapshotEmpty": "چیزی ثبت نشده.",
   "ordersDetailMeasurementsFromProfile": "تصویر بر اساس پروفایل «{label}».",
   "@ordersDetailMeasurementsFromProfile": {
@@ -286,6 +330,29 @@
   "reportsPaymentsEmpty": "در این بازهٔ تاریخ پرداختی وجود ندارد.",
   "reportsPaymentsUnknownOrder": "سفارش نامشخص",
   "reportsPaymentsAdjustmentChip": "اصلاحیه",
+  "reportsPaymentsSectionHeader": "{title} — {total}",
+  "@reportsPaymentsSectionHeader": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsPaymentsWeekOfLabel": "هفته از {weekStart}",
+  "@reportsPaymentsWeekOfLabel": {
+    "placeholders": {
+      "weekStart": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsPaymentsGroupByLabel": "گروه‌بندی",
+  "reportsPaymentsGroupByDay": "روز",
+  "reportsPaymentsGroupByWeek": "هفته",
+  "reportsPaymentsGroupByMonth": "ماه",
   "reportsMonthlyIncomePlaceholder": "گزارش درآمد ماهانه اینجا قرار می‌گیرد (plan-16).",
   "reportsThisMonthIncomeTitle": "درآمد این ماه",
   "reportsThisMonthIncomeSubtitle": "درآمد: {amount}",
@@ -297,6 +364,7 @@
     }
   },
   "reportsMonthlyIncomeCardLabel": "پرداخت‌های دریافت‌شده",
+  "reportsMonthlyDailyPaymentsLabel": "پرداخت‌های روزانه (این ماه)",
   "reportsMonthlyUnpaidDueTitle": "پرداخت‌نشده (سررسید این ماه)",
   "reportsMonthlyUnpaidDueBody": "جمع مانده‌های سفارش‌هایی که تاریخ تحویل در این ماه است.",
   "reportsPrevMonth": "ماه قبل",
@@ -308,6 +376,11 @@
   "reportsUnpaidFilterAll": "All",
   "reportsUnpaidFilterOverdue": "Overdue",
   "reportsUnpaidFilterDueSoon": "Due in 7 days",
+  "reportsUnpaidAmountSection": "مانده سفارش",
+  "reportsUnpaidAmountAny": "هر مبلغ",
+  "reportsUnpaidAmountUnder5000": "زیر ۵٬۰۰۰",
+  "reportsUnpaidAmount5000to20000": "۵٬۰۰۰ – ۲۰٬۰۰۰",
+  "reportsUnpaidAmountOver20000": "بالای ۲۰٬۰۰۰",
   "reportsUnpaidSortSection": "Sort",
   "reportsUnpaidSortAmount": "Amount",
   "reportsUnpaidSortDueDate": "Due date",
@@ -389,6 +462,27 @@
   "settingsNetworkStatusTitle": "شبکه",
   "settingsNetworkStatusOnline": "متصل",
   "settingsNetworkStatusOffline": "آفلاین — کار محلی",
+  "settingsApiServerTitle": "سرور API",
+  "settingsApiServerNotConfigured": "آدرس تنظیم نشده. هنگام اجرا یا بیلد از --dart-define=API_BASE_URL=https://... استفاده کنید.",
+  "settingsApiServerConfigured": "آدرس پایه: {url}",
+  "@settingsApiServerConfigured": {
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsApiTestConnection": "آزمایش اتصال",
+  "settingsApiTestNeedOnline": "برای آزمایش سرور به اینترنت وصل شوید.",
+  "settingsApiHealthOk": "سرور پاسخ داد (GET /health).",
+  "settingsApiHealthFailed": "سرور در دسترس نیست: {message}",
+  "@settingsApiHealthFailed": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
   "settingsSyncDiagnosticsSubtitle": "آخرین همگام‌سازی، صف، صندوق خروج (plan-15).",
   "settingsSyncDiagnosticsPlaceholder": "همگام‌سازی و تشخیص در plan-15 پیاده می‌شود.",
   "settingsAppearanceLanguageTitle": "ظاهر و زبان",
@@ -621,6 +715,26 @@
   "subscriptionActivationComingSoon": "فعال‌سازی به سرور متصل می‌شود (plan-06).",
   "subscriptionRefreshStatusCta": "به‌روزرسانی وضعیت مجوز",
   "subscriptionRefreshComingSoon": "به‌روزرسانی آنلاین با اتصال API در دسترس خواهد بود.",
+  "subscriptionActivationCodeHintApi": "کد فعال‌سازی را از توزیع‌کننده وارد کنید.",
+  "subscriptionApplying": "در حال اعمال…",
+  "subscriptionRefreshing": "در حال به‌روزرسانی…",
+  "subscriptionRedeemSuccess": "مجوز به‌روز شد.",
+  "subscriptionRedeemError": "فعال‌سازی ناموفق: {error}",
+  "@subscriptionRedeemError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "subscriptionRefreshError": "به‌روزرسانی ناموفق: {error}",
+  "@subscriptionRefreshError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "customersListView": "نمای فهرستی",
   "customersCardView": "نمای کارتی",
   "customerEditDialogTitle": "ویرایش مشتری",
@@ -659,6 +773,33 @@
   "settingsUsersOwnerRowSubtitle": "دسترسی کامل",
   "settingsUsersEmptyRowTitle": "کاربران اضافی",
   "settingsUsersEmptyRowSubtitle": "هنوز کاربر دیگری نیست",
+  "settingsUsersSubtitleTeam": "مشاهدهٔ حساب‌ها روی سرور (فقط خواندنی مگر مالک باشید).",
+  "settingsUsersLoadError": "بارگذاری کاربران ناموفق: {error}",
+  "@settingsUsersLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsUsersRetryCta": "تلاش دوباره",
+  "settingsUsersDeleteConfirmTitle": "حذف کاربر؟",
+  "settingsUsersDeleteConfirmBody": "دیگر نمی‌تواند وارد شود.",
+  "settingsUsersDeleteCta": "حذف",
+  "settingsUsersAddDialogTitle": "افزودن کاربر",
+  "settingsUsersAddUsernameLabel": "نام کاربری",
+  "settingsUsersAddPasswordLabel": "رمز عبور",
+  "settingsUsersAddSubmitCta": "ایجاد",
+  "settingsUsersAddError": "افزودن کاربر ناموفق: {error}",
+  "@settingsUsersAddError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsUsersAddedSnackbar": "کاربر ایجاد شد.",
+  "settingsUsersRemovedSnackbar": "کاربر حذف شد.",
   "settingsBackupOwnerPasswordNote": "پشتیبان و بازیابی به رمز ورود مالک نیاز دارد (plan-15).",
   "settingsBackupSectionTitle": "پشتیبان",
   "settingsBackupOptionDataOnly": "فقط داده",
@@ -760,13 +901,48 @@
       }
     }
   },
+  "settingsSyncLocalSnapshotTitle": "تصویر دادهٔ محلی",
+  "settingsSyncLocalOrders": "سفارش‌ها",
+  "settingsSyncLocalCustomers": "مشتریان",
+  "settingsSyncLocalPayments": "پرداخت‌ها",
+  "settingsSyncLocalTasks": "کارها",
+  "settingsSyncLocalNotifications": "اعلان‌ها",
+  "settingsSyncLocalUnread": "اعلان‌های خوانده‌نشده",
+  "settingsSyncRetryTitle": "هم‌اکنون همگام‌سازی",
+  "settingsSyncRetrySubtitle": "دریافت از سرور، سپس ارسال صف محلی وقتی API_BASE_URL تنظیم شده و با سرور آنلاین وارد شده‌اید (plan-04).",
+  "settingsSyncRetryOffline": "به نظر آفلاین هستید. اینترنت را وصل کنید و دوباره تلاش کنید.",
+  "settingsSyncRetryConfigureApi": "ابتدا API_BASE_URL را در زمان بیلد تنظیم کنید، سپس تنظیمات → اتصال API را باز کنید.",
+  "settingsSyncRetrySignIn": "ابتدا با حساب آنلاین سرور وارد شوید.",
+  "settingsSyncRetryLicenseExpired": "سرور همگام‌سازی را رد کرد چون مجوز منقضی شده است. اشتراک را باز کنید.",
+  "settingsSyncRetrySuccess": "همگام‌سازی انجام شد: {pushed} تغییر ارسال شد؛ {pulled} تغییر از سرور دریافت شد.",
+  "@settingsSyncRetrySuccess": {
+    "placeholders": {
+      "pushed": { "type": "int" },
+      "pulled": { "type": "int" }
+    }
+  },
+  "settingsSyncRetryFailed": "همگام‌سازی ناموفق: {detail}",
+  "@settingsSyncRetryFailed": {
+    "placeholders": {
+      "detail": { "type": "String" }
+    }
+  },
   "settingsSyncOutboxTitle": "صندوق خروج",
   "settingsSyncOutboxPlaceholderTitle": "تغییرات در صف",
   "settingsSyncOutboxPlaceholderSubtitle": "تلاش مجدد و جزئیات هنگام فعال بودن همگام‌سازی نمایش داده می‌شود.",
   "settingsSyncOutboxPendingListTitle": "تغییرات در انتظار (محلی)",
   "settingsSyncOutboxPendingEmpty": "چیزی در صف همگام‌سازی نیست.",
   "settingsDiagnosticsExportCta": "خروجی بستهٔ تشخیص",
-  "settingsDiagnosticsExportSoon": "خروجی تشخیص با عرضهٔ همگام‌سازی در دسترس خواهد بود.",
+  "settingsDiagnosticsExportBusy": "در حال آماده‌سازی بسته…",
+  "settingsDiagnosticsExportSuccess": "بستهٔ تشخیص آمادهٔ اشتراک است.",
+  "settingsDiagnosticsExportError": "خروجی تشخیص انجام نشد: {error}",
+  "@settingsDiagnosticsExportError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "settingsSyncDiagnosticsFooter": "پشتیبانی ممکن است این بسته را برای عیب‌یابی همگام‌سازی بخواهد.",
   "devPortalTitle": "پورتال توسعه‌دهنده",
   "devPortalTabOverview": "نمای کلی",
@@ -777,6 +953,11 @@
   "devPortalOnlineRequired": "ابزارهای توسعه‌دهنده به اتصال آنلاین و حساب تأییدشده نیاز دارند.",
   "devPortalRetryCta": "تلاش مجدد",
   "devPortalStubAction": "API در این نسخه متصل نیست.",
+  "devPortalAdviceOfflineTitle": "به نظر آفلاین هستید",
+  "devPortalAdviceOfflineBody": "برای آزمایش سلامت API عمومی به اینترنت وصل شوید. فهرست‌های مدیریتی پس از استقرار APIهای مدیریت در دسترس می‌شوند.",
+  "devPortalAdviceOnlineTitle": "APIهای فهرست مدیریت هنوز وصل نشده‌اند",
+  "devPortalAdviceOnlineBody": "در نمای کلی همچنان می‌توانید GET /health را بزنید. برای بستهٔ پشتیبانی دستگاه از تنظیمات → همگام‌سازی و تشخیص خروجی بگیرید.",
+  "devPortalApiHealthPrompt": "برای تازه‌سازی و فراخوانی GET /health، صفحه را به پایین بکشید.",
   "devPortalEnvBadge": "محیط: توسعه",
   "devPortalStatShops": "کل فروشگاه‌ها",
   "devPortalStatActiveExpired": "فعال / منقضی",
@@ -787,7 +968,23 @@
   "devPortalCodesStub": "کدهای فعال‌سازی: جستجو، ایجاد و لغو از API مدیریت بارگذاری می‌شود (plan-18).",
   "devPortalShopsStub": "فروشگاه‌ها و مجوزها: فهرست و جزئیات از API مدیریت بارگذاری می‌شود.",
   "devPortalResetsStub": "درخواست‌های بازنشانی رمز: صف پشتیبانی از API مدیریت بارگذاری می‌شود.",
-  "devPortalDiagStub": "پشتیبانی: پیوند به بسته‌های خروجی از تنظیمات → همگام‌سازی و تشخیص.",
+  "devPortalDiagStub": "برای بستهٔ کامل دستگاه از تنظیمات → همگام‌سازی و تشخیص → خروجی بستهٔ تشخیص استفاده کنید.",
+  "devPortalDiagLocalTitle": "این دستگاه (حافظهٔ محلی)",
+  "devPortalDiagLocalSubtitle": "شمارش از ذخیرهٔ محلی — وقتی API مدیریت آفلاین است مفید است.",
+  "devPortalDiagCountLoading": "…",
+  "devPortalAdminAuditTitle": "گزارش ممیزی مدیریت (نیمه‌کاره)",
+  "devPortalAdminAuditNeedSignIn": "با API وارد شوید، سپس برای تازه‌سازی به پایین بکشید.",
+  "devPortalAdminAuditLine": "GET /admin/audit-log — {count} ردیف، نسخهٔ طرحواره {schema}",
+  "@devPortalAdminAuditLine": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "schema": {
+        "type": "int"
+      }
+    }
+  },
   "settingsShopProfileTitle": "پروفایل فروشگاه",
   "shopProfileIntro": "این نام فروشگاه به‌عنوان برچسب طراح روی اقلام کاتالوگ نمایش داده می‌شود. تماس تا اتصال فاکتور برای مرجع شماست.",
   "shopProfileNameLabel": "نام فروشگاه",

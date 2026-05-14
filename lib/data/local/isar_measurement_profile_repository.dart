@@ -12,6 +12,7 @@ import 'measurement_profile_summary.dart';
 import 'measurement_type_summary.dart';
 import 'measurement_unit_codes.dart';
 import 'seed_data.dart';
+import 'sync_pull_payload.dart';
 
 class IsarMeasurementProfileRepository implements MeasurementProfileRepository {
   IsarMeasurementProfileRepository(this._isar);
@@ -246,6 +247,66 @@ class IsarMeasurementProfileRepository implements MeasurementProfileRepository {
       e.deletedAt = DateTime.now();
       e.updatedAt = DateTime.now();
       await _isar.measurementTypeEntitys.putByInternalId(e);
+    });
+  }
+
+  @override
+  Future<void> mergeRemoteMeasurementType({
+    required String shopId,
+    required String internalId,
+    required String operation,
+    Object? data,
+  }) async {
+    if (operation == 'delete') {
+      await softDeleteMeasurementType(internalId);
+      return;
+    }
+    final m = syncPullDataMap(data);
+    final name = syncPullString(m, const ['name']);
+    if (name == null || name.trim().isEmpty) return;
+    final sortOrderIn = syncPullInt(m, const ['sort_order', 'sortOrder']);
+    final isActive = syncPullBool(m, const ['is_active', 'isActive']) ?? true;
+    final now = DateTime.now();
+    final createdRemote =
+        syncPullDateTime(m, const ['created_at', 'createdAt']) ?? now;
+    final updatedRemote =
+        syncPullDateTime(m, const ['updated_at', 'updatedAt']) ?? now;
+
+    await _isar.writeTxn(() async {
+      final existing =
+          await _isar.measurementTypeEntitys.getByInternalId(internalId);
+      if (existing == null) {
+        final list = await _isar.measurementTypeEntitys
+            .filter()
+            .shopIdEqualTo(shopId)
+            .and()
+            .deletedAtIsNull()
+            .findAll();
+        var maxOrder = 0;
+        for (final e in list) {
+          if (e.sortOrder > maxOrder) maxOrder = e.sortOrder;
+        }
+        final so = sortOrderIn ?? maxOrder + 10;
+        final e = MeasurementTypeEntity()
+          ..internalId = internalId
+          ..shopId = shopId
+          ..name = name.trim()
+          ..sortOrder = so
+          ..isActive = isActive
+          ..createdAt = createdRemote
+          ..updatedAt = updatedRemote
+          ..deletedAt = null;
+        await _isar.measurementTypeEntitys.putByInternalId(e);
+        return;
+      }
+      existing
+        ..shopId = shopId
+        ..name = name.trim()
+        ..sortOrder = sortOrderIn ?? existing.sortOrder
+        ..isActive = isActive
+        ..updatedAt = updatedRemote
+        ..deletedAt = null;
+      await _isar.measurementTypeEntitys.putByInternalId(existing);
     });
   }
 

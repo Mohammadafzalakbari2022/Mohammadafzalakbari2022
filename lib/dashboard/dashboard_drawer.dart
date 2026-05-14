@@ -7,7 +7,7 @@ import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
 import 'package:pride_v3/core/calendar/report_month_period.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
-import '../data/local/dev_shop_constants.dart';
+import '../auth/auth_providers.dart';
 import '../data/local/entities/order_status.dart';
 import '../data/providers/local_data_providers.dart';
 import '../features/orders/order_status_label.dart';
@@ -51,8 +51,9 @@ class _DashboardDrawerState extends ConsumerState<DashboardDrawer> {
     final moneyFmt = NumberFormat.decimalPattern(locale);
     final width = MediaQuery.sizeOf(context).width * 0.88;
     final license = ref.watch(licenseNotifierProvider);
+    final shopId = ref.watch(effectiveShopIdProvider);
     final ordersAsync = ref.watch(ordersListStreamProvider);
-    final paymentsAsync = ref.watch(paymentsForShopProvider(kDevShopId));
+    final paymentsAsync = ref.watch(paymentsForShopProvider(shopId));
     final notifAsync = ref.watch(appNotificationsStreamProvider);
     final notificationsMuted = ref.watch(notificationsMutedProvider);
 
@@ -343,6 +344,13 @@ class _DashboardDrawerState extends ConsumerState<DashboardDrawer> {
                               onPressed: () => _closeDrawerThen(
                                 context,
                                 () => context.go('/app/reports'),
+                              ),
+                            ),
+                            ActionChip(
+                              label: Text(l10n.tasksTitle),
+                              onPressed: () => _closeDrawerThen(
+                                context,
+                                () => context.push('/app/settings/tasks'),
                               ),
                             ),
                             ActionChip(

@@ -5,8 +5,8 @@ import 'package:pride_v3/core/calendar/app_calendar_format.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
+import '../../auth/auth_providers.dart';
 import '../../data/local/catalog_item_detail.dart';
-import '../../data/local/dev_shop_constants.dart';
 import '../../data/providers/local_data_providers.dart';
 import '../../licensing/license_providers.dart';
 import 'catalog_item_image.dart';
@@ -135,6 +135,7 @@ class CatalogItemDetailScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).toString();
     final calendar = ref.watch(dateCalendarSystemProvider);
+    final myShopId = ref.watch(effectiveShopIdProvider);
     final itemAsync = ref.watch(catalogItemDetailProvider(itemId));
     final sharingEnabled = ref.watch(catalogSharingEnabledProvider);
 
@@ -148,7 +149,7 @@ class CatalogItemDetailScreen extends ConsumerWidget {
         actions: [
           itemAsync.maybeWhen(
             data: (item) {
-              if (item == null || item.shopId != kDevShopId) {
+              if (item == null || item.shopId != myShopId) {
                 return const SizedBox.shrink();
               }
               return IconButton(
@@ -161,7 +162,7 @@ class CatalogItemDetailScreen extends ConsumerWidget {
           ),
           itemAsync.maybeWhen(
             data: (item) {
-              if (item == null || item.shopId != kDevShopId) {
+              if (item == null || item.shopId != myShopId) {
                 return const SizedBox.shrink();
               }
               return IconButton(
@@ -190,7 +191,7 @@ class CatalogItemDetailScreen extends ConsumerWidget {
             );
           }
 
-          final isOwnShop = item.shopId == kDevShopId;
+          final isOwnShop = item.shopId == myShopId;
 
           return ListView(
             padding: const EdgeInsets.all(16),

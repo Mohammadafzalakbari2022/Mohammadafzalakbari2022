@@ -7,9 +7,10 @@ import 'package:pride_v3/core/calendar/date_calendar_system.dart';
 import 'package:pride_v3/core/calendar/report_month_period.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
-import '../../data/local/dev_shop_constants.dart';
+import '../../auth/auth_providers.dart';
 import '../../data/local/order_summary.dart';
 import '../../data/providers/local_data_providers.dart';
+import 'report_daily_income_bars.dart';
 import 'report_money_format.dart';
 
 class MonthlyIncomeReportScreen extends ConsumerStatefulWidget {
@@ -64,7 +65,8 @@ class _MonthlyIncomeReportScreenState
     final end = endExclusiveForMonthStart(start, sys);
     final canNext = _canGoNext(start, sys);
 
-    final asyncPayments = ref.watch(paymentsForShopProvider(kDevShopId));
+    final shopId = ref.watch(effectiveShopIdProvider);
+    final asyncPayments = ref.watch(paymentsForShopProvider(shopId));
     final asyncOrders = ref.watch(ordersListStreamProvider);
 
     return Scaffold(
@@ -146,6 +148,18 @@ class _MonthlyIncomeReportScreenState
                             style: Theme.of(context).textTheme.titleLarge,
                           ),
                         ],
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        l10n.reportsMonthlyDailyPaymentsLabel,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      const SizedBox(height: 8),
+                      ReportDailyIncomeBars(
+                        monthStart:
+                            DateTime(start.year, start.month, start.day),
+                        monthEndExclusive: end,
+                        payments: inMonth,
                       ),
                       SwitchListTile(
                         contentPadding: EdgeInsets.zero,

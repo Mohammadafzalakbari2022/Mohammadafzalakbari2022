@@ -15,4 +15,13 @@ abstract class SyncOutboxRepository {
     String shopId, {
     int limit = 50,
   });
+
+  /// One-shot pending list (same shape as [watchPendingEntries] first emission).
+  Future<List<SyncOutboxPendingView>> listPendingEntries(
+    String shopId, {
+    int limit = 100,
+  });
+
+  /// Marks pending rows as uploaded (plan-04 scaffold); no-ops for unknown ids.
+  Future<void> markPendingSynced(String shopId, List<String> entryIds);
 }

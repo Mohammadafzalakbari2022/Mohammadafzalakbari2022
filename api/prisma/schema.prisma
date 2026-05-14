@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Shop {
+  id                   String             @id
+  name                 String
+  createdAt            DateTime           @default(now()) @map("created_at")
+  lastMutationRevision Int                @default(0) @map("last_mutation_revision")
+
+  users          ShopUser[]
+  license        ShopLicense?
+  syncMutations  ShopSyncMutation[]
+
+  @@map("shops")
+}
+
+/// Append-only server log of accepted sync mutations (`plan-03` / `plan-04`).
+model ShopSyncMutation {
+  id              String   @id @default(uuid())
+  shopId          String   @map("shop_id")
+  shop            Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  revision        Int
+  internalId      String   @map("internal_id")
+  entityType      String   @map("entity_type")
+  operation       String   @map("operation")
+  clientUpdatedAt DateTime @map("client_updated_at")
+  payload         Json?    @map("payload")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@unique([shopId, revision])
+  @@index([shopId, revision])
+  @@map("shop_sync_mutations")
+}
+
+model ShopUser {
+  id           String    @id @default(uuid())
+  shopId       String    @map("shop_id")
+  shop         Shop      @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  username     String
+  passwordHash String    @map("password_hash") @db.VarChar(64)
+  isShopOwner  Boolean   @map("is_shop_owner")
+  deletedAt    DateTime? @map("deleted_at")
+
+  @@index([shopId, username])
+  @@map("shop_users")
+}
+
+model ShopLicense {
+  shopId         String    @id @map("shop_id")
+  shop           Shop      @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  statusStored   String    @map("status")
+  expiresAt      DateTime  @map("expires_at")
+  trialStartedAt DateTime? @map("trial_started_at")
+
+  @@map("shop_licenses")
+}

@@ -2,6 +2,7 @@ import 'package:isar/isar.dart';
 import 'package:uuid/uuid.dart';
 
 import 'entities/task_entity.dart';
+import 'sync_pull_payload.dart';
 import 'task_repository.dart';
 import 'task_summary.dart';
 
@@ -112,6 +113,57 @@ class IsarTaskRepository implements TaskRepository {
         ..deletedAt = now
         ..updatedAt = now;
       await _isar.taskEntitys.putByInternalId(e);
+    });
+  }
+
+  @override
+  Future<void> mergeRemoteTask({
+    required String shopId,
+    required String internalId,
+    required String operation,
+    Object? data,
+  }) async {
+    if (operation == 'delete') {
+      await softDeleteTask(internalId);
+      return;
+    }
+    final m = syncPullDataMap(data);
+    final title = syncPullString(m, const ['title']);
+    if (title == null || title.trim().isEmpty) return;
+    final notes = syncPullString(m, const ['notes']) ?? '';
+    final isDone = syncPullBool(m, const ['is_done', 'isDone']) ?? false;
+    final dueDate = syncPullDateTime(m, const ['due_date', 'dueDate']);
+    final now = DateTime.now();
+    final createdRemote =
+        syncPullDateTime(m, const ['created_at', 'createdAt']) ?? now;
+    final updatedRemote =
+        syncPullDateTime(m, const ['updated_at', 'updatedAt']) ?? now;
+
+    await _isar.writeTxn(() async {
+      final existing = await _isar.taskEntitys.getByInternalId(internalId);
+      if (existing == null) {
+        final e = TaskEntity()
+          ..internalId = internalId
+          ..shopId = shopId
+          ..title = title.trim()
+          ..notes = notes
+          ..isDone = isDone
+          ..dueDate = dueDate
+          ..createdAt = createdRemote
+          ..updatedAt = updatedRemote
+          ..deletedAt = null;
+        await _isar.taskEntitys.putByInternalId(e);
+        return;
+      }
+      existing
+        ..shopId = shopId
+        ..title = title.trim()
+        ..notes = notes
+        ..isDone = isDone
+        ..dueDate = dueDate
+        ..updatedAt = updatedRemote
+        ..deletedAt = null;
+      await _isar.taskEntitys.putByInternalId(existing);
     });
   }
 }

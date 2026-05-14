@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 import 'memory_order_repository.dart';
 import 'payment_repository.dart';
 import 'payment_summary.dart';
+import 'sync_pull_payload.dart';
 
 class MemoryPaymentRepository implements PaymentRepository {
   MemoryPaymentRepository(this._orders);
@@ -34,10 +35,14 @@ class MemoryPaymentRepository implements PaymentRepository {
     required int amountMinor,
     required String method,
     required bool isAdjustment,
+    String? internalId,
   }) async {
+    final id = (internalId != null && internalId.isNotEmpty)
+        ? internalId
+        : _uuid.v4();
     _payments.add(
       PaymentSummary(
-        internalId: _uuid.v4(),
+        internalId: id,
         orderInternalId: orderInternalId,
         amountMinor: amountMinor,
         method: method,
@@ -47,6 +52,67 @@ class MemoryPaymentRepository implements PaymentRepository {
     );
     // Update order paid total in memory so list chips change.
     _orders.applyPaymentDelta(orderInternalId, amountMinor);
+    _controller.add(const []);
+  }
+
+  @override
+  Future<void> mergeRemotePayment({
+    required String shopId,
+    required String internalId,
+    required String operation,
+    Object? data,
+  }) async {
+    if (shopId.isEmpty) return;
+    if (operation == 'delete') {
+      final idx = _payments.indexWhere((p) => p.internalId == internalId);
+      if (idx == -1) return;
+      final prev = _payments[idx];
+      _orders.applyPaymentDelta(prev.orderInternalId, -prev.amountMinor);
+      _payments.removeAt(idx);
+      _controller.add(const []);
+      return;
+    }
+    final m = syncPullDataMap(data);
+    final orderId = syncPullString(
+      m,
+      const ['order_internal_id', 'orderInternalId'],
+    );
+    final amount = syncPullInt(m, const ['amount_minor', 'amountMinor']);
+    final method = syncPullString(m, const ['method']) ?? 'cash';
+    final isAdj =
+        syncPullBool(m, const ['is_adjustment', 'isAdjustment']) ?? false;
+    if (orderId == null || amount == null) return;
+    final createdAt =
+        syncPullDateTime(m, const ['created_at', 'createdAt']) ?? DateTime.now();
+
+    final idx = _payments.indexWhere((p) => p.internalId == internalId);
+    if (idx != -1) {
+      final prev = _payments[idx];
+      _orders.applyPaymentDelta(prev.orderInternalId, -prev.amountMinor);
+      _payments[idx] = PaymentSummary(
+        internalId: internalId,
+        orderInternalId: orderId,
+        amountMinor: amount,
+        method: method,
+        isAdjustment: isAdj,
+        createdAt: createdAt,
+      );
+      _orders.applyPaymentDelta(orderId, amount);
+      _controller.add(const []);
+      return;
+    }
+
+    _payments.add(
+      PaymentSummary(
+        internalId: internalId,
+        orderInternalId: orderId,
+        amountMinor: amount,
+        method: method,
+        isAdjustment: isAdj,
+        createdAt: createdAt,
+      ),
+    );
+    _orders.applyPaymentDelta(orderId, amount);
     _controller.add(const []);
   }
 

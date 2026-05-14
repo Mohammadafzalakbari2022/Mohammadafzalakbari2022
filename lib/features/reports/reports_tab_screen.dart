@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
+import 'package:pride_v3/core/calendar/report_month_period.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
-import '../../data/local/dev_shop_constants.dart';
+import '../../auth/auth_providers.dart';
 import '../../data/local/entities/order_status.dart';
 import '../../data/local/order_summary.dart';
 import '../../data/providers/local_data_providers.dart';
@@ -45,8 +47,10 @@ class ReportsTabScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
+    final shopId = ref.watch(effectiveShopIdProvider);
     final asyncOrders = ref.watch(ordersListStreamProvider);
-    final asyncPayments = ref.watch(paymentsForShopProvider(kDevShopId));
+    final asyncPayments = ref.watch(paymentsForShopProvider(shopId));
+    final calendar = ref.watch(dateCalendarSystemProvider);
 
     return asyncOrders.when(
       data: (orders) {
@@ -61,8 +65,8 @@ class ReportsTabScreen extends ConsumerWidget {
         return asyncPayments.when(
           data: (payments) {
             final now = DateTime.now();
-            final start = DateTime(now.year, now.month);
-            final end = DateTime(now.year, now.month + 1);
+            final start = startOfMonthContaining(now, calendar);
+            final end = endExclusiveForMonthStart(start, calendar);
             final monthIncome = payments
                 .where(
                   (p) =>

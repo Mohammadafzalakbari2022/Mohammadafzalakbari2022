@@ -202,6 +202,78 @@ abstract class AppLocalizations {
   /// **'Continue without account (dev)'**
   String get loginDevContinue;
 
+  /// No description provided for @loginApiHint.
+  ///
+  /// In en, this message translates to:
+  /// **'API_BASE_URL is set. The server verifies shop ID, username, and password (POST /auth/login).'**
+  String get loginApiHint;
+
+  /// No description provided for @loginSigningIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Signing in…'**
+  String get loginSigningIn;
+
+  /// No description provided for @loginApiUnauthorized.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid shop, username, or password.'**
+  String get loginApiUnauthorized;
+
+  /// No description provided for @loginApiError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not sign in: {error}'**
+  String loginApiError(String error);
+
+  /// No description provided for @loginShopCreateSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New shop (API)'**
+  String get loginShopCreateSectionTitle;
+
+  /// No description provided for @loginShopCreateSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a shop on the server and sign in as owner (plan-04).'**
+  String get loginShopCreateSubtitle;
+
+  /// No description provided for @loginShopCreateNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop name'**
+  String get loginShopCreateNameLabel;
+
+  /// No description provided for @loginShopCreateOwnerUsernameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner username'**
+  String get loginShopCreateOwnerUsernameLabel;
+
+  /// No description provided for @loginShopCreateOwnerPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner password'**
+  String get loginShopCreateOwnerPasswordLabel;
+
+  /// No description provided for @loginShopCreateCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Create shop & sign in'**
+  String get loginShopCreateCta;
+
+  /// No description provided for @loginShopCreating.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating shop…'**
+  String get loginShopCreating;
+
+  /// No description provided for @loginShopCreateError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not create shop: {error}'**
+  String loginShopCreateError(String error);
+
   /// Placeholder body for a shell tab
   ///
   /// In en, this message translates to:
@@ -555,6 +627,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Details will appear here as the module is built.'**
   String get ordersDetailSectionPlaceholder;
+
+  /// No description provided for @ordersDetailAuditIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Local record metadata on this device. Full status-change history is not logged yet; use Payments for dated ledger entries.'**
+  String get ordersDetailAuditIntro;
+
+  /// No description provided for @ordersAuditInternalId.
+  ///
+  /// In en, this message translates to:
+  /// **'Internal ID'**
+  String get ordersAuditInternalId;
+
+  /// No description provided for @ordersAuditCopyIdTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy ID'**
+  String get ordersAuditCopyIdTooltip;
+
+  /// No description provided for @ordersAuditCopiedId.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied order ID'**
+  String get ordersAuditCopiedId;
+
+  /// No description provided for @ordersAuditCreatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get ordersAuditCreatedAt;
+
+  /// No description provided for @ordersAuditUpdatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Last updated'**
+  String get ordersAuditUpdatedAt;
+
+  /// No description provided for @ordersAuditStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get ordersAuditStatus;
+
+  /// No description provided for @ordersAuditDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery date'**
+  String get ordersAuditDelivery;
+
+  /// No description provided for @ordersAuditPaymentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment ledger'**
+  String get ordersAuditPaymentsTitle;
+
+  /// No description provided for @ordersAuditPaymentsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No payment rows for this order yet.'**
+  String get ordersAuditPaymentsEmpty;
+
+  /// No description provided for @ordersAuditPaymentsLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} payment rows · earliest {first} · latest {last}'**
+  String ordersAuditPaymentsLine(int count, String first, String last);
 
   /// No description provided for @ordersDetailSnapshotEmpty.
   ///
@@ -1258,6 +1396,42 @@ abstract class AppLocalizations {
   /// **'Adjustment'**
   String get reportsPaymentsAdjustmentChip;
 
+  /// No description provided for @reportsPaymentsSectionHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'{title} — {total}'**
+  String reportsPaymentsSectionHeader(String title, String total);
+
+  /// No description provided for @reportsPaymentsWeekOfLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Week of {weekStart}'**
+  String reportsPaymentsWeekOfLabel(String weekStart);
+
+  /// No description provided for @reportsPaymentsGroupByLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Group by'**
+  String get reportsPaymentsGroupByLabel;
+
+  /// No description provided for @reportsPaymentsGroupByDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get reportsPaymentsGroupByDay;
+
+  /// No description provided for @reportsPaymentsGroupByWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
+  String get reportsPaymentsGroupByWeek;
+
+  /// No description provided for @reportsPaymentsGroupByMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get reportsPaymentsGroupByMonth;
+
   /// No description provided for @reportsMonthlyIncomePlaceholder.
   ///
   /// In en, this message translates to:
@@ -1281,6 +1455,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Payments received'**
   String get reportsMonthlyIncomeCardLabel;
+
+  /// No description provided for @reportsMonthlyDailyPaymentsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily payments (this month)'**
+  String get reportsMonthlyDailyPaymentsLabel;
 
   /// No description provided for @reportsMonthlyUnpaidDueTitle.
   ///
@@ -1347,6 +1527,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Due in 7 days'**
   String get reportsUnpaidFilterDueSoon;
+
+  /// No description provided for @reportsUnpaidAmountSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining balance'**
+  String get reportsUnpaidAmountSection;
+
+  /// No description provided for @reportsUnpaidAmountAny.
+  ///
+  /// In en, this message translates to:
+  /// **'Any amount'**
+  String get reportsUnpaidAmountAny;
+
+  /// No description provided for @reportsUnpaidAmountUnder5000.
+  ///
+  /// In en, this message translates to:
+  /// **'Under 5,000'**
+  String get reportsUnpaidAmountUnder5000;
+
+  /// No description provided for @reportsUnpaidAmount5000to20000.
+  ///
+  /// In en, this message translates to:
+  /// **'5,000 – 20,000'**
+  String get reportsUnpaidAmount5000to20000;
+
+  /// No description provided for @reportsUnpaidAmountOver20000.
+  ///
+  /// In en, this message translates to:
+  /// **'Over 20,000'**
+  String get reportsUnpaidAmountOver20000;
 
   /// No description provided for @reportsUnpaidSortSection.
   ///
@@ -1749,6 +1959,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Offline — working locally'**
   String get settingsNetworkStatusOffline;
+
+  /// No description provided for @settingsApiServerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'API server'**
+  String get settingsApiServerTitle;
+
+  /// No description provided for @settingsApiServerNotConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'No URL set. Use --dart-define=API_BASE_URL=https://your-api when you run or build.'**
+  String get settingsApiServerNotConfigured;
+
+  /// No description provided for @settingsApiServerConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'Base URL: {url}'**
+  String settingsApiServerConfigured(String url);
+
+  /// No description provided for @settingsApiTestConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Test connection'**
+  String get settingsApiTestConnection;
+
+  /// No description provided for @settingsApiTestNeedOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to the internet to test the server.'**
+  String get settingsApiTestNeedOnline;
+
+  /// No description provided for @settingsApiHealthOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Server responded OK (GET /health).'**
+  String get settingsApiHealthOk;
+
+  /// No description provided for @settingsApiHealthFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not reach server: {message}'**
+  String settingsApiHealthFailed(String message);
 
   /// No description provided for @settingsSyncDiagnosticsSubtitle.
   ///
@@ -2696,6 +2948,42 @@ abstract class AppLocalizations {
   /// **'Online refresh will be available when the API is connected.'**
   String get subscriptionRefreshComingSoon;
 
+  /// No description provided for @subscriptionActivationCodeHintApi.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the activation code from your distributor.'**
+  String get subscriptionActivationCodeHintApi;
+
+  /// No description provided for @subscriptionApplying.
+  ///
+  /// In en, this message translates to:
+  /// **'Applying…'**
+  String get subscriptionApplying;
+
+  /// No description provided for @subscriptionRefreshing.
+  ///
+  /// In en, this message translates to:
+  /// **'Refreshing…'**
+  String get subscriptionRefreshing;
+
+  /// No description provided for @subscriptionRedeemSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'License updated.'**
+  String get subscriptionRedeemSuccess;
+
+  /// No description provided for @subscriptionRedeemError.
+  ///
+  /// In en, this message translates to:
+  /// **'Activation failed: {error}'**
+  String subscriptionRedeemError(String error);
+
+  /// No description provided for @subscriptionRefreshError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not refresh: {error}'**
+  String subscriptionRefreshError(String error);
+
   /// No description provided for @customersListView.
   ///
   /// In en, this message translates to:
@@ -2863,6 +3151,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No other users yet'**
   String get settingsUsersEmptyRowSubtitle;
+
+  /// No description provided for @settingsUsersSubtitleTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'View accounts on the server (read-only unless you are the owner).'**
+  String get settingsUsersSubtitleTeam;
+
+  /// No description provided for @settingsUsersLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load users: {error}'**
+  String settingsUsersLoadError(String error);
+
+  /// No description provided for @settingsUsersRetryCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get settingsUsersRetryCta;
+
+  /// No description provided for @settingsUsersDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove user?'**
+  String get settingsUsersDeleteConfirmTitle;
+
+  /// No description provided for @settingsUsersDeleteConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'They will no longer be able to sign in.'**
+  String get settingsUsersDeleteConfirmBody;
+
+  /// No description provided for @settingsUsersDeleteCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get settingsUsersDeleteCta;
+
+  /// No description provided for @settingsUsersAddDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add user'**
+  String get settingsUsersAddDialogTitle;
+
+  /// No description provided for @settingsUsersAddUsernameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get settingsUsersAddUsernameLabel;
+
+  /// No description provided for @settingsUsersAddPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get settingsUsersAddPasswordLabel;
+
+  /// No description provided for @settingsUsersAddSubmitCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get settingsUsersAddSubmitCta;
+
+  /// No description provided for @settingsUsersAddError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not add user: {error}'**
+  String settingsUsersAddError(String error);
+
+  /// No description provided for @settingsUsersAddedSnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'User created.'**
+  String get settingsUsersAddedSnackbar;
+
+  /// No description provided for @settingsUsersRemovedSnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'User removed.'**
+  String get settingsUsersRemovedSnackbar;
 
   /// No description provided for @settingsBackupOwnerPasswordNote.
   ///
@@ -3072,6 +3438,96 @@ abstract class AppLocalizations {
   /// **'{count} waiting to sync'**
   String settingsSyncQueuedCount(int count);
 
+  /// No description provided for @settingsSyncLocalSnapshotTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Local data snapshot'**
+  String get settingsSyncLocalSnapshotTitle;
+
+  /// No description provided for @settingsSyncLocalOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get settingsSyncLocalOrders;
+
+  /// No description provided for @settingsSyncLocalCustomers.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers'**
+  String get settingsSyncLocalCustomers;
+
+  /// No description provided for @settingsSyncLocalPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments'**
+  String get settingsSyncLocalPayments;
+
+  /// No description provided for @settingsSyncLocalTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks'**
+  String get settingsSyncLocalTasks;
+
+  /// No description provided for @settingsSyncLocalNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get settingsSyncLocalNotifications;
+
+  /// No description provided for @settingsSyncLocalUnread.
+  ///
+  /// In en, this message translates to:
+  /// **'Unread notifications'**
+  String get settingsSyncLocalUnread;
+
+  /// No description provided for @settingsSyncRetryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync now'**
+  String get settingsSyncRetryTitle;
+
+  /// No description provided for @settingsSyncRetrySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pull from the server, then push the local queue when API_BASE_URL is set and you are signed in online (plan-04).'**
+  String get settingsSyncRetrySubtitle;
+
+  /// No description provided for @settingsSyncRetryOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'You appear offline. Connect to the internet and try again.'**
+  String get settingsSyncRetryOffline;
+
+  /// No description provided for @settingsSyncRetryConfigureApi.
+  ///
+  /// In en, this message translates to:
+  /// **'Set API_BASE_URL at build time, then open Settings → API connection.'**
+  String get settingsSyncRetryConfigureApi;
+
+  /// No description provided for @settingsSyncRetrySignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with your online server account first.'**
+  String get settingsSyncRetrySignIn;
+
+  /// No description provided for @settingsSyncRetryLicenseExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'The server refused sync because the license is expired. Open Subscription.'**
+  String get settingsSyncRetryLicenseExpired;
+
+  /// No description provided for @settingsSyncRetrySuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync OK: pushed {pushed} mutation(s); received {pulled} server change(s).'**
+  String settingsSyncRetrySuccess(int pushed, int pulled);
+
+  /// No description provided for @settingsSyncRetryFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync failed: {detail}'**
+  String settingsSyncRetryFailed(String detail);
+
   /// No description provided for @settingsSyncOutboxTitle.
   ///
   /// In en, this message translates to:
@@ -3108,11 +3564,23 @@ abstract class AppLocalizations {
   /// **'Export diagnostics bundle'**
   String get settingsDiagnosticsExportCta;
 
-  /// No description provided for @settingsDiagnosticsExportSoon.
+  /// No description provided for @settingsDiagnosticsExportBusy.
   ///
   /// In en, this message translates to:
-  /// **'Diagnostics export will be available when sync ships.'**
-  String get settingsDiagnosticsExportSoon;
+  /// **'Preparing bundle…'**
+  String get settingsDiagnosticsExportBusy;
+
+  /// No description provided for @settingsDiagnosticsExportSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Diagnostics bundle ready to share.'**
+  String get settingsDiagnosticsExportSuccess;
+
+  /// No description provided for @settingsDiagnosticsExportError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not export diagnostics: {error}'**
+  String settingsDiagnosticsExportError(String error);
 
   /// No description provided for @settingsSyncDiagnosticsFooter.
   ///
@@ -3173,6 +3641,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'API not connected in this build.'**
   String get devPortalStubAction;
+
+  /// No description provided for @devPortalAdviceOfflineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You appear offline'**
+  String get devPortalAdviceOfflineTitle;
+
+  /// No description provided for @devPortalAdviceOfflineBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to the internet to test public API health. Admin lists (shops, codes, resets) need the deployed admin APIs.'**
+  String get devPortalAdviceOfflineBody;
+
+  /// No description provided for @devPortalAdviceOnlineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin list APIs not wired yet'**
+  String get devPortalAdviceOnlineTitle;
+
+  /// No description provided for @devPortalAdviceOnlineBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview can still ping GET /health. Export a device diagnostics bundle from Settings → Sync & Diagnostics for support.'**
+  String get devPortalAdviceOnlineBody;
+
+  /// No description provided for @devPortalApiHealthPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Pull down to refresh and call GET /health.'**
+  String get devPortalApiHealthPrompt;
 
   /// No description provided for @devPortalEnvBadge.
   ///
@@ -3237,8 +3735,44 @@ abstract class AppLocalizations {
   /// No description provided for @devPortalDiagStub.
   ///
   /// In en, this message translates to:
-  /// **'Support diagnostics: link to exported bundles from Settings → Sync & Diagnostics.'**
+  /// **'For a full device bundle, use Settings → Sync & Diagnostics → Export diagnostics bundle.'**
   String get devPortalDiagStub;
+
+  /// No description provided for @devPortalDiagLocalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This device (offline cache)'**
+  String get devPortalDiagLocalTitle;
+
+  /// No description provided for @devPortalDiagLocalSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Counts from local storage — useful when the admin API is offline.'**
+  String get devPortalDiagLocalSubtitle;
+
+  /// No description provided for @devPortalDiagCountLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'…'**
+  String get devPortalDiagCountLoading;
+
+  /// No description provided for @devPortalAdminAuditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin audit log (stub)'**
+  String get devPortalAdminAuditTitle;
+
+  /// No description provided for @devPortalAdminAuditNeedSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with the API, then pull to refresh.'**
+  String get devPortalAdminAuditNeedSignIn;
+
+  /// No description provided for @devPortalAdminAuditLine.
+  ///
+  /// In en, this message translates to:
+  /// **'GET /admin/audit-log — {count} row(s), schema v{schema}'**
+  String devPortalAdminAuditLine(int count, int schema);
 
   /// No description provided for @settingsShopProfileTitle.
   ///

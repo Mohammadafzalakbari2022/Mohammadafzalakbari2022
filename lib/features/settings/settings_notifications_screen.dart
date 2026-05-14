@@ -5,7 +5,7 @@ import 'package:pride_v3/core/calendar/app_calendar_format.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
-import '../../data/local/dev_shop_constants.dart';
+import '../../auth/auth_providers.dart';
 import '../../data/providers/local_data_providers.dart';
 import 'settings_providers.dart';
 
@@ -35,7 +35,7 @@ class SettingsNotificationsScreen extends ConsumerWidget {
               onPressed: () async {
                 final repo =
                     await ref.read(appNotificationRepositoryProvider.future);
-                await repo.markAllRead(kDevShopId);
+                await repo.markAllRead(ref.read(effectiveShopIdProvider));
               },
               child: Text(l10n.settingsNotifMarkAllRead),
             ),

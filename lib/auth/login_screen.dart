@@ -1,9 +1,18 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pride_v3/core/api/pride_api_auth.dart';
+import 'package:pride_v3/core/api/pride_api_config.dart';
+import 'package:pride_v3/core/api/pride_api_shop.dart';
+import 'package:pride_v3/core/persistence/shared_preferences_provider.dart';
+import 'package:pride_v3/core/persistence/sync_cursor_storage.dart';
+import 'package:pride_v3/core/persistence/sync_diagnostics_storage.dart';
+import 'package:pride_v3/shell/shell_sync_providers.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
+import 'package:pride_v3/licensing/license_providers.dart';
 
 import 'auth_providers.dart';
+import 'auth_session_storage.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -17,23 +26,121 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _shopId = TextEditingController();
   final _username = TextEditingController();
   final _password = TextEditingController();
+  final _createShopName = TextEditingController();
+  final _createOwnerUser = TextEditingController();
+  final _createOwnerPass = TextEditingController();
+  bool _busy = false;
+  bool _busyCreate = false;
 
   @override
   void dispose() {
     _shopId.dispose();
     _username.dispose();
     _password.dispose();
+    _createShopName.dispose();
+    _createOwnerUser.dispose();
+    _createOwnerPass.dispose();
     super.dispose();
   }
 
-  void _signIn(AppLocalizations l10n) {
+  Future<void> _persistLoginOk(PrideApiLoginOk ok) async {
+    ref.read(authSessionProvider).signInFromApi(
+          accessToken: ok.accessToken,
+          userId: ok.userId,
+          username: ok.username,
+          shopId: ok.shopId,
+          isShopOwner: ok.isShopOwner,
+        );
+    ref.read(licenseNotifierProvider).applyLicenseSnapshotMap(ok.licenseSnapshot);
+    final prefs = ref.read(sharedPreferencesProvider);
+    final licRaw = ok.licenseSnapshot['status'];
+    final licStr =
+        licRaw is String && licRaw.isNotEmpty ? licRaw : 'trial_active';
+    await AuthSessionStorage.persist(
+      prefs,
+      accessToken: ok.accessToken,
+      userId: ok.userId,
+      shopId: ok.shopId,
+      username: ok.username,
+      isShopOwner: ok.isShopOwner,
+      licenseStatusApi: licStr,
+    );
+  }
+
+  Future<void> _signIn(AppLocalizations l10n) async {
     FocusScope.of(context).unfocus();
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    ref.read(authSessionProvider).signInMock(
+
+    setState(() => _busy = true);
+    try {
+      if (PrideApiConfig.isConfigured) {
+        final result = await postPrideApiLogin(
           username: _username.text,
           password: _password.text,
-          shopId: _shopId.text,
+          shopId: _shopId.text.trim().isEmpty ? null : _shopId.text,
         );
+        if (!mounted) return;
+
+        if (result is PrideApiLoginFailure) {
+          final msg = result.statusCode == 401
+              ? l10n.loginApiUnauthorized
+              : l10n.loginApiError(result.message);
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+          return;
+        }
+
+        final ok = result as PrideApiLoginOk;
+        await _persistLoginOk(ok);
+      } else {
+        final prefs = ref.read(sharedPreferencesProvider);
+        final sid = ref.read(authSessionProvider).shopId?.trim();
+        await AuthSessionStorage.clear(prefs);
+        if (sid != null && sid.isNotEmpty) {
+          await SyncCursorStorage.clearForShop(prefs, sid);
+        }
+        await SyncDiagnosticsStorage.clear(prefs);
+        ref.read(lastSuccessfulSyncAtProvider.notifier).state = null;
+        ref.read(authSessionProvider).signInMock(
+              username: _username.text,
+              password: _password.text,
+              shopId: _shopId.text,
+            );
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _createShop(AppLocalizations l10n) async {
+    FocusScope.of(context).unfocus();
+    final name = _createShopName.text.trim();
+    final ou = _createOwnerUser.text.trim();
+    final pass = _createOwnerPass.text;
+    if (name.isEmpty || ou.isEmpty || pass.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.loginFieldRequired)),
+      );
+      return;
+    }
+    setState(() => _busyCreate = true);
+    try {
+      final result = await postPrideApiShopCreate(
+        shopName: name,
+        ownerUsername: ou,
+        ownerPassword: pass,
+      );
+      if (!mounted) return;
+      if (result is PrideApiLoginFailure) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.loginShopCreateError(result.message))),
+        );
+        return;
+      }
+      final ok = result as PrideApiLoginOk;
+      await _persistLoginOk(ok);
+    } finally {
+      if (mounted) setState(() => _busyCreate = false);
+    }
   }
 
   @override
@@ -64,7 +171,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  l10n.loginMockHint,
+                  PrideApiConfig.isConfigured
+                      ? l10n.loginApiHint
+                      : l10n.loginMockHint,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -115,13 +224,108 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 24),
                 FilledButton(
-                  onPressed: () => _signIn(l10n),
-                  child: Text(l10n.loginSignInCta),
+                  onPressed: _busy ? null : () => _signIn(l10n),
+                  child: _busy
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: theme.colorScheme.onPrimary,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Text(l10n.loginSigningIn),
+                          ],
+                        )
+                      : Text(l10n.loginSignInCta),
                 ),
+                if (PrideApiConfig.isConfigured) ...[
+                  const SizedBox(height: 24),
+                  ExpansionTile(
+                    title: Text(l10n.loginShopCreateSectionTitle),
+                    subtitle: Text(l10n.loginShopCreateSubtitle),
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            TextField(
+                              controller: _createShopName,
+                              decoration: InputDecoration(
+                                labelText: l10n.loginShopCreateNameLabel,
+                                border: const OutlineInputBorder(),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            TextField(
+                              controller: _createOwnerUser,
+                              decoration: InputDecoration(
+                                labelText:
+                                    l10n.loginShopCreateOwnerUsernameLabel,
+                                border: const OutlineInputBorder(),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            TextField(
+                              controller: _createOwnerPass,
+                              obscureText: true,
+                              decoration: InputDecoration(
+                                labelText:
+                                    l10n.loginShopCreateOwnerPasswordLabel,
+                                border: const OutlineInputBorder(),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            FilledButton(
+                              onPressed: _busyCreate
+                                  ? null
+                                  : () => _createShop(l10n),
+                              child: _busyCreate
+                                  ? Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: theme
+                                                .colorScheme.onPrimary,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Text(l10n.loginShopCreating),
+                                      ],
+                                    )
+                                  : Text(l10n.loginShopCreateCta),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
                 if (kDebugMode) ...[
                   const SizedBox(height: 16),
                   OutlinedButton(
-                    onPressed: () {
+                    onPressed: () async {
+                      final prefs = ref.read(sharedPreferencesProvider);
+                      final sid = ref.read(authSessionProvider).shopId?.trim();
+                      await AuthSessionStorage.clear(prefs);
+                      if (sid != null && sid.isNotEmpty) {
+                        await SyncCursorStorage.clearForShop(prefs, sid);
+                      }
+                      await SyncDiagnosticsStorage.clear(prefs);
+                      ref.read(lastSuccessfulSyncAtProvider.notifier).state =
+                          null;
                       ref.read(authSessionProvider).setAuthenticated(true);
                     },
                     child: Text(l10n.loginDevContinue),

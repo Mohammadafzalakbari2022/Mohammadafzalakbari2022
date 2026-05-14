@@ -62,3 +62,8 @@ Actions:
 - No hardcoded user-visible strings (ARB).
 - `flutter analyze` clean; tests pass.
 
+## Implementation status
+
+- Settings → Tasks: shipped.
+- Optional **dashboard shortcut**: **Tasks** chip in the dashboard drawer quick links (`plan-25`).
+
