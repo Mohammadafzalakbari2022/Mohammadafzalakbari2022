@@ -2277,4 +2277,127 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get customersResetFilters => 'بازنشانی';
+
+  @override
+  String get settingsSectionPrinter => 'چاپگر';
+
+  @override
+  String get settingsPrinterTileTitle => 'چاپگر حرارتی';
+
+  @override
+  String get settingsPrinterTileSubtitle =>
+      'چاپگر شبکه‌ای رسید (۵۸ / ۸۰ میلی‌متر)';
+
+  @override
+  String get settingsPrinterScreenTitle => 'چاپگر حرارتی';
+
+  @override
+  String get settingsPrinterIntro =>
+      'رسید را به چاپگر شبکه ESC/POS بفرستید (معمولاً TCP خام روی پورت ۹۱۰۰). آدرس IP یا نام میزبان چاپگر روی وای‌فای یا LAN را وارد کنید.';
+
+  @override
+  String get settingsPrinterAsciiNotice =>
+      'رسید از مجموعه کاراکتر ساده چاپگر استفاده می‌کند. نام یا یادداشت‌های غیرلاتین ممکن است روی برگه به صورت «؟» چاپ شوند.';
+
+  @override
+  String get settingsPrinterHostLabel => 'آدرس چاپگر';
+
+  @override
+  String get settingsPrinterHostHint => 'مثال: ۱۹۲.۱۶۸.۱.۵۰';
+
+  @override
+  String get settingsPrinterPortLabel => 'پورت';
+
+  @override
+  String get settingsPrinterPaperWidthLabel => 'عرض کاغذ';
+
+  @override
+  String get settingsPrinterPaper58Label => '۵۸ میلی‌متر';
+
+  @override
+  String get settingsPrinterPaper80Label => '۸۰ میلی‌متر';
+
+  @override
+  String get settingsPrinterSaved => 'تنظیمات چاپگر ذخیره شد.';
+
+  @override
+  String get settingsPrinterTestCta => 'چاپ آزمایشی';
+
+  @override
+  String get settingsPrinterTestHeadline => 'افغان پراید';
+
+  @override
+  String get settingsPrinterTestDetail =>
+      'چاپ آزمایشی — اگر این متن را می‌بینید، اتصال برقرار است.';
+
+  @override
+  String get settingsPrinterTestOk => 'صفحه آزمایشی به چاپگر ارسال شد.';
+
+  @override
+  String settingsPrinterTestFail(String detail) {
+    return 'چاپ آزمایشی ناموفق: $detail';
+  }
+
+  @override
+  String get settingsPrinterWebUnavailable =>
+      'چاپ حرارتی در اپلیکیشن‌های اندروید و iOS در دسترس است. برای چاپ از دستگاهی با اپ استفاده کنید؛ نسخه وب به چاپگر سخت‌افزاری کار نمی‌فرستد.';
+
+  @override
+  String get settingsPrinterHostEmptyError =>
+      'برای ذخیره یا آزمایش، آدرس چاپگر را وارد کنید.';
+
+  @override
+  String get settingsPrinterPortInvalidError =>
+      'پورت معتبر (۱ تا ۶۵۵۳۵) وارد کنید.';
+
+  @override
+  String get orderPrintReceiptTooltip => 'چاپ رسید';
+
+  @override
+  String get orderPrintReceiptNeedPrinter =>
+      'آدرس چاپگر را در تنظیمات → چاپگر حرارتی وارد کنید.';
+
+  @override
+  String get orderPrintReceiptOk => 'رسید به چاپگر ارسال شد.';
+
+  @override
+  String orderPrintReceiptFail(String detail) {
+    return 'چاپ ناموفق: $detail';
+  }
+
+  @override
+  String get receiptCustomerLabel => 'مشتری';
+
+  @override
+  String get receiptPhoneLabel => 'تلفن';
+
+  @override
+  String get receiptDeliveryLabel => 'تحویل';
+
+  @override
+  String get receiptStatusLabel => 'وضعیت';
+
+  @override
+  String get receiptMeasurementsLabel => 'اندازه‌ها';
+
+  @override
+  String get receiptStyleLabel => 'یادداشت استایل';
+
+  @override
+  String get receiptInternalNotesHeader => 'یادداشت داخلی';
+
+  @override
+  String get receiptTotalLabel => 'جمع';
+
+  @override
+  String get receiptPaidLabel => 'پرداخت‌شده';
+
+  @override
+  String get receiptBalanceLabel => 'مانده';
+
+  @override
+  String get receiptPaymentsHeader => 'پرداخت‌ها';
+
+  @override
+  String get receiptFooterThanks => 'متشکریم';
 }

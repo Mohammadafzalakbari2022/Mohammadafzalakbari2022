@@ -4181,6 +4181,228 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reset'**
   String get customersResetFilters;
+
+  /// No description provided for @settingsSectionPrinter.
+  ///
+  /// In en, this message translates to:
+  /// **'Printer'**
+  String get settingsSectionPrinter;
+
+  /// No description provided for @settingsPrinterTileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Thermal printer'**
+  String get settingsPrinterTileTitle;
+
+  /// No description provided for @settingsPrinterTileSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Network receipt printer (58 / 80 mm)'**
+  String get settingsPrinterTileSubtitle;
+
+  /// No description provided for @settingsPrinterScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Thermal printer'**
+  String get settingsPrinterScreenTitle;
+
+  /// No description provided for @settingsPrinterIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Send receipts to a network ESC/POS printer (usually raw TCP on port 9100). Enter the printer’s IP address or hostname on your Wi‑Fi or LAN.'**
+  String get settingsPrinterIntro;
+
+  /// No description provided for @settingsPrinterAsciiNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipts use a simple printer character set. Names or notes outside Latin letters and digits may print as “?” on the slip.'**
+  String get settingsPrinterAsciiNotice;
+
+  /// No description provided for @settingsPrinterHostLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Printer address'**
+  String get settingsPrinterHostLabel;
+
+  /// No description provided for @settingsPrinterHostHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: 192.168.1.50'**
+  String get settingsPrinterHostHint;
+
+  /// No description provided for @settingsPrinterPortLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Port'**
+  String get settingsPrinterPortLabel;
+
+  /// No description provided for @settingsPrinterPaperWidthLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Paper width'**
+  String get settingsPrinterPaperWidthLabel;
+
+  /// No description provided for @settingsPrinterPaper58Label.
+  ///
+  /// In en, this message translates to:
+  /// **'58 mm'**
+  String get settingsPrinterPaper58Label;
+
+  /// No description provided for @settingsPrinterPaper80Label.
+  ///
+  /// In en, this message translates to:
+  /// **'80 mm'**
+  String get settingsPrinterPaper80Label;
+
+  /// No description provided for @settingsPrinterSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Printer settings saved.'**
+  String get settingsPrinterSaved;
+
+  /// No description provided for @settingsPrinterTestCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Test print'**
+  String get settingsPrinterTestCta;
+
+  /// No description provided for @settingsPrinterTestHeadline.
+  ///
+  /// In en, this message translates to:
+  /// **'Afghan Pride'**
+  String get settingsPrinterTestHeadline;
+
+  /// No description provided for @settingsPrinterTestDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Test print — if you can read this, the connection works.'**
+  String get settingsPrinterTestDetail;
+
+  /// No description provided for @settingsPrinterTestOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Test page sent to the printer.'**
+  String get settingsPrinterTestOk;
+
+  /// No description provided for @settingsPrinterTestFail.
+  ///
+  /// In en, this message translates to:
+  /// **'Test print failed: {detail}'**
+  String settingsPrinterTestFail(String detail);
+
+  /// No description provided for @settingsPrinterWebUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Thermal printing is available on the Android and iOS apps. Use a device with the app installed to print; the web app does not send jobs to hardware printers.'**
+  String get settingsPrinterWebUnavailable;
+
+  /// No description provided for @settingsPrinterHostEmptyError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the printer address to save or test.'**
+  String get settingsPrinterHostEmptyError;
+
+  /// No description provided for @settingsPrinterPortInvalidError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid port (1–65535).'**
+  String get settingsPrinterPortInvalidError;
+
+  /// No description provided for @orderPrintReceiptTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Print receipt'**
+  String get orderPrintReceiptTooltip;
+
+  /// No description provided for @orderPrintReceiptNeedPrinter.
+  ///
+  /// In en, this message translates to:
+  /// **'Set the printer address under Settings → Thermal printer.'**
+  String get orderPrintReceiptNeedPrinter;
+
+  /// No description provided for @orderPrintReceiptOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt sent to the printer.'**
+  String get orderPrintReceiptOk;
+
+  /// No description provided for @orderPrintReceiptFail.
+  ///
+  /// In en, this message translates to:
+  /// **'Printing failed: {detail}'**
+  String orderPrintReceiptFail(String detail);
+
+  /// No description provided for @receiptCustomerLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get receiptCustomerLabel;
+
+  /// No description provided for @receiptPhoneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get receiptPhoneLabel;
+
+  /// No description provided for @receiptDeliveryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery'**
+  String get receiptDeliveryLabel;
+
+  /// No description provided for @receiptStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get receiptStatusLabel;
+
+  /// No description provided for @receiptMeasurementsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Measurements'**
+  String get receiptMeasurementsLabel;
+
+  /// No description provided for @receiptStyleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Style notes'**
+  String get receiptStyleLabel;
+
+  /// No description provided for @receiptInternalNotesHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Internal notes'**
+  String get receiptInternalNotesHeader;
+
+  /// No description provided for @receiptTotalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get receiptTotalLabel;
+
+  /// No description provided for @receiptPaidLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get receiptPaidLabel;
+
+  /// No description provided for @receiptBalanceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get receiptBalanceLabel;
+
+  /// No description provided for @receiptPaymentsHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments'**
+  String get receiptPaymentsHeader;
+
+  /// No description provided for @receiptFooterThanks.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you'**
+  String get receiptFooterThanks;
 }
 
 class _AppLocalizationsDelegate

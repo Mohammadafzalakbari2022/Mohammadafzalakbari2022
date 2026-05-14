@@ -45,5 +45,7 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Pride connects to a receipt printer on your shop Wi‑Fi or LAN.</string>
 </dict>
 </plist>

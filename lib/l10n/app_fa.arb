@@ -1108,5 +1108,56 @@
   "customersFilterHasOrders": "دارای سفارش",
   "customersFilterNoOrders": "هنوز سفارشی نیست",
   "customersApplyFilters": "اعمال",
-  "customersResetFilters": "بازنشانی"
+  "customersResetFilters": "بازنشانی",
+  "settingsSectionPrinter": "چاپگر",
+  "settingsPrinterTileTitle": "چاپگر حرارتی",
+  "settingsPrinterTileSubtitle": "چاپگر شبکه‌ای رسید (۵۸ / ۸۰ میلی‌متر)",
+  "settingsPrinterScreenTitle": "چاپگر حرارتی",
+  "settingsPrinterIntro": "رسید را به چاپگر شبکه ESC/POS بفرستید (معمولاً TCP خام روی پورت ۹۱۰۰). آدرس IP یا نام میزبان چاپگر روی وای‌فای یا LAN را وارد کنید.",
+  "settingsPrinterAsciiNotice": "رسید از مجموعه کاراکتر ساده چاپگر استفاده می‌کند. نام یا یادداشت‌های غیرلاتین ممکن است روی برگه به صورت «؟» چاپ شوند.",
+  "settingsPrinterHostLabel": "آدرس چاپگر",
+  "settingsPrinterHostHint": "مثال: ۱۹۲.۱۶۸.۱.۵۰",
+  "settingsPrinterPortLabel": "پورت",
+  "settingsPrinterPaperWidthLabel": "عرض کاغذ",
+  "settingsPrinterPaper58Label": "۵۸ میلی‌متر",
+  "settingsPrinterPaper80Label": "۸۰ میلی‌متر",
+  "settingsPrinterSaved": "تنظیمات چاپگر ذخیره شد.",
+  "settingsPrinterTestCta": "چاپ آزمایشی",
+  "settingsPrinterTestHeadline": "افغان پراید",
+  "settingsPrinterTestDetail": "چاپ آزمایشی — اگر این متن را می‌بینید، اتصال برقرار است.",
+  "settingsPrinterTestOk": "صفحه آزمایشی به چاپگر ارسال شد.",
+  "settingsPrinterTestFail": "چاپ آزمایشی ناموفق: {detail}",
+  "@settingsPrinterTestFail": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsPrinterWebUnavailable": "چاپ حرارتی در اپلیکیشن‌های اندروید و iOS در دسترس است. برای چاپ از دستگاهی با اپ استفاده کنید؛ نسخه وب به چاپگر سخت‌افزاری کار نمی‌فرستد.",
+  "settingsPrinterHostEmptyError": "برای ذخیره یا آزمایش، آدرس چاپگر را وارد کنید.",
+  "settingsPrinterPortInvalidError": "پورت معتبر (۱ تا ۶۵۵۳۵) وارد کنید.",
+  "orderPrintReceiptTooltip": "چاپ رسید",
+  "orderPrintReceiptNeedPrinter": "آدرس چاپگر را در تنظیمات → چاپگر حرارتی وارد کنید.",
+  "orderPrintReceiptOk": "رسید به چاپگر ارسال شد.",
+  "orderPrintReceiptFail": "چاپ ناموفق: {detail}",
+  "@orderPrintReceiptFail": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptCustomerLabel": "مشتری",
+  "receiptPhoneLabel": "تلفن",
+  "receiptDeliveryLabel": "تحویل",
+  "receiptStatusLabel": "وضعیت",
+  "receiptMeasurementsLabel": "اندازه‌ها",
+  "receiptStyleLabel": "یادداشت استایل",
+  "receiptInternalNotesHeader": "یادداشت داخلی",
+  "receiptTotalLabel": "جمع",
+  "receiptPaidLabel": "پرداخت‌شده",
+  "receiptBalanceLabel": "مانده",
+  "receiptPaymentsHeader": "پرداخت‌ها",
+  "receiptFooterThanks": "متشکریم"
 }

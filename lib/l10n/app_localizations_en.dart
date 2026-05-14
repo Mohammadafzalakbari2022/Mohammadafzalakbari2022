@@ -2279,4 +2279,126 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get customersResetFilters => 'Reset';
+
+  @override
+  String get settingsSectionPrinter => 'Printer';
+
+  @override
+  String get settingsPrinterTileTitle => 'Thermal printer';
+
+  @override
+  String get settingsPrinterTileSubtitle =>
+      'Network receipt printer (58 / 80 mm)';
+
+  @override
+  String get settingsPrinterScreenTitle => 'Thermal printer';
+
+  @override
+  String get settingsPrinterIntro =>
+      'Send receipts to a network ESC/POS printer (usually raw TCP on port 9100). Enter the printer’s IP address or hostname on your Wi‑Fi or LAN.';
+
+  @override
+  String get settingsPrinterAsciiNotice =>
+      'Receipts use a simple printer character set. Names or notes outside Latin letters and digits may print as “?” on the slip.';
+
+  @override
+  String get settingsPrinterHostLabel => 'Printer address';
+
+  @override
+  String get settingsPrinterHostHint => 'Example: 192.168.1.50';
+
+  @override
+  String get settingsPrinterPortLabel => 'Port';
+
+  @override
+  String get settingsPrinterPaperWidthLabel => 'Paper width';
+
+  @override
+  String get settingsPrinterPaper58Label => '58 mm';
+
+  @override
+  String get settingsPrinterPaper80Label => '80 mm';
+
+  @override
+  String get settingsPrinterSaved => 'Printer settings saved.';
+
+  @override
+  String get settingsPrinterTestCta => 'Test print';
+
+  @override
+  String get settingsPrinterTestHeadline => 'Afghan Pride';
+
+  @override
+  String get settingsPrinterTestDetail =>
+      'Test print — if you can read this, the connection works.';
+
+  @override
+  String get settingsPrinterTestOk => 'Test page sent to the printer.';
+
+  @override
+  String settingsPrinterTestFail(String detail) {
+    return 'Test print failed: $detail';
+  }
+
+  @override
+  String get settingsPrinterWebUnavailable =>
+      'Thermal printing is available on the Android and iOS apps. Use a device with the app installed to print; the web app does not send jobs to hardware printers.';
+
+  @override
+  String get settingsPrinterHostEmptyError =>
+      'Enter the printer address to save or test.';
+
+  @override
+  String get settingsPrinterPortInvalidError => 'Enter a valid port (1–65535).';
+
+  @override
+  String get orderPrintReceiptTooltip => 'Print receipt';
+
+  @override
+  String get orderPrintReceiptNeedPrinter =>
+      'Set the printer address under Settings → Thermal printer.';
+
+  @override
+  String get orderPrintReceiptOk => 'Receipt sent to the printer.';
+
+  @override
+  String orderPrintReceiptFail(String detail) {
+    return 'Printing failed: $detail';
+  }
+
+  @override
+  String get receiptCustomerLabel => 'Customer';
+
+  @override
+  String get receiptPhoneLabel => 'Phone';
+
+  @override
+  String get receiptDeliveryLabel => 'Delivery';
+
+  @override
+  String get receiptStatusLabel => 'Status';
+
+  @override
+  String get receiptMeasurementsLabel => 'Measurements';
+
+  @override
+  String get receiptStyleLabel => 'Style notes';
+
+  @override
+  String get receiptInternalNotesHeader => 'Internal notes';
+
+  @override
+  String get receiptTotalLabel => 'Total';
+
+  @override
+  String get receiptPaidLabel => 'Paid';
+
+  @override
+  String get receiptBalanceLabel => 'Balance';
+
+  @override
+  String get receiptPaymentsHeader => 'Payments';
+
+  @override
+  String get receiptFooterThanks => 'Thank you';
 }

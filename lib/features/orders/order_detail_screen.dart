@@ -20,6 +20,7 @@ import '../../data/local/sync_outbox_kinds.dart';
 import '../../data/local/entities/order_status.dart';
 import '../../data/providers/local_data_providers.dart';
 import '../../licensing/license_providers.dart';
+import '../../core/printing/thermal_print_order.dart';
 import '../../security/owner_password_verify.dart';
 import '../../shell/shell_sync_providers.dart';
 import 'order_status_label.dart';
@@ -322,6 +323,24 @@ class OrderDetailScreen extends ConsumerWidget {
             ),
             title: Text(l10n.ordersNumberPrefix(o.displayOrderNo)),
             actions: [
+              IconButton(
+                icon: const Icon(Icons.print_outlined),
+                tooltip: l10n.orderPrintReceiptTooltip,
+                onPressed: () => printThermalOrderReceipt(
+                  context: context,
+                  ref: ref,
+                  l10n: l10n,
+                  order: o,
+                  payments: asyncPayments.asData?.value ?? const [],
+                  deliveryDateText: AppCalendarFormat.mediumDate(
+                    l10n,
+                    calendar,
+                    o.deliveryDate,
+                    locale,
+                  ),
+                  statusText: orderStatusLabel(o.status, l10n),
+                ),
+              ),
               Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: Center(

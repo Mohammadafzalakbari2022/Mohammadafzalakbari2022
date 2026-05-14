@@ -307,7 +307,8 @@ Use this pass after merges that touch **orders**, **notifications**, **sync UI**
 12. **Reports** — **Reports** → **Unpaid**: segments **All / Overdue / Due in 7 days**, **remaining balance** dropdown (Any / brackets), sort **Amount** vs **Due date**, totals update, row opens order detail. **Monthly income**: **Daily payments** bar strip for the selected month; toggle **Compare to previous month**; change the month with arrows and confirm previous-month payment total and **Change from previous month** line. **Reports** tab overview: **This month income** respects **Settings → calendar** (Gregorian vs solar Hijri month).
 13. **Reports** — **Reports** → **Payments ledger**: pick a date range, verify total updates; use **Group by** **Day / Week / Month** and confirm section headers and subtotals; tapping a row opens the order (when the order still exists locally).
 14. **Tasks** — **Settings → Tasks**: add a task (title + optional notes), set/clear due date, mark done/undone, edit, and delete (soft delete) with confirmation.
-15. **Developer portal (debug)** — Enable **Developer account** in Settings → **Diagnostics** tab shows **local** entity counts (offline).
+15. **Thermal printer (Android / iOS)** — Put a **network ESC/POS** printer on the same LAN (often raw TCP **port 9100**). **Settings → Printer**: enter host/IP, port, paper width (**58 mm** or **80 mm**), **Save**, then **Test print**. Open an **order** → app bar **Print** sends a receipt with totals and payment lines. **Web** explains that hardware printing needs the mobile app (no TCP print path in the browser). iOS may prompt once for **Local Network** access so the app can reach a private IP.
+16. **Developer portal (debug)** — Enable **Developer account** in Settings → **Diagnostics** tab shows **local** entity counts (offline).
 
 When you add **RTL** or **new strings**, repeat on **Web** and **Android** at least once.
 

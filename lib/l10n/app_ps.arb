@@ -1108,5 +1108,56 @@
   "customersFilterHasOrders": "Has orders",
   "customersFilterNoOrders": "No orders yet",
   "customersApplyFilters": "Apply",
-  "customersResetFilters": "Reset"
+  "customersResetFilters": "Reset",
+  "settingsSectionPrinter": "Printer",
+  "settingsPrinterTileTitle": "Thermal printer",
+  "settingsPrinterTileSubtitle": "Network receipt printer (58 / 80 mm)",
+  "settingsPrinterScreenTitle": "Thermal printer",
+  "settingsPrinterIntro": "Send receipts to a network ESC/POS printer (usually raw TCP on port 9100). Enter the printer’s IP address or hostname on your Wi‑Fi or LAN.",
+  "settingsPrinterAsciiNotice": "Receipts use a simple printer character set. Names or notes outside Latin letters and digits may print as “?” on the slip.",
+  "settingsPrinterHostLabel": "Printer address",
+  "settingsPrinterHostHint": "Example: 192.168.1.50",
+  "settingsPrinterPortLabel": "Port",
+  "settingsPrinterPaperWidthLabel": "Paper width",
+  "settingsPrinterPaper58Label": "58 mm",
+  "settingsPrinterPaper80Label": "80 mm",
+  "settingsPrinterSaved": "Printer settings saved.",
+  "settingsPrinterTestCta": "Test print",
+  "settingsPrinterTestHeadline": "Afghan Pride",
+  "settingsPrinterTestDetail": "Test print — if you can read this, the connection works.",
+  "settingsPrinterTestOk": "Test page sent to the printer.",
+  "settingsPrinterTestFail": "Test print failed: {detail}",
+  "@settingsPrinterTestFail": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsPrinterWebUnavailable": "Thermal printing is available on the Android and iOS apps. Use a device with the app installed to print; the web app does not send jobs to hardware printers.",
+  "settingsPrinterHostEmptyError": "Enter the printer address to save or test.",
+  "settingsPrinterPortInvalidError": "Enter a valid port (1–65535).",
+  "orderPrintReceiptTooltip": "Print receipt",
+  "orderPrintReceiptNeedPrinter": "Set the printer address under Settings → Thermal printer.",
+  "orderPrintReceiptOk": "Receipt sent to the printer.",
+  "orderPrintReceiptFail": "Printing failed: {detail}",
+  "@orderPrintReceiptFail": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptCustomerLabel": "Customer",
+  "receiptPhoneLabel": "Phone",
+  "receiptDeliveryLabel": "Delivery",
+  "receiptStatusLabel": "Status",
+  "receiptMeasurementsLabel": "Measurements",
+  "receiptStyleLabel": "Style notes",
+  "receiptInternalNotesHeader": "Internal notes",
+  "receiptTotalLabel": "Total",
+  "receiptPaidLabel": "Paid",
+  "receiptBalanceLabel": "Balance",
+  "receiptPaymentsHeader": "Payments",
+  "receiptFooterThanks": "Thank you"
 }

@@ -257,6 +257,19 @@ class SettingsTabScreen extends ConsumerWidget {
         ),
         const SizedBox(height: 16),
         _SettingsSection(
+          title: l10n.settingsSectionPrinter,
+          children: [
+            _LockedTile(
+              leading: Icons.print_outlined,
+              title: l10n.settingsPrinterTileTitle,
+              subtitle: l10n.settingsPrinterTileSubtitle,
+              enabled: true,
+              onTap: () => context.push('/app/settings/printer'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _SettingsSection(
           title: l10n.settingsSectionSyncDiagnostics,
           children: [
             _LockedTile(

@@ -26,6 +26,7 @@ import '../features/settings/settings_sync_diagnostics_screen.dart';
 import '../features/settings/settings_measurement_types_screen.dart';
 import '../features/settings/settings_tasks_screen.dart';
 import '../features/settings/settings_tab_screen.dart';
+import '../features/settings/settings_printer_screen.dart';
 import '../features/settings/settings_shop_profile_screen.dart';
 import '../features/settings/settings_about_screen.dart';
 import '../features/settings/settings_appearance_language_screen.dart';
@@ -231,6 +232,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                     parentNavigatorKey: _rootNavigatorKey,
                     builder: (context, state) =>
                         const SettingsNotificationsScreen(),
+                  ),
+                  GoRoute(
+                    path: 'printer',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) =>
+                        const SettingsPrinterScreen(),
                   ),
                   GoRoute(
                     path: 'sync-diagnostics',

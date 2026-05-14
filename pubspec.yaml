@@ -51,6 +51,7 @@ dependencies:
   sentry_flutter: ^9.5.0
   http: ^1.6.0
   share_plus: ^10.1.4
+  esc_pos_utils: ^1.1.0
 
 dev_dependencies:
   flutter_test:
