@@ -11,6 +11,8 @@ This document tracks **what the written plans still imply** versus **what this r
 | Sync | Pull applier for plan entity types including **measurement_profile** and **catalog_item**; outbox push mappings; **Settings → Sync “Run sync”** runs pull then push and clears accepted outbox rows. |
 | Licensing | Redeem via **`activation_codes`** table or **`PRIDE_LEGACY_REDEEM_CODES`** (default includes `pilot-2026`). |
 | Dashboard drawer | Order search → `/app/orders?q=…`, **Tasks** quick link, KPIs, overdue / today deliveries, notifications preview (`plan-09`, `plan-24`). |
+| Shop finance | Reports → **Shop finance** (rent, expenses, charts); Isar + sync entity types `shop_rent`, `shop_rent_payment`, `shop_expense`; rent-due in-app notifications. |
+| UX polish (2026-05) | Sign-out navigation fix; dashboard shop branding + sync-now; default Dari locale; new-order customer flow; UI/notification sounds; developer portal refresh on login. |
 
 ## Not done (honest backlog)
 

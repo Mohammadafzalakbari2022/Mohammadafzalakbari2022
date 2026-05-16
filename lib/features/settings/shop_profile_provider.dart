@@ -39,10 +39,7 @@ final shopProfileProvider =
   ShopProfileNotifier.new,
 );
 
-Locale _resolvedLocale(Locale? override) {
-  if (override != null) return override;
-  return WidgetsBinding.instance.platformDispatcher.locale;
-}
+Locale _resolvedLocale(Locale override) => override;
 
 AppLocalizations _l10nFor(Locale locale) {
   final supported = AppLocalizations.supportedLocales.any(

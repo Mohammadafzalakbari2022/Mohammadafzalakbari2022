@@ -12,20 +12,7 @@ import '../../data/local/order_summary.dart';
 import '../../data/providers/local_data_providers.dart';
 import '../orders/order_status_label.dart';
 import 'report_money_format.dart';
-
-bool _isOpenOrderStatus(OrderLocalStatus s) {
-  return s == OrderLocalStatus.newOrder ||
-      s == OrderLocalStatus.inProgress ||
-      s == OrderLocalStatus.ready;
-}
-
-int _openOrdersUnpaidTotal(List<OrderSummary> orders) {
-  return orders
-      .where(
-        (o) => _isOpenOrderStatus(o.status) && o.remainingAmountMinor > 0,
-      )
-      .fold<int>(0, (s, o) => s + o.remainingAmountMinor);
-}
+import 'reports_open_orders.dart';
 
 String? _ordersStatusSummaryLine(
   AppLocalizations l10n,
@@ -60,7 +47,7 @@ class ReportsTabScreen extends ConsumerWidget {
           (sum, o) =>
               sum + (o.remainingAmountMinor > 0 ? o.remainingAmountMinor : 0),
         );
-        final openUnpaid = _openOrdersUnpaidTotal(orders);
+        final openUnpaid = openUnpaidOrdersTotal(orders);
         final statusLine = _ordersStatusSummaryLine(l10n, orders);
 
         return asyncPayments.when(
@@ -84,13 +71,20 @@ class ReportsTabScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 12),
                 PrideNavCardTile(
+                  icon: Icons.account_balance_wallet_outlined,
+                  colorIndex: 5,
+                  title: l10n.shopFinanceTitle,
+                  subtitle: l10n.shopFinanceSubtitle,
+                  onTap: () => context.push('/app/reports/shop-finance'),
+                ),
+                PrideNavCardTile(
                   icon: Icons.payments_outlined,
                   colorIndex: 0,
                   title: l10n.reportsThisMonthIncomeTitle,
                   subtitle: l10n.reportsThisMonthIncomeSubtitle(
                     reportFormatMoney(l10n, monthIncome),
                   ),
-                  showChevron: false,
+                  onTap: () => context.push('/app/reports/this-month-income'),
                 ),
                 PrideNavCardTile(
                   icon: Icons.pending_actions_outlined,
@@ -99,14 +93,14 @@ class ReportsTabScreen extends ConsumerWidget {
                   subtitle: l10n.reportsThisMonthOpenUnpaidSubtitle(
                     reportFormatMoney(l10n, openUnpaid),
                   ),
-                  showChevron: false,
+                  onTap: () => context.push('/app/reports/open-unpaid'),
                 ),
                 PrideNavCardTile(
                   icon: Icons.pie_chart_outline,
                   colorIndex: 2,
                   title: l10n.reportsOrdersSummaryTitle,
                   subtitle: statusLine ?? l10n.reportsOrdersSummaryEmpty,
-                  showChevron: false,
+                  onTap: () => context.push('/app/reports/orders-by-status'),
                 ),
                 PrideNavCardTile(
                   icon: Icons.warning_amber_outlined,

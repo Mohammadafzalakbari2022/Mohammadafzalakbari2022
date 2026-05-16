@@ -3,18 +3,38 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pride_v3/core/calendar/app_calendar_format.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
+import 'package:pride_v3/core/sync/manual_sync_ui.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../data/providers/local_data_providers.dart';
 import '../features/settings/settings_providers.dart';
 import 'shell_sync_providers.dart';
 
-/// Sync + notifications shortcuts for the dashboard drawer (moved off the app bar).
-class ShellDrawerQuickActions extends ConsumerWidget {
+/// Sync + notifications shortcuts for the dashboard drawer.
+class ShellDrawerQuickActions extends ConsumerStatefulWidget {
   const ShellDrawerQuickActions({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ShellDrawerQuickActions> createState() =>
+      _ShellDrawerQuickActionsState();
+}
+
+class _ShellDrawerQuickActionsState
+    extends ConsumerState<ShellDrawerQuickActions> {
+  bool _syncBusy = false;
+
+  Future<void> _runSync() async {
+    if (_syncBusy) return;
+    setState(() => _syncBusy = true);
+    try {
+      await runManualSyncWithFeedback(context: context, ref: ref);
+    } finally {
+      if (mounted) setState(() => _syncBusy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).toString();
     final calendar = ref.watch(dateCalendarSystemProvider);
@@ -25,18 +45,20 @@ class ShellDrawerQuickActions extends ConsumerWidget {
     final badgeCount = ref.watch(unreadAppNotificationCountProvider);
     final muted = ref.watch(notificationsMutedProvider);
 
-    final syncSubtitle = !online
-        ? l10n.shellSyncTooltipOffline
-        : lastSync == null
-            ? l10n.shellSyncTooltipNever
-            : l10n.shellSyncTooltipLast(
-                AppCalendarFormat.dateTimeMedium(
-                  l10n,
-                  calendar,
-                  lastSync,
-                  locale,
-                ),
-              );
+    final syncSubtitle = _syncBusy
+        ? l10n.dashboardSyncRunning
+        : !online
+            ? l10n.shellSyncTooltipOffline
+            : lastSync == null
+                ? l10n.dashboardSyncTapToRun
+                : l10n.shellSyncTooltipLast(
+                    AppCalendarFormat.dateTimeMedium(
+                      l10n,
+                      calendar,
+                      lastSync,
+                      locale,
+                    ),
+                  );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -46,12 +68,21 @@ class ShellDrawerQuickActions extends ConsumerWidget {
           leading: Badge(
             isLabelVisible: queue > 0,
             label: Text(queue > 99 ? '99+' : '$queue'),
-            child: Icon(
-              Icons.sync_alt,
-              color: online
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.outline,
-            ),
+            child: _syncBusy
+                ? SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  )
+                : Icon(
+                    Icons.sync_alt,
+                    color: online
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.outline,
+                  ),
           ),
           title: Text(l10n.shellAppBarSyncA11y),
           subtitle: Text(syncSubtitle),
@@ -64,8 +95,16 @@ class ShellDrawerQuickActions extends ConsumerWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 )
-              : const Icon(Icons.chevron_right),
-          onTap: () {
+              : IconButton(
+                  icon: const Icon(Icons.info_outline),
+                  tooltip: l10n.settingsSyncDiagnosticsTitle,
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    context.push('/app/settings/sync-diagnostics');
+                  },
+                ),
+          onTap: _syncBusy ? null : _runSync,
+          onLongPress: () {
             Navigator.of(context).pop();
             context.push('/app/settings/sync-diagnostics');
           },

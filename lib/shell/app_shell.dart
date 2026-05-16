@@ -5,6 +5,7 @@ import 'package:pride_v3/app/app_theme.dart';
 import 'package:pride_v3/core/widgets/app_back_button.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
+import '../core/shop_finance/rent_due_checker.dart';
 import '../dashboard/dashboard_drawer.dart';
 import '../data/providers/local_data_providers.dart';
 import '../features/settings/shop_profile_provider.dart';
@@ -28,7 +29,20 @@ class _AppShellState extends ConsumerState<AppShell> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _seedWelcomeNotification());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _seedWelcomeNotification();
+      _checkRentDue();
+    });
+  }
+
+  Future<void> _checkRentDue() async {
+    if (!mounted) return;
+    final l10n = AppLocalizations.of(context)!;
+    try {
+      await checkRentDueNotifications(ref, l10n);
+    } catch (_) {
+      // Finance repo may still be initializing.
+    }
   }
 
   Future<void> _seedWelcomeNotification() async {

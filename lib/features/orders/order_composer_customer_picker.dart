@@ -9,6 +9,7 @@ Future<CustomerSummary?> showOrderComposerCustomerPicker({
   required List<CustomerSummary> customers,
   required AppLocalizations l10n,
   String? selectedId,
+  VoidCallback? onAddCustomer,
 }) {
   return showModalBottomSheet<CustomerSummary>(
     context: context,
@@ -18,6 +19,7 @@ Future<CustomerSummary?> showOrderComposerCustomerPicker({
       customers: customers,
       l10n: l10n,
       selectedId: selectedId,
+      onAddCustomer: onAddCustomer,
     ),
   );
 }
@@ -27,11 +29,13 @@ class _OrderComposerCustomerPickerSheet extends StatefulWidget {
     required this.customers,
     required this.l10n,
     this.selectedId,
+    this.onAddCustomer,
   });
 
   final List<CustomerSummary> customers;
   final AppLocalizations l10n;
   final String? selectedId;
+  final VoidCallback? onAddCustomer;
 
   @override
   State<_OrderComposerCustomerPickerSheet> createState() =>
@@ -76,6 +80,21 @@ class _OrderComposerCustomerPickerSheetState
                   onChanged: (_) => setState(() {}),
                 ),
               ),
+              if (widget.onAddCustomer != null)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: TextButton.icon(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        widget.onAddCustomer!();
+                      },
+                      icon: const Icon(Icons.person_add_outlined),
+                      label: Text(widget.l10n.customersAddCta),
+                    ),
+                  ),
+                ),
               Expanded(
                 child: _CustomerPickerList(
                   customers: widget.customers,

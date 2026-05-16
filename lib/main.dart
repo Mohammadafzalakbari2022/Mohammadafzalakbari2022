@@ -7,6 +7,7 @@ import 'auth/auth_providers.dart';
 import 'auth/auth_session.dart';
 import 'auth/auth_session_storage.dart';
 import 'core/crash/sentry_bootstrap.dart';
+import 'core/feedback/notification_sound_bridge.dart';
 import 'core/persistence/shared_preferences_provider.dart';
 import 'core/persistence/sync_diagnostics_storage.dart';
 import 'shell/shell_sync_providers.dart';
@@ -19,14 +20,33 @@ Future<void> main() async {
   await runWithOptionalSentry(() async {
     WidgetsFlutterBinding.ensureInitialized();
     final prefs = await SharedPreferences.getInstance();
-    final initialLocale = localeOverrideFromPrefs(prefs);
+    await ensureDefaultLocalePrefs(prefs);
+    final initialLocale = localeFromPrefs(prefs);
     final initialUiSounds = uiSoundsFromPrefs(prefs);
     final initialUiHaptics = uiHapticsFromPrefs(prefs);
+    final initialNotificationsMuted = prefs.getBool('pride_notifications_muted') ?? false;
+    NotificationSoundBridge.configure(
+      soundsEnabled: initialUiSounds,
+      muted: initialNotificationsMuted,
+    );
 
     final authSession = AuthSession();
     final licenseNotifier = LicenseNotifier();
     await LicenseClockGuard.bootstrapIfNeeded(prefs);
-    await AuthSessionStorage.restoreInto(prefs, authSession, licenseNotifier);
+    final restoredApi = await AuthSessionStorage.restoreInto(
+      prefs,
+      authSession,
+      licenseNotifier,
+    );
+    if (!restoredApi) {
+      final restoredMock =
+          await AuthSessionStorage.restoreMockInto(prefs, authSession);
+      if (restoredMock) {
+        licenseNotifier
+          ..setStatus(LicenseStatus.trialActive)
+          ..setSuspectedTimeTamper(false);
+      }
+    }
     final initialLastSync =
         SyncDiagnosticsStorage.readLastSuccessfulSync(prefs);
 

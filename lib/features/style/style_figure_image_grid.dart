@@ -56,14 +56,16 @@ class StyleFigureImageGrid extends StatelessWidget {
     final interactive =
         onSelectionChanged != null || onMultiSelectionChanged != null;
 
+    final scheme = Theme.of(context).colorScheme;
+
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       padding: padding,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: crossAxisCount,
-        mainAxisSpacing: 4,
-        crossAxisSpacing: 4,
+        mainAxisSpacing: 8,
+        crossAxisSpacing: 8,
         childAspectRatio: 1,
       ),
       itemCount: figures.length,
@@ -71,27 +73,29 @@ class StyleFigureImageGrid extends StatelessWidget {
         final f = figures[index];
         final selected = _isSelected(f.internalId);
         return Material(
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          color: scheme.surfaceContainerLowest,
+          elevation: selected ? 2 : 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(
+              color: selected ? scheme.primary : scheme.outlineVariant,
+              width: selected ? 3 : 1,
+            ),
+          ),
           clipBehavior: Clip.antiAlias,
           child: InkWell(
             onTap: interactive ? () => _onTap(f.internalId) : null,
             child: Stack(
               fit: StackFit.expand,
               children: [
-                StyleFigureImage(
-                  imageRef: f.imageRef,
-                  fit: BoxFit.cover,
-                  expand: true,
-                ),
-                if (selected)
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.primary,
-                        width: 3,
-                      ),
-                    ),
+                Padding(
+                  padding: const EdgeInsets.all(6),
+                  child: StyleFigureImage(
+                    imageRef: f.imageRef,
+                    fit: BoxFit.contain,
+                    expand: true,
                   ),
+                ),
                 if (selected)
                   Positioned(
                     top: 4,

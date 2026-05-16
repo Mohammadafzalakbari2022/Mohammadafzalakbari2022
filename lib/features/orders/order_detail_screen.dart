@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pride_v3/core/calendar/app_calendar_format.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
@@ -27,6 +28,8 @@ import '../../licensing/license_providers.dart';
 import '../../core/printing/thermal_print_order.dart';
 import '../../security/owner_password_verify.dart';
 import '../../shell/shell_sync_providers.dart';
+import 'order_detail_hero_card.dart';
+import 'order_detail_share_actions.dart';
 import 'order_invoice_share.dart';
 import 'order_payment_amount_sheet.dart';
 import 'order_status_label.dart';
@@ -206,6 +209,8 @@ class OrderDetailScreen extends ConsumerWidget {
     final locale = Localizations.localeOf(context).toString();
     final calendar = ref.watch(dateCalendarSystemProvider);
     final asyncOrders = ref.watch(ordersListStreamProvider);
+    String formatMoney(int minor) =>
+        l10n.moneyAfn(NumberFormat.decimalPattern().format(minor));
 
     return asyncOrders.when(
       data: (orders) {
@@ -254,7 +259,7 @@ class OrderDetailScreen extends ConsumerWidget {
               IconButton(
                 icon: const Icon(Icons.share_outlined),
                 tooltip: l10n.orderShareInvoiceTooltip,
-                onPressed: () => shareOrderInvoiceText(
+                onPressed: () => shareOrderInvoice(
                   context: context,
                   ref: ref,
                   l10n: l10n,
@@ -307,19 +312,20 @@ class OrderDetailScreen extends ConsumerWidget {
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                   child: _FromNewBanner(orderId: o.internalId),
                 ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Text(
-                  l10n.ordersDeliveryOn(
-                    AppCalendarFormat.mediumDate(
-                      l10n,
-                      calendar,
-                      o.deliveryDate,
-                      locale,
-                    ),
-                  ),
-                  style: Theme.of(context).textTheme.titleSmall,
-                ),
+              OrderDetailHeroCard(
+                order: o,
+                l10n: l10n,
+                locale: locale,
+                calendar: calendar,
+                formatMoney: formatMoney,
+              ),
+              OrderDetailShareActions(
+                order: o,
+                payments: asyncPayments.asData?.value ?? const [],
+                l10n: l10n,
+                locale: locale,
+                calendar: calendar,
+                statusText: orderStatusLabel(o.status, l10n),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -1040,22 +1046,29 @@ class _FromNewBannerState extends State<_FromNewBanner> {
   Widget build(BuildContext context) {
     if (!_visible) return const SizedBox.shrink();
     final l10n = AppLocalizations.of(context)!;
+    final scheme = Theme.of(context).colorScheme;
+    final actions = Theme.of(context).extension<PrideActionColors>()!;
     return Material(
-      elevation: 1,
-      borderRadius: BorderRadius.circular(12),
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      elevation: 0,
+      borderRadius: BorderRadius.circular(14),
+      color: actions.addContainer,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         child: Row(
           children: [
-            Icon(
-              Icons.info_outline,
-              color: Theme.of(context).colorScheme.primary,
-            ),
+            Icon(Icons.celebration_outlined, color: actions.add),
             const SizedBox(width: 12),
-            Expanded(child: Text(l10n.ordersDetailFromNewBanner)),
+            Expanded(
+              child: Text(
+                l10n.ordersDetailFromNewBanner,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: actions.onAddContainer,
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+            ),
             IconButton(
-              icon: const Icon(Icons.close),
+              icon: Icon(Icons.close, color: scheme.onSurfaceVariant),
               onPressed: () {
                 setState(() => _visible = false);
                 GoRouter.of(context).go('/app/orders/${widget.orderId}');

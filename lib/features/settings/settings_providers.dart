@@ -7,22 +7,28 @@ const prideLocaleLanguageCodeKey = 'pride_locale_language_code';
 const prideUiSoundsKey = 'pride_ui_sounds_enabled';
 const prideUiHapticsKey = 'pride_ui_haptics_enabled';
 
-/// Reads saved app language (`en` / `fa` / `ps`), or null for system default.
-Locale? localeOverrideFromPrefs(SharedPreferences prefs) {
+/// Reads saved app language (`en` / `fa` / `ps`). Defaults to Dari on first launch.
+Locale localeFromPrefs(SharedPreferences prefs) {
   final code = prefs.getString(prideLocaleLanguageCodeKey);
-  if (code == null || code.isEmpty) return null;
+  if (code == null || code.isEmpty) return const Locale('fa');
   return Locale(code);
+}
+
+/// Legacy alias — always returns a concrete locale (default `fa`).
+Locale? localeOverrideFromPrefs(SharedPreferences prefs) => localeFromPrefs(prefs);
+
+/// Persists default Dari when no language has been chosen yet.
+Future<void> ensureDefaultLocalePrefs(SharedPreferences prefs) async {
+  if (!prefs.containsKey(prideLocaleLanguageCodeKey)) {
+    await prefs.setString(prideLocaleLanguageCodeKey, 'fa');
+  }
 }
 
 Future<void> persistLocaleOverride(
   SharedPreferences prefs,
-  Locale? locale,
+  Locale locale,
 ) async {
-  if (locale == null) {
-    await prefs.remove(prideLocaleLanguageCodeKey);
-  } else {
-    await prefs.setString(prideLocaleLanguageCodeKey, locale.languageCode);
-  }
+  await prefs.setString(prideLocaleLanguageCodeKey, locale.languageCode);
 }
 
 bool uiSoundsFromPrefs(SharedPreferences prefs) =>
@@ -48,8 +54,8 @@ final uiHapticsEnabledProvider = StateProvider<bool>((ref) => true);
 /// App theme mode (System/Light/Dark).
 final themeModeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.system);
 
-/// App locale override (null = follow system).
-final localeOverrideProvider = StateProvider<Locale?>((ref) => null);
+/// App locale (default Dari / `fa`).
+final localeOverrideProvider = StateProvider<Locale>((ref) => const Locale('fa'));
 
 /// Mute notifications toggle (local-only for now; plan-15).
 final notificationsMutedProvider = StateProvider<bool>((ref) => false);

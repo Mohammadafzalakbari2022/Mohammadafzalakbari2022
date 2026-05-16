@@ -10,6 +10,10 @@ import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
 import 'package:pride_v3/app/app_theme.dart';
 import 'package:pride_v3/core/feedback/app_feedback.dart';
 import 'package:pride_v3/core/widgets/pride_action_buttons.dart';
+import 'package:pride_v3/core/formatting/digit_normalizer.dart';
+import 'package:pride_v3/core/widgets/pride_close_button.dart';
+import 'package:pride_v3/core/widgets/pride_form_bottom_bar.dart';
+import 'package:pride_v3/core/widgets/pride_money_field.dart';
 import 'package:pride_v3/core/widgets/pride_alert_dialog.dart';
 import 'package:pride_v3/core/printing/thermal_print_order.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
@@ -30,6 +34,7 @@ import '../../shell/shell_sync_providers.dart';
 import '../../data/local/style/style_order_selection.dart';
 import 'order_composer_customer_picker.dart';
 import 'order_composer_measurements_sheet.dart';
+import 'order_composer_progress_header.dart';
 import 'order_composer_style_sheet.dart';
 import 'order_invoice_share.dart';
 import 'order_status_label.dart';
@@ -44,6 +49,8 @@ class OrderComposerScreen extends ConsumerStatefulWidget {
 const _kComposerSectionGap = 14.0;
 
 class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
+  final _customerSearchController = TextEditingController();
+
   String? _selectedCustomerId;
   String? _selectedCustomerLabel;
   String? _selectedCustomerName;
@@ -67,6 +74,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
 
   @override
   void dispose() {
+    _customerSearchController.dispose();
     _measurementsController.dispose();
     _totalController.dispose();
     _paidController.dispose();
@@ -74,8 +82,8 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
   }
 
   bool get _canSave {
-    final total = int.tryParse(_totalController.text.trim());
-    final paid = int.tryParse(_paidController.text.trim()) ?? 0;
+    final total = tryParseMoneyAmount(_totalController.text);
+    final paid = tryParseMoneyAmount(_paidController.text) ?? 0;
     if (_selectedCustomerId == null) return false;
     if (_measurementsController.text.trim().isEmpty) return false;
     if (_styleName.trim().isEmpty) return false;
@@ -219,6 +227,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       customers: list,
       l10n: l10n,
       selectedId: _selectedCustomerId,
+      onAddCustomer: () => _openNewCustomerForm(context),
     );
     if (picked != null && mounted) _applyCustomer(picked);
   }
@@ -371,16 +380,18 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.share_outlined),
-                title: Text(l10n.orderShareInvoiceTooltip),
+                leading: const Icon(Icons.picture_as_pdf_outlined),
+                title: Text(l10n.orderShareInvoicePdfCta),
+                subtitle: Text(l10n.orderShareInvoiceTooltip),
                 onTap: () async {
+                  Navigator.pop(ctx);
                   final o = await _waitOrderSummary(orderId);
-                  if (!ctx.mounted || o == null) return;
+                  if (!context.mounted || o == null) return;
                   final payments =
                       ref.read(paymentsForOrderProvider(o.internalId)).valueOrNull ??
                           const <PaymentSummary>[];
-                  await shareOrderInvoiceText(
-                    context: ctx,
+                  await shareOrderInvoice(
+                    context: context,
                     ref: ref,
                     l10n: l10n,
                     order: o,
@@ -430,8 +441,8 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     }
 
     final customerId = _selectedCustomerId!;
-    final totalMinor = int.parse(_totalController.text.trim());
-    final paidMinor = int.tryParse(_paidController.text.trim()) ?? 0;
+    final totalMinor = tryParseMoneyAmount(_totalController.text)!;
+    final paidMinor = tryParseMoneyAmount(_paidController.text) ?? 0;
     final deliveryDate = _deliveryDate!;
 
     final shopId =
@@ -575,8 +586,8 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
         ),
       );
     }
-    final total = int.tryParse(_totalController.text.trim());
-    final paid = int.tryParse(_paidController.text.trim()) ?? 0;
+    final total = tryParseMoneyAmount(_totalController.text);
+    final paid = tryParseMoneyAmount(_paidController.text) ?? 0;
     if (total == null || total <= 0 || paid < 0 || paid > total) {
       missing.add(
         PrideAlertDialogBullet(
@@ -659,10 +670,8 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).toString();
     final calendar = ref.watch(dateCalendarSystemProvider);
-    final ordersAsync = ref.watch(ordersListStreamProvider);
-
-    final total = int.tryParse(_totalController.text.trim()) ?? 0;
-    final paid = int.tryParse(_paidController.text.trim()) ?? 0;
+    final total = tryParseMoneyAmount(_totalController.text) ?? 0;
+    final paid = tryParseMoneyAmount(_paidController.text) ?? 0;
     final remaining = total - paid;
 
     final deliveryLabel = _deliveryDate == null
@@ -700,13 +709,55 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
+        padding: prideFormScrollPadding(context),
         children: [
+          OrderComposerProgressHeader(
+            l10n: l10n,
+            customerDone: _selectedCustomerId != null,
+            measurementsDone: _measurementsController.text.trim().isNotEmpty,
+            styleDone: _styleName.trim().isNotEmpty,
+            deliveryDone: _deliveryDate != null,
+            paymentDone: paymentOk,
+          ),
+          const SizedBox(height: _kComposerSectionGap),
           Card(
             clipBehavior: Clip.antiAlias,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+                  child: TextField(
+                    controller: _customerSearchController,
+                    decoration: InputDecoration(
+                      prefixIcon: const Icon(Icons.search),
+                      hintText: l10n.customersSearchHint,
+                      isDense: true,
+                      border: const OutlineInputBorder(),
+                    ),
+                    onChanged: (_) => setState(() {}),
+                    onSubmitted: (_) {
+                      final q = _customerSearchController.text.trim();
+                      if (q.isEmpty) {
+                        _pickExistingCustomer(context, l10n);
+                        return;
+                      }
+                      final customers =
+                          ref.read(customersListStreamProvider).valueOrNull ??
+                              const <CustomerSummary>[];
+                      final lower = q.toLowerCase();
+                      for (final c in customers) {
+                        final phone = (c.phone ?? '').toLowerCase();
+                        if (c.name.toLowerCase().contains(lower) ||
+                            phone.contains(lower)) {
+                          _applyCustomer(c);
+                          return;
+                        }
+                      }
+                      _pickExistingCustomer(context, l10n);
+                    },
+                  ),
+                ),
                 ListTile(
                   title: Text(l10n.ordersComposerCustomerTitle),
                   subtitle: Text(customerSubtitle),
@@ -716,45 +767,15 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
                     color: prideSettingsIconColor(0),
                   ),
                   trailing: _selectedCustomerId == null
-                      ? null
-                      : IconButton(
-                          icon: const Icon(Icons.close),
+                      ? const Icon(Icons.chevron_right)
+                      : PrideCloseIconButton(
                           tooltip: l10n.editCta,
                           onPressed: _clearSelectedCustomer,
                         ),
-                  onTap: _selectedCustomerId == null
-                      ? () => _pickExistingCustomer(context, l10n)
-                      : null,
+                  onTap: () => _pickExistingCustomer(context, l10n),
                 ),
                 if (_selectedCustomerId == null)
                   _composerRequiredHint(l10n.ordersComposerCustomerRequired),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () =>
-                              _pickExistingCustomer(context, l10n),
-                          icon: const Icon(Icons.search, size: 20),
-                          label: Text(l10n.customersSearchHint),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: FilledButton.icon(
-                          onPressed: () => _openNewCustomerForm(context),
-                          style: prideButtonStyle(
-                            context,
-                            PrideButtonVariant.add,
-                          ),
-                          icon: const Icon(Icons.person_add_outlined, size: 20),
-                          label: Text(l10n.customersAddCta),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               ],
             ),
           ),
@@ -846,25 +867,18 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: Column(
                       children: [
-                        TextField(
+                        PrideMoneyField(
                           controller: _totalController,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            labelText: l10n.ordersComposerTotalLabel,
-                            hintText: l10n.ordersComposerTotalHint,
-                            border: const OutlineInputBorder(),
-                          ),
+                          labelText: l10n.ordersComposerTotalLabel,
+                          hintText: l10n.ordersComposerTotalHint,
+                          textInputAction: TextInputAction.next,
                           onChanged: (_) => setState(() {}),
                         ),
                         const SizedBox(height: 12),
-                        TextField(
+                        PrideMoneyField(
                           controller: _paidController,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            labelText: l10n.ordersComposerPaidLabel,
-                            hintText: l10n.ordersComposerPaidHint,
-                            border: const OutlineInputBorder(),
-                          ),
+                          labelText: l10n.ordersComposerPaidLabel,
+                          hintText: l10n.ordersComposerPaidHint,
                           onChanged: (_) => setState(() {}),
                         ),
                         const SizedBox(height: 12),
@@ -895,59 +909,85 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
           ),
           const SizedBox(height: _kComposerSectionGap),
           if (_selectedCustomerId != null)
-            ordersAsync.when(
-              data: (orders) {
-                final recent = orders
-                    .where((o) => o.customerInternalId == _selectedCustomerId)
-                    .take(10)
-                    .toList();
-                if (recent.isEmpty) return const SizedBox.shrink();
-                return Card(
-                  clipBehavior: Clip.antiAlias,
-                  child: Column(
-                    children: [
-                      ListTile(
-                        title: Text(l10n.ordersComposerRecentOrdersTitle),
-                        subtitle: Text(l10n.ordersComposerRecentOrdersSubtitle),
-                      ),
-                      const Divider(height: 1),
-                      for (final o in recent) ...[
-                        ListTile(
-                          title: Text('#${o.displayOrderNo} • ${o.customerName}'),
-                          subtitle: Text(
-                            l10n.ordersComposerRecentOrderRowSubtitle(
-                              AppCalendarFormat.mediumDate(
-                                l10n,
-                                calendar,
-                                o.deliveryDate,
-                                locale,
-                              ),
-                              _money(l10n, o.remainingAmountMinor),
-                            ),
-                          ),
-                          trailing: const Icon(Icons.chevron_right),
-                          onTap: () => context.go('/app/orders/${o.internalId}'),
-                        ),
-                        if (o != recent.last) const Divider(height: 1),
-                      ],
-                    ],
-                  ),
-                );
-              },
-              loading: () => const SizedBox.shrink(),
-              error: (e, st) => const SizedBox.shrink(),
+            _ComposerRecentOrdersCard(
+              customerId: _selectedCustomerId!,
+              l10n: l10n,
+              money: _money,
             ),
         ],
       ),
-      bottomNavigationBar: SafeArea(
-        minimum: const EdgeInsets.all(16),
-        child: FilledButton.icon(
+      bottomNavigationBar: PrideFormBottomBar(
+        onCancel: () => context.pop(),
+        cancelLabel: MaterialLocalizations.of(context).cancelButtonLabel,
+        primary: FilledButton.icon(
           onPressed: () => _onSavePressed(context, l10n),
           style: prideButtonStyle(context, PrideButtonVariant.add),
           icon: const Icon(Icons.check),
           label: Text(l10n.ordersComposerSaveCta),
         ),
       ),
+    );
+  }
+}
+
+class _ComposerRecentOrdersCard extends ConsumerWidget {
+  const _ComposerRecentOrdersCard({
+    required this.customerId,
+    required this.l10n,
+    required this.money,
+  });
+
+  final String customerId;
+  final AppLocalizations l10n;
+  final String Function(AppLocalizations l10n, int minor) money;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final locale = Localizations.localeOf(context).toString();
+    final calendar = ref.watch(dateCalendarSystemProvider);
+    final ordersAsync = ref.watch(ordersListStreamProvider);
+
+    return ordersAsync.when(
+      data: (orders) {
+        final recent = orders
+            .where((o) => o.customerInternalId == customerId)
+            .take(10)
+            .toList();
+        if (recent.isEmpty) return const SizedBox.shrink();
+        return Card(
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            children: [
+              ListTile(
+                title: Text(l10n.ordersComposerRecentOrdersTitle),
+                subtitle: Text(l10n.ordersComposerRecentOrdersSubtitle),
+              ),
+              const Divider(height: 1),
+              for (final o in recent) ...[
+                ListTile(
+                  title: Text('#${o.displayOrderNo} • ${o.customerName}'),
+                  subtitle: Text(
+                    l10n.ordersComposerRecentOrderRowSubtitle(
+                      AppCalendarFormat.mediumDate(
+                        l10n,
+                        calendar,
+                        o.deliveryDate,
+                        locale,
+                      ),
+                      money(l10n, o.remainingAmountMinor),
+                    ),
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.go('/app/orders/${o.internalId}'),
+                ),
+                if (o != recent.last) const Divider(height: 1),
+              ],
+            ],
+          ),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (e, st) => const SizedBox.shrink(),
     );
   }
 }

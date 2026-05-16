@@ -144,11 +144,12 @@ class _OrderComposerStyleSheetState
       minChildSize: 0.5,
       maxChildSize: 0.96,
       builder: (context, scrollController) {
+        final keyboard = MediaQuery.viewInsetsOf(context).bottom;
         return Material(
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                padding: EdgeInsets.fromLTRB(8, 8, 8, keyboard),
                 child: Row(
                   children: [
                     IconButton(
@@ -171,7 +172,7 @@ class _OrderComposerStyleSheetState
               Expanded(
                 child: ListView(
                   controller: scrollController,
-                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
+                  padding: EdgeInsets.fromLTRB(12, 8, 12, 24 + keyboard),
                   children: [
                     Text(
                       l10n.ordersComposerStyleMainTitle,

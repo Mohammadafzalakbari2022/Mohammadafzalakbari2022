@@ -18,6 +18,8 @@ import '../features/reports/report_money_format.dart';
 import '../features/settings/settings_providers.dart';
 import '../licensing/license_providers.dart';
 import '../shell/shell_drawer_quick_actions.dart';
+import 'package:pride_v3/core/widgets/shop_branding_header.dart';
+
 import 'dashboard_widgets.dart';
 
 /// Edge drawer: live KPIs + shortcuts (plan-09). Read-only navigation; no CRUD here.
@@ -70,9 +72,7 @@ class _DashboardDrawerState extends ConsumerState<DashboardDrawer> {
       backgroundColor: scheme.surface,
       child: Column(
         children: [
-          DashboardHeader(
-            title: l10n.dashboardTitle,
-            subtitle: l10n.dashboardSubtitle,
+          ShopBrandingHeader(
             onClose: () => Navigator.of(context).pop(),
           ),
           Expanded(
@@ -471,6 +471,47 @@ class _DashboardDrawerState extends ConsumerState<DashboardDrawer> {
                   },
                   loading: () => const _DashboardLoading(),
                   error: (e, _) => Text('$e'),
+                ),
+                const SizedBox(height: 12),
+                Consumer(
+                  builder: (context, ref, _) {
+                    final tasksAsync =
+                        ref.watch(tasksForShopProvider(shopId));
+                    return tasksAsync.when(
+                      data: (tasks) {
+                        final open =
+                            tasks.where((t) => !t.isDone).length;
+                        return DashboardSection(
+                          title: l10n.dashboardTasksSectionTitle,
+                          icon: Icons.task_alt_outlined,
+                          colorIndex: 2,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Text(
+                                l10n.dashboardTasksOpenCount(open),
+                                style:
+                                    Theme.of(context).textTheme.titleMedium,
+                              ),
+                              const SizedBox(height: 8),
+                              Align(
+                                alignment: AlignmentDirectional.centerStart,
+                                child: FilledButton.tonal(
+                                  onPressed: () => _closeDrawerThen(
+                                    context,
+                                    () => context.push('/app/settings/tasks'),
+                                  ),
+                                  child: Text(l10n.dashboardTasksViewAll),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      loading: () => const SizedBox.shrink(),
+                      error: (e, st) => const SizedBox.shrink(),
+                    );
+                  },
                 ),
               ],
             ),

@@ -151,7 +151,7 @@ abstract class AppLocalizations {
   /// No description provided for @loginSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Use your shop username and password. The server will verify this when the API is connected (plan-04).'**
+  /// **'Use your shop username and password to open your shop.'**
   String get loginSubtitle;
 
   /// No description provided for @loginMockHint.
@@ -367,7 +367,7 @@ abstract class AppLocalizations {
   /// No description provided for @loginShopCreateSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Create a shop on the server and sign in as owner (plan-04).'**
+  /// **'Create a shop on the server and sign in as owner.'**
   String get loginShopCreateSubtitle;
 
   /// No description provided for @loginShopCreateNameLabel.
@@ -421,7 +421,7 @@ abstract class AppLocalizations {
   /// No description provided for @dashboardSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'KPIs and shortcuts will load from local data (plan-09).'**
+  /// **'Today\'s KPIs and shortcuts from your shop data.'**
   String get dashboardSubtitle;
 
   /// No description provided for @dashboardKpisPlaceholder.
@@ -493,7 +493,7 @@ abstract class AppLocalizations {
   /// No description provided for @subscriptionBody.
   ///
   /// In en, this message translates to:
-  /// **'Renew or enter an activation code when billing is connected (plan-06). While expired, editing is limited; viewing lists and details stays available.'**
+  /// **'Renew or enter an activation code when billing is connected. While expired, editing is limited; viewing lists and details stays available.'**
   String get subscriptionBody;
 
   /// No description provided for @subscriptionListTileSubtitle.
@@ -541,7 +541,7 @@ abstract class AppLocalizations {
   /// No description provided for @ordersComposerPlaceholderBody.
   ///
   /// In en, this message translates to:
-  /// **'Order composer will go here (plan-11).'**
+  /// **'Order composer will go here.'**
   String get ordersComposerPlaceholderBody;
 
   /// No description provided for @ordersDetailTitle.
@@ -553,7 +553,7 @@ abstract class AppLocalizations {
   /// No description provided for @ordersDetailPlaceholderBody.
   ///
   /// In en, this message translates to:
-  /// **'Order {orderId} — details UI coming soon (plan-12).'**
+  /// **'Order {orderId} — details UI coming soon.'**
   String ordersDetailPlaceholderBody(String orderId);
 
   /// No description provided for @orderStatusNew.
@@ -937,7 +937,7 @@ abstract class AppLocalizations {
   /// No description provided for @ordersDetailLockedHint.
   ///
   /// In en, this message translates to:
-  /// **'This order is locked because it is Delivered or Cancelled (plan-12).'**
+  /// **'This order is locked because it is Delivered or Cancelled.'**
   String get ordersDetailLockedHint;
 
   /// No description provided for @ordersDetailLockedStillInternalNotes.
@@ -991,7 +991,7 @@ abstract class AppLocalizations {
   /// No description provided for @ordersDetailChangeStatusSoon.
   ///
   /// In en, this message translates to:
-  /// **'Status changes will open a confirmation flow (plan-12).'**
+  /// **'Status changes will open a confirmation flow.'**
   String get ordersDetailChangeStatusSoon;
 
   /// No description provided for @addPaymentCta.
@@ -1159,7 +1159,7 @@ abstract class AppLocalizations {
   /// No description provided for @customerViewAllOrdersSoon.
   ///
   /// In en, this message translates to:
-  /// **'This will open Orders with a customer filter (plan-13).'**
+  /// **'This will open Orders with a customer filter.'**
   String get customerViewAllOrdersSoon;
 
   /// No description provided for @customerSectionPlaceholder.
@@ -1171,7 +1171,7 @@ abstract class AppLocalizations {
   /// No description provided for @customerNewPlaceholderBody.
   ///
   /// In en, this message translates to:
-  /// **'New customer form will go here (plan-13).'**
+  /// **'New customer form will go here.'**
   String get customerNewPlaceholderBody;
 
   /// No description provided for @measurementUnitCm.
@@ -1669,7 +1669,7 @@ abstract class AppLocalizations {
   /// No description provided for @reportsMonthlyIncomePlaceholder.
   ///
   /// In en, this message translates to:
-  /// **'Monthly income report will go here (plan-16).'**
+  /// **'Monthly income report will go here.'**
   String get reportsMonthlyIncomePlaceholder;
 
   /// No description provided for @reportsThisMonthIncomeTitle.
@@ -1945,13 +1945,13 @@ abstract class AppLocalizations {
   /// No description provided for @catalogSharingToggleSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Mutual opt-in: enable to browse and be listed in public directory (plan-14).'**
+  /// **'Mutual opt-in: enable to browse and be listed in public directory.'**
   String get catalogSharingToggleSubtitle;
 
   /// No description provided for @catalogSharedPlaceholder.
   ///
   /// In en, this message translates to:
-  /// **'Shared designs directory will appear here when online (plan-14).'**
+  /// **'Shared designs directory will appear here when online.'**
   String get catalogSharedPlaceholder;
 
   /// No description provided for @catalogEmptyMyDesigns.
@@ -1993,7 +1993,7 @@ abstract class AppLocalizations {
   /// No description provided for @catalogAddDesignPlaceholder.
   ///
   /// In en, this message translates to:
-  /// **'Camera / Gallery add will be implemented on Android/iOS only (plan-14).'**
+  /// **'Camera / Gallery add will be implemented on Android/iOS only.'**
   String get catalogAddDesignPlaceholder;
 
   /// No description provided for @catalogDetailTitle.
@@ -2065,7 +2065,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsShopTileSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Shop details will appear here (plan-15).'**
+  /// **'Shop details will appear here.'**
   String get settingsShopTileSubtitle;
 
   /// No description provided for @settingsCurrentUserTitle.
@@ -2143,7 +2143,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsUsersPlaceholder.
   ///
   /// In en, this message translates to:
-  /// **'Users management will be implemented in plan-15 (create/remove users, limits, owner protections).'**
+  /// **'Users management will be implemented (create/remove users, limits, owner protections).'**
   String get settingsUsersPlaceholder;
 
   /// No description provided for @settingsBackupRestoreTitle.
@@ -2161,7 +2161,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsBackupRestorePlaceholder.
   ///
   /// In en, this message translates to:
-  /// **'Backup/restore will be implemented in plan-15 (merge restore, owner password confirmation, restore summary).'**
+  /// **'Backup/restore will be implemented (merge restore, owner password confirmation, restore summary).'**
   String get settingsBackupRestorePlaceholder;
 
   /// No description provided for @settingsMuteNotificationsTitle.
@@ -2185,13 +2185,13 @@ abstract class AppLocalizations {
   /// No description provided for @settingsNotificationsInboxSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'History and filters (plan-15).'**
+  /// **'History and filters.'**
   String get settingsNotificationsInboxSubtitle;
 
   /// No description provided for @settingsNotificationsPlaceholder.
   ///
   /// In en, this message translates to:
-  /// **'Notifications inbox will be implemented in plan-15.'**
+  /// **'Notifications inbox will be implemented.'**
   String get settingsNotificationsPlaceholder;
 
   /// No description provided for @settingsSyncDiagnosticsTitle.
@@ -2263,13 +2263,13 @@ abstract class AppLocalizations {
   /// No description provided for @settingsSyncDiagnosticsSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Last sync, queue, outbox (plan-15).'**
+  /// **'Last sync, queue, and pending changes.'**
   String get settingsSyncDiagnosticsSubtitle;
 
   /// No description provided for @settingsSyncDiagnosticsPlaceholder.
   ///
   /// In en, this message translates to:
-  /// **'Sync & diagnostics will be implemented in plan-15.'**
+  /// **'Sync status and diagnostics appear here.'**
   String get settingsSyncDiagnosticsPlaceholder;
 
   /// No description provided for @settingsAppearanceLanguageTitle.
@@ -2323,7 +2323,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsDeveloperPortalPlaceholder.
   ///
   /// In en, this message translates to:
-  /// **'Developer Portal screens will be implemented in plan-18.'**
+  /// **'Developer Portal screens will be implemented.'**
   String get settingsDeveloperPortalPlaceholder;
 
   /// No description provided for @settingsDevRolesTitle.
@@ -2380,6 +2380,12 @@ abstract class AppLocalizations {
   /// **'Dark'**
   String get themeDark;
 
+  /// No description provided for @settingsSectionSoundFeedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound & feedback'**
+  String get settingsSectionSoundFeedback;
+
   /// No description provided for @settingsUiSoundsTitle.
   ///
   /// In en, this message translates to:
@@ -2389,7 +2395,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsUiSoundsSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Short sound when an action succeeds (for example, saving).'**
+  /// **'Short sounds when you save, delete, or complete an action.'**
   String get settingsUiSoundsSubtitle;
 
   /// No description provided for @settingsUiHapticsTitle.
@@ -2403,6 +2409,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Light vibration on successful actions.'**
   String get settingsUiHapticsSubtitle;
+
+  /// No description provided for @settingsUiHapticsWebHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Haptics are not available on web.'**
+  String get settingsUiHapticsWebHint;
+
+  /// No description provided for @settingsSoundPreviewSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Success'**
+  String get settingsSoundPreviewSuccess;
+
+  /// No description provided for @settingsSoundPreviewError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get settingsSoundPreviewError;
+
+  /// No description provided for @settingsSoundPreviewDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get settingsSoundPreviewDelete;
+
+  /// No description provided for @ordersDetailPaymentProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment progress'**
+  String get ordersDetailPaymentProgress;
+
+  /// No description provided for @ordersComposerProgressTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order progress'**
+  String get ordersComposerProgressTitle;
+
+  /// No description provided for @ordersComposerProgressCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total} steps'**
+  String ordersComposerProgressCount(int done, int total);
+
+  /// No description provided for @ordersComposerProgressCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get ordersComposerProgressCustomer;
+
+  /// No description provided for @ordersComposerProgressMeasurements.
+  ///
+  /// In en, this message translates to:
+  /// **'Measures'**
+  String get ordersComposerProgressMeasurements;
+
+  /// No description provided for @ordersComposerProgressStyle.
+  ///
+  /// In en, this message translates to:
+  /// **'Style'**
+  String get ordersComposerProgressStyle;
+
+  /// No description provided for @ordersComposerProgressDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery'**
+  String get ordersComposerProgressDelivery;
+
+  /// No description provided for @ordersComposerProgressPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get ordersComposerProgressPayment;
 
   /// No description provided for @settingsLanguageTitle.
   ///
@@ -3515,7 +3593,7 @@ abstract class AppLocalizations {
   /// No description provided for @subscriptionActivationComingSoon.
   ///
   /// In en, this message translates to:
-  /// **'Activation will connect to the server (plan-06).'**
+  /// **'Activation will connect to the server.'**
   String get subscriptionActivationComingSoon;
 
   /// No description provided for @subscriptionRefreshStatusCta.
@@ -3680,6 +3758,30 @@ abstract class AppLocalizations {
   /// **'No orders yet'**
   String get customersRowNoOrdersYet;
 
+  /// No description provided for @customersRowSince.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer since {date}'**
+  String customersRowSince(String date);
+
+  /// No description provided for @reportsThisMonthIncomeEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No payments recorded this month yet.'**
+  String get reportsThisMonthIncomeEmpty;
+
+  /// No description provided for @reportsOpenUnpaidEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No open orders with a remaining balance.'**
+  String get reportsOpenUnpaidEmpty;
+
+  /// No description provided for @reportsOrdersByStatusCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 order} other{{count} orders}}'**
+  String reportsOrdersByStatusCount(int count);
+
   /// No description provided for @settingsUsersLimitsTitle.
   ///
   /// In en, this message translates to:
@@ -3701,7 +3803,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsUsersAddDisabledHint.
   ///
   /// In en, this message translates to:
-  /// **'User management will connect to the server (plan-15).'**
+  /// **'User management will connect to the server.'**
   String get settingsUsersAddDisabledHint;
 
   /// No description provided for @settingsUsersListTitle.
@@ -3815,7 +3917,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsBackupOwnerPasswordNote.
   ///
   /// In en, this message translates to:
-  /// **'Backup and restore will require the owner’s login password (plan-15).'**
+  /// **'Backup and restore will require the owner’s login password.'**
   String get settingsBackupOwnerPasswordNote;
 
   /// No description provided for @settingsBackupSectionTitle.
@@ -4077,7 +4179,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsSyncRetrySubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Pull from the server, then push the local queue when API_BASE_URL is set and you are signed in online (plan-04).'**
+  /// **'Pull from the server, then push the local queue when API_BASE_URL is set and you are signed in online.'**
   String get settingsSyncRetrySubtitle;
 
   /// No description provided for @settingsSyncRetryOffline.
@@ -4545,7 +4647,7 @@ abstract class AppLocalizations {
   /// No description provided for @devPortalCodesStub.
   ///
   /// In en, this message translates to:
-  /// **'Activation codes: search, create, and revoke will load from the admin API (plan-18).'**
+  /// **'Activation codes: search, create, and revoke will load from the admin API.'**
   String get devPortalCodesStub;
 
   /// No description provided for @devPortalShopsStub.
@@ -5124,6 +5226,24 @@ abstract class AppLocalizations {
   /// **'Share invoice'**
   String get orderShareInvoiceTooltip;
 
+  /// No description provided for @orderShareInvoicePdfCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Share PDF invoice'**
+  String get orderShareInvoicePdfCta;
+
+  /// No description provided for @orderShareContactPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Contacts permission is off — invoice shared, but the customer was not saved to your phone.'**
+  String get orderShareContactPermissionDenied;
+
+  /// No description provided for @orderShareInvoiceSharedSheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose WhatsApp or another app to send the PDF invoice.'**
+  String get orderShareInvoiceSharedSheet;
+
   /// No description provided for @orderShareInvoiceFail.
   ///
   /// In en, this message translates to:
@@ -5136,11 +5256,239 @@ abstract class AppLocalizations {
   /// **'Order {orderNo}'**
   String orderShareInvoiceSubject(String orderNo);
 
+  /// No description provided for @orderShareInvoiceWhatsappCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice for order {orderNo} — {customerName}'**
+  String orderShareInvoiceWhatsappCaption(String orderNo, String customerName);
+
+  /// No description provided for @orderShareContactSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved {name} to your phone contacts.'**
+  String orderShareContactSaved(String name);
+
+  /// No description provided for @orderShareWhatsappOpened.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice PDF opened in WhatsApp.'**
+  String get orderShareWhatsappOpened;
+
   /// No description provided for @receiptFooterThanks.
   ///
   /// In en, this message translates to:
   /// **'Thank you for your business!'**
   String get receiptFooterThanks;
+
+  /// No description provided for @settingsDeveloperPortalCheckFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not verify developer access. Tap to retry.'**
+  String get settingsDeveloperPortalCheckFailed;
+
+  /// No description provided for @settingsDeveloperPortalRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get settingsDeveloperPortalRetry;
+
+  /// No description provided for @dashboardSyncRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing…'**
+  String get dashboardSyncRunning;
+
+  /// No description provided for @dashboardSyncTapToRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to sync now'**
+  String get dashboardSyncTapToRun;
+
+  /// No description provided for @dashboardTasksSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks'**
+  String get dashboardTasksSectionTitle;
+
+  /// No description provided for @dashboardTasksOpenCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} open'**
+  String dashboardTasksOpenCount(int count);
+
+  /// No description provided for @dashboardTasksViewAll.
+  ///
+  /// In en, this message translates to:
+  /// **'View all tasks'**
+  String get dashboardTasksViewAll;
+
+  /// No description provided for @shopFinanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop finance'**
+  String get shopFinanceTitle;
+
+  /// No description provided for @shopFinanceSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rent, daily costs, and food & drinks'**
+  String get shopFinanceSubtitle;
+
+  /// No description provided for @shopFinanceOverviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get shopFinanceOverviewTitle;
+
+  /// No description provided for @shopFinanceRentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rent'**
+  String get shopFinanceRentTitle;
+
+  /// No description provided for @shopFinanceExpensesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses'**
+  String get shopFinanceExpensesTitle;
+
+  /// No description provided for @shopFinanceMonthOutflow.
+  ///
+  /// In en, this message translates to:
+  /// **'This month outflow'**
+  String get shopFinanceMonthOutflow;
+
+  /// No description provided for @shopFinanceRentDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Rent due'**
+  String get shopFinanceRentDue;
+
+  /// No description provided for @shopFinanceRentPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Rent paid this month'**
+  String get shopFinanceRentPaid;
+
+  /// No description provided for @shopFinanceExpenseDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily expenses'**
+  String get shopFinanceExpenseDaily;
+
+  /// No description provided for @shopFinanceExpenseFood.
+  ///
+  /// In en, this message translates to:
+  /// **'Food & drinks'**
+  String get shopFinanceExpenseFood;
+
+  /// No description provided for @shopFinanceExpenseOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get shopFinanceExpenseOther;
+
+  /// No description provided for @shopFinanceAddRent.
+  ///
+  /// In en, this message translates to:
+  /// **'Set rent'**
+  String get shopFinanceAddRent;
+
+  /// No description provided for @shopFinanceRecordRentPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Record rent payment'**
+  String get shopFinanceRecordRentPayment;
+
+  /// No description provided for @shopFinanceAddExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Add expense'**
+  String get shopFinanceAddExpense;
+
+  /// No description provided for @shopFinanceAmountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount (AFN)'**
+  String get shopFinanceAmountLabel;
+
+  /// No description provided for @shopFinanceDueDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Due date'**
+  String get shopFinanceDueDateLabel;
+
+  /// No description provided for @shopFinancePeriodMonthsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Period (months)'**
+  String get shopFinancePeriodMonthsLabel;
+
+  /// No description provided for @shopFinanceNoteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get shopFinanceNoteLabel;
+
+  /// No description provided for @shopFinanceCategoryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get shopFinanceCategoryLabel;
+
+  /// No description provided for @shopFinanceDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get shopFinanceDateLabel;
+
+  /// No description provided for @shopFinanceClearPeriodTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear old expenses?'**
+  String get shopFinanceClearPeriodTitle;
+
+  /// No description provided for @shopFinanceClearPeriodBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses before the selected date will be removed from your list.'**
+  String get shopFinanceClearPeriodBody;
+
+  /// No description provided for @shopFinanceRentDueNotificationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rent due soon'**
+  String get shopFinanceRentDueNotificationTitle;
+
+  /// No description provided for @shopFinanceRentDueNotificationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Rent of {amount} is due on {date}'**
+  String shopFinanceRentDueNotificationBody(String amount, String date);
+
+  /// No description provided for @shopFinanceEmptyRent.
+  ///
+  /// In en, this message translates to:
+  /// **'No rent schedule yet. Set your monthly rent.'**
+  String get shopFinanceEmptyRent;
+
+  /// No description provided for @shopFinanceEmptyExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'No expenses recorded yet.'**
+  String get shopFinanceEmptyExpenses;
+
+  /// No description provided for @shopFinanceSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get shopFinanceSave;
+
+  /// No description provided for @shopFinanceChartsExpensesByCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses by category'**
+  String get shopFinanceChartsExpensesByCategory;
 }
 
 class _AppLocalizationsDelegate

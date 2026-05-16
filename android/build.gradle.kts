@@ -37,12 +37,12 @@ subprojects {
     }
 }
 
-// `package:jni` defaults to compileSdk 31 and no `ndkVersion`. That forces a separate
-// Android SDK Platform 31 download (slow on weak links) and lets AGP pick NDK 27.
-// Match Flutter's template (`FlutterExtension.kt`: compileSdk 36, NDK 28.2).
+// `package:jni` and vendored `isar_flutter_libs` ship with low compileSdk values.
+// Release resource linking needs API 31+ (`android:attr/lStar`). Match Flutter's template
+// (`FlutterExtension.kt`: compileSdk 36, NDK 28.2).
 subprojects {
     afterEvaluate {
-        if (name != "jni") return@afterEvaluate
+        if (name != "jni" && name != "isar_flutter_libs") return@afterEvaluate
         val androidExt = extensions.findByName("android") ?: return@afterEvaluate
         val intType = Integer.TYPE
         runCatching {

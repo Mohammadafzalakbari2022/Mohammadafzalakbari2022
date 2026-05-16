@@ -6,6 +6,7 @@ import '../../data/local/customer_list_repository.dart';
 import '../../data/local/measurement_profile_repository.dart';
 import '../../data/local/order_list_repository.dart';
 import '../../data/local/payment_repository.dart';
+import '../../data/local/shop_finance_repository.dart';
 import '../../data/local/task_repository.dart';
 
 /// Applies `GET /sync/pull` `changes` locally (`plan-03`). Entity coverage grows incrementally.
@@ -19,6 +20,7 @@ class SyncInboundApplier {
     required this.measurementProfiles,
     required this.catalog,
     required this.styleCatalog,
+    required this.shopFinance,
     required this.shopId,
   });
 
@@ -30,6 +32,7 @@ class SyncInboundApplier {
   final MeasurementProfileRepository measurementProfiles;
   final CatalogRepository catalog;
   final StyleCatalogRepository styleCatalog;
+  final ShopFinanceRepository shopFinance;
   final String shopId;
 
   /// Returns number of rows applied (skipped kinds return 0 contribution per change).
@@ -123,6 +126,30 @@ class SyncInboundApplier {
         applied++;
       } else if (et == 'style_figure') {
         await styleCatalog.mergeRemoteStyleFigure(
+          shopId: shopId,
+          internalId: id,
+          operation: op,
+          data: raw['data'],
+        );
+        applied++;
+      } else if (et == 'shop_rent') {
+        await shopFinance.mergeRemoteRent(
+          shopId: shopId,
+          internalId: id,
+          operation: op,
+          data: raw['data'],
+        );
+        applied++;
+      } else if (et == 'shop_rent_payment') {
+        await shopFinance.mergeRemoteRentPayment(
+          shopId: shopId,
+          internalId: id,
+          operation: op,
+          data: raw['data'],
+        );
+        applied++;
+      } else if (et == 'shop_expense') {
+        await shopFinance.mergeRemoteExpense(
           shopId: shopId,
           internalId: id,
           operation: op,

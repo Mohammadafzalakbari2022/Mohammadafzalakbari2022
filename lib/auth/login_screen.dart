@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pride_v3/core/api/pride_api_auth.dart';
 import 'package:pride_v3/core/api/pride_api_config.dart';
+import 'package:pride_v3/core/branding/app_branding.dart';
 import 'package:pride_v3/core/api/pride_api_shop.dart';
 import 'package:pride_v3/core/persistence/shared_preferences_provider.dart';
 import 'package:pride_v3/core/persistence/sync_cursor_storage.dart';
@@ -15,6 +16,9 @@ import 'package:pride_v3/licensing/license_notifier.dart';
 import 'package:pride_v3/licensing/license_providers.dart';
 import 'package:pride_v3/licensing/license_snapshot_persist.dart';
 
+import '../core/widgets/pride_form_bottom_bar.dart';
+
+import 'admin_me_provider.dart';
 import 'auth_providers.dart';
 import 'auth_session_storage.dart';
 
@@ -84,6 +88,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       licenseExpiresAtIso: expStr,
       licenseLastSuccessfulCheckAtIso: lastStr,
     );
+    ref.invalidate(adminMeProvider);
   }
 
   Future<void> _signIn(AppLocalizations l10n) async {
@@ -125,11 +130,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         }
         await SyncDiagnosticsStorage.clear(prefs);
         ref.read(lastSuccessfulSyncAtProvider.notifier).state = null;
+        final username = _username.text;
+        final shopId = _shopId.text;
         ref.read(authSessionProvider).signInMock(
-              username: _username.text,
+              username: username,
               password: _password.text,
-              shopId: _shopId.text,
+              shopId: shopId,
             );
+        await AuthSessionStorage.persistMock(
+          prefs,
+          username: username,
+          shopId: shopId,
+        );
         ref.read(licenseNotifierProvider)
           ..setStatus(LicenseStatus.trialActive)
           ..setSuspectedTimeTamper(false);
@@ -179,16 +191,60 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: prideFormScrollPadding(context, baseBottom: 24).copyWith(
+            left: 24,
+            right: 24,
+            top: 24,
+          ),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 32),
+                const SizedBox(height: 16),
+                Center(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(36),
+                      boxShadow: [
+                        BoxShadow(
+                          color: theme.colorScheme.primary.withValues(
+                            alpha: 0.18,
+                          ),
+                          blurRadius: 28,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(36),
+                      child: Image.asset(
+                        kAppBrandIconAsset,
+                        width: 168,
+                        height: 168,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Icon(
+                          Icons.storefront_rounded,
+                          size: 96,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  l10n.appTitle,
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: theme.colorScheme.primary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 4),
                 Text(
                   l10n.loginTitle,
-                  style: theme.textTheme.headlineMedium,
+                  style: theme.textTheme.titleLarge,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),

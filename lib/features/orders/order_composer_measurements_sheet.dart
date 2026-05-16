@@ -202,6 +202,7 @@ class _OrderMeasurementsEditorBodyState
   Widget build(BuildContext context) {
     final typesAsync = ref.watch(measurementTypesStreamProvider);
     final pad = MediaQuery.paddingOf(context);
+    final keyboard = MediaQuery.viewInsetsOf(context).bottom;
     return typesAsync.when(
       data: (types) {
         if (types.isEmpty) {
@@ -283,7 +284,12 @@ class _OrderMeasurementsEditorBodyState
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.fromLTRB(16, 8, 16, 16 + pad.bottom),
+                  padding: EdgeInsets.fromLTRB(
+                    16,
+                    8,
+                    16,
+                    16 + pad.bottom + keyboard,
+                  ),
                   child: Row(
                     children: [
                       Expanded(

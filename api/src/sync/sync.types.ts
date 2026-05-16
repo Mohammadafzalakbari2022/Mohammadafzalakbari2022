@@ -11,6 +11,9 @@ export const SYNC_ENTITY_TYPES = [
   'style_name',
   'style_part',
   'style_figure',
+  'shop_rent',
+  'shop_rent_payment',
+  'shop_expense',
 ] as const;
 
 export type SyncEntityType = (typeof SYNC_ENTITY_TYPES)[number];

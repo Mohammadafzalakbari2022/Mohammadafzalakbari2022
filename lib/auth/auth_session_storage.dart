@@ -16,6 +16,8 @@ abstract final class AuthSessionStorage {
   static const _licenseExpiresAt = 'pride_auth_api_license_expires_at';
   static const _licenseLastCheckAt =
       'pride_auth_api_license_last_successful_check_at';
+  static const _mockUsername = 'pride_auth_mock_username';
+  static const _mockShopId = 'pride_auth_mock_shop_id';
 
   static Future<void> persist(
     SharedPreferences prefs, {
@@ -65,6 +67,40 @@ abstract final class AuthSessionStorage {
     await prefs.remove(_licenseStatus);
     await prefs.remove(_licenseExpiresAt);
     await prefs.remove(_licenseLastCheckAt);
+    await prefs.remove(_mockUsername);
+    await prefs.remove(_mockShopId);
+  }
+
+  /// Saves local-only sign-in for builds without `API_BASE_URL`.
+  static Future<void> persistMock(
+    SharedPreferences prefs, {
+    required String username,
+    String? shopId,
+  }) async {
+    final u = username.trim();
+    if (u.isEmpty) return;
+    await prefs.setString(_mockUsername, u);
+    final s = shopId?.trim();
+    if (s == null || s.isEmpty) {
+      await prefs.remove(_mockShopId);
+    } else {
+      await prefs.setString(_mockShopId, s);
+    }
+  }
+
+  /// Restores a saved local-only session when the API is not configured.
+  static Future<bool> restoreMockInto(
+    SharedPreferences prefs,
+    AuthSession session,
+  ) async {
+    if (PrideApiConfig.isConfigured) return false;
+    final username = prefs.getString(_mockUsername);
+    if (username == null || username.trim().isEmpty) return false;
+    session.restoreMockSession(
+      username: username,
+      shopId: prefs.getString(_mockShopId),
+    );
+    return true;
   }
 
   /// Updates stored license fields when a persisted API session exists.

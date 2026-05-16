@@ -18,9 +18,13 @@ import '../features/orders/order_detail_screen.dart';
 import '../features/orders/orders_tab_screen.dart';
 import '../features/reports/delivered_report_screen.dart';
 import '../features/reports/monthly_income_report_screen.dart';
+import '../features/reports/open_unpaid_report_screen.dart';
+import '../features/reports/orders_by_status_report_screen.dart';
 import '../features/reports/payments_ledger_report_screen.dart';
 import '../features/reports/reports_tab_screen.dart';
+import '../features/reports/this_month_income_report_screen.dart';
 import '../features/reports/unpaid_report_screen.dart';
+import '../features/shop_finance/shop_finance_hub_screen.dart';
 import '../features/developer_portal/developer_portal_screen.dart';
 import '../features/settings/settings_backup_restore_screen.dart';
 import '../features/settings/settings_notifications_screen.dart';
@@ -199,6 +203,24 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                 builder: (context, state) => const ReportsTabScreen(),
                 routes: [
                   GoRoute(
+                    path: 'this-month-income',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) =>
+                        const ThisMonthIncomeReportScreen(),
+                  ),
+                  GoRoute(
+                    path: 'open-unpaid',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) =>
+                        const OpenUnpaidReportScreen(),
+                  ),
+                  GoRoute(
+                    path: 'orders-by-status',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) =>
+                        const OrdersByStatusReportScreen(),
+                  ),
+                  GoRoute(
                     path: 'unpaid',
                     parentNavigatorKey: _rootNavigatorKey,
                     builder: (context, state) => const UnpaidReportScreen(),
@@ -220,6 +242,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                     parentNavigatorKey: _rootNavigatorKey,
                     builder: (context, state) =>
                         const PaymentsLedgerReportScreen(),
+                  ),
+                  GoRoute(
+                    path: 'shop-finance',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) =>
+                        const ShopFinanceHubScreen(),
                   ),
                 ],
               ),

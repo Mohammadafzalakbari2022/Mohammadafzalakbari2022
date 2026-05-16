@@ -3,7 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pride_v3/app/app_theme.dart';
 import 'package:pride_v3/core/feedback/app_feedback.dart';
+import 'package:pride_v3/core/widgets/pride_close_button.dart';
+import 'package:pride_v3/core/widgets/pride_form_bottom_bar.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../auth/auth_providers.dart';
@@ -148,8 +151,7 @@ class _NewCustomerScreenState extends ConsumerState<NewCustomerScreen> {
     final fromOrderComposer = returnTo == 'orderComposer';
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.close),
+        leading: PrideCloseIconButton(
           onPressed: _saving ? null : () => context.pop(),
         ),
         title: Text(
@@ -170,7 +172,7 @@ class _NewCustomerScreenState extends ConsumerState<NewCustomerScreen> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: prideFormScrollPadding(context),
           children: [
             TextFormField(
               controller: _name,
@@ -212,19 +214,22 @@ class _NewCustomerScreenState extends ConsumerState<NewCustomerScreen> {
               ),
               enabled: !_saving,
             ),
-            const SizedBox(height: 16),
-            FilledButton.icon(
-              onPressed: _saving ? null : () => _save(context, l10n),
-              icon: _saving
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.check),
-              label: Text(l10n.saveCta),
-            ),
           ],
+        ),
+      ),
+      bottomNavigationBar: PrideFormBottomBar(
+        onCancel: _saving ? null : () => context.pop(),
+        primary: FilledButton.icon(
+          onPressed: _saving ? null : () => _save(context, l10n),
+          style: prideButtonStyle(context, PrideButtonVariant.add),
+          icon: _saving
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.check),
+          label: Text(l10n.saveCta),
         ),
       ),
     );

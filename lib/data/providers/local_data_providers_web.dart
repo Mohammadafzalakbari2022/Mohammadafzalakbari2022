@@ -34,6 +34,9 @@ import '../local/style_catalog_repository.dart';
 import '../local/style_name_summary.dart';
 import '../local/style_part_summary.dart';
 import '../local/style_figure_summary.dart';
+import '../local/memory_shop_finance_repository.dart';
+import '../local/shop_finance_models.dart';
+import '../local/shop_finance_repository.dart';
 
 /// Web: in-memory orders only. Isar `.g.dart` uses int64 schema IDs that JS cannot compile.
 final orderListRepositoryProvider =
@@ -228,4 +231,29 @@ final styleAllFiguresStreamProvider =
   final repo = await ref.watch(styleCatalogRepositoryProvider.future);
   final shopId = ref.watch(effectiveShopIdProvider);
   yield* repo.watchAllFigures(shopId);
+});
+
+final shopFinanceRepositoryProvider =
+    FutureProvider<ShopFinanceRepository>((ref) async {
+  return MemoryShopFinanceRepository();
+});
+
+final shopRentsStreamProvider =
+    StreamProvider.family<List<ShopRentSummary>, String>((ref, shopId) async* {
+  final repo = await ref.watch(shopFinanceRepositoryProvider.future);
+  yield* repo.watchRents(shopId);
+});
+
+final shopRentPaymentsStreamProvider =
+    StreamProvider.family<List<ShopRentPaymentSummary>, String>(
+        (ref, shopId) async* {
+  final repo = await ref.watch(shopFinanceRepositoryProvider.future);
+  yield* repo.watchRentPayments(shopId);
+});
+
+final shopExpensesStreamProvider =
+    StreamProvider.family<List<ShopExpenseSummary>, String>(
+        (ref, shopId) async* {
+  final repo = await ref.watch(shopFinanceRepositoryProvider.future);
+  yield* repo.watchExpenses(shopId);
 });

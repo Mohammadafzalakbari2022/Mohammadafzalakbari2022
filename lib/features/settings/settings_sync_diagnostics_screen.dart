@@ -10,9 +10,7 @@ import 'package:pride_v3/core/calendar/app_calendar_format.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
 import 'package:pride_v3/core/diagnostics/diagnostics_export_payload.dart';
 import 'package:pride_v3/core/diagnostics/diagnostics_share.dart';
-import 'package:pride_v3/core/persistence/shared_preferences_provider.dart';
-import 'package:pride_v3/core/persistence/sync_diagnostics_storage.dart';
-import 'package:pride_v3/core/sync/manual_sync_runner.dart';
+import 'package:pride_v3/core/sync/manual_sync_ui.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 import 'package:pride_v3/licensing/license_notifier.dart';
 import 'package:pride_v3/licensing/license_providers.dart';
@@ -143,94 +141,15 @@ class _SettingsSyncDiagnosticsScreenState
   Future<void> _onRetrySync() async {
     final l10n = AppLocalizations.of(context)!;
     final messenger = ScaffoldMessenger.of(context);
-    if (!ref.read(connectivityOnlineProvider)) {
-      messenger.showSnackBar(
-        SnackBar(content: Text(l10n.settingsSyncRetryOffline)),
-      );
-      return;
-    }
     if (!PrideApiConfig.isConfigured) {
       messenger.showSnackBar(
         SnackBar(content: Text(l10n.settingsSyncRetryConfigureApi)),
       );
       return;
     }
-    final auth = ref.read(authSessionProvider);
-    final token = auth.accessToken;
-    if (!auth.hasApiSession || token == null) {
-      messenger.showSnackBar(
-        SnackBar(content: Text(l10n.settingsSyncRetrySignIn)),
-      );
-      return;
-    }
-    if (ref.read(licenseEditingBlockedProvider)) {
-      messenger.showSnackBar(
-        SnackBar(content: Text(l10n.settingsSyncRetryEditingBlocked)),
-      );
-      return;
-    }
     setState(() => _syncBusy = true);
     try {
-      final repo = await ref.read(syncOutboxRepositoryProvider.future);
-      final notifRepo = await ref.read(appNotificationRepositoryProvider.future);
-      final customersRepo = await ref.read(customerListRepositoryProvider.future);
-      final tasksRepo = await ref.read(taskRepositoryProvider.future);
-      final paymentsRepo = await ref.read(paymentRepositoryProvider.future);
-      final ordersRepo = await ref.read(orderListRepositoryProvider.future);
-      final measurementRepo =
-          await ref.read(measurementProfileRepositoryProvider.future);
-      final catalogRepo = await ref.read(catalogRepositoryProvider.future);
-      final styleCatalogRepo =
-          await ref.read(styleCatalogRepositoryProvider.future);
-      final prefs = ref.read(sharedPreferencesProvider);
-      final syncShopId = ref.read(effectiveShopIdProvider);
-      final outcome = await runManualSyncWithOutbox(
-        outboxRepo: repo,
-        accessToken: token,
-        prefs: prefs,
-        syncShopId: syncShopId,
-        notifications: notifRepo,
-        customers: customersRepo,
-        tasks: tasksRepo,
-        payments: paymentsRepo,
-        orders: ordersRepo,
-        measurementProfiles: measurementRepo,
-        catalog: catalogRepo,
-        styleCatalog: styleCatalogRepo,
-      );
-      if (!mounted) return;
-      switch (outcome) {
-        case ManualSyncSuccess(
-            :final pushedMutationCount,
-            :final remoteChangeCount,
-          ):
-          final at = DateTime.now();
-          ref.read(lastSuccessfulSyncAtProvider.notifier).state = at;
-          await SyncDiagnosticsStorage.recordSuccessfulSync(
-            ref.read(sharedPreferencesProvider),
-            at,
-          );
-          messenger.showSnackBar(
-            SnackBar(
-              content: Text(
-                l10n.settingsSyncRetrySuccess(
-                  pushedMutationCount,
-                  remoteChangeCount,
-                ),
-              ),
-            ),
-          );
-        case ManualSyncFailure(:final message):
-          if (message == 'license_expired') {
-            messenger.showSnackBar(
-              SnackBar(content: Text(l10n.settingsSyncRetryLicenseExpired)),
-            );
-          } else {
-            messenger.showSnackBar(
-              SnackBar(content: Text(l10n.settingsSyncRetryFailed(message))),
-            );
-          }
-      }
+      await runManualSyncWithFeedback(context: context, ref: ref);
     } finally {
       if (mounted) setState(() => _syncBusy = false);
     }

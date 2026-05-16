@@ -178,7 +178,7 @@
   "dashboardRecentIncomeTitle": "عاید — وروستۍ ۷ ورځې",
   "dashboardActivitySectionTitle": "همغږي او خبرتیاوې",
   "subscriptionTitle": "ګډون",
-  "subscriptionBody": "د نوي کولو یا د فعالولو کوړ د بلینګ نښلولو وخت کې (plan-06). د پای په دوره کې سمون محدود دی؛ لیست او جزئیات لیدل شته.",
+  "subscriptionBody": "د نوي کولو یا د فعالولو کوړ د بلینګ نښلولو وخت کې. د پای په دوره کې سمون محدود دی؛ لیست او جزئیات لیدل شته.",
   "subscriptionListTileSubtitle": "جواز، ازمایښت او فعالول",
   "licenseDevControlsTitle": "جواز (یوازې پراختیا)",
   "licenseStatusTrial": "ازمایښتي",
@@ -512,7 +512,7 @@
   "reportsPaymentsGroupByDay": "ورځ",
   "reportsPaymentsGroupByWeek": "اونۍ",
   "reportsPaymentsGroupByMonth": "میاشت",
-  "reportsMonthlyIncomePlaceholder": "د میاشتې عاید راپور به دلته راشي (plan-16).",
+  "reportsMonthlyIncomePlaceholder": "د میاشتې عاید راپور به دلته راشي.",
   "reportsThisMonthIncomeTitle": "د دې میاشتې عاید",
   "reportsThisMonthIncomeSubtitle": "عاید: {amount}",
   "@reportsThisMonthIncomeSubtitle": {
@@ -599,7 +599,7 @@
   "settingsSectionAbout": "په اړه",
   "settingsSectionDeveloper": "پراختیاګر",
   "settingsShopTileTitle": "د هټۍ پروفایل",
-  "settingsShopTileSubtitle": "د هټۍ جزئیات به دلته ښکاري (plan-15).",
+  "settingsShopTileSubtitle": "د هټۍ جزئیات به دلته ښکاري.",
   "settingsCurrentUserTitle": "اوسنی کارن",
   "settingsSignOutTitle": "وتل",
   "settingsSignOutSubtitle": "په دې وسیله کې دا ناسته پای ته ورکړئ",
@@ -612,15 +612,15 @@
   "settingsOwnerOnly": "یوازې مالک",
   "settingsUsersTitle": "کارن مدیریت",
   "settingsUsersSubtitleOwner": "ازمایښت: ۲ کارن • ورکړل شوی: ۵ کارن",
-  "settingsUsersPlaceholder": "د کارنو مدیریت به په plan-15 کې پلي شي.",
+  "settingsUsersPlaceholder": "د کارنو مدیریت به ژر پلي شي.",
   "settingsBackupRestoreTitle": "بیکاپ او بیرته راوړل",
   "settingsBackupRestoreSubtitleOwner": "د هټۍ ډیټا په خوندي ډول صادرول او بیرته راوړل",
-  "settingsBackupRestorePlaceholder": "بیکاپ/بیرته راوړل به په plan-15 کې پلي شي.",
+  "settingsBackupRestorePlaceholder": "بیکاپ/بیرته راوړل به ژر پلي شي.",
   "settingsMuteNotificationsTitle": "خبرتیاوې بې غږ",
   "settingsMuteNotificationsSubtitle": "په اپ کې بنرونه او نښې بې غږ کړئ (تاریخ ساتل کېږي).",
   "settingsNotificationsInboxTitle": "د خبرتیاو صندوق",
-  "settingsNotificationsInboxSubtitle": "تاریخ او فلټرونه (plan-15).",
-  "settingsNotificationsPlaceholder": "د خبرتیاو صندوق به په plan-15 کې پلي شي.",
+  "settingsNotificationsInboxSubtitle": "تاریخ او فلټرونه.",
+  "settingsNotificationsPlaceholder": "د خبرتیاو صندوق به ژر پلي شي.",
   "settingsSyncDiagnosticsTitle": "سنک او تشخیص",
   "settingsNetworkStatusTitle": "شبکه",
   "settingsNetworkStatusOnline": "نښلول شوی",
@@ -646,8 +646,8 @@
       }
     }
   },
-  "settingsSyncDiagnosticsSubtitle": "وروستی سنک، قطار، صندوق (plan-15).",
-  "settingsSyncDiagnosticsPlaceholder": "سنک او تشخیص به په plan-15 کې پلي شي.",
+  "settingsSyncDiagnosticsSubtitle": "وروستی سنک، قطار، صندوق.",
+  "settingsSyncDiagnosticsPlaceholder": "سنک او تشخیص به ژر پلي شي.",
   "settingsAppearanceLanguageTitle": "بڼه او ژبه",
   "settingsAppearanceLanguageSubtitle": "تم او ژبه",
   "settingsAboutTitle": "په اړه",
@@ -656,7 +656,7 @@
   "settingsBuildTitle": "بسته",
   "settingsDeveloperPortalTitle": "د پراختیاګر پورټل",
   "settingsDeveloperPortalSubtitle": "پرمختللې وسیلې (یوازې د پراختیاګر حسابونه).",
-  "settingsDeveloperPortalPlaceholder": "د پراختیاګر پورټل پاڼې به په plan-18 کې پلي شي.",
+  "settingsDeveloperPortalPlaceholder": "د پراختیاګر پورټل پاڼې به ژر پلي شي.",
   "settingsDevRolesTitle": "د رول بدلونونه (پراختیا)",
   "settingsDevRoleOwnerTitle": "د مالک حساب تقلید",
   "settingsDevRoleOwnerSubtitle": "یوازې د مالک برخې خلاصوي.",
@@ -666,10 +666,23 @@
   "themeSystem": "سیستم",
   "themeLight": "روښانه",
   "themeDark": "تیاره",
+  "settingsSectionSoundFeedback": "غږ او غبرګون",
   "settingsUiSoundsTitle": "د انټرفیس غږونه",
-  "settingsUiSoundsSubtitle": "کله چې یوه کړنه بریالۍ وي لنډ غږ (د بېلګې په توګه خوندي کول).",
+  "settingsUiSoundsSubtitle": "کله چې خوندي، ړنګ یا بشپړ کړئ لنډ غږ.",
   "settingsUiHapticsTitle": "لمسی لرزش",
   "settingsUiHapticsSubtitle": "د بریالۍ کړنې لپاره سپک لرزش.",
+  "settingsUiHapticsWebHint": "په ویب کې لرزش نشته.",
+  "settingsSoundPreviewSuccess": "بریالی",
+  "settingsSoundPreviewError": "تېروتنه",
+  "settingsSoundPreviewDelete": "ړنګول",
+  "ordersDetailPaymentProgress": "د تادیې پرمختګ",
+  "ordersComposerProgressTitle": "د امر پرمختګ",
+  "ordersComposerProgressCount": "{done} له {total} ګامونو",
+  "ordersComposerProgressCustomer": "پیرودونکی",
+  "ordersComposerProgressMeasurements": "اندازې",
+  "ordersComposerProgressStyle": "سټایل",
+  "ordersComposerProgressDelivery": "سپارل",
+  "ordersComposerProgressPayment": "تادیه",
   "settingsLanguageTitle": "ژبه",
   "languageSystem": "سیستم",
   "languageEnglish": "انګلیسي",
@@ -936,7 +949,7 @@
   "subscriptionActivationCodeLabel": "د فعالولو کوډ",
   "subscriptionActivationCodeHint": "د بلینګ نښلولو وخت کې کوډ ولیکئ",
   "subscriptionActivateCta": "فعالول",
-  "subscriptionActivationComingSoon": "فعالول به سرور سره ونښلوي (plan-06).",
+  "subscriptionActivationComingSoon": "فعالول به سرور سره ونښلوي.",
   "subscriptionRefreshStatusCta": "د جواز حالت تازه کړئ",
   "subscriptionRefreshComingSoon": "آنلاین تازه کول به د API نښلولو سره شتون ولري.",
   "subscriptionActivationCodeHintApi": "د خپل توزیع کوونکي فعالولو کوډ ولیکئ.",
@@ -988,10 +1001,28 @@
     }
   },
   "customersRowNoOrdersYet": "تر اوسه امر نشته",
+  "customersRowSince": "پیرودونکی له {date}",
+  "@customersRowSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsThisMonthIncomeEmpty": "په دې میاشت کې تر اوسه تادیه ثبت شوې نه ده.",
+  "reportsOpenUnpaidEmpty": "خلاص امرونه د پاتې پور سره نشته.",
+  "reportsOrdersByStatusCount": "{count, plural, =1{۱ امر} other{{count} امرونه}}",
+  "@reportsOrdersByStatusCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "settingsUsersLimitsTitle": "د کارنو حدونه",
   "settingsUsersLimitsBody": "ازمایښتې هټۍ: تر ۲ کارنو. ورکړل شوې هټۍ: تر ۵ کارنو. د مالک حساب نشي ړنګېدلی.",
   "settingsUsersAddCta": "کارن زیاتول",
-  "settingsUsersAddDisabledHint": "د کارن مدیریت به سرور سره ونښلوي (plan-15).",
+  "settingsUsersAddDisabledHint": "د کارن مدیریت به سرور سره ونښلوي.",
   "settingsUsersListTitle": "ټیم",
   "settingsUsersOwnerRowTitle": "د هټۍ مالک",
   "settingsUsersOwnerRowSubtitle": "بشپړ لاسرسی",
@@ -1024,7 +1055,7 @@
   },
   "settingsUsersAddedSnackbar": "کارن جوړ شو.",
   "settingsUsersRemovedSnackbar": "کارن لرې شو.",
-  "settingsBackupOwnerPasswordNote": "بیکاپ او بیرته راوړل به د مالک د ننوتلو پاسورډ ته اړتیا ولري (plan-15).",
+  "settingsBackupOwnerPasswordNote": "بیکاپ او بیرته راوړل به د مالک د ننوتلو پاسورډ ته اړتیا ولري.",
   "settingsBackupSectionTitle": "بیکاپ",
   "settingsBackupOptionDataOnly": "یوازې ډیټا",
   "settingsBackupOptionDataOnlySubtitle": "امرونه، پیرودونکي، ورکړې، کتلاګ میټاډیټا — کوچنی فایل",
@@ -1335,6 +1366,9 @@
   "defaultShopAddress": "کابل، افغانستان",
   "defaultShopPhone": "0701234567",
   "orderShareInvoiceTooltip": "فاکتور شریکول",
+  "orderShareInvoicePdfCta": "د PDF فاکتور شریکول",
+  "orderShareContactPermissionDenied": "د اړیکو اجازه بنده ده — فاکتور شریک شو، خو پیرودونکی په تلیفون کې نه دی خوندي شوی.",
+  "orderShareInvoiceSharedSheet": "د PDF فاکتور لیږلو لپاره واتساپ یا بل اپ غوره کړئ.",
   "orderShareInvoiceFail": "شریکول ناکام: {detail}",
   "@orderShareInvoiceFail": {
     "placeholders": {
@@ -1351,5 +1385,67 @@
       }
     }
   },
-  "receiptFooterThanks": "ستاسو له سوداګرۍ مننه!"
+  "orderShareInvoiceWhatsappCaption": "د {orderNo} امر فاکتور — {customerName}",
+  "@orderShareInvoiceWhatsappCaption": {
+    "placeholders": {
+      "orderNo": {
+        "type": "String"
+      },
+      "customerName": {
+        "type": "String"
+      }
+    }
+  },
+  "orderShareContactSaved": "{name} ستاسو په اړیکو کې خوندي شو.",
+  "@orderShareContactSaved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "orderShareWhatsappOpened": "د فاکتور PDF واتساپ کې پرانیستل شو.",
+  "receiptFooterThanks": "ستاسو له سوداګرۍ مننه!",
+  "settingsDeveloperPortalCheckFailed": "د پراختیاګر لاسرسی تایید نشو. بیا هڅه وکړئ.",
+  "settingsDeveloperPortalRetry": "بیا هڅه",
+  "dashboardSyncRunning": "همغږي کېږي…",
+  "dashboardSyncTapToRun": "همغږي لپاره ټک وکړئ",
+  "dashboardTasksSectionTitle": "دندې",
+  "dashboardTasksOpenCount": "{count} خلاص",
+  "@dashboardTasksOpenCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardTasksViewAll": "ټولې دندې",
+  "shopFinanceTitle": "د هټۍ مالي چارې",
+  "shopFinanceSubtitle": "کرایه، ورځنۍ لګښتونه او خوراک",
+  "shopFinanceOverviewTitle": "لنډیز",
+  "shopFinanceRentTitle": "کرایه",
+  "shopFinanceExpensesTitle": "لګښتونه",
+  "shopFinanceMonthOutflow": "د دې میاشتې لګښت",
+  "shopFinanceRentDue": "کرایه ورکړل",
+  "shopFinanceRentPaid": "په دې میاشت کې ورکړل شوی کرایه",
+  "shopFinanceExpenseDaily": "ورځنۍ لګښتونه",
+  "shopFinanceExpenseFood": "خوراک او څښاک",
+  "shopFinanceExpenseOther": "نور",
+  "shopFinanceAddRent": "کرایه ټاکل",
+  "shopFinanceRecordRentPayment": "د کرایې تادیه ثبت",
+  "shopFinanceAddExpense": "لګښت زیاتول",
+  "shopFinanceAmountLabel": "مبلغ (افغانۍ)",
+  "shopFinanceDueDateLabel": "د سررسید نیټه",
+  "shopFinancePeriodMonthsLabel": "موده (میاشتې)",
+  "shopFinanceNoteLabel": "یادښت",
+  "shopFinanceCategoryLabel": "کټګوري",
+  "shopFinanceDateLabel": "نیټه",
+  "shopFinanceClearPeriodTitle": "زاړه لګښتونه پاک شي؟",
+  "shopFinanceClearPeriodBody": "مخکې له ټاکلې نیټې لګښتونه به له لیست څخه لرې شي.",
+  "shopFinanceRentDueNotificationTitle": "کرایه نژدې ده",
+  "shopFinanceRentDueNotificationBody": "د {amount} کرایه په {date} سررسید ده",
+  "shopFinanceEmptyRent": "تر اوسه کرایه نشته. میاشتنی کرایه ټاکئ.",
+  "shopFinanceEmptyExpenses": "تر اوسه لګښت نشته.",
+  "shopFinanceSave": "خوندي کول",
+  "shopFinanceChartsExpensesByCategory": "لګښتونه په کټګورۍ"
 }

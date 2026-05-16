@@ -47,10 +47,13 @@ dependencies:
   crypto: ^3.0.7
   shamsi_date: 1.1.1
   shared_preferences: 2.5.3
+  fl_chart: ^0.70.2
   file_picker: ^11.0.2
   sentry_flutter: ^9.5.0
   http: ^1.6.0
   share_plus: ^10.1.4
+  pdf: ^3.8.4
+  flutter_contacts: ^1.1.9+2
   esc_pos_utils: ^1.1.0
   image: 3.3.0
 
@@ -82,6 +85,7 @@ flutter:
   assets:
     - assets/style_figures/
     - assets/branding/
+    - assets/fonts/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

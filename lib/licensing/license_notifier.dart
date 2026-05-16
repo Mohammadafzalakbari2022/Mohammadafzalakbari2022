@@ -94,4 +94,26 @@ class LicenseNotifier extends ChangeNotifier {
     final d = DateTime.tryParse(v);
     return d?.toUtc();
   }
+
+  /// Resets license state after sign-out so guards do not apply to the login gate.
+  void clearForSignOut() {
+    var changed = false;
+    if (_status != LicenseStatus.trialActive) {
+      _status = LicenseStatus.trialActive;
+      changed = true;
+    }
+    if (_expiresAtUtc != null) {
+      _expiresAtUtc = null;
+      changed = true;
+    }
+    if (_lastSuccessfulCheckAtUtc != null) {
+      _lastSuccessfulCheckAtUtc = null;
+      changed = true;
+    }
+    if (_suspectedTimeTamper) {
+      _suspectedTimeTamper = false;
+      changed = true;
+    }
+    if (changed) notifyListeners();
+  }
 }

@@ -18,7 +18,13 @@ import '../local/entities/sync_outbox_entity.dart';
 import '../local/entities/task_entity.dart';
 import '../local/entities/style_name_entity.dart';
 import '../local/entities/style_part_entity.dart';
+import '../local/entities/shop_expense_entity.dart';
+import '../local/entities/shop_rent_entity.dart';
+import '../local/entities/shop_rent_payment_entity.dart';
 import '../local/entities/style_figure_entity.dart';
+import '../local/isar_shop_finance_repository.dart';
+import '../local/shop_finance_models.dart';
+import '../local/shop_finance_repository.dart';
 import '../local/isar_style_catalog_repository.dart';
 import '../local/style_catalog_repository.dart';
 import '../local/style_name_summary.dart';
@@ -72,6 +78,9 @@ final isarProvider = FutureProvider<Isar>((ref) async {
       StyleNameEntitySchema,
       StylePartEntitySchema,
       StyleFigureEntitySchema,
+      ShopRentEntitySchema,
+      ShopRentPaymentEntitySchema,
+      ShopExpenseEntitySchema,
     ],
     directory: dir.path,
   );
@@ -281,4 +290,30 @@ final styleAllFiguresStreamProvider =
   final repo = await ref.watch(styleCatalogRepositoryProvider.future);
   final shopId = ref.watch(effectiveShopIdProvider);
   yield* repo.watchAllFigures(shopId);
+});
+
+final shopFinanceRepositoryProvider =
+    FutureProvider<ShopFinanceRepository>((ref) async {
+  final isar = await ref.watch(isarProvider.future);
+  return IsarShopFinanceRepository(isar);
+});
+
+final shopRentsStreamProvider =
+    StreamProvider.family<List<ShopRentSummary>, String>((ref, shopId) async* {
+  final repo = await ref.watch(shopFinanceRepositoryProvider.future);
+  yield* repo.watchRents(shopId);
+});
+
+final shopRentPaymentsStreamProvider =
+    StreamProvider.family<List<ShopRentPaymentSummary>, String>(
+        (ref, shopId) async* {
+  final repo = await ref.watch(shopFinanceRepositoryProvider.future);
+  yield* repo.watchRentPayments(shopId);
+});
+
+final shopExpensesStreamProvider =
+    StreamProvider.family<List<ShopExpenseSummary>, String>(
+        (ref, shopId) async* {
+  final repo = await ref.watch(shopFinanceRepositoryProvider.future);
+  yield* repo.watchExpenses(shopId);
 });

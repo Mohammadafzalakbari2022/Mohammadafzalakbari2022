@@ -1,0 +1,50 @@
+# Deploy Flutter Web to Cloudflare Pages (plan-07 / plan-21).
+# One-time setup: create a Pages project (or let the first deploy create it) and add
+# GitHub repo secrets — see web/DEPLOY.md.
+name: Deploy Web
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "lib/**"
+      - "web/**"
+      - "pubspec.yaml"
+      - "pubspec.lock"
+      - "l10n.yaml"
+      - "config/dart_defines_prod.json"
+      - ".github/workflows/deploy_web.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  deployments: write
+
+concurrency:
+  group: deploy-web-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: cloudflare-pages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+      - run: flutter gen-l10n
+      - run: flutter build web --release --dart-define-from-file=config/dart_defines_prod.json
+
+      - name: Publish to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: pride-v3-web
+          directory: build/web
+          branch: ${{ github.ref_name }}

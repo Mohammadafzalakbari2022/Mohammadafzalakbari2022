@@ -4,21 +4,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pride_v3/app/app_theme.dart';
 import 'package:pride_v3/core/api/pride_api_config.dart';
+import 'package:pride_v3/core/feedback/notification_sound_bridge.dart';
 import 'package:pride_v3/core/widgets/pride_action_buttons.dart';
 import 'package:pride_v3/core/widgets/pride_alert_dialog.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../auth/admin_me_provider.dart';
 import '../../auth/auth_providers.dart';
-import '../../auth/auth_session_storage.dart';
-import '../../core/persistence/shared_preferences_provider.dart';
-import '../../core/persistence/sync_cursor_storage.dart';
-import '../../core/persistence/sync_diagnostics_storage.dart';
-import '../../shell/shell_sync_providers.dart';
+import '../../auth/sign_out.dart';
 import '../../licensing/license_notifier.dart';
 import '../../licensing/license_providers.dart';
 import '../catalog/catalog_sharing_provider.dart';
 import 'settings_providers.dart';
+import 'settings_sound_feedback_tiles.dart';
 import 'shop_profile_provider.dart';
 
 Future<void> _showSignOutDialog(BuildContext context, WidgetRef ref) async {
@@ -37,15 +35,7 @@ Future<void> _showSignOutDialog(BuildContext context, WidgetRef ref) async {
     ),
   );
   if (confirmed == true && context.mounted) {
-    final prefs = ref.read(sharedPreferencesProvider);
-    final sid = ref.read(authSessionProvider).shopId?.trim();
-    await AuthSessionStorage.clear(prefs);
-    if (sid != null && sid.isNotEmpty) {
-      await SyncCursorStorage.clearForShop(prefs, sid);
-    }
-    await SyncDiagnosticsStorage.clear(prefs);
-    ref.read(lastSuccessfulSyncAtProvider.notifier).state = null;
-    ref.read(authSessionProvider).signOut();
+    await performSignOut(ref: ref, context: context);
   }
 }
 
@@ -134,14 +124,21 @@ class SettingsTabScreen extends ConsumerWidget {
     final license = ref.watch(licenseNotifierProvider);
     final isOwnerDev = ref.watch(isOwnerProvider);
     final devSimulated = ref.watch(isDeveloperProvider);
-    final serverDeveloper =
-        ref.watch(adminMeProvider).valueOrNull?.isDeveloper == true;
-    final showDeveloperPortalEntry = devSimulated || serverDeveloper;
-
     final auth = ref.watch(authSessionProvider);
+    final apiOn = PrideApiConfig.isConfigured;
+    final adminAsync = ref.watch(adminMeProvider);
+    final adminCheck = adminAsync.valueOrNull;
+    final serverDeveloper = adminCheck?.isDeveloper == true;
+    final showDeveloperPortalEntry = devSimulated || serverDeveloper;
+    final showAdminCheckFailed = apiOn &&
+        auth.hasApiSession &&
+        !devSimulated &&
+        adminAsync.hasValue &&
+        adminCheck != null &&
+        adminCheck.checkFailed;
+
     final effectiveOwner =
         auth.hasApiSession ? auth.isShopOwner : isOwnerDev;
-    final apiOn = PrideApiConfig.isConfigured;
     final roleLabel =
         effectiveOwner ? l10n.settingsRoleOwner : l10n.settingsRoleUser;
     final shopAsync = ref.watch(shopProfileProvider);
@@ -227,15 +224,6 @@ class SettingsTabScreen extends ConsumerWidget {
                   ref.read(catalogSharingEnabledProvider.notifier).set(v),
             ),
             const Divider(height: 1),
-            _LockedTile(
-              leading: Icons.checklist_outlined,
-              iconColor: prideSettingsIconColor(4),
-              title: l10n.tasksTitle,
-              subtitle: l10n.tasksSettingsSubtitle,
-              enabled: true,
-              onTap: () => context.push('/app/settings/tasks'),
-            ),
-            const Divider(height: 1),
             ListTile(
               leading: PrideColoredLeading(
                 icon: Icons.logout,
@@ -279,8 +267,13 @@ class SettingsTabScreen extends ConsumerWidget {
               title: Text(l10n.settingsMuteNotificationsTitle),
               subtitle: Text(l10n.settingsMuteNotificationsSubtitle),
               value: ref.watch(notificationsMutedProvider),
-              onChanged: (v) =>
-                  ref.read(notificationsMutedProvider.notifier).state = v,
+              onChanged: (v) {
+                ref.read(notificationsMutedProvider.notifier).state = v;
+                NotificationSoundBridge.configure(
+                  soundsEnabled: ref.read(uiSoundsEnabledProvider),
+                  muted: v,
+                );
+              },
             ),
             const Divider(height: 1),
             _LockedTile(
@@ -325,6 +318,13 @@ class SettingsTabScreen extends ConsumerWidget {
         ),
         const SizedBox(height: 16),
         _SettingsSection(
+          title: l10n.settingsSectionSoundFeedback,
+          children: const [
+            SettingsSoundFeedbackTiles(),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _SettingsSection(
           title: l10n.settingsSectionAppearanceLanguage,
           children: [
             _LockedTile(
@@ -365,19 +365,32 @@ class SettingsTabScreen extends ConsumerWidget {
             ),
           ],
         ),
-        if (showDeveloperPortalEntry) ...[
+        if (showDeveloperPortalEntry || showAdminCheckFailed) ...[
           const SizedBox(height: 16),
           _SettingsSection(
             title: l10n.settingsSectionDeveloper,
             children: [
-              _LockedTile(
-                leading: Icons.developer_mode_outlined,
-                iconColor: prideSettingsIconColor(5),
-                title: l10n.settingsDeveloperPortalTitle,
-                subtitle: l10n.settingsDeveloperPortalSubtitle,
-                enabled: true,
-                onTap: () => context.push('/app/settings/developer-portal'),
-              ),
+              if (showAdminCheckFailed)
+                ListTile(
+                  leading: PrideColoredLeading(
+                    icon: Icons.cloud_off_outlined,
+                    color: prideSettingsIconColor(5),
+                  ),
+                  title: Text(l10n.settingsDeveloperPortalCheckFailed),
+                  trailing: TextButton(
+                    onPressed: () => ref.invalidate(adminMeProvider),
+                    child: Text(l10n.settingsDeveloperPortalRetry),
+                  ),
+                ),
+              if (showDeveloperPortalEntry)
+                _LockedTile(
+                  leading: Icons.developer_mode_outlined,
+                  iconColor: prideSettingsIconColor(5),
+                  title: l10n.settingsDeveloperPortalTitle,
+                  subtitle: l10n.settingsDeveloperPortalSubtitle,
+                  enabled: true,
+                  onTap: () => context.push('/app/settings/developer-portal'),
+                ),
             ],
           ),
         ],

@@ -34,7 +34,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get loginSubtitle =>
-      'نام کاربری و رمز فروشگاه را وارد کنید. سرور هنگام اتصال API تأیید می‌کند (plan-04).';
+      'نام کاربری و رمز فروشگاه را وارد کنید. سرور هنگام اتصال API تأیید می‌کند.';
 
   @override
   String get loginMockHint =>
@@ -158,7 +158,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get loginShopCreateSubtitle =>
-      'فروشگاه را روی سرور بسازید و به‌عنوان مالک وارد شوید (plan-04).';
+      'فروشگاه را روی سرور بسازید و به‌عنوان مالک وارد شوید.';
 
   @override
   String get loginShopCreateNameLabel => 'نام فروشگاه';
@@ -190,7 +190,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get dashboardSubtitle =>
-      'شاخص‌ها و میانبرها از دادهٔ محلی بارگذاری می‌شوند (plan-09).';
+      'شاخص‌ها و میانبرها از دادهٔ محلی بارگذاری می‌شوند.';
 
   @override
   String get dashboardKpisPlaceholder => 'نمای کلی امروز';
@@ -227,7 +227,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get subscriptionBody =>
-      'تمدید یا کد فعال‌سازی هنگام اتصال صورتحساب (plan-06). پس از انقضا ویرایش محدود است؛ مشاهده فهرست و جزئیات ممکن است.';
+      'تمدید یا کد فعال‌سازی هنگام اتصال صورتحساب. پس از انقضا ویرایش محدود است؛ مشاهده فهرست و جزئیات ممکن است.';
 
   @override
   String get subscriptionListTileSubtitle => 'مجوز، آزمایش و فعال‌سازی';
@@ -251,15 +251,14 @@ class AppLocalizationsFa extends AppLocalizations {
   String get ordersNewCta => 'سفارش جدید';
 
   @override
-  String get ordersComposerPlaceholderBody =>
-      'فرم سفارش اینجا قرار می‌گیرد (plan-11).';
+  String get ordersComposerPlaceholderBody => 'فرم سفارش اینجا قرار می‌گیرد.';
 
   @override
   String get ordersDetailTitle => 'جزئیات سفارش';
 
   @override
   String ordersDetailPlaceholderBody(String orderId) {
-    return 'سفارش $orderId — جزئیات به‌زودی (plan-12).';
+    return 'سفارش $orderId — جزئیات به‌زودی.';
   }
 
   @override
@@ -478,7 +477,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get ordersDetailLockedHint =>
-      'این سفارش به‌دلیل تحویل یا لغو قفل است (plan-12).';
+      'این سفارش به‌دلیل تحویل یا لغو قفل است.';
 
   @override
   String get ordersDetailLockedStillInternalNotes =>
@@ -509,8 +508,7 @@ class AppLocalizationsFa extends AppLocalizations {
       'این رمز با رمز مالک این دستگاه مطابقت ندارد.';
 
   @override
-  String get ordersDetailChangeStatusSoon =>
-      'تغییر وضعیت با تأیید باز می‌شود (plan-12).';
+  String get ordersDetailChangeStatusSoon => 'تغییر وضعیت با تأیید باز می‌شود.';
 
   @override
   String get addPaymentCta => 'افزودن پرداخت';
@@ -598,15 +596,14 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get customerViewAllOrdersSoon =>
-      'با فیلتر مشتری تب سفارش‌ها باز می‌شود (plan-13).';
+      'با فیلتر مشتری تب سفارش‌ها باز می‌شود.';
 
   @override
   String get customerSectionPlaceholder =>
       'جزئیات هنگام تکمیل ماژول اینجا نمایش داده می‌شود.';
 
   @override
-  String get customerNewPlaceholderBody =>
-      'فرم مشتری جدید اینجا قرار می‌گیرد (plan-13).';
+  String get customerNewPlaceholderBody => 'فرم مشتری جدید اینجا قرار می‌گیرد.';
 
   @override
   String get measurementUnitCm => 'سانتی‌متر';
@@ -876,7 +873,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get reportsMonthlyIncomePlaceholder =>
-      'گزارش درآمد ماهانه اینجا قرار می‌گیرد (plan-16).';
+      'گزارش درآمد ماهانه اینجا قرار می‌گیرد.';
 
   @override
   String get reportsThisMonthIncomeTitle => 'درآمد این ماه';
@@ -1022,11 +1019,11 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get catalogSharingToggleSubtitle =>
-      'با رضایت دو طرف: برای مرور و نمایش در فهرست عمومی فعال کنید (plan-14).';
+      'با رضایت دو طرف: برای مرور و نمایش در فهرست عمومی فعال کنید.';
 
   @override
   String get catalogSharedPlaceholder =>
-      'فهرست طرح‌های اشتراکی هنگام اتصال آنلاین اینجا نمایش داده می‌شود (plan-14).';
+      'فهرست طرح‌های اشتراکی هنگام اتصال آنلاین اینجا نمایش داده می‌شود.';
 
   @override
   String get catalogEmptyMyDesigns => 'هنوز طرحی نیست.';
@@ -1048,7 +1045,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get catalogAddDesignPlaceholder =>
-      'افزودن از دوربین / گالری فقط روی اندروید و iOS (plan-14).';
+      'افزودن از دوربین / گالری فقط روی اندروید و iOS.';
 
   @override
   String get catalogDetailTitle => 'قلم کاتالوگ';
@@ -1087,7 +1084,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get settingsShopTileSubtitle =>
-      'جزئیات فروشگاه اینجا نمایش داده می‌شود (plan-15).';
+      'جزئیات فروشگاه اینجا نمایش داده می‌شود.';
 
   @override
   String get settingsCurrentUserTitle => 'کاربر جاری';
@@ -1127,8 +1124,7 @@ class AppLocalizationsFa extends AppLocalizations {
       'آزمایشی: ۲ کاربر • پرداخت‌شده: ۵ کاربر';
 
   @override
-  String get settingsUsersPlaceholder =>
-      'مدیریت کاربران در plan-15 پیاده می‌شود.';
+  String get settingsUsersPlaceholder => 'مدیریت کاربران پیاده می‌شود.';
 
   @override
   String get settingsBackupRestoreTitle => 'پشتیبان و بازیابی';
@@ -1139,7 +1135,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get settingsBackupRestorePlaceholder =>
-      'پشتیبان/بازیابی در plan-15 پیاده می‌شود.';
+      'پشتیبان/بازیابی پیاده می‌شود.';
 
   @override
   String get settingsMuteNotificationsTitle => 'بی‌صدا کردن اعلان‌ها';
@@ -1152,12 +1148,10 @@ class AppLocalizationsFa extends AppLocalizations {
   String get settingsNotificationsInboxTitle => 'صندوق اعلان‌ها';
 
   @override
-  String get settingsNotificationsInboxSubtitle =>
-      'تاریخچه و فیلترها (plan-15).';
+  String get settingsNotificationsInboxSubtitle => 'تاریخچه و فیلترها.';
 
   @override
-  String get settingsNotificationsPlaceholder =>
-      'صندوق اعلان‌ها در plan-15 پیاده می‌شود.';
+  String get settingsNotificationsPlaceholder => 'صندوق اعلان‌ها پیاده می‌شود.';
 
   @override
   String get settingsSyncDiagnosticsTitle => 'همگام‌سازی و تشخیص';
@@ -1200,11 +1194,11 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get settingsSyncDiagnosticsSubtitle =>
-      'آخرین همگام‌سازی، صف، صندوق خروج (plan-15).';
+      'آخرین همگام‌سازی، صف، صندوق خروج.';
 
   @override
   String get settingsSyncDiagnosticsPlaceholder =>
-      'همگام‌سازی و تشخیص در plan-15 پیاده می‌شود.';
+      'همگام‌سازی و تشخیص پیاده می‌شود.';
 
   @override
   String get settingsAppearanceLanguageTitle => 'ظاهر و زبان';
@@ -1233,7 +1227,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get settingsDeveloperPortalPlaceholder =>
-      'صفحات پورتال توسعه‌دهنده در plan-18 پیاده می‌شود.';
+      'صفحات پورتال توسعه‌دهنده پیاده می‌شود.';
 
   @override
   String get settingsDevRolesTitle => 'سوئیچ‌های نقش (توسعه)';
@@ -1264,17 +1258,58 @@ class AppLocalizationsFa extends AppLocalizations {
   String get themeDark => 'تیره';
 
   @override
+  String get settingsSectionSoundFeedback => 'صدا و بازخورد';
+
+  @override
   String get settingsUiSoundsTitle => 'صداهای رابط';
 
   @override
   String get settingsUiSoundsSubtitle =>
-      'صدای کوتاه هنگام موفقیت عملیات (مثلاً ذخیره).';
+      'صدای کوتاه هنگام ذخیره، حذف یا تکمیل عملیات.';
 
   @override
   String get settingsUiHapticsTitle => 'لرزش لمسی';
 
   @override
   String get settingsUiHapticsSubtitle => 'لرزش سبک برای عملیات موفق.';
+
+  @override
+  String get settingsUiHapticsWebHint => 'لرزش در وب در دسترس نیست.';
+
+  @override
+  String get settingsSoundPreviewSuccess => 'موفق';
+
+  @override
+  String get settingsSoundPreviewError => 'خطا';
+
+  @override
+  String get settingsSoundPreviewDelete => 'حذف';
+
+  @override
+  String get ordersDetailPaymentProgress => 'پیشرفت پرداخت';
+
+  @override
+  String get ordersComposerProgressTitle => 'پیشرفت سفارش';
+
+  @override
+  String ordersComposerProgressCount(int done, int total) {
+    return '$done از $total مرحله';
+  }
+
+  @override
+  String get ordersComposerProgressCustomer => 'مشتری';
+
+  @override
+  String get ordersComposerProgressMeasurements => 'اندازه';
+
+  @override
+  String get ordersComposerProgressStyle => 'استایل';
+
+  @override
+  String get ordersComposerProgressDelivery => 'تحویل';
+
+  @override
+  String get ordersComposerProgressPayment => 'پرداخت';
 
   @override
   String get settingsLanguageTitle => 'زبان';
@@ -1879,7 +1914,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get subscriptionActivationComingSoon =>
-      'فعال‌سازی به سرور متصل می‌شود (plan-06).';
+      'فعال‌سازی به سرور متصل می‌شود.';
 
   @override
   String get subscriptionRefreshStatusCta => 'به‌روزرسانی وضعیت مجوز';
@@ -1972,6 +2007,28 @@ class AppLocalizationsFa extends AppLocalizations {
   String get customersRowNoOrdersYet => 'هنوز سفارشی نیست';
 
   @override
+  String customersRowSince(String date) {
+    return 'مشتری از $date';
+  }
+
+  @override
+  String get reportsThisMonthIncomeEmpty =>
+      'هنوز پرداختی در این ماه ثبت نشده است.';
+
+  @override
+  String get reportsOpenUnpaidEmpty => 'سفارش بازی با مانده بدهی وجود ندارد.';
+
+  @override
+  String reportsOrdersByStatusCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count سفارش',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get settingsUsersLimitsTitle => 'محدودیت کاربران';
 
   @override
@@ -1983,7 +2040,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get settingsUsersAddDisabledHint =>
-      'مدیریت کاربر به سرور متصل می‌شود (plan-15).';
+      'مدیریت کاربر به سرور متصل می‌شود.';
 
   @override
   String get settingsUsersListTitle => 'تیم';
@@ -2046,7 +2103,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get settingsBackupOwnerPasswordNote =>
-      'پشتیبان و بازیابی به رمز ورود مالک نیاز دارد (plan-15).';
+      'پشتیبان و بازیابی به رمز ورود مالک نیاز دارد.';
 
   @override
   String get settingsBackupSectionTitle => 'پشتیبان';
@@ -2202,7 +2259,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get settingsSyncRetrySubtitle =>
-      'دریافت از سرور، سپس ارسال صف محلی وقتی API_BASE_URL تنظیم شده و با سرور آنلاین وارد شده‌اید (plan-04).';
+      'دریافت از سرور، سپس ارسال صف محلی وقتی API_BASE_URL تنظیم شده و با سرور آنلاین وارد شده‌اید.';
 
   @override
   String get settingsSyncRetryOffline =>
@@ -2474,7 +2531,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get devPortalCodesStub =>
-      'کدهای فعال‌سازی: جستجو، ایجاد و لغو از API مدیریت بارگذاری می‌شود (plan-18).';
+      'کدهای فعال‌سازی: جستجو، ایجاد و لغو از API مدیریت بارگذاری می‌شود.';
 
   @override
   String get devPortalShopsStub =>
@@ -2793,6 +2850,17 @@ class AppLocalizationsFa extends AppLocalizations {
   String get orderShareInvoiceTooltip => 'اشتراک فاکتور';
 
   @override
+  String get orderShareInvoicePdfCta => 'اشتراک فاکتور PDF';
+
+  @override
+  String get orderShareContactPermissionDenied =>
+      'اجازه مخاطبین خاموش است — فاکتور اشتراک شد، اما مشتری در تلفن ذخیره نشد.';
+
+  @override
+  String get orderShareInvoiceSharedSheet =>
+      'واتساپ یا برنامه دیگر را برای ارسال فاکتور PDF انتخاب کنید.';
+
+  @override
   String orderShareInvoiceFail(String detail) {
     return 'اشتراک ناموفق: $detail';
   }
@@ -2803,5 +2871,130 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String orderShareInvoiceWhatsappCaption(String orderNo, String customerName) {
+    return 'فاکتور سفارش $orderNo — $customerName';
+  }
+
+  @override
+  String orderShareContactSaved(String name) {
+    return '$name در مخاطبین تلفن شما ذخیره شد.';
+  }
+
+  @override
+  String get orderShareWhatsappOpened => 'فاکتور PDF در واتساپ باز شد.';
+
+  @override
   String get receiptFooterThanks => 'از همکاری شما سپاسگزاریم!';
+
+  @override
+  String get settingsDeveloperPortalCheckFailed =>
+      'تأیید دسترسی توسعه‌دهنده ممکن نشد. برای تکرار لمس کنید.';
+
+  @override
+  String get settingsDeveloperPortalRetry => 'تلاش دوباره';
+
+  @override
+  String get dashboardSyncRunning => 'همگام‌سازی…';
+
+  @override
+  String get dashboardSyncTapToRun => 'برای همگام‌سازی لمس کنید';
+
+  @override
+  String get dashboardTasksSectionTitle => 'کارها';
+
+  @override
+  String dashboardTasksOpenCount(int count) {
+    return '$count باز';
+  }
+
+  @override
+  String get dashboardTasksViewAll => 'همه کارها';
+
+  @override
+  String get shopFinanceTitle => 'امور مالی دکان';
+
+  @override
+  String get shopFinanceSubtitle => 'کرایه، مصارف روزانه و خوراک';
+
+  @override
+  String get shopFinanceOverviewTitle => 'خلاصه';
+
+  @override
+  String get shopFinanceRentTitle => 'کرایه';
+
+  @override
+  String get shopFinanceExpensesTitle => 'مصارف';
+
+  @override
+  String get shopFinanceMonthOutflow => 'مصارف این ماه';
+
+  @override
+  String get shopFinanceRentDue => 'کرایه معوق';
+
+  @override
+  String get shopFinanceRentPaid => 'کرایه پرداخت‌شده این ماه';
+
+  @override
+  String get shopFinanceExpenseDaily => 'مصارف روزانه';
+
+  @override
+  String get shopFinanceExpenseFood => 'خوراک و نوشیدنی';
+
+  @override
+  String get shopFinanceExpenseOther => 'سایر';
+
+  @override
+  String get shopFinanceAddRent => 'تنظیم کرایه';
+
+  @override
+  String get shopFinanceRecordRentPayment => 'ثبت پرداخت کرایه';
+
+  @override
+  String get shopFinanceAddExpense => 'افزودن مصرف';
+
+  @override
+  String get shopFinanceAmountLabel => 'مبلغ (افغانی)';
+
+  @override
+  String get shopFinanceDueDateLabel => 'تاریخ سررسید';
+
+  @override
+  String get shopFinancePeriodMonthsLabel => 'دوره (ماه)';
+
+  @override
+  String get shopFinanceNoteLabel => 'یادداشت';
+
+  @override
+  String get shopFinanceCategoryLabel => 'دسته';
+
+  @override
+  String get shopFinanceDateLabel => 'تاریخ';
+
+  @override
+  String get shopFinanceClearPeriodTitle => 'مصارف قدیمی پاک شود؟';
+
+  @override
+  String get shopFinanceClearPeriodBody =>
+      'مصارف قبل از تاریخ انتخاب‌شده از فهرست حذف می‌شوند.';
+
+  @override
+  String get shopFinanceRentDueNotificationTitle => 'کرایه نزدیک است';
+
+  @override
+  String shopFinanceRentDueNotificationBody(String amount, String date) {
+    return 'کرایه $amount در $date سررسید است';
+  }
+
+  @override
+  String get shopFinanceEmptyRent =>
+      'هنوز کرایه ثبت نشده. کرایه ماهانه را تنظیم کنید.';
+
+  @override
+  String get shopFinanceEmptyExpenses => 'هنوز مصرفی ثبت نشده.';
+
+  @override
+  String get shopFinanceSave => 'ذخیره';
+
+  @override
+  String get shopFinanceChartsExpensesByCategory => 'مصارف بر اساس دسته';
 }

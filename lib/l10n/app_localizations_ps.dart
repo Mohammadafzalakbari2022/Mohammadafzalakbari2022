@@ -225,7 +225,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get subscriptionBody =>
-      'د نوي کولو یا د فعالولو کوړ د بلینګ نښلولو وخت کې (plan-06). د پای په دوره کې سمون محدود دی؛ لیست او جزئیات لیدل شته.';
+      'د نوي کولو یا د فعالولو کوړ د بلینګ نښلولو وخت کې. د پای په دوره کې سمون محدود دی؛ لیست او جزئیات لیدل شته.';
 
   @override
   String get subscriptionListTileSubtitle => 'جواز، ازمایښت او فعالول';
@@ -870,7 +870,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get reportsMonthlyIncomePlaceholder =>
-      'د میاشتې عاید راپور به دلته راشي (plan-16).';
+      'د میاشتې عاید راپور به دلته راشي.';
 
   @override
   String get reportsThisMonthIncomeTitle => 'د دې میاشتې عاید';
@@ -1081,8 +1081,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get settingsShopTileTitle => 'د هټۍ پروفایل';
 
   @override
-  String get settingsShopTileSubtitle =>
-      'د هټۍ جزئیات به دلته ښکاري (plan-15).';
+  String get settingsShopTileSubtitle => 'د هټۍ جزئیات به دلته ښکاري.';
 
   @override
   String get settingsCurrentUserTitle => 'اوسنی کارن';
@@ -1122,8 +1121,7 @@ class AppLocalizationsPs extends AppLocalizations {
       'ازمایښت: ۲ کارن • ورکړل شوی: ۵ کارن';
 
   @override
-  String get settingsUsersPlaceholder =>
-      'د کارنو مدیریت به په plan-15 کې پلي شي.';
+  String get settingsUsersPlaceholder => 'د کارنو مدیریت به ژر پلي شي.';
 
   @override
   String get settingsBackupRestoreTitle => 'بیکاپ او بیرته راوړل';
@@ -1134,7 +1132,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get settingsBackupRestorePlaceholder =>
-      'بیکاپ/بیرته راوړل به په plan-15 کې پلي شي.';
+      'بیکاپ/بیرته راوړل به ژر پلي شي.';
 
   @override
   String get settingsMuteNotificationsTitle => 'خبرتیاوې بې غږ';
@@ -1147,12 +1145,11 @@ class AppLocalizationsPs extends AppLocalizations {
   String get settingsNotificationsInboxTitle => 'د خبرتیاو صندوق';
 
   @override
-  String get settingsNotificationsInboxSubtitle =>
-      'تاریخ او فلټرونه (plan-15).';
+  String get settingsNotificationsInboxSubtitle => 'تاریخ او فلټرونه.';
 
   @override
   String get settingsNotificationsPlaceholder =>
-      'د خبرتیاو صندوق به په plan-15 کې پلي شي.';
+      'د خبرتیاو صندوق به ژر پلي شي.';
 
   @override
   String get settingsSyncDiagnosticsTitle => 'سنک او تشخیص';
@@ -1194,12 +1191,10 @@ class AppLocalizationsPs extends AppLocalizations {
   }
 
   @override
-  String get settingsSyncDiagnosticsSubtitle =>
-      'وروستی سنک، قطار، صندوق (plan-15).';
+  String get settingsSyncDiagnosticsSubtitle => 'وروستی سنک، قطار، صندوق.';
 
   @override
-  String get settingsSyncDiagnosticsPlaceholder =>
-      'سنک او تشخیص به په plan-15 کې پلي شي.';
+  String get settingsSyncDiagnosticsPlaceholder => 'سنک او تشخیص به ژر پلي شي.';
 
   @override
   String get settingsAppearanceLanguageTitle => 'بڼه او ژبه';
@@ -1228,7 +1223,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get settingsDeveloperPortalPlaceholder =>
-      'د پراختیاګر پورټل پاڼې به په plan-18 کې پلي شي.';
+      'د پراختیاګر پورټل پاڼې به ژر پلي شي.';
 
   @override
   String get settingsDevRolesTitle => 'د رول بدلونونه (پراختیا)';
@@ -1258,17 +1253,58 @@ class AppLocalizationsPs extends AppLocalizations {
   String get themeDark => 'تیاره';
 
   @override
+  String get settingsSectionSoundFeedback => 'غږ او غبرګون';
+
+  @override
   String get settingsUiSoundsTitle => 'د انټرفیس غږونه';
 
   @override
   String get settingsUiSoundsSubtitle =>
-      'کله چې یوه کړنه بریالۍ وي لنډ غږ (د بېلګې په توګه خوندي کول).';
+      'کله چې خوندي، ړنګ یا بشپړ کړئ لنډ غږ.';
 
   @override
   String get settingsUiHapticsTitle => 'لمسی لرزش';
 
   @override
   String get settingsUiHapticsSubtitle => 'د بریالۍ کړنې لپاره سپک لرزش.';
+
+  @override
+  String get settingsUiHapticsWebHint => 'په ویب کې لرزش نشته.';
+
+  @override
+  String get settingsSoundPreviewSuccess => 'بریالی';
+
+  @override
+  String get settingsSoundPreviewError => 'تېروتنه';
+
+  @override
+  String get settingsSoundPreviewDelete => 'ړنګول';
+
+  @override
+  String get ordersDetailPaymentProgress => 'د تادیې پرمختګ';
+
+  @override
+  String get ordersComposerProgressTitle => 'د امر پرمختګ';
+
+  @override
+  String ordersComposerProgressCount(int done, int total) {
+    return '$done له $total ګامونو';
+  }
+
+  @override
+  String get ordersComposerProgressCustomer => 'پیرودونکی';
+
+  @override
+  String get ordersComposerProgressMeasurements => 'اندازې';
+
+  @override
+  String get ordersComposerProgressStyle => 'سټایل';
+
+  @override
+  String get ordersComposerProgressDelivery => 'سپارل';
+
+  @override
+  String get ordersComposerProgressPayment => 'تادیه';
 
   @override
   String get settingsLanguageTitle => 'ژبه';
@@ -1871,8 +1907,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get subscriptionActivateCta => 'فعالول';
 
   @override
-  String get subscriptionActivationComingSoon =>
-      'فعالول به سرور سره ونښلوي (plan-06).';
+  String get subscriptionActivationComingSoon => 'فعالول به سرور سره ونښلوي.';
 
   @override
   String get subscriptionRefreshStatusCta => 'د جواز حالت تازه کړئ';
@@ -1965,6 +2000,29 @@ class AppLocalizationsPs extends AppLocalizations {
   String get customersRowNoOrdersYet => 'تر اوسه امر نشته';
 
   @override
+  String customersRowSince(String date) {
+    return 'پیرودونکی له $date';
+  }
+
+  @override
+  String get reportsThisMonthIncomeEmpty =>
+      'په دې میاشت کې تر اوسه تادیه ثبت شوې نه ده.';
+
+  @override
+  String get reportsOpenUnpaidEmpty => 'خلاص امرونه د پاتې پور سره نشته.';
+
+  @override
+  String reportsOrdersByStatusCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count امرونه',
+      one: '۱ امر',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get settingsUsersLimitsTitle => 'د کارنو حدونه';
 
   @override
@@ -1976,7 +2034,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get settingsUsersAddDisabledHint =>
-      'د کارن مدیریت به سرور سره ونښلوي (plan-15).';
+      'د کارن مدیریت به سرور سره ونښلوي.';
 
   @override
   String get settingsUsersListTitle => 'ټیم';
@@ -2039,7 +2097,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get settingsBackupOwnerPasswordNote =>
-      'بیکاپ او بیرته راوړل به د مالک د ننوتلو پاسورډ ته اړتیا ولري (plan-15).';
+      'بیکاپ او بیرته راوړل به د مالک د ننوتلو پاسورډ ته اړتیا ولري.';
 
   @override
   String get settingsBackupSectionTitle => 'بیکاپ';
@@ -2786,6 +2844,17 @@ class AppLocalizationsPs extends AppLocalizations {
   String get orderShareInvoiceTooltip => 'فاکتور شریکول';
 
   @override
+  String get orderShareInvoicePdfCta => 'د PDF فاکتور شریکول';
+
+  @override
+  String get orderShareContactPermissionDenied =>
+      'د اړیکو اجازه بنده ده — فاکتور شریک شو، خو پیرودونکی په تلیفون کې نه دی خوندي شوی.';
+
+  @override
+  String get orderShareInvoiceSharedSheet =>
+      'د PDF فاکتور لیږلو لپاره واتساپ یا بل اپ غوره کړئ.';
+
+  @override
   String orderShareInvoiceFail(String detail) {
     return 'شریکول ناکام: $detail';
   }
@@ -2796,5 +2865,129 @@ class AppLocalizationsPs extends AppLocalizations {
   }
 
   @override
+  String orderShareInvoiceWhatsappCaption(String orderNo, String customerName) {
+    return 'د $orderNo امر فاکتور — $customerName';
+  }
+
+  @override
+  String orderShareContactSaved(String name) {
+    return '$name ستاسو په اړیکو کې خوندي شو.';
+  }
+
+  @override
+  String get orderShareWhatsappOpened => 'د فاکتور PDF واتساپ کې پرانیستل شو.';
+
+  @override
   String get receiptFooterThanks => 'ستاسو له سوداګرۍ مننه!';
+
+  @override
+  String get settingsDeveloperPortalCheckFailed =>
+      'د پراختیاګر لاسرسی تایید نشو. بیا هڅه وکړئ.';
+
+  @override
+  String get settingsDeveloperPortalRetry => 'بیا هڅه';
+
+  @override
+  String get dashboardSyncRunning => 'همغږي کېږي…';
+
+  @override
+  String get dashboardSyncTapToRun => 'همغږي لپاره ټک وکړئ';
+
+  @override
+  String get dashboardTasksSectionTitle => 'دندې';
+
+  @override
+  String dashboardTasksOpenCount(int count) {
+    return '$count خلاص';
+  }
+
+  @override
+  String get dashboardTasksViewAll => 'ټولې دندې';
+
+  @override
+  String get shopFinanceTitle => 'د هټۍ مالي چارې';
+
+  @override
+  String get shopFinanceSubtitle => 'کرایه، ورځنۍ لګښتونه او خوراک';
+
+  @override
+  String get shopFinanceOverviewTitle => 'لنډیز';
+
+  @override
+  String get shopFinanceRentTitle => 'کرایه';
+
+  @override
+  String get shopFinanceExpensesTitle => 'لګښتونه';
+
+  @override
+  String get shopFinanceMonthOutflow => 'د دې میاشتې لګښت';
+
+  @override
+  String get shopFinanceRentDue => 'کرایه ورکړل';
+
+  @override
+  String get shopFinanceRentPaid => 'په دې میاشت کې ورکړل شوی کرایه';
+
+  @override
+  String get shopFinanceExpenseDaily => 'ورځنۍ لګښتونه';
+
+  @override
+  String get shopFinanceExpenseFood => 'خوراک او څښاک';
+
+  @override
+  String get shopFinanceExpenseOther => 'نور';
+
+  @override
+  String get shopFinanceAddRent => 'کرایه ټاکل';
+
+  @override
+  String get shopFinanceRecordRentPayment => 'د کرایې تادیه ثبت';
+
+  @override
+  String get shopFinanceAddExpense => 'لګښت زیاتول';
+
+  @override
+  String get shopFinanceAmountLabel => 'مبلغ (افغانۍ)';
+
+  @override
+  String get shopFinanceDueDateLabel => 'د سررسید نیټه';
+
+  @override
+  String get shopFinancePeriodMonthsLabel => 'موده (میاشتې)';
+
+  @override
+  String get shopFinanceNoteLabel => 'یادښت';
+
+  @override
+  String get shopFinanceCategoryLabel => 'کټګوري';
+
+  @override
+  String get shopFinanceDateLabel => 'نیټه';
+
+  @override
+  String get shopFinanceClearPeriodTitle => 'زاړه لګښتونه پاک شي؟';
+
+  @override
+  String get shopFinanceClearPeriodBody =>
+      'مخکې له ټاکلې نیټې لګښتونه به له لیست څخه لرې شي.';
+
+  @override
+  String get shopFinanceRentDueNotificationTitle => 'کرایه نژدې ده';
+
+  @override
+  String shopFinanceRentDueNotificationBody(String amount, String date) {
+    return 'د $amount کرایه په $date سررسید ده';
+  }
+
+  @override
+  String get shopFinanceEmptyRent => 'تر اوسه کرایه نشته. میاشتنی کرایه ټاکئ.';
+
+  @override
+  String get shopFinanceEmptyExpenses => 'تر اوسه لګښت نشته.';
+
+  @override
+  String get shopFinanceSave => 'خوندي کول';
+
+  @override
+  String get shopFinanceChartsExpensesByCategory => 'لګښتونه په کټګورۍ';
 }

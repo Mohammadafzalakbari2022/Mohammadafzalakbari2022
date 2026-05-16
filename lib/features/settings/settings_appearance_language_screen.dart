@@ -6,6 +6,7 @@ import 'package:pride_v3/core/persistence/shared_preferences_provider.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import 'settings_providers.dart';
+import 'settings_sound_feedback_tiles.dart';
 
 class SettingsAppearanceLanguageScreen extends ConsumerWidget {
   const SettingsAppearanceLanguageScreen({super.key});
@@ -37,23 +38,14 @@ class SettingsAppearanceLanguageScreen extends ConsumerWidget {
                 ref.read(themeModeProvider.notifier).state = s.first,
           ),
           const SizedBox(height: 16),
-          SwitchListTile(
-            title: Text(l10n.settingsUiSoundsTitle),
-            subtitle: Text(l10n.settingsUiSoundsSubtitle),
-            value: ref.watch(uiSoundsEnabledProvider),
-            onChanged: (v) async {
-              ref.read(uiSoundsEnabledProvider.notifier).state = v;
-              await persistUiSounds(ref.read(sharedPreferencesProvider), v);
-            },
+          Text(
+            l10n.settingsSectionSoundFeedback,
+            style: Theme.of(context).textTheme.titleSmall,
           ),
-          SwitchListTile(
-            title: Text(l10n.settingsUiHapticsTitle),
-            subtitle: Text(l10n.settingsUiHapticsSubtitle),
-            value: ref.watch(uiHapticsEnabledProvider),
-            onChanged: (v) async {
-              ref.read(uiHapticsEnabledProvider.notifier).state = v;
-              await persistUiHaptics(ref.read(sharedPreferencesProvider), v);
-            },
+          const SizedBox(height: 8),
+          Card(
+            clipBehavior: Clip.antiAlias,
+            child: const SettingsSoundFeedbackTiles(dense: true),
           ),
           const SizedBox(height: 24),
           Text(l10n.settingsDateCalendarTitle,
@@ -89,26 +81,19 @@ class SettingsAppearanceLanguageScreen extends ConsumerWidget {
             child: ListTile(
               leading: const Icon(Icons.language_outlined),
               title: Text(l10n.settingsLanguageTitle),
-              subtitle: Text(
-                localeOverride == null
-                    ? l10n.languageSystem
-                    : _localeLabel(l10n, localeOverride),
-              ),
+              subtitle: Text(_localeLabel(l10n, localeOverride)),
               trailing: DropdownButtonHideUnderline(
-                child: DropdownButton<Locale?>(
+                child: DropdownButton<Locale>(
                   value: localeOverride,
                   items: [
-                    DropdownMenuItem<Locale?>(
-                      value: null,
-                      child: Text(l10n.languageSystem),
-                    ),
                     for (final locale in locales)
-                      DropdownMenuItem<Locale?>(
+                      DropdownMenuItem<Locale>(
                         value: locale,
                         child: Text(_localeLabel(l10n, locale)),
                       ),
                   ],
                   onChanged: (v) async {
+                    if (v == null) return;
                     ref.read(localeOverrideProvider.notifier).state = v;
                     await persistLocaleOverride(
                       ref.read(sharedPreferencesProvider),

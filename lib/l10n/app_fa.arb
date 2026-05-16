@@ -8,7 +8,7 @@
   "tabReports": "گزارش‌ها",
   "tabSettings": "تنظیمات",
   "loginTitle": "ورود",
-  "loginSubtitle": "نام کاربری و رمز فروشگاه را وارد کنید. سرور هنگام اتصال API تأیید می‌کند (plan-04).",
+  "loginSubtitle": "نام کاربری و رمز فروشگاه را وارد کنید. سرور هنگام اتصال API تأیید می‌کند.",
   "loginMockHint": "در این نسخه هر نام کاربری و رمز غیرخالی به‌صورت محلی وارد می‌شود.",
   "loginShopIdLabel": "شناسه فروشگاه (اختیاری)",
   "loginShopIdHint": "برای توسعه تک‌فروشگاه خالی بگذارید",
@@ -142,7 +142,7 @@
     }
   },
   "loginShopCreateSectionTitle": "فروشگاه جدید (API)",
-  "loginShopCreateSubtitle": "فروشگاه را روی سرور بسازید و به‌عنوان مالک وارد شوید (plan-04).",
+  "loginShopCreateSubtitle": "فروشگاه را روی سرور بسازید و به‌عنوان مالک وارد شوید.",
   "loginShopCreateNameLabel": "نام فروشگاه",
   "loginShopCreateOwnerUsernameLabel": "نام کاربری مالک",
   "loginShopCreateOwnerPasswordLabel": "رمز مالک",
@@ -166,7 +166,7 @@
     }
   },
   "dashboardTitle": "داشبورد",
-  "dashboardSubtitle": "شاخص‌ها و میانبرها از دادهٔ محلی بارگذاری می‌شوند (plan-09).",
+  "dashboardSubtitle": "شاخص‌ها و میانبرها از دادهٔ محلی بارگذاری می‌شوند.",
   "dashboardKpisPlaceholder": "نمای کلی امروز",
   "dashboardKpiNewOrders": "سفارش‌های جدید",
   "dashboardKpiInProgress": "در حال انجام",
@@ -178,7 +178,7 @@
   "dashboardRecentIncomeTitle": "درآمد — ۷ روز اخیر",
   "dashboardActivitySectionTitle": "همگام‌سازی و اعلان‌ها",
   "subscriptionTitle": "اشتراک",
-  "subscriptionBody": "تمدید یا کد فعال‌سازی هنگام اتصال صورتحساب (plan-06). پس از انقضا ویرایش محدود است؛ مشاهده فهرست و جزئیات ممکن است.",
+  "subscriptionBody": "تمدید یا کد فعال‌سازی هنگام اتصال صورتحساب. پس از انقضا ویرایش محدود است؛ مشاهده فهرست و جزئیات ممکن است.",
   "subscriptionListTileSubtitle": "مجوز، آزمایش و فعال‌سازی",
   "licenseDevControlsTitle": "مجوز (فقط توسعه)",
   "licenseStatusTrial": "آزمایشی",
@@ -186,9 +186,9 @@
   "licenseStatusExpired": "منقضی",
   "ordersNewTitle": "سفارش جدید",
   "ordersNewCta": "سفارش جدید",
-  "ordersComposerPlaceholderBody": "فرم سفارش اینجا قرار می‌گیرد (plan-11).",
+  "ordersComposerPlaceholderBody": "فرم سفارش اینجا قرار می‌گیرد.",
   "ordersDetailTitle": "جزئیات سفارش",
-  "ordersDetailPlaceholderBody": "سفارش {orderId} — جزئیات به‌زودی (plan-12).",
+  "ordersDetailPlaceholderBody": "سفارش {orderId} — جزئیات به‌زودی.",
   "@ordersDetailPlaceholderBody": {
     "placeholders": {
       "orderId": {
@@ -328,7 +328,7 @@
     }
   },
   "ordersDetailMeasurementsNotes": "یادداشت روی سفارش",
-  "ordersDetailLockedHint": "این سفارش به‌دلیل تحویل یا لغو قفل است (plan-12).",
+  "ordersDetailLockedHint": "این سفارش به‌دلیل تحویل یا لغو قفل است.",
   "ordersDetailLockedStillInternalNotes": "هنوز می‌توانید یادداشت داخلی زیر را ویرایش کنید.",
   "ordersInternalNotesDialogTitle": "یادداشت داخلی",
   "ordersInternalNotesHint": "فقط کارکنان — به مشتری نشان داده نمی‌شود.",
@@ -337,7 +337,7 @@
   "ownerPasswordTitle": "رمز مالک",
   "ownerPasswordLabel": "رمز مالک را وارد کنید",
   "ownerPasswordMismatch": "این رمز با رمز مالک این دستگاه مطابقت ندارد.",
-  "ordersDetailChangeStatusSoon": "تغییر وضعیت با تأیید باز می‌شود (plan-12).",
+  "ordersDetailChangeStatusSoon": "تغییر وضعیت با تأیید باز می‌شود.",
   "addPaymentCta": "افزودن پرداخت",
   "addAdjustmentCta": "افزودن تعدیل",
   "paymentAdjustmentHint": "برای کاهش پرداخت‌های ثبت‌شده مبلغ منفی وارد کنید (دفتر رویداد).",
@@ -372,9 +372,9 @@
   "customerOrderHistoryTitle": "تاریخچه سفارش‌ها",
   "customerNoOrders": "هنوز سفارشی برای این مشتری نیست.",
   "customerViewAllOrders": "همه سفارش‌های این مشتری",
-  "customerViewAllOrdersSoon": "با فیلتر مشتری تب سفارش‌ها باز می‌شود (plan-13).",
+  "customerViewAllOrdersSoon": "با فیلتر مشتری تب سفارش‌ها باز می‌شود.",
   "customerSectionPlaceholder": "جزئیات هنگام تکمیل ماژول اینجا نمایش داده می‌شود.",
-  "customerNewPlaceholderBody": "فرم مشتری جدید اینجا قرار می‌گیرد (plan-13).",
+  "customerNewPlaceholderBody": "فرم مشتری جدید اینجا قرار می‌گیرد.",
   "measurementUnitCm": "سانتی‌متر",
   "measurementUnitInch": "اینچ",
   "measurementProfilesEmpty": "هنوز پروفایلی نیست. برای استفاده مجدد در سفارش‌های جدید اضافه کنید.",
@@ -512,7 +512,7 @@
   "reportsPaymentsGroupByDay": "روز",
   "reportsPaymentsGroupByWeek": "هفته",
   "reportsPaymentsGroupByMonth": "ماه",
-  "reportsMonthlyIncomePlaceholder": "گزارش درآمد ماهانه اینجا قرار می‌گیرد (plan-16).",
+  "reportsMonthlyIncomePlaceholder": "گزارش درآمد ماهانه اینجا قرار می‌گیرد.",
   "reportsThisMonthIncomeTitle": "درآمد این ماه",
   "reportsThisMonthIncomeSubtitle": "درآمد: {amount}",
   "@reportsThisMonthIncomeSubtitle": {
@@ -572,15 +572,15 @@
   "catalogSharedDirectoryEmpty": "هنوز در فهرست اشتراکی موردی نیست.",
   "catalogCommunityReadOnlyBanner": "ورودی فهرست اشتراکی — فقط مشاهده. نمی‌توانید فهرست فروشگاه دیگر را ویرایش یا حذف کنید.",
   "catalogSharingToggleTitle": "فعال‌سازی اشتراک کاتالوگ",
-  "catalogSharingToggleSubtitle": "با رضایت دو طرف: برای مرور و نمایش در فهرست عمومی فعال کنید (plan-14).",
-  "catalogSharedPlaceholder": "فهرست طرح‌های اشتراکی هنگام اتصال آنلاین اینجا نمایش داده می‌شود (plan-14).",
+  "catalogSharingToggleSubtitle": "با رضایت دو طرف: برای مرور و نمایش در فهرست عمومی فعال کنید.",
+  "catalogSharedPlaceholder": "فهرست طرح‌های اشتراکی هنگام اتصال آنلاین اینجا نمایش داده می‌شود.",
   "catalogEmptyMyDesigns": "هنوز طرحی نیست.",
   "catalogAddDesignCta": "افزودن طرح",
   "catalogViewDescription": "توضیحات",
   "catalogDescriptionSheetTitle": "توضیحات",
   "catalogNoDescription": "توضیحی برای این طرح ثبت نشده است.",
   "catalogViewerManageA11y": "مدیریت طرح",
-  "catalogAddDesignPlaceholder": "افزودن از دوربین / گالری فقط روی اندروید و iOS (plan-14).",
+  "catalogAddDesignPlaceholder": "افزودن از دوربین / گالری فقط روی اندروید و iOS.",
   "catalogDetailTitle": "قلم کاتالوگ",
   "catalogDetailPlaceholder": "قلم کاتالوگ {id} — صفحه جزئیات به‌زودی.",
   "@catalogDetailPlaceholder": {
@@ -599,7 +599,7 @@
   "settingsSectionAbout": "درباره",
   "settingsSectionDeveloper": "توسعه‌دهنده",
   "settingsShopTileTitle": "پروفایل فروشگاه",
-  "settingsShopTileSubtitle": "جزئیات فروشگاه اینجا نمایش داده می‌شود (plan-15).",
+  "settingsShopTileSubtitle": "جزئیات فروشگاه اینجا نمایش داده می‌شود.",
   "settingsCurrentUserTitle": "کاربر جاری",
   "settingsSignOutTitle": "خروج",
   "settingsSignOutSubtitle": "پایان این نشست روی این دستگاه",
@@ -612,15 +612,15 @@
   "settingsOwnerOnly": "فقط مالک",
   "settingsUsersTitle": "مدیریت کاربران",
   "settingsUsersSubtitleOwner": "آزمایشی: ۲ کاربر • پرداخت‌شده: ۵ کاربر",
-  "settingsUsersPlaceholder": "مدیریت کاربران در plan-15 پیاده می‌شود.",
+  "settingsUsersPlaceholder": "مدیریت کاربران پیاده می‌شود.",
   "settingsBackupRestoreTitle": "پشتیبان و بازیابی",
   "settingsBackupRestoreSubtitleOwner": "خروجی امن و بازیابی دادهٔ فروشگاه",
-  "settingsBackupRestorePlaceholder": "پشتیبان/بازیابی در plan-15 پیاده می‌شود.",
+  "settingsBackupRestorePlaceholder": "پشتیبان/بازیابی پیاده می‌شود.",
   "settingsMuteNotificationsTitle": "بی‌صدا کردن اعلان‌ها",
   "settingsMuteNotificationsSubtitle": "بی‌صدا کردن بنر و نشان (تاریخچه حفظ می‌شود).",
   "settingsNotificationsInboxTitle": "صندوق اعلان‌ها",
-  "settingsNotificationsInboxSubtitle": "تاریخچه و فیلترها (plan-15).",
-  "settingsNotificationsPlaceholder": "صندوق اعلان‌ها در plan-15 پیاده می‌شود.",
+  "settingsNotificationsInboxSubtitle": "تاریخچه و فیلترها.",
+  "settingsNotificationsPlaceholder": "صندوق اعلان‌ها پیاده می‌شود.",
   "settingsSyncDiagnosticsTitle": "همگام‌سازی و تشخیص",
   "settingsNetworkStatusTitle": "شبکه",
   "settingsNetworkStatusOnline": "متصل",
@@ -646,8 +646,8 @@
       }
     }
   },
-  "settingsSyncDiagnosticsSubtitle": "آخرین همگام‌سازی، صف، صندوق خروج (plan-15).",
-  "settingsSyncDiagnosticsPlaceholder": "همگام‌سازی و تشخیص در plan-15 پیاده می‌شود.",
+  "settingsSyncDiagnosticsSubtitle": "آخرین همگام‌سازی، صف، صندوق خروج.",
+  "settingsSyncDiagnosticsPlaceholder": "همگام‌سازی و تشخیص پیاده می‌شود.",
   "settingsAppearanceLanguageTitle": "ظاهر و زبان",
   "settingsAppearanceLanguageSubtitle": "پوسته و زبان",
   "settingsAboutTitle": "درباره",
@@ -656,7 +656,7 @@
   "settingsBuildTitle": "بسته",
   "settingsDeveloperPortalTitle": "پورتال توسعه‌دهنده",
   "settingsDeveloperPortalSubtitle": "ابزارهای پیشرفته (فقط حساب‌های توسعه‌دهنده).",
-  "settingsDeveloperPortalPlaceholder": "صفحات پورتال توسعه‌دهنده در plan-18 پیاده می‌شود.",
+  "settingsDeveloperPortalPlaceholder": "صفحات پورتال توسعه‌دهنده پیاده می‌شود.",
   "settingsDevRolesTitle": "سوئیچ‌های نقش (توسعه)",
   "settingsDevRoleOwnerTitle": "شبیه‌سازی حساب مالک",
   "settingsDevRoleOwnerSubtitle": "بخش‌های فقط مالک را باز می‌کند.",
@@ -666,10 +666,23 @@
   "themeSystem": "سیستم",
   "themeLight": "روشن",
   "themeDark": "تیره",
+  "settingsSectionSoundFeedback": "صدا و بازخورد",
   "settingsUiSoundsTitle": "صداهای رابط",
-  "settingsUiSoundsSubtitle": "صدای کوتاه هنگام موفقیت عملیات (مثلاً ذخیره).",
+  "settingsUiSoundsSubtitle": "صدای کوتاه هنگام ذخیره، حذف یا تکمیل عملیات.",
   "settingsUiHapticsTitle": "لرزش لمسی",
   "settingsUiHapticsSubtitle": "لرزش سبک برای عملیات موفق.",
+  "settingsUiHapticsWebHint": "لرزش در وب در دسترس نیست.",
+  "settingsSoundPreviewSuccess": "موفق",
+  "settingsSoundPreviewError": "خطا",
+  "settingsSoundPreviewDelete": "حذف",
+  "ordersDetailPaymentProgress": "پیشرفت پرداخت",
+  "ordersComposerProgressTitle": "پیشرفت سفارش",
+  "ordersComposerProgressCount": "{done} از {total} مرحله",
+  "ordersComposerProgressCustomer": "مشتری",
+  "ordersComposerProgressMeasurements": "اندازه",
+  "ordersComposerProgressStyle": "استایل",
+  "ordersComposerProgressDelivery": "تحویل",
+  "ordersComposerProgressPayment": "پرداخت",
   "settingsLanguageTitle": "زبان",
   "languageSystem": "سیستم",
   "languageEnglish": "انگلیسی",
@@ -936,7 +949,7 @@
   "subscriptionActivationCodeLabel": "کد فعال‌سازی",
   "subscriptionActivationCodeHint": "هنگام اتصال صورتحساب کد را وارد کنید",
   "subscriptionActivateCta": "فعال‌سازی",
-  "subscriptionActivationComingSoon": "فعال‌سازی به سرور متصل می‌شود (plan-06).",
+  "subscriptionActivationComingSoon": "فعال‌سازی به سرور متصل می‌شود.",
   "subscriptionRefreshStatusCta": "به‌روزرسانی وضعیت مجوز",
   "subscriptionRefreshComingSoon": "به‌روزرسانی آنلاین با اتصال API در دسترس خواهد بود.",
   "subscriptionActivationCodeHintApi": "کد فعال‌سازی را از توزیع‌کننده وارد کنید.",
@@ -988,10 +1001,28 @@
     }
   },
   "customersRowNoOrdersYet": "هنوز سفارشی نیست",
+  "customersRowSince": "مشتری از {date}",
+  "@customersRowSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsThisMonthIncomeEmpty": "هنوز پرداختی در این ماه ثبت نشده است.",
+  "reportsOpenUnpaidEmpty": "سفارش بازی با مانده بدهی وجود ندارد.",
+  "reportsOrdersByStatusCount": "{count, plural, other{{count} سفارش}}",
+  "@reportsOrdersByStatusCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "settingsUsersLimitsTitle": "محدودیت کاربران",
   "settingsUsersLimitsBody": "فروشگاه آزمایشی: حداکثر ۲ کاربر. فروشگاه پرداخت‌شده: حداکثر ۵ کاربر. حساب مالک حذف نمی‌شود.",
   "settingsUsersAddCta": "افزودن کاربر",
-  "settingsUsersAddDisabledHint": "مدیریت کاربر به سرور متصل می‌شود (plan-15).",
+  "settingsUsersAddDisabledHint": "مدیریت کاربر به سرور متصل می‌شود.",
   "settingsUsersListTitle": "تیم",
   "settingsUsersOwnerRowTitle": "مالک فروشگاه",
   "settingsUsersOwnerRowSubtitle": "دسترسی کامل",
@@ -1024,7 +1055,7 @@
   },
   "settingsUsersAddedSnackbar": "کاربر ایجاد شد.",
   "settingsUsersRemovedSnackbar": "کاربر حذف شد.",
-  "settingsBackupOwnerPasswordNote": "پشتیبان و بازیابی به رمز ورود مالک نیاز دارد (plan-15).",
+  "settingsBackupOwnerPasswordNote": "پشتیبان و بازیابی به رمز ورود مالک نیاز دارد.",
   "settingsBackupSectionTitle": "پشتیبان",
   "settingsBackupOptionDataOnly": "فقط داده",
   "settingsBackupOptionDataOnlySubtitle": "سفارش‌ها، مشتریان، پرداخت‌ها، فرادادهٔ کاتالوگ — فایل کوچک‌تر",
@@ -1134,7 +1165,7 @@
   "settingsSyncLocalNotifications": "اعلان‌ها",
   "settingsSyncLocalUnread": "اعلان‌های خوانده‌نشده",
   "settingsSyncRetryTitle": "هم‌اکنون همگام‌سازی",
-  "settingsSyncRetrySubtitle": "دریافت از سرور، سپس ارسال صف محلی وقتی API_BASE_URL تنظیم شده و با سرور آنلاین وارد شده‌اید (plan-04).",
+  "settingsSyncRetrySubtitle": "دریافت از سرور، سپس ارسال صف محلی وقتی API_BASE_URL تنظیم شده و با سرور آنلاین وارد شده‌اید.",
   "settingsSyncRetryOffline": "به نظر آفلاین هستید. اینترنت را وصل کنید و دوباره تلاش کنید.",
   "settingsSyncRetryConfigureApi": "ابتدا API_BASE_URL را در زمان بیلد تنظیم کنید، سپس تنظیمات → اتصال API را باز کنید.",
   "settingsSyncRetrySignIn": "ابتدا با حساب آنلاین سرور وارد شوید.",
@@ -1207,7 +1238,7 @@
   "devPortalStatActivations": "ایجاد کد (نمونهٔ ممیزی)",
   "devPortalApiHealthTitle": "سلامت API",
   "devPortalApiHealthUnknown": "نامشخص — به API متصل شوید",
-  "devPortalCodesStub": "کدهای فعال‌سازی: جستجو، ایجاد و لغو از API مدیریت بارگذاری می‌شود (plan-18).",
+  "devPortalCodesStub": "کدهای فعال‌سازی: جستجو، ایجاد و لغو از API مدیریت بارگذاری می‌شود.",
   "devPortalShopsStub": "فروشگاه‌ها و مجوزها: فهرست و جزئیات از API مدیریت بارگذاری می‌شود.",
   "devPortalResetsStub": "درخواست‌های بازنشانی رمز: صف پشتیبانی از API مدیریت بارگذاری می‌شود.",
   "devPortalDiagStub": "برای بستهٔ کامل دستگاه از تنظیمات → همگام‌سازی و تشخیص → خروجی بستهٔ تشخیص استفاده کنید.",
@@ -1335,6 +1366,9 @@
   "defaultShopAddress": "کابل، افغانستان",
   "defaultShopPhone": "0701234567",
   "orderShareInvoiceTooltip": "اشتراک فاکتور",
+  "orderShareInvoicePdfCta": "اشتراک فاکتور PDF",
+  "orderShareContactPermissionDenied": "اجازه مخاطبین خاموش است — فاکتور اشتراک شد، اما مشتری در تلفن ذخیره نشد.",
+  "orderShareInvoiceSharedSheet": "واتساپ یا برنامه دیگر را برای ارسال فاکتور PDF انتخاب کنید.",
   "orderShareInvoiceFail": "اشتراک ناموفق: {detail}",
   "@orderShareInvoiceFail": {
     "placeholders": {
@@ -1351,5 +1385,67 @@
       }
     }
   },
-  "receiptFooterThanks": "از همکاری شما سپاسگزاریم!"
+  "orderShareInvoiceWhatsappCaption": "فاکتور سفارش {orderNo} — {customerName}",
+  "@orderShareInvoiceWhatsappCaption": {
+    "placeholders": {
+      "orderNo": {
+        "type": "String"
+      },
+      "customerName": {
+        "type": "String"
+      }
+    }
+  },
+  "orderShareContactSaved": "{name} در مخاطبین تلفن شما ذخیره شد.",
+  "@orderShareContactSaved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "orderShareWhatsappOpened": "فاکتور PDF در واتساپ باز شد.",
+  "receiptFooterThanks": "از همکاری شما سپاسگزاریم!",
+  "settingsDeveloperPortalCheckFailed": "تأیید دسترسی توسعه‌دهنده ممکن نشد. برای تکرار لمس کنید.",
+  "settingsDeveloperPortalRetry": "تلاش دوباره",
+  "dashboardSyncRunning": "همگام‌سازی…",
+  "dashboardSyncTapToRun": "برای همگام‌سازی لمس کنید",
+  "dashboardTasksSectionTitle": "کارها",
+  "dashboardTasksOpenCount": "{count} باز",
+  "@dashboardTasksOpenCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardTasksViewAll": "همه کارها",
+  "shopFinanceTitle": "امور مالی دکان",
+  "shopFinanceSubtitle": "کرایه، مصارف روزانه و خوراک",
+  "shopFinanceOverviewTitle": "خلاصه",
+  "shopFinanceRentTitle": "کرایه",
+  "shopFinanceExpensesTitle": "مصارف",
+  "shopFinanceMonthOutflow": "مصارف این ماه",
+  "shopFinanceRentDue": "کرایه معوق",
+  "shopFinanceRentPaid": "کرایه پرداخت‌شده این ماه",
+  "shopFinanceExpenseDaily": "مصارف روزانه",
+  "shopFinanceExpenseFood": "خوراک و نوشیدنی",
+  "shopFinanceExpenseOther": "سایر",
+  "shopFinanceAddRent": "تنظیم کرایه",
+  "shopFinanceRecordRentPayment": "ثبت پرداخت کرایه",
+  "shopFinanceAddExpense": "افزودن مصرف",
+  "shopFinanceAmountLabel": "مبلغ (افغانی)",
+  "shopFinanceDueDateLabel": "تاریخ سررسید",
+  "shopFinancePeriodMonthsLabel": "دوره (ماه)",
+  "shopFinanceNoteLabel": "یادداشت",
+  "shopFinanceCategoryLabel": "دسته",
+  "shopFinanceDateLabel": "تاریخ",
+  "shopFinanceClearPeriodTitle": "مصارف قدیمی پاک شود؟",
+  "shopFinanceClearPeriodBody": "مصارف قبل از تاریخ انتخاب‌شده از فهرست حذف می‌شوند.",
+  "shopFinanceRentDueNotificationTitle": "کرایه نزدیک است",
+  "shopFinanceRentDueNotificationBody": "کرایه {amount} در {date} سررسید است",
+  "shopFinanceEmptyRent": "هنوز کرایه ثبت نشده. کرایه ماهانه را تنظیم کنید.",
+  "shopFinanceEmptyExpenses": "هنوز مصرفی ثبت نشده.",
+  "shopFinanceSave": "ذخیره",
+  "shopFinanceChartsExpensesByCategory": "مصارف بر اساس دسته"
 }

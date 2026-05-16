@@ -1,0 +1,6 @@
+# Avoid stale shell after releases (Flutter service worker still caches assets)
+/index.html
+  Cache-Control: no-cache
+
+/flutter_service_worker.js
+  Cache-Control: no-cache

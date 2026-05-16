@@ -21,4 +21,8 @@ abstract final class SyncOutboxKinds {
   static const stylePartDelete = 'style_part_delete';
   static const styleFigureUpsert = 'style_figure_upsert';
   static const styleFigureDelete = 'style_figure_delete';
+  static const shopRentUpsert = 'shop_rent_upsert';
+  static const shopRentPaymentAppend = 'shop_rent_payment_append';
+  static const shopExpenseUpsert = 'shop_expense_upsert';
+  static const shopExpenseDelete = 'shop_expense_delete';
 }

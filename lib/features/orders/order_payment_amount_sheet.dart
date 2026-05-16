@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pride_v3/app/app_theme.dart';
+import 'package:pride_v3/core/formatting/digit_normalizer.dart';
 import 'package:pride_v3/core/widgets/pride_action_buttons.dart';
+import 'package:pride_v3/core/widgets/pride_money_field.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 /// Bottom sheet for entering a payment or adjustment amount (RTL-safe).
@@ -59,8 +61,7 @@ class _OrderPaymentAmountBodyState extends State<_OrderPaymentAmountBody> {
   }
 
   void _submit() {
-    final raw = _controller.text.trim();
-    final value = int.tryParse(raw);
+    final value = tryParseMoneyAmount(_controller.text);
     if (value == null) {
       Navigator.of(context).pop(null);
       return;
@@ -101,20 +102,12 @@ class _OrderPaymentAmountBodyState extends State<_OrderPaymentAmountBody> {
               ),
             ],
             const SizedBox(height: 16),
-            TextField(
+            PrideMoneyField(
               controller: _controller,
               autofocus: true,
-              keyboardType: widget.signed
-                  ? const TextInputType.numberWithOptions(
-                      signed: true,
-                      decimal: false,
-                    )
-                  : TextInputType.number,
-              decoration: InputDecoration(
-                labelText: widget.l10n.paymentAmountLabel,
-                hintText: widget.l10n.paymentAmountHint,
-                border: const OutlineInputBorder(),
-              ),
+              signed: widget.signed,
+              labelText: widget.l10n.paymentAmountLabel,
+              hintText: widget.l10n.paymentAmountHint,
               onSubmitted: (_) => _submit(),
             ),
             const SizedBox(height: 20),

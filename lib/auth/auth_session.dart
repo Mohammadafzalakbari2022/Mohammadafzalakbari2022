@@ -29,6 +29,23 @@ class AuthSession extends ChangeNotifier {
 
   bool get hasApiSession => _accessToken != null;
 
+  /// Restores a local-only session saved on device (no password stored).
+  void restoreMockSession({
+    required String username,
+    String? shopId,
+  }) {
+    final u = username.trim();
+    if (u.isEmpty) return;
+    final s = shopId?.trim();
+    _username = u;
+    _shopId = (s == null || s.isEmpty) ? null : s;
+    _accessToken = null;
+    _userId = null;
+    _isShopOwner = false;
+    _authenticated = true;
+    notifyListeners();
+  }
+
   /// Local-only dev sign-in when `API_BASE_URL` is not configured.
   void signInMock({
     required String username,

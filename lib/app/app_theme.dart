@@ -1,3 +1,6 @@
+// isar_generator resolves @immutable only via foundation, not material.dart.
+// ignore: unnecessary_import
+import 'package:flutter/foundation.dart' show immutable;
 import 'package:flutter/material.dart';
 
 const Color _seed = Color(0xFF7C3AED);
@@ -520,6 +523,14 @@ ThemeData buildPrideLightTheme() {
     outline: const Color(0xFF94A3B8),
 
     outlineVariant: const Color(0xFFCBD5E1),
+
+    onSurface: const Color(0xFF0F172A),
+
+    onSurfaceVariant: const Color(0xFF475569),
+
+    surfaceTint: _seed,
+
+    shadow: const Color(0xFF0F172A),
   );
 
   return _buildTheme(scheme, Brightness.light, PrideActionColors.light);
@@ -582,6 +593,12 @@ ThemeData buildPrideDarkTheme() {
     outline: const Color(0xFF64748B),
 
     outlineVariant: const Color(0xFF3D4458),
+
+    onSurface: const Color(0xFFE8EDF4),
+
+    onSurfaceVariant: const Color(0xFF94A3B8),
+
+    surfaceTint: _seed,
   );
 
   return _buildTheme(scheme, Brightness.dark, PrideActionColors.dark);
@@ -600,6 +617,14 @@ ThemeData _buildTheme(
     borderRadius: BorderRadius.circular(12),
   );
 
+  final typography = isDark
+      ? Typography.material2021(platform: TargetPlatform.android).white
+      : Typography.material2021(platform: TargetPlatform.android).black;
+  final textTheme = typography.apply(
+    bodyColor: scheme.onSurface,
+    displayColor: scheme.onSurface,
+  );
+
   return ThemeData(
     colorScheme: scheme,
 
@@ -608,6 +633,10 @@ ThemeData _buildTheme(
     brightness: brightness,
 
     visualDensity: VisualDensity.standard,
+
+    scaffoldBackgroundColor: scheme.surface,
+
+    textTheme: textTheme,
 
     extensions: [actions],
 
@@ -623,6 +652,28 @@ ThemeData _buildTheme(
       iconTheme: IconThemeData(color: scheme.onSurface, size: 22),
 
       actionsIconTheme: IconThemeData(color: scheme.onSurface, size: 22),
+    ),
+
+    iconButtonTheme: IconButtonThemeData(
+      style: ButtonStyle(
+        minimumSize: const WidgetStatePropertyAll(Size(44, 44)),
+        padding: const WidgetStatePropertyAll(EdgeInsets.all(8)),
+        backgroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.disabled)) {
+            return actions.cancelContainer.withValues(alpha: 0.35);
+          }
+          return actions.cancelContainer;
+        }),
+        foregroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.disabled)) {
+            return actions.onCancelContainer.withValues(alpha: 0.45);
+          }
+          return actions.onCancelContainer;
+        }),
+        shape: WidgetStatePropertyAll(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      ),
     ),
 
     cardTheme: CardThemeData(
@@ -643,6 +694,10 @@ ThemeData _buildTheme(
 
     navigationBarTheme: NavigationBarThemeData(
       height: 72,
+
+      backgroundColor: scheme.surfaceContainerLowest,
+
+      surfaceTintColor: Colors.transparent,
 
       indicatorColor: scheme.primaryContainer,
 
@@ -736,12 +791,39 @@ ThemeData _buildTheme(
 
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
 
-      backgroundColor: scheme.surfaceContainerHigh,
+      backgroundColor: isDark
+          ? scheme.surfaceContainerHigh
+          : scheme.surfaceContainerLow,
 
       labelStyle: TextStyle(
-        color: scheme.onSurfaceVariant,
+        color: scheme.onSurface,
         fontSize: 12,
         fontWeight: FontWeight.w500,
+      ),
+    ),
+
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: isDark
+          ? scheme.surfaceContainerLow
+          : scheme.surfaceContainerLowest,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: scheme.outlineVariant),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(
+          color: scheme.outlineVariant.withValues(alpha: 0.85),
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: scheme.primary, width: 2),
+      ),
+      labelStyle: TextStyle(color: scheme.onSurfaceVariant),
+      hintStyle: TextStyle(
+        color: scheme.onSurfaceVariant.withValues(alpha: 0.85),
       ),
     ),
 

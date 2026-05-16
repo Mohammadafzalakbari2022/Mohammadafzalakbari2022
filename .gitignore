@@ -65,6 +65,9 @@ android/key.properties
 # FVM (optional local SDK pin)
 .fvm/
 
+# Local style-figure source folder (canonical copies live in assets/style_figures/)
+style figures/
+
 # Windows junk
 Thumbs.db
 ehthumbs.db

@@ -1,5 +1,6 @@
 import 'package:isar/isar.dart';
 import 'package:uuid/uuid.dart';
+import 'package:pride_v3/core/feedback/notification_sound_bridge.dart';
 
 import 'app_notification_repository.dart';
 import 'app_notification_summary.dart';
@@ -77,6 +78,7 @@ class IsarAppNotificationRepository implements AppNotificationRepository {
     await _isar.writeTxn(() async {
       await _isar.appNotificationEntitys.putByInternalId(e);
     });
+    await NotificationSoundBridge.onNotificationInserted();
   }
 
   @override
@@ -107,7 +109,11 @@ class IsarAppNotificationRepository implements AppNotificationRepository {
     final readRaw = m['read_at'];
     if (readRaw is String) readAt = DateTime.tryParse(readRaw);
 
+    var isNew = false;
     await _isar.writeTxn(() async {
+      final prior =
+          await _isar.appNotificationEntitys.getByInternalId(internalId);
+      isNew = prior == null;
       final e = AppNotificationEntity()
         ..internalId = internalId
         ..shopId = shopId
@@ -119,6 +125,9 @@ class IsarAppNotificationRepository implements AppNotificationRepository {
             rel is String && rel.isNotEmpty ? rel : null;
       await _isar.appNotificationEntitys.putByInternalId(e);
     });
+    if (isNew) {
+      await NotificationSoundBridge.onNotificationInserted();
+    }
   }
 
   @override

@@ -1,0 +1,22 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Pride (prod API)",
+      "request": "launch",
+      "type": "dart",
+      "toolArgs": [
+        "--dart-define-from-file=config/dart_defines_prod.json"
+      ]
+    },
+    {
+      "name": "Pride (Chrome, prod API)",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "chrome",
+      "toolArgs": [
+        "--dart-define-from-file=config/dart_defines_prod.json"
+      ]
+    }
+  ]
+}

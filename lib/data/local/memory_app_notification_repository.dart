@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:pride_v3/core/feedback/notification_sound_bridge.dart';
 import 'package:uuid/uuid.dart';
 
 import 'app_notification_repository.dart';
@@ -67,6 +68,7 @@ class MemoryAppNotificationRepository implements AppNotificationRepository {
       ),
     );
     _emit();
+    await NotificationSoundBridge.onNotificationInserted();
   }
 
   @override
@@ -106,12 +108,16 @@ class MemoryAppNotificationRepository implements AppNotificationRepository {
       relatedOrderInternalId:
           rel is String && rel.isNotEmpty ? rel : null,
     );
+    final isNew = idx < 0;
     if (idx >= 0) {
       _items[idx] = row;
     } else {
       _items.add(row);
     }
     _emit();
+    if (isNew) {
+      await NotificationSoundBridge.onNotificationInserted();
+    }
   }
 
   @override

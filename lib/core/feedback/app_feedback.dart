@@ -1,12 +1,46 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../features/settings/settings_providers.dart';
+import 'app_sound_feedback.dart';
 
 enum AppFeedbackKind { success, error, info }
+
+/// SnackBar-only message with the same sound/haptic feedback as [showAppFeedback].
+void showPrideSnack(
+  BuildContext context,
+  WidgetRef ref, {
+  required String message,
+  AppFeedbackKind kind = AppFeedbackKind.info,
+  bool deleted = false,
+  Duration? duration,
+}) {
+  if (!context.mounted) return;
+  playUiSoundFeedback(ref, kind, deleted: deleted);
+  final scheme = Theme.of(context).colorScheme;
+  final (Color bg, Color fg) = switch (kind) {
+    AppFeedbackKind.success => (
+      scheme.primaryContainer,
+      scheme.onPrimaryContainer,
+    ),
+    AppFeedbackKind.error => (
+      scheme.errorContainer,
+      scheme.onErrorContainer,
+    ),
+    AppFeedbackKind.info => (
+      scheme.secondaryContainer,
+      scheme.onSecondaryContainer,
+    ),
+  };
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(message),
+      backgroundColor: bg,
+      duration: duration ?? const Duration(seconds: 3),
+      behavior: SnackBarBehavior.floating,
+    ),
+  );
+}
 
 Duration _durationFor(AppFeedbackKind kind) {
   switch (kind) {
@@ -24,23 +58,16 @@ void showAppFeedback(
   WidgetRef ref, {
   required AppFeedbackKind kind,
   required String message,
+  bool deleted = false,
 }) {
   if (!context.mounted) return;
+
+  // Sounds are independent of reduce-motion (progress bar only).
+  playUiSoundFeedback(ref, kind, deleted: deleted);
 
   final reduceMotion =
       SchedulerBinding.instance.platformDispatcher.accessibilityFeatures
           .disableAnimations;
-  final sounds = ref.read(uiSoundsEnabledProvider);
-  final haptics = ref.read(uiHapticsEnabledProvider);
-
-  if (kind == AppFeedbackKind.success && !reduceMotion) {
-    if (haptics && !kIsWeb) {
-      HapticFeedback.lightImpact();
-    }
-    if (sounds) {
-      SystemSound.play(SystemSoundType.click);
-    }
-  }
 
   final scheme = Theme.of(context).colorScheme;
   final messenger = ScaffoldMessenger.of(context);
@@ -55,8 +82,8 @@ void showAppFeedback(
       scheme.onErrorContainer,
     ),
     AppFeedbackKind.info => (
-      scheme.surfaceContainerHighest,
-      scheme.onSurface,
+      scheme.secondaryContainer,
+      scheme.onSecondaryContainer,
     ),
   };
 

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pride_v3/core/feedback/app_feedback.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../auth/auth_providers.dart';
@@ -151,8 +152,11 @@ class SettingsMeasurementTypesScreen extends ConsumerWidget {
                       isActive: true,
                     );
                     if (!context.mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(l10n.measurementTypesCreated)),
+                    showAppFeedback(
+                      context,
+                      ref,
+                      kind: AppFeedbackKind.success,
+                      message: l10n.measurementTypesCreated,
                     );
                   },
                 );
@@ -241,12 +245,11 @@ class SettingsMeasurementTypesScreen extends ConsumerWidget {
                                     isActive: t.isActive,
                                   );
                                   if (!context.mounted) return;
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        l10n.measurementTypesUpdated,
-                                      ),
-                                    ),
+                                  showAppFeedback(
+                                    context,
+                                    ref,
+                                    kind: AppFeedbackKind.success,
+                                    message: l10n.measurementTypesUpdated,
                                   );
                                 },
                               );
@@ -284,10 +287,12 @@ class SettingsMeasurementTypesScreen extends ConsumerWidget {
                               );
                               await repo.softDeleteMeasurementType(t.internalId);
                               if (!context.mounted) return;
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(l10n.measurementTypesDeleted),
-                                ),
+                              showAppFeedback(
+                                context,
+                                ref,
+                                kind: AppFeedbackKind.success,
+                                message: l10n.measurementTypesDeleted,
+                                deleted: true,
                               );
                             },
                           );

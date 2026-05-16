@@ -8,7 +8,7 @@
   "tabReports": "Reports",
   "tabSettings": "Settings",
   "loginTitle": "Sign in",
-  "loginSubtitle": "Use your shop username and password. The server will verify this when the API is connected (plan-04).",
+  "loginSubtitle": "Use your shop username and password to open your shop.",
   "loginMockHint": "In this build, any non-empty username and password will sign you in locally.",
   "loginShopIdLabel": "Shop ID (optional)",
   "loginShopIdHint": "Leave blank for single-shop dev",
@@ -72,7 +72,7 @@
     }
   },
   "loginShopCreateSectionTitle": "New shop (API)",
-  "loginShopCreateSubtitle": "Create a shop on the server and sign in as owner (plan-04).",
+  "loginShopCreateSubtitle": "Create a shop on the server and sign in as owner.",
   "loginShopCreateNameLabel": "Shop name",
   "loginShopCreateOwnerUsernameLabel": "Owner username",
   "loginShopCreateOwnerPasswordLabel": "Owner password",
@@ -96,7 +96,7 @@
     }
   },
   "dashboardTitle": "Dashboard",
-  "dashboardSubtitle": "KPIs and shortcuts will load from local data (plan-09).",
+  "dashboardSubtitle": "Today's KPIs and shortcuts from your shop data.",
   "dashboardKpisPlaceholder": "Today at a glance",
   "dashboardKpiNewOrders": "New orders",
   "dashboardKpiInProgress": "In progress",
@@ -108,7 +108,7 @@
   "dashboardRecentIncomeTitle": "Income — last 7 days",
   "dashboardActivitySectionTitle": "Sync & notifications",
   "subscriptionTitle": "Subscription",
-  "subscriptionBody": "Renew or enter an activation code when billing is connected (plan-06). While expired, editing is limited; viewing lists and details stays available.",
+  "subscriptionBody": "Renew or enter an activation code when billing is connected. While expired, editing is limited; viewing lists and details stays available.",
   "subscriptionListTileSubtitle": "License, trial, and activation",
   "licenseDevControlsTitle": "License (dev only)",
   "licenseStatusTrial": "Trial",
@@ -116,9 +116,9 @@
   "licenseStatusExpired": "Expired",
   "ordersNewTitle": "New order",
   "ordersNewCta": "New order",
-  "ordersComposerPlaceholderBody": "Order composer will go here (plan-11).",
+  "ordersComposerPlaceholderBody": "Order composer will go here.",
   "ordersDetailTitle": "Order details",
-  "ordersDetailPlaceholderBody": "Order {orderId} — details UI coming soon (plan-12).",
+  "ordersDetailPlaceholderBody": "Order {orderId} — details UI coming soon.",
   "@ordersDetailPlaceholderBody": {
     "placeholders": {
       "orderId": {
@@ -248,7 +248,7 @@
     }
   },
   "ordersDetailMeasurementsNotes": "Notes on order",
-  "ordersDetailLockedHint": "This order is locked because it is Delivered or Cancelled (plan-12).",
+  "ordersDetailLockedHint": "This order is locked because it is Delivered or Cancelled.",
   "ordersDetailLockedStillInternalNotes": "You can still edit internal notes below.",
   "ordersInternalNotesDialogTitle": "Internal notes",
   "ordersInternalNotesHint": "Staff-only — not shown to the customer.",
@@ -257,7 +257,7 @@
   "ownerPasswordTitle": "Owner password",
   "ownerPasswordLabel": "Enter owner password",
   "ownerPasswordMismatch": "That password does not match the owner password for this device.",
-  "ordersDetailChangeStatusSoon": "Status changes will open a confirmation flow (plan-12).",
+  "ordersDetailChangeStatusSoon": "Status changes will open a confirmation flow.",
   "addPaymentCta": "Add payment",
   "addAdjustmentCta": "Add adjustment",
   "paymentAdjustmentHint": "Use a negative amount to reduce recorded payments (append-only ledger).",
@@ -292,9 +292,9 @@
   "customerOrderHistoryTitle": "Order history",
   "customerNoOrders": "No orders yet for this customer.",
   "customerViewAllOrders": "View all orders for this customer",
-  "customerViewAllOrdersSoon": "This will open Orders with a customer filter (plan-13).",
+  "customerViewAllOrdersSoon": "This will open Orders with a customer filter.",
   "customerSectionPlaceholder": "Details will appear here as the module is built.",
-  "customerNewPlaceholderBody": "New customer form will go here (plan-13).",
+  "customerNewPlaceholderBody": "New customer form will go here.",
   "measurementUnitCm": "Centimeters",
   "measurementUnitInch": "Inches",
   "measurementProfilesEmpty": "No saved profiles yet. Add one to reuse measurements on new orders.",
@@ -416,7 +416,7 @@
   "reportsPaymentsGroupByDay": "Day",
   "reportsPaymentsGroupByWeek": "Week",
   "reportsPaymentsGroupByMonth": "Month",
-  "reportsMonthlyIncomePlaceholder": "Monthly income report will go here (plan-16).",
+  "reportsMonthlyIncomePlaceholder": "Monthly income report will go here.",
   "reportsThisMonthIncomeTitle": "This month income",
   "reportsThisMonthIncomeSubtitle": "Income: {amount}",
   "@reportsThisMonthIncomeSubtitle": {
@@ -476,15 +476,15 @@
   "catalogSharedDirectoryEmpty": "No shared listings in the directory yet.",
   "catalogCommunityReadOnlyBanner": "Shared directory entry — view only. You cannot edit or delete another shop’s listing.",
   "catalogSharingToggleTitle": "Enable catalog sharing",
-  "catalogSharingToggleSubtitle": "Mutual opt-in: enable to browse and be listed in public directory (plan-14).",
-  "catalogSharedPlaceholder": "Shared designs directory will appear here when online (plan-14).",
+  "catalogSharingToggleSubtitle": "Mutual opt-in: enable to browse and be listed in public directory.",
+  "catalogSharedPlaceholder": "Shared designs directory will appear here when online.",
   "catalogEmptyMyDesigns": "No designs yet.",
   "catalogAddDesignCta": "Add design",
   "catalogViewDescription": "Description",
   "catalogDescriptionSheetTitle": "Description",
   "catalogNoDescription": "No description for this design.",
   "catalogViewerManageA11y": "Manage design",
-  "catalogAddDesignPlaceholder": "Camera / Gallery add will be implemented on Android/iOS only (plan-14).",
+  "catalogAddDesignPlaceholder": "Camera / Gallery add will be implemented on Android/iOS only.",
   "catalogDetailTitle": "Catalog item",
   "catalogDetailPlaceholder": "Catalog item {id} — detail screen coming soon.",
   "@catalogDetailPlaceholder": {
@@ -501,7 +501,7 @@
   "settingsSectionAbout": "About",
   "settingsSectionDeveloper": "Developer",
   "settingsShopTileTitle": "Shop profile",
-  "settingsShopTileSubtitle": "Shop details will appear here (plan-15).",
+  "settingsShopTileSubtitle": "Shop details will appear here.",
   "settingsCurrentUserTitle": "Current user",
   "settingsSignOutTitle": "Sign out",
   "settingsSignOutSubtitle": "End this session on this device",
@@ -514,15 +514,15 @@
   "settingsOwnerOnly": "Owner only",
   "settingsUsersTitle": "Manage users",
   "settingsUsersSubtitleOwner": "Trial: 2 users • Paid: 5 users",
-  "settingsUsersPlaceholder": "Users management will be implemented in plan-15 (create/remove users, limits, owner protections).",
+  "settingsUsersPlaceholder": "Users management will be implemented (create/remove users, limits, owner protections).",
   "settingsBackupRestoreTitle": "Backup & restore",
   "settingsBackupRestoreSubtitleOwner": "Export and restore shop data safely",
-  "settingsBackupRestorePlaceholder": "Backup/restore will be implemented in plan-15 (merge restore, owner password confirmation, restore summary).",
+  "settingsBackupRestorePlaceholder": "Backup/restore will be implemented (merge restore, owner password confirmation, restore summary).",
   "settingsMuteNotificationsTitle": "Mute notifications",
   "settingsMuteNotificationsSubtitle": "Silence in-app banners and badges (history is kept).",
   "settingsNotificationsInboxTitle": "Notifications inbox",
-  "settingsNotificationsInboxSubtitle": "History and filters (plan-15).",
-  "settingsNotificationsPlaceholder": "Notifications inbox will be implemented in plan-15.",
+  "settingsNotificationsInboxSubtitle": "History and filters.",
+  "settingsNotificationsPlaceholder": "Notifications inbox will be implemented.",
   "settingsSyncDiagnosticsTitle": "Sync & diagnostics",
   "settingsNetworkStatusTitle": "Network",
   "settingsNetworkStatusOnline": "Connected",
@@ -548,8 +548,8 @@
       }
     }
   },
-  "settingsSyncDiagnosticsSubtitle": "Last sync, queue, outbox (plan-15).",
-  "settingsSyncDiagnosticsPlaceholder": "Sync & diagnostics will be implemented in plan-15.",
+  "settingsSyncDiagnosticsSubtitle": "Last sync, queue, and pending changes.",
+  "settingsSyncDiagnosticsPlaceholder": "Sync status and diagnostics appear here.",
   "settingsAppearanceLanguageTitle": "Appearance & language",
   "settingsAppearanceLanguageSubtitle": "Theme and language",
   "settingsAboutTitle": "About",
@@ -558,7 +558,7 @@
   "settingsBuildTitle": "Package",
   "settingsDeveloperPortalTitle": "Developer Portal",
   "settingsDeveloperPortalSubtitle": "Advanced tools (developer accounts only).",
-  "settingsDeveloperPortalPlaceholder": "Developer Portal screens will be implemented in plan-18.",
+  "settingsDeveloperPortalPlaceholder": "Developer Portal screens will be implemented.",
   "settingsDevRolesTitle": "Dev role toggles",
   "settingsDevRoleOwnerTitle": "Simulate owner account",
   "settingsDevRoleOwnerSubtitle": "Shows owner-only sections unlocked.",
@@ -568,10 +568,29 @@
   "themeSystem": "System",
   "themeLight": "Light",
   "themeDark": "Dark",
+  "settingsSectionSoundFeedback": "Sound & feedback",
   "settingsUiSoundsTitle": "UI sounds",
-  "settingsUiSoundsSubtitle": "Short sound when an action succeeds (for example, saving).",
+  "settingsUiSoundsSubtitle": "Short sounds when you save, delete, or complete an action.",
   "settingsUiHapticsTitle": "Haptic feedback",
   "settingsUiHapticsSubtitle": "Light vibration on successful actions.",
+  "settingsUiHapticsWebHint": "Haptics are not available on web.",
+  "settingsSoundPreviewSuccess": "Success",
+  "settingsSoundPreviewError": "Error",
+  "settingsSoundPreviewDelete": "Delete",
+  "ordersDetailPaymentProgress": "Payment progress",
+  "ordersComposerProgressTitle": "Order progress",
+  "ordersComposerProgressCount": "{done} of {total} steps",
+  "@ordersComposerProgressCount": {
+    "placeholders": {
+      "done": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "ordersComposerProgressCustomer": "Customer",
+  "ordersComposerProgressMeasurements": "Measures",
+  "ordersComposerProgressStyle": "Style",
+  "ordersComposerProgressDelivery": "Delivery",
+  "ordersComposerProgressPayment": "Payment",
   "settingsLanguageTitle": "Language",
   "languageSystem": "System",
   "languageEnglish": "English",
@@ -816,7 +835,7 @@
   "subscriptionActivationCodeLabel": "Activation code",
   "subscriptionActivationCodeHint": "Enter code when billing is connected",
   "subscriptionActivateCta": "Activate",
-  "subscriptionActivationComingSoon": "Activation will connect to the server (plan-06).",
+  "subscriptionActivationComingSoon": "Activation will connect to the server.",
   "subscriptionRefreshStatusCta": "Refresh license status",
   "subscriptionRefreshComingSoon": "Online refresh will be available when the API is connected.",
   "subscriptionActivationCodeHintApi": "Enter the activation code from your distributor.",
@@ -868,10 +887,28 @@
     }
   },
   "customersRowNoOrdersYet": "No orders yet",
+  "customersRowSince": "Customer since {date}",
+  "@customersRowSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsThisMonthIncomeEmpty": "No payments recorded this month yet.",
+  "reportsOpenUnpaidEmpty": "No open orders with a remaining balance.",
+  "reportsOrdersByStatusCount": "{count, plural, =1{1 order} other{{count} orders}}",
+  "@reportsOrdersByStatusCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "settingsUsersLimitsTitle": "User limits",
   "settingsUsersLimitsBody": "Trial shops: up to 2 users. Paid shops: up to 5 users. The owner account cannot be deleted.",
   "settingsUsersAddCta": "Add user",
-  "settingsUsersAddDisabledHint": "User management will connect to the server (plan-15).",
+  "settingsUsersAddDisabledHint": "User management will connect to the server.",
   "settingsUsersListTitle": "Team",
   "settingsUsersOwnerRowTitle": "Shop owner",
   "settingsUsersOwnerRowSubtitle": "Full access",
@@ -904,7 +941,7 @@
   },
   "settingsUsersAddedSnackbar": "User created.",
   "settingsUsersRemovedSnackbar": "User removed.",
-  "settingsBackupOwnerPasswordNote": "Backup and restore will require the owner’s login password (plan-15).",
+  "settingsBackupOwnerPasswordNote": "Backup and restore will require the owner’s login password.",
   "settingsBackupSectionTitle": "Backup",
   "settingsBackupOptionDataOnly": "Data only",
   "settingsBackupOptionDataOnlySubtitle": "Orders, customers, payments, catalog metadata — smaller file",
@@ -988,7 +1025,7 @@
   "settingsSyncLocalNotifications": "Notifications",
   "settingsSyncLocalUnread": "Unread notifications",
   "settingsSyncRetryTitle": "Sync now",
-  "settingsSyncRetrySubtitle": "Pull from the server, then push the local queue when API_BASE_URL is set and you are signed in online (plan-04).",
+  "settingsSyncRetrySubtitle": "Pull from the server, then push the local queue when API_BASE_URL is set and you are signed in online.",
   "settingsSyncRetryOffline": "You appear offline. Connect to the internet and try again.",
   "settingsSyncRetryConfigureApi": "Set API_BASE_URL at build time, then open Settings → API connection.",
   "settingsSyncRetrySignIn": "Sign in with your online server account first.",
@@ -1125,7 +1162,7 @@
   "devPortalStatActivations": "Code creates (audit)",
   "devPortalApiHealthTitle": "API health",
   "devPortalApiHealthUnknown": "Unknown — connect to the API",
-  "devPortalCodesStub": "Activation codes: search, create, and revoke will load from the admin API (plan-18).",
+  "devPortalCodesStub": "Activation codes: search, create, and revoke will load from the admin API.",
   "devPortalShopsStub": "Shops & licenses: list and detail views will load from the admin API.",
   "devPortalResetsStub": "Password reset requests: support queue will load from the admin API.",
   "devPortalDiagStub": "For a full device bundle, use Settings → Sync & Diagnostics → Export diagnostics bundle.",
@@ -1251,6 +1288,9 @@
   "defaultShopAddress": "Kabul, Afghanistan",
   "defaultShopPhone": "0701234567",
   "orderShareInvoiceTooltip": "Share invoice",
+  "orderShareInvoicePdfCta": "Share PDF invoice",
+  "orderShareContactPermissionDenied": "Contacts permission is off — invoice shared, but the customer was not saved to your phone.",
+  "orderShareInvoiceSharedSheet": "Choose WhatsApp or another app to send the PDF invoice.",
   "orderShareInvoiceFail": "Share failed: {detail}",
   "@orderShareInvoiceFail": {
     "placeholders": {
@@ -1267,5 +1307,77 @@
       }
     }
   },
-  "receiptFooterThanks": "Thank you for your business!"
+  "orderShareInvoiceWhatsappCaption": "Invoice for order {orderNo} — {customerName}",
+  "@orderShareInvoiceWhatsappCaption": {
+    "placeholders": {
+      "orderNo": {
+        "type": "String"
+      },
+      "customerName": {
+        "type": "String"
+      }
+    }
+  },
+  "orderShareContactSaved": "Saved {name} to your phone contacts.",
+  "@orderShareContactSaved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "orderShareWhatsappOpened": "Invoice PDF opened in WhatsApp.",
+  "receiptFooterThanks": "Thank you for your business!",
+  "settingsDeveloperPortalCheckFailed": "Could not verify developer access. Tap to retry.",
+  "settingsDeveloperPortalRetry": "Retry",
+  "dashboardSyncRunning": "Syncing…",
+  "dashboardSyncTapToRun": "Tap to sync now",
+  "dashboardTasksSectionTitle": "Tasks",
+  "dashboardTasksOpenCount": "{count} open",
+  "@dashboardTasksOpenCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardTasksViewAll": "View all tasks",
+  "shopFinanceTitle": "Shop finance",
+  "shopFinanceSubtitle": "Rent, daily costs, and food & drinks",
+  "shopFinanceOverviewTitle": "Overview",
+  "shopFinanceRentTitle": "Rent",
+  "shopFinanceExpensesTitle": "Expenses",
+  "shopFinanceMonthOutflow": "This month outflow",
+  "shopFinanceRentDue": "Rent due",
+  "shopFinanceRentPaid": "Rent paid this month",
+  "shopFinanceExpenseDaily": "Daily expenses",
+  "shopFinanceExpenseFood": "Food & drinks",
+  "shopFinanceExpenseOther": "Other",
+  "shopFinanceAddRent": "Set rent",
+  "shopFinanceRecordRentPayment": "Record rent payment",
+  "shopFinanceAddExpense": "Add expense",
+  "shopFinanceAmountLabel": "Amount (AFN)",
+  "shopFinanceDueDateLabel": "Due date",
+  "shopFinancePeriodMonthsLabel": "Period (months)",
+  "shopFinanceNoteLabel": "Note",
+  "shopFinanceCategoryLabel": "Category",
+  "shopFinanceDateLabel": "Date",
+  "shopFinanceClearPeriodTitle": "Clear old expenses?",
+  "shopFinanceClearPeriodBody": "Expenses before the selected date will be removed from your list.",
+  "shopFinanceRentDueNotificationTitle": "Rent due soon",
+  "shopFinanceRentDueNotificationBody": "Rent of {amount} is due on {date}",
+  "@shopFinanceRentDueNotificationBody": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "shopFinanceEmptyRent": "No rent schedule yet. Set your monthly rent.",
+  "shopFinanceEmptyExpenses": "No expenses recorded yet.",
+  "shopFinanceSave": "Save",
+  "shopFinanceChartsExpensesByCategory": "Expenses by category"
 }

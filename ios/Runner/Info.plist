@@ -53,5 +53,7 @@
 	<string>Pride accesses your photo library to add style figure and catalog images.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Pride saves images you choose for style figures and catalog items.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>Pride can save customer phone numbers to your contacts when you share an invoice.</string>
 </dict>
 </plist>

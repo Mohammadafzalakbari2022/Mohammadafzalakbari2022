@@ -34,7 +34,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loginSubtitle =>
-      'Use your shop username and password. The server will verify this when the API is connected (plan-04).';
+      'Use your shop username and password to open your shop.';
 
   @override
   String get loginMockHint =>
@@ -157,7 +157,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loginShopCreateSubtitle =>
-      'Create a shop on the server and sign in as owner (plan-04).';
+      'Create a shop on the server and sign in as owner.';
 
   @override
   String get loginShopCreateNameLabel => 'Shop name';
@@ -189,7 +189,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dashboardSubtitle =>
-      'KPIs and shortcuts will load from local data (plan-09).';
+      'Today\'s KPIs and shortcuts from your shop data.';
 
   @override
   String get dashboardKpisPlaceholder => 'Today at a glance';
@@ -226,7 +226,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get subscriptionBody =>
-      'Renew or enter an activation code when billing is connected (plan-06). While expired, editing is limited; viewing lists and details stays available.';
+      'Renew or enter an activation code when billing is connected. While expired, editing is limited; viewing lists and details stays available.';
 
   @override
   String get subscriptionListTileSubtitle => 'License, trial, and activation';
@@ -250,15 +250,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ordersNewCta => 'New order';
 
   @override
-  String get ordersComposerPlaceholderBody =>
-      'Order composer will go here (plan-11).';
+  String get ordersComposerPlaceholderBody => 'Order composer will go here.';
 
   @override
   String get ordersDetailTitle => 'Order details';
 
   @override
   String ordersDetailPlaceholderBody(String orderId) {
-    return 'Order $orderId — details UI coming soon (plan-12).';
+    return 'Order $orderId — details UI coming soon.';
   }
 
   @override
@@ -476,7 +475,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ordersDetailLockedHint =>
-      'This order is locked because it is Delivered or Cancelled (plan-12).';
+      'This order is locked because it is Delivered or Cancelled.';
 
   @override
   String get ordersDetailLockedStillInternalNotes =>
@@ -508,7 +507,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ordersDetailChangeStatusSoon =>
-      'Status changes will open a confirmation flow (plan-12).';
+      'Status changes will open a confirmation flow.';
 
   @override
   String get addPaymentCta => 'Add payment';
@@ -596,15 +595,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get customerViewAllOrdersSoon =>
-      'This will open Orders with a customer filter (plan-13).';
+      'This will open Orders with a customer filter.';
 
   @override
   String get customerSectionPlaceholder =>
       'Details will appear here as the module is built.';
 
   @override
-  String get customerNewPlaceholderBody =>
-      'New customer form will go here (plan-13).';
+  String get customerNewPlaceholderBody => 'New customer form will go here.';
 
   @override
   String get measurementUnitCm => 'Centimeters';
@@ -873,7 +871,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportsMonthlyIncomePlaceholder =>
-      'Monthly income report will go here (plan-16).';
+      'Monthly income report will go here.';
 
   @override
   String get reportsThisMonthIncomeTitle => 'This month income';
@@ -1020,11 +1018,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get catalogSharingToggleSubtitle =>
-      'Mutual opt-in: enable to browse and be listed in public directory (plan-14).';
+      'Mutual opt-in: enable to browse and be listed in public directory.';
 
   @override
   String get catalogSharedPlaceholder =>
-      'Shared designs directory will appear here when online (plan-14).';
+      'Shared designs directory will appear here when online.';
 
   @override
   String get catalogEmptyMyDesigns => 'No designs yet.';
@@ -1046,7 +1044,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get catalogAddDesignPlaceholder =>
-      'Camera / Gallery add will be implemented on Android/iOS only (plan-14).';
+      'Camera / Gallery add will be implemented on Android/iOS only.';
 
   @override
   String get catalogDetailTitle => 'Catalog item';
@@ -1084,8 +1082,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsShopTileTitle => 'Shop profile';
 
   @override
-  String get settingsShopTileSubtitle =>
-      'Shop details will appear here (plan-15).';
+  String get settingsShopTileSubtitle => 'Shop details will appear here.';
 
   @override
   String get settingsCurrentUserTitle => 'Current user';
@@ -1126,7 +1123,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsUsersPlaceholder =>
-      'Users management will be implemented in plan-15 (create/remove users, limits, owner protections).';
+      'Users management will be implemented (create/remove users, limits, owner protections).';
 
   @override
   String get settingsBackupRestoreTitle => 'Backup & restore';
@@ -1137,7 +1134,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsBackupRestorePlaceholder =>
-      'Backup/restore will be implemented in plan-15 (merge restore, owner password confirmation, restore summary).';
+      'Backup/restore will be implemented (merge restore, owner password confirmation, restore summary).';
 
   @override
   String get settingsMuteNotificationsTitle => 'Mute notifications';
@@ -1150,12 +1147,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsNotificationsInboxTitle => 'Notifications inbox';
 
   @override
-  String get settingsNotificationsInboxSubtitle =>
-      'History and filters (plan-15).';
+  String get settingsNotificationsInboxSubtitle => 'History and filters.';
 
   @override
   String get settingsNotificationsPlaceholder =>
-      'Notifications inbox will be implemented in plan-15.';
+      'Notifications inbox will be implemented.';
 
   @override
   String get settingsSyncDiagnosticsTitle => 'Sync & diagnostics';
@@ -1198,11 +1194,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsSyncDiagnosticsSubtitle =>
-      'Last sync, queue, outbox (plan-15).';
+      'Last sync, queue, and pending changes.';
 
   @override
   String get settingsSyncDiagnosticsPlaceholder =>
-      'Sync & diagnostics will be implemented in plan-15.';
+      'Sync status and diagnostics appear here.';
 
   @override
   String get settingsAppearanceLanguageTitle => 'Appearance & language';
@@ -1231,7 +1227,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsDeveloperPortalPlaceholder =>
-      'Developer Portal screens will be implemented in plan-18.';
+      'Developer Portal screens will be implemented.';
 
   @override
   String get settingsDevRolesTitle => 'Dev role toggles';
@@ -1263,11 +1259,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get themeDark => 'Dark';
 
   @override
+  String get settingsSectionSoundFeedback => 'Sound & feedback';
+
+  @override
   String get settingsUiSoundsTitle => 'UI sounds';
 
   @override
   String get settingsUiSoundsSubtitle =>
-      'Short sound when an action succeeds (for example, saving).';
+      'Short sounds when you save, delete, or complete an action.';
 
   @override
   String get settingsUiHapticsTitle => 'Haptic feedback';
@@ -1275,6 +1274,44 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsUiHapticsSubtitle =>
       'Light vibration on successful actions.';
+
+  @override
+  String get settingsUiHapticsWebHint => 'Haptics are not available on web.';
+
+  @override
+  String get settingsSoundPreviewSuccess => 'Success';
+
+  @override
+  String get settingsSoundPreviewError => 'Error';
+
+  @override
+  String get settingsSoundPreviewDelete => 'Delete';
+
+  @override
+  String get ordersDetailPaymentProgress => 'Payment progress';
+
+  @override
+  String get ordersComposerProgressTitle => 'Order progress';
+
+  @override
+  String ordersComposerProgressCount(int done, int total) {
+    return '$done of $total steps';
+  }
+
+  @override
+  String get ordersComposerProgressCustomer => 'Customer';
+
+  @override
+  String get ordersComposerProgressMeasurements => 'Measures';
+
+  @override
+  String get ordersComposerProgressStyle => 'Style';
+
+  @override
+  String get ordersComposerProgressDelivery => 'Delivery';
+
+  @override
+  String get ordersComposerProgressPayment => 'Payment';
 
   @override
   String get settingsLanguageTitle => 'Language';
@@ -1884,7 +1921,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get subscriptionActivationComingSoon =>
-      'Activation will connect to the server (plan-06).';
+      'Activation will connect to the server.';
 
   @override
   String get subscriptionRefreshStatusCta => 'Refresh license status';
@@ -1977,6 +2014,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get customersRowNoOrdersYet => 'No orders yet';
 
   @override
+  String customersRowSince(String date) {
+    return 'Customer since $date';
+  }
+
+  @override
+  String get reportsThisMonthIncomeEmpty =>
+      'No payments recorded this month yet.';
+
+  @override
+  String get reportsOpenUnpaidEmpty =>
+      'No open orders with a remaining balance.';
+
+  @override
+  String reportsOrdersByStatusCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count orders',
+      one: '1 order',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get settingsUsersLimitsTitle => 'User limits';
 
   @override
@@ -1988,7 +2049,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsUsersAddDisabledHint =>
-      'User management will connect to the server (plan-15).';
+      'User management will connect to the server.';
 
   @override
   String get settingsUsersListTitle => 'Team';
@@ -2052,7 +2113,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsBackupOwnerPasswordNote =>
-      'Backup and restore will require the owner’s login password (plan-15).';
+      'Backup and restore will require the owner’s login password.';
 
   @override
   String get settingsBackupSectionTitle => 'Backup';
@@ -2208,7 +2269,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsSyncRetrySubtitle =>
-      'Pull from the server, then push the local queue when API_BASE_URL is set and you are signed in online (plan-04).';
+      'Pull from the server, then push the local queue when API_BASE_URL is set and you are signed in online.';
 
   @override
   String get settingsSyncRetryOffline =>
@@ -2482,7 +2543,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get devPortalCodesStub =>
-      'Activation codes: search, create, and revoke will load from the admin API (plan-18).';
+      'Activation codes: search, create, and revoke will load from the admin API.';
 
   @override
   String get devPortalShopsStub =>
@@ -2802,6 +2863,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get orderShareInvoiceTooltip => 'Share invoice';
 
   @override
+  String get orderShareInvoicePdfCta => 'Share PDF invoice';
+
+  @override
+  String get orderShareContactPermissionDenied =>
+      'Contacts permission is off — invoice shared, but the customer was not saved to your phone.';
+
+  @override
+  String get orderShareInvoiceSharedSheet =>
+      'Choose WhatsApp or another app to send the PDF invoice.';
+
+  @override
   String orderShareInvoiceFail(String detail) {
     return 'Share failed: $detail';
   }
@@ -2812,5 +2884,130 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String orderShareInvoiceWhatsappCaption(String orderNo, String customerName) {
+    return 'Invoice for order $orderNo — $customerName';
+  }
+
+  @override
+  String orderShareContactSaved(String name) {
+    return 'Saved $name to your phone contacts.';
+  }
+
+  @override
+  String get orderShareWhatsappOpened => 'Invoice PDF opened in WhatsApp.';
+
+  @override
   String get receiptFooterThanks => 'Thank you for your business!';
+
+  @override
+  String get settingsDeveloperPortalCheckFailed =>
+      'Could not verify developer access. Tap to retry.';
+
+  @override
+  String get settingsDeveloperPortalRetry => 'Retry';
+
+  @override
+  String get dashboardSyncRunning => 'Syncing…';
+
+  @override
+  String get dashboardSyncTapToRun => 'Tap to sync now';
+
+  @override
+  String get dashboardTasksSectionTitle => 'Tasks';
+
+  @override
+  String dashboardTasksOpenCount(int count) {
+    return '$count open';
+  }
+
+  @override
+  String get dashboardTasksViewAll => 'View all tasks';
+
+  @override
+  String get shopFinanceTitle => 'Shop finance';
+
+  @override
+  String get shopFinanceSubtitle => 'Rent, daily costs, and food & drinks';
+
+  @override
+  String get shopFinanceOverviewTitle => 'Overview';
+
+  @override
+  String get shopFinanceRentTitle => 'Rent';
+
+  @override
+  String get shopFinanceExpensesTitle => 'Expenses';
+
+  @override
+  String get shopFinanceMonthOutflow => 'This month outflow';
+
+  @override
+  String get shopFinanceRentDue => 'Rent due';
+
+  @override
+  String get shopFinanceRentPaid => 'Rent paid this month';
+
+  @override
+  String get shopFinanceExpenseDaily => 'Daily expenses';
+
+  @override
+  String get shopFinanceExpenseFood => 'Food & drinks';
+
+  @override
+  String get shopFinanceExpenseOther => 'Other';
+
+  @override
+  String get shopFinanceAddRent => 'Set rent';
+
+  @override
+  String get shopFinanceRecordRentPayment => 'Record rent payment';
+
+  @override
+  String get shopFinanceAddExpense => 'Add expense';
+
+  @override
+  String get shopFinanceAmountLabel => 'Amount (AFN)';
+
+  @override
+  String get shopFinanceDueDateLabel => 'Due date';
+
+  @override
+  String get shopFinancePeriodMonthsLabel => 'Period (months)';
+
+  @override
+  String get shopFinanceNoteLabel => 'Note';
+
+  @override
+  String get shopFinanceCategoryLabel => 'Category';
+
+  @override
+  String get shopFinanceDateLabel => 'Date';
+
+  @override
+  String get shopFinanceClearPeriodTitle => 'Clear old expenses?';
+
+  @override
+  String get shopFinanceClearPeriodBody =>
+      'Expenses before the selected date will be removed from your list.';
+
+  @override
+  String get shopFinanceRentDueNotificationTitle => 'Rent due soon';
+
+  @override
+  String shopFinanceRentDueNotificationBody(String amount, String date) {
+    return 'Rent of $amount is due on $date';
+  }
+
+  @override
+  String get shopFinanceEmptyRent =>
+      'No rent schedule yet. Set your monthly rent.';
+
+  @override
+  String get shopFinanceEmptyExpenses => 'No expenses recorded yet.';
+
+  @override
+  String get shopFinanceSave => 'Save';
+
+  @override
+  String get shopFinanceChartsExpensesByCategory => 'Expenses by category';
 }

@@ -3,7 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pride_v3/core/calendar/app_calendar_format.dart';
+import 'package:intl/intl.dart';
+import 'package:pride_v3/core/widgets/pride_carved_section.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
 import 'package:pride_v3/app/app_theme.dart';
 import 'package:pride_v3/core/feedback/app_feedback.dart';
@@ -20,7 +21,8 @@ import '../../data/local/sync_outbox_kinds.dart';
 import '../../data/providers/local_data_providers.dart';
 import '../../licensing/license_providers.dart';
 import '../../shell/shell_sync_providers.dart';
-import '../orders/order_status_label.dart';
+import '../orders/order_list_tile.dart';
+import 'customer_profile_hero_card.dart';
 
 class CustomerProfileScreen extends ConsumerWidget {
   const CustomerProfileScreen({super.key, required this.customerId});
@@ -199,6 +201,7 @@ class CustomerProfileScreen extends ConsumerWidget {
       ref,
       kind: AppFeedbackKind.success,
       message: l10n.customerDeleted,
+      deleted: true,
     );
     context.go('/app/customers');
   }
@@ -246,6 +249,16 @@ class CustomerProfileScreen extends ConsumerWidget {
         final customerName = c.name;
         final customerPhone = c.phone;
         final customerAddress = c.address;
+        final ordersList = asyncOrders.asData?.value ?? const [];
+        var orderCount = 0;
+        var unpaidMinor = 0;
+        for (final o in ordersList) {
+          if (o.customerInternalId != customerId) continue;
+          orderCount++;
+          if (o.isUnpaid) unpaidMinor += o.remainingAmountMinor;
+        }
+        String formatMoney(int minor) =>
+            l10n.moneyAfn(NumberFormat.decimalPattern().format(minor));
 
         return Scaffold(
           appBar: AppBar(
@@ -287,57 +300,19 @@ class CustomerProfileScreen extends ConsumerWidget {
           body: ListView(
             padding: const EdgeInsets.symmetric(vertical: 8),
             children: [
-              ExpansionTile(
-                title: Text(l10n.customerInfoSection),
-                subtitle: Text(customerPhone ?? l10n.customersPhoneMissing),
-                initiallyExpanded: true,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          leading: const Icon(Icons.person_outline),
-                          title: Text(l10n.customerNameLabel),
-                          subtitle: Text(customerName),
-                        ),
-                        ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          leading: const Icon(Icons.phone_outlined),
-                          title: Text(l10n.customerPhoneLabel),
-                          subtitle: Text(customerPhone ?? l10n.customersPhoneMissing),
-                        ),
-                        ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          leading: const Icon(Icons.home_outlined),
-                          title: Text(l10n.customerAddressLabel),
-                          subtitle: Text(
-                            (customerAddress != null &&
-                                    customerAddress.trim().isNotEmpty)
-                                ? customerAddress.trim()
-                                : l10n.customerFieldEmpty,
-                          ),
-                        ),
-                        if (c.notes != null && c.notes!.trim().isNotEmpty)
-                          ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            leading: const Icon(Icons.notes_outlined),
-                            title: Text(l10n.customerNotesLabel),
-                            subtitle: Text(c.notes!.trim()),
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
+              CustomerProfileHeroCard(
+                customer: c,
+                l10n: l10n,
+                locale: locale,
+                calendar: calendar,
+                orderCount: orderCount,
+                unpaidMinor: unpaidMinor,
+                formatMoney: formatMoney,
               ),
-              ExpansionTile(
-                title: Text(l10n.customerMeasurementProfilesSection),
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                    child: ref
+              PrideCarvedSection(
+                title: l10n.customerMeasurementProfilesSection,
+                initiallyExpanded: false,
+                child: ref
                         .watch(measurementProfilesForCustomerProvider(customerId))
                         .when(
                           data: (profiles) {
@@ -404,66 +379,55 @@ class CustomerProfileScreen extends ConsumerWidget {
                           ),
                           error: (e, _) => Text('$e'),
                         ),
-                  ),
-                ],
               ),
-              ExpansionTile(
-                initiallyExpanded: true,
-                title: Text(l10n.customerOrderHistoryTitle),
-                children: [
-                  asyncOrders.when(
-                    data: (orders) {
-                      final history = orders
-                          .where((o) => o.customerInternalId == customerId)
-                          .toList()
-                        ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+              asyncOrders.when(
+                data: (orders) {
+                  final history = orders
+                      .where((o) => o.customerInternalId == customerId)
+                      .toList()
+                    ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
-                      if (history.isEmpty) {
-                        return Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                          child: Text(l10n.customerNoOrders),
-                        );
-                      }
-
-                      return Column(
-                        children: [
-                          for (final o in history)
-                            ListTile(
-                              title: Text(
-                                l10n.ordersNumberPrefix(o.displayOrderNo),
-                              ),
-                              subtitle: Text(
-                                '${l10n.ordersTakenOn(AppCalendarFormat.dateTimeMedium(l10n, calendar, o.createdAt, locale))}\n'
-                                '${l10n.ordersDeliveryOn(AppCalendarFormat.mediumDate(l10n, calendar, o.deliveryDate, locale))}',
-                              ),
-                              isThreeLine: true,
-                              trailing: Chip(
-                                label: Text(
-                                  o.isUnpaid
-                                      ? '${orderStatusLabel(o.status, l10n)} · ${l10n.ordersRemainingChip(o.remainingAmountMinor.toString())}'
-                                      : orderStatusLabel(o.status, l10n),
+                  return PrideCarvedSection(
+                    title: l10n.customerOrderHistoryTitle,
+                    subtitle: history.isEmpty
+                        ? l10n.customerNoOrders
+                        : l10n.customersRowMeta(
+                            history.length,
+                            unpaidMinor > 0
+                                ? l10n.ordersRemainingChip(
+                                    formatMoney(unpaidMinor),
+                                  )
+                                : formatMoney(0),
+                          ),
+                    child: history.isEmpty
+                        ? Text(l10n.customerNoOrders)
+                        : Column(
+                            children: [
+                              for (final o in history)
+                                OrderListTile(
+                                  order: o,
+                                  l10n: l10n,
+                                  locale: locale,
+                                  calendar: calendar,
+                                  isSelected: false,
+                                  detailed: true,
+                                  formatMoney: formatMoney,
+                                  onTap: () => context.push(
+                                    '/app/orders/${o.internalId}',
+                                  ),
                                 ),
-                                visualDensity: VisualDensity.compact,
-                                materialTapTargetSize:
-                                    MaterialTapTargetSize.shrinkWrap,
-                              ),
-                              onTap: () => context.push(
-                                '/app/orders/${o.internalId}',
-                              ),
-                            ),
-                        ],
-                      );
-                    },
-                    loading: () => const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    ),
-                    error: (e, _) => Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Text('$e'),
-                    ),
-                  ),
-                ],
+                            ],
+                          ),
+                  );
+                },
+                loading: () => const Padding(
+                  padding: EdgeInsets.all(24),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+                error: (e, _) => PrideCarvedSection(
+                  title: l10n.customerOrderHistoryTitle,
+                  child: Text('$e'),
+                ),
               ),
             ],
           ),
@@ -678,76 +642,87 @@ class _MeasurementProfileEditorBodyState
     final existing = widget.existing;
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
 
+    final sheetHeight = MediaQuery.sizeOf(context).height * 0.88;
+
     return StatefulBuilder(
       builder: (ctx, setModal) {
-        return SingleChildScrollView(
-          padding: EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: 8,
-            bottom: bottomInset + 16,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                existing == null
-                    ? l10n.measurementProfileEditorTitleNew
-                    : l10n.measurementProfileEditorTitleEdit,
-                style: Theme.of(ctx).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _labelCtrl,
-                decoration: InputDecoration(
-                  labelText: l10n.measurementProfileLabelField,
-                  border: const OutlineInputBorder(),
+        return Padding(
+          padding: EdgeInsets.only(bottom: bottomInset),
+          child: SizedBox(
+            height: sheetHeight,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          existing == null
+                              ? l10n.measurementProfileEditorTitleNew
+                              : l10n.measurementProfileEditorTitleEdit,
+                          style: Theme.of(ctx).textTheme.titleLarge,
+                        ),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: _labelCtrl,
+                          decoration: InputDecoration(
+                            labelText: l10n.measurementProfileLabelField,
+                            border: const OutlineInputBorder(),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          l10n.measurementProfileUnitSection,
+                          style: Theme.of(ctx).textTheme.titleSmall,
+                        ),
+                        const SizedBox(height: 8),
+                        SegmentedButton<int>(
+                          segments: [
+                            ButtonSegment(
+                              value: MeasurementUnitCodes.cm,
+                              label: Text(l10n.measurementUnitCm),
+                            ),
+                            ButtonSegment(
+                              value: MeasurementUnitCodes.inch,
+                              label: Text(l10n.measurementUnitInch),
+                            ),
+                          ],
+                          selected: {_unit},
+                          onSelectionChanged: (s) =>
+                              setModal(() => _unit = s.first),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          l10n.measurementProfileBodyField,
+                          style: Theme.of(ctx).textTheme.titleSmall,
+                        ),
+                        const SizedBox(height: 8),
+                        for (final t in widget.types) ...[
+                          TextField(
+                            controller: _valueCtrls[t.internalId],
+                            keyboardType:
+                                const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            decoration: InputDecoration(
+                              labelText: t.name,
+                              border: const OutlineInputBorder(),
+                            ),
+                            onChanged: (_) => setModal(() {}),
+                          ),
+                          const SizedBox(height: 8),
+                        ],
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                l10n.measurementProfileUnitSection,
-                style: Theme.of(ctx).textTheme.titleSmall,
-              ),
-              const SizedBox(height: 8),
-              SegmentedButton<int>(
-                segments: [
-                  ButtonSegment(
-                    value: MeasurementUnitCodes.cm,
-                    label: Text(l10n.measurementUnitCm),
-                  ),
-                  ButtonSegment(
-                    value: MeasurementUnitCodes.inch,
-                    label: Text(l10n.measurementUnitInch),
-                  ),
-                ],
-                selected: {_unit},
-                onSelectionChanged: (s) => setModal(() => _unit = s.first),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                l10n.measurementProfileBodyField,
-                style: Theme.of(ctx).textTheme.titleSmall,
-              ),
-              const SizedBox(height: 8),
-              for (final t in widget.types) ...[
-                TextField(
-                  controller: _valueCtrls[t.internalId],
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  decoration: InputDecoration(
-                    labelText: t.name,
-                    border: const OutlineInputBorder(),
-                  ),
-                  onChanged: (_) => setModal(() {}),
-                ),
-                const SizedBox(height: 8),
-              ],
-              const SizedBox(height: 16),
-              if (existing != null)
-                Row(
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                  child: existing != null
+                      ? Row(
                   children: [
                     Expanded(
                       child: OutlinedButton(
@@ -888,10 +863,9 @@ class _MeasurementProfileEditorBodyState
                         child: Text(l10n.saveCta),
                       ),
                     ),
-                  ],
-                )
-              else
-                FilledButton(
+                        ],
+                      )
+                      : FilledButton(
                   onPressed: !_canSave
                       ? null
                       : () async {
@@ -926,9 +900,11 @@ class _MeasurementProfileEditorBodyState
                             );
                           }
                         },
-                  child: Text(l10n.measurementProfilesAddCta),
+                          child: Text(l10n.measurementProfilesAddCta),
+                        ),
                 ),
-            ],
+              ],
+            ),
           ),
         );
       },
