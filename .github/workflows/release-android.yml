@@ -1,5 +1,4 @@
 # Build production Android APK and publish to GitHub Releases (customer download link).
-# Triggers: push tag v* (e.g. v1.0.1) or manual "Run workflow".
 name: Release Android APK
 
 on:
@@ -9,9 +8,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Release tag (e.g. v1.0.1)"
+        description: "Release tag (e.g. v1.0.3)"
         required: true
-        default: "v1.0.1"
+        default: "v1.0.3"
 
 permissions:
   contents: write
@@ -23,8 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Java 17
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
@@ -37,7 +35,7 @@ jobs:
       - name: Accept Android SDK licenses
         run: yes | flutter doctor --android-licenses
 
-      - name: Install Android SDK platform 36 (compileSdk for plugins)
+      - name: Install Android SDK platform 36
         run: |
           SDKMANAGER="${ANDROID_SDK_ROOT:-$ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"
           "$SDKMANAGER" "platforms;android-36" "build-tools;35.0.0"
@@ -45,21 +43,15 @@ jobs:
       - run: flutter pub get
       - run: flutter gen-l10n
 
-      - name: Build release APK (production API)
+      - name: Build release APK
         run: |
           flutter build apk --release \
-            --dart-define-from-file=config/dart_defines_base.json \
-            --dart-define-from-file=config/dart_defines_prod.json
+            --dart-define=API_BASE_URL=https://pride-v3.onrender.com \
+            --dart-define=ENV=prod
         env:
           GRADLE_OPTS: -Dorg.gradle.jvmargs=-Xmx4g
 
-      - name: Show Gradle errors if build failed
-        if: failure()
-        run: |
-          find android -name "*.log" -print -exec tail -n 80 {} \; 2>/dev/null || true
-          ls -la build/app/outputs/flutter-apk/ 2>/dev/null || true
-
-      - name: Rename APK for stable download URL
+      - name: Rename APK
         run: cp build/app/outputs/flutter-apk/app-release.apk Pride-android.apk
 
       - name: Resolve release tag
