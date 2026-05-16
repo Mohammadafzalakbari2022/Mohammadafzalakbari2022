@@ -37,6 +37,7 @@ cd ~/Desktop/Pride-v3
 14. [Environment variables](#14-environment-variables)
 15. [Developer account (`is_developer`)](#15-developer-account-is_developer)
 16. [Copy-paste daily blocks](#16-copy-paste-daily-blocks)
+17. [Customer download links](#17-customer-download-links-distribute-to-shops)
 
 ---
 
@@ -578,6 +579,37 @@ cd ios && pod install && cd ..
 open ios/Runner.xcworkspace
 ./scripts/build-ios-release.sh
 ```
+
+---
+
+## 17. Customer download links (distribute to shops)
+
+After you publish a release, customers can install without the Play Store.
+
+| What | URL |
+|------|-----|
+| **Android APK (latest)** | `https://github.com/Mohammadafzalakbari2022/Mohammadafzalakbari2022/releases/latest/download/Pride-android.apk` |
+| **Dari install guide** | `docs/INSTALL_FA.md` in repo (or GitHub Pages `docs/index.html`) |
+| **Web app** | `https://pride-v3-web.pages.dev` |
+| **Releases list** | `https://github.com/Mohammadafzalakbari2022/Mohammadafzalakbari2022/releases` |
+
+### Publish a new APK to GitHub
+
+| Command | What it does |
+|---------|----------------|
+| `git tag v1.0.1` | Creates version tag (match `pubspec.yaml` if you bump version). |
+| `git push origin v1.0.1` | Triggers [`.github/workflows/release-android.yml`](.github/workflows/release-android.yml) — builds APK and attaches `Pride-android.apk`. |
+
+Or: **GitHub → Actions → Release Android APK → Run workflow** → version `v1.0.0`.
+
+### Enable public download page (optional)
+
+**GitHub → Settings → Pages → Build from branch `main` → folder `/docs`**  
+Then share: `https://<username>.github.io/Mohammadafzalakbari2022/` (see your Pages URL in Settings).
+
+### iOS for customers
+
+APK/IPA from GitHub **does not install on iPhone** for random users. Use **web**, **TestFlight**, or **App Store** — see [`docs/INSTALL_FA.md`](docs/INSTALL_FA.md).
 
 ---
 

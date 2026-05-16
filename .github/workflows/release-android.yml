@@ -1,0 +1,62 @@
+# Build production Android APK and publish to GitHub Releases (customer download link).
+# Triggers: push tag v* (e.g. v1.0.0) or manual "Run workflow".
+name: Release Android APK
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release tag (e.g. v1.0.0)"
+        required: true
+        default: "v1.0.0"
+
+permissions:
+  contents: write
+
+jobs:
+  release-apk:
+    name: build-and-upload
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+      - run: flutter gen-l10n
+
+      - name: Build release APK (production API)
+        run: |
+          flutter build apk --release \
+            --dart-define-from-file=config/dart_defines_base.json \
+            --dart-define-from-file=config/dart_defines_prod.json
+
+      - name: Rename APK for stable download URL
+        run: cp build/app/outputs/flutter-apk/app-release.apk Pride-android.apk
+
+      - name: Resolve release tag
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "name=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.name }}
+          name: Pride ${{ steps.tag.outputs.name }}
+          generate_release_notes: true
+          files: |
+            Pride-android.apk
+          body_path: docs/RELEASE_NOTES_TEMPLATE.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
