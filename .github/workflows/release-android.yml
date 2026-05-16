@@ -1,5 +1,5 @@
 # Build production Android APK and publish to GitHub Releases (customer download link).
-# Triggers: push tag v* (e.g. v1.0.0) or manual "Run workflow".
+# Triggers: push tag v* (e.g. v1.0.1) or manual "Run workflow".
 name: Release Android APK
 
 on:
@@ -9,9 +9,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Release tag (e.g. v1.0.0)"
+        description: "Release tag (e.g. v1.0.1)"
         required: true
-        default: "v1.0.0"
+        default: "v1.0.1"
 
 permissions:
   contents: write
@@ -23,10 +23,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
+
+      - name: Accept Android SDK licenses
+        run: yes | flutter doctor --android-licenses
+
+      - name: Install Android SDK platform 36 (compileSdk for plugins)
+        run: |
+          SDKMANAGER="${ANDROID_SDK_ROOT:-$ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"
+          "$SDKMANAGER" "platforms;android-36" "build-tools;35.0.0"
 
       - run: flutter pub get
       - run: flutter gen-l10n
@@ -54,9 +68,10 @@ jobs:
         with:
           tag_name: ${{ steps.tag.outputs.name }}
           name: Pride ${{ steps.tag.outputs.name }}
+          make_latest: true
+          overwrite_files: true
           generate_release_notes: true
-          files: |
-            Pride-android.apk
+          files: Pride-android.apk
           body_path: docs/RELEASE_NOTES_TEMPLATE.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
