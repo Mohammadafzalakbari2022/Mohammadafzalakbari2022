@@ -4,6 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 const prideLocaleLanguageCodeKey = 'pride_locale_language_code';
+const prideUiSoundsKey = 'pride_ui_sounds_enabled';
+const prideUiHapticsKey = 'pride_ui_haptics_enabled';
 
 /// Reads saved app language (`en` / `fa` / `ps`), or null for system default.
 Locale? localeOverrideFromPrefs(SharedPreferences prefs) {
@@ -22,6 +24,26 @@ Future<void> persistLocaleOverride(
     await prefs.setString(prideLocaleLanguageCodeKey, locale.languageCode);
   }
 }
+
+bool uiSoundsFromPrefs(SharedPreferences prefs) =>
+    prefs.getBool(prideUiSoundsKey) ?? true;
+
+bool uiHapticsFromPrefs(SharedPreferences prefs) =>
+    prefs.getBool(prideUiHapticsKey) ?? true;
+
+Future<void> persistUiSounds(SharedPreferences prefs, bool value) async {
+  await prefs.setBool(prideUiSoundsKey, value);
+}
+
+Future<void> persistUiHaptics(SharedPreferences prefs, bool value) async {
+  await prefs.setBool(prideUiHapticsKey, value);
+}
+
+/// Short success sounds (SystemSound); persisted locally.
+final uiSoundsEnabledProvider = StateProvider<bool>((ref) => true);
+
+/// Light haptics on successful actions; persisted locally.
+final uiHapticsEnabledProvider = StateProvider<bool>((ref) => true);
 
 /// App theme mode (System/Light/Dark).
 final themeModeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.system);

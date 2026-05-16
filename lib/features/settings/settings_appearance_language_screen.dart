@@ -36,6 +36,25 @@ class SettingsAppearanceLanguageScreen extends ConsumerWidget {
             onSelectionChanged: (s) =>
                 ref.read(themeModeProvider.notifier).state = s.first,
           ),
+          const SizedBox(height: 16),
+          SwitchListTile(
+            title: Text(l10n.settingsUiSoundsTitle),
+            subtitle: Text(l10n.settingsUiSoundsSubtitle),
+            value: ref.watch(uiSoundsEnabledProvider),
+            onChanged: (v) async {
+              ref.read(uiSoundsEnabledProvider.notifier).state = v;
+              await persistUiSounds(ref.read(sharedPreferencesProvider), v);
+            },
+          ),
+          SwitchListTile(
+            title: Text(l10n.settingsUiHapticsTitle),
+            subtitle: Text(l10n.settingsUiHapticsSubtitle),
+            value: ref.watch(uiHapticsEnabledProvider),
+            onChanged: (v) async {
+              ref.read(uiHapticsEnabledProvider.notifier).state = v;
+              await persistUiHaptics(ref.read(sharedPreferencesProvider), v);
+            },
+          ),
           const SizedBox(height: 24),
           Text(l10n.settingsDateCalendarTitle,
               style: Theme.of(context).textTheme.titleSmall),

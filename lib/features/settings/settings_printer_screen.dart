@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/defaults/effective_shop_profile.dart';
 import '../../core/printing/thermal_printer_prefs.dart';
 import '../../core/printing/thermal_printer_socket.dart';
 import '../../core/printing/thermal_receipt_escpos.dart';
@@ -91,9 +92,7 @@ class _SettingsPrinterScreenState extends ConsumerState<SettingsPrinterScreen> {
     if (port == null) return;
 
     final shop = ref.read(shopProfileProvider).valueOrNull;
-    final shopName = (shop?.name ?? '').trim();
-    final headline =
-        shopName.isNotEmpty ? shopName : l10n.settingsPrinterTestHeadline;
+    final headline = effectiveShopProfile(shop, l10n).name.trim();
 
     if (!mounted) return;
     showDialog<void>(
@@ -162,6 +161,13 @@ class _SettingsPrinterScreenState extends ConsumerState<SettingsPrinterScreen> {
                 Text(
                   l10n.settingsPrinterAsciiNotice,
                   style: Theme.of(context).textTheme.bodySmall,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  l10n.settingsPrinterRetryHint,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                 ),
                 const SizedBox(height: 24),
                 TextField(

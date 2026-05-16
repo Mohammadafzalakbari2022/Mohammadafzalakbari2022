@@ -1,10 +1,13 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
+import '../../core/defaults/effective_shop_profile.dart';
 import '../../licensing/license_providers.dart';
 import 'shop_profile.dart';
+import 'shop_profile_logo_actions.dart';
 import 'shop_profile_provider.dart';
 
 class SettingsShopProfileScreen extends ConsumerStatefulWidget {
@@ -22,6 +25,7 @@ class _SettingsShopProfileScreenState
   late final TextEditingController _address;
   late final TextEditingController _phone;
   late final TextEditingController _notes;
+  late final TextEditingController _receiptThanks;
   bool _seeded = false;
 
   @override
@@ -31,6 +35,7 @@ class _SettingsShopProfileScreenState
     _address = TextEditingController();
     _phone = TextEditingController();
     _notes = TextEditingController();
+    _receiptThanks = TextEditingController();
   }
 
   @override
@@ -39,6 +44,7 @@ class _SettingsShopProfileScreenState
     _address.dispose();
     _phone.dispose();
     _notes.dispose();
+    _receiptThanks.dispose();
     super.dispose();
   }
 
@@ -47,13 +53,14 @@ class _SettingsShopProfileScreenState
     _address.text = shop.address ?? '';
     _phone.text = shop.phone ?? '';
     _notes.text = shop.notes ?? '';
+    _receiptThanks.text = shop.receiptThankYouMessage ?? '';
   }
 
   Future<void> _save(AppLocalizations l10n) async {
     final license = ref.read(licenseNotifierProvider);
-    if (license.isExpired) {
+    if (ref.read(licenseEditingBlockedProvider)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.licenseExpiredReadOnly)),
+        SnackBar(content: Text(licenseWriteBlockedMessage(license, l10n))),
       );
       return;
     }
@@ -65,6 +72,10 @@ class _SettingsShopProfileScreenState
       address: _address.text.trim().isEmpty ? null : _address.text.trim(),
       phone: _phone.text.trim().isEmpty ? null : _phone.text.trim(),
       notes: _notes.text.trim().isEmpty ? null : _notes.text.trim(),
+      receiptThankYouMessage: _receiptThanks.text.trim().isEmpty
+          ? null
+          : _receiptThanks.text.trim(),
+      logoRelativePath: ref.read(shopProfileProvider).valueOrNull?.logoRelativePath,
     );
 
     await ref.read(shopProfileProvider.notifier).save(next);
@@ -74,11 +85,80 @@ class _SettingsShopProfileScreenState
     );
   }
 
+  String _resolvedShopNameForSave() {
+    final typed = _name.text.trim();
+    if (typed.length >= 2) return typed;
+    final existing = ref.read(shopProfileProvider).valueOrNull?.name.trim();
+    if (existing != null && existing.length >= 2) return existing;
+    return typed;
+  }
+
+  Future<void> _pickLogo(BuildContext context, AppLocalizations l10n) async {
+    if (kIsWeb) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.shopProfileLogoWebHint)),
+      );
+      return;
+    }
+    final name = _resolvedShopNameForSave();
+    if (name.length < 2) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.shopProfileNameTooShort)),
+      );
+      return;
+    }
+    final path = await pickShopLogoRelativePath();
+    if (!mounted || path == null) return;
+    final next = ShopProfile(
+      name: name,
+      address: _address.text.trim().isEmpty ? null : _address.text.trim(),
+      phone: _phone.text.trim().isEmpty ? null : _phone.text.trim(),
+      notes: _notes.text.trim().isEmpty ? null : _notes.text.trim(),
+      receiptThankYouMessage: _receiptThanks.text.trim().isEmpty
+          ? null
+          : _receiptThanks.text.trim(),
+      logoRelativePath: path,
+    );
+    await ref.read(shopProfileProvider.notifier).save(next);
+    if (!context.mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.showSnackBar(
+      SnackBar(content: Text(l10n.shopProfileLogoSaved)),
+    );
+  }
+
+  Future<void> _removeLogo(BuildContext context, AppLocalizations l10n) async {
+    if (kIsWeb) return;
+    final name = _resolvedShopNameForSave();
+    if (name.length < 2) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.shopProfileNameTooShort)),
+      );
+      return;
+    }
+    await deleteShopLogoFile();
+    final next = ShopProfile(
+      name: name,
+      address: _address.text.trim().isEmpty ? null : _address.text.trim(),
+      phone: _phone.text.trim().isEmpty ? null : _phone.text.trim(),
+      notes: _notes.text.trim().isEmpty ? null : _notes.text.trim(),
+      receiptThankYouMessage: _receiptThanks.text.trim().isEmpty
+          ? null
+          : _receiptThanks.text.trim(),
+      logoRelativePath: null,
+    );
+    await ref.read(shopProfileProvider.notifier).save(next);
+    if (!context.mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.showSnackBar(
+      SnackBar(content: Text(l10n.shopProfileSaved)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final license = ref.watch(licenseNotifierProvider);
-    final readOnly = license.isExpired;
+    final readOnly = ref.watch(licenseEditingBlockedProvider);
     final async = ref.watch(shopProfileProvider);
 
     return Scaffold(
@@ -162,6 +242,18 @@ class _SettingsShopProfileScreenState
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
+                  controller: _receiptThanks,
+                  readOnly: readOnly,
+                  minLines: 2,
+                  maxLines: 4,
+                  decoration: InputDecoration(
+                    labelText: l10n.shopProfileReceiptThanksLabel,
+                    hintText: l10n.shopProfileReceiptThanksHint,
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
                   controller: _notes,
                   readOnly: readOnly,
                   minLines: 2,
@@ -172,6 +264,62 @@ class _SettingsShopProfileScreenState
                     border: const OutlineInputBorder(),
                   ),
                 ),
+                const SizedBox(height: 24),
+                Text(
+                  l10n.shopProfileLogoSectionTitle,
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  l10n.shopProfileLogoSubtitle,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                const SizedBox(height: 12),
+                if (kIsWeb)
+                  Text(
+                    l10n.shopProfileLogoWebHint,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  )
+                else ...[
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.asset(
+                      kDefaultShopLogoAsset,
+                      height: 72,
+                      width: 72,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                          const SizedBox.shrink(),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    (shop.logoRelativePath ?? '').isNotEmpty
+                        ? l10n.shopProfileLogoStatusOnFile
+                        : l10n.shopProfileLogoDefaultCaption,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      OutlinedButton.icon(
+                        onPressed: readOnly
+                            ? null
+                            : () => _pickLogo(context, l10n),
+                        icon: const Icon(Icons.add_photo_alternate_outlined),
+                        label: Text(l10n.shopProfileLogoPickCta),
+                      ),
+                      if (!readOnly &&
+                          (shop.logoRelativePath ?? '').isNotEmpty)
+                        TextButton(
+                          onPressed: () => _removeLogo(context, l10n),
+                          child: Text(l10n.shopProfileLogoRemoveCta),
+                        ),
+                    ],
+                  ),
+                ],
                 if (!readOnly) ...[
                   const SizedBox(height: 24),
                   FilledButton.icon(

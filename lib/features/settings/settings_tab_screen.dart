@@ -2,7 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pride_v3/app/app_theme.dart';
 import 'package:pride_v3/core/api/pride_api_config.dart';
+import 'package:pride_v3/core/widgets/pride_action_buttons.dart';
+import 'package:pride_v3/core/widgets/pride_alert_dialog.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../auth/admin_me_provider.dart';
@@ -14,26 +17,23 @@ import '../../core/persistence/sync_diagnostics_storage.dart';
 import '../../shell/shell_sync_providers.dart';
 import '../../licensing/license_notifier.dart';
 import '../../licensing/license_providers.dart';
+import '../catalog/catalog_sharing_provider.dart';
 import 'settings_providers.dart';
 import 'shop_profile_provider.dart';
 
 Future<void> _showSignOutDialog(BuildContext context, WidgetRef ref) async {
   final l10n = AppLocalizations.of(context)!;
-  final confirmed = await showDialog<bool>(
+  final confirmed = await showPrideAlertDialog<bool>(
     context: context,
-    builder: (ctx) => AlertDialog(
-      title: Text(l10n.settingsSignOutDialogTitle),
-      content: Text(l10n.settingsSignOutDialogBody),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(ctx, false),
-          child: Text(l10n.settingsSignOutCancel),
-        ),
-        FilledButton(
-          onPressed: () => Navigator.pop(ctx, true),
-          child: Text(l10n.settingsSignOutConfirm),
-        ),
-      ],
+    icon: Icons.logout,
+    iconColor: Theme.of(context).extension<PrideActionColors>()!.delete,
+    title: l10n.settingsSignOutDialogTitle,
+    content: Text(l10n.settingsSignOutDialogBody),
+    actions: prideDialogCancelDelete(
+      context: context,
+      onCancel: () => Navigator.pop(context, false),
+      onConfirm: () => Navigator.pop(context, true),
+      deleteLabel: l10n.settingsSignOutConfirm,
     ),
   );
   if (confirmed == true && context.mounted) {
@@ -57,6 +57,8 @@ class _SettingsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -64,13 +66,26 @@ class _SettingsSection extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 4),
           child: Text(
             title,
-            style: Theme.of(context).textTheme.titleSmall,
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: scheme.onSurface,
+                ),
           ),
         ),
         const SizedBox(height: 8),
-        Card(
-          clipBehavior: Clip.antiAlias,
-          child: Column(children: children),
+        DecoratedBox(
+          decoration: BoxDecoration(
+            color: scheme.surfaceContainerLowest,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: scheme.primary.withValues(alpha: 0.38),
+              width: 1.5,
+            ),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Column(children: children),
+          ),
         ),
       ],
     );
@@ -83,6 +98,7 @@ class _LockedTile extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.enabled,
+    required this.iconColor,
     this.onTap,
   });
 
@@ -90,15 +106,18 @@ class _LockedTile extends StatelessWidget {
   final String title;
   final String subtitle;
   final bool enabled;
+  final Color iconColor;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(leading),
+      leading: PrideColoredLeading(icon: leading, color: iconColor),
       title: Text(title),
       subtitle: Text(subtitle),
-      trailing: enabled ? const Icon(Icons.chevron_right) : const Icon(Icons.lock),
+      trailing: enabled
+          ? Icon(Icons.chevron_right, color: iconColor.withValues(alpha: 0.7))
+          : Icon(Icons.lock, color: Theme.of(context).colorScheme.outline),
       enabled: enabled,
       onTap: enabled ? onTap : null,
     );
@@ -154,6 +173,7 @@ class SettingsTabScreen extends ConsumerWidget {
           children: [
             _LockedTile(
               leading: Icons.store_outlined,
+              iconColor: prideSettingsIconColor(0),
               title: l10n.settingsShopTileTitle,
               subtitle: shopSubtitle,
               enabled: true,
@@ -161,7 +181,25 @@ class SettingsTabScreen extends ConsumerWidget {
             ),
             const Divider(height: 1),
             _LockedTile(
+              leading: Icons.card_membership_outlined,
+              iconColor: prideSettingsIconColor(6),
+              title: l10n.subscriptionTitle,
+              subtitle: l10n.subscriptionListTileSubtitle,
+              enabled: true,
+              onTap: () => context.push('/app/settings/subscription'),
+            ),
+            const Divider(height: 1),
+            _LockedTile(
+              leading: Icons.person_outline,
+              iconColor: prideSettingsIconColor(5),
+              title: l10n.settingsCurrentUserTitle,
+              subtitle: userSubtitle,
+              enabled: false,
+            ),
+            const Divider(height: 1),
+            _LockedTile(
               leading: Icons.straighten_outlined,
+              iconColor: prideSettingsIconColor(1),
               title: l10n.settingsMeasurementTypesTitle,
               subtitle: l10n.settingsMeasurementTypesSubtitle,
               enabled: true,
@@ -169,30 +207,40 @@ class SettingsTabScreen extends ConsumerWidget {
             ),
             const Divider(height: 1),
             _LockedTile(
+              leading: Icons.style_outlined,
+              iconColor: prideSettingsIconColor(2),
+              title: l10n.settingsStyleTileTitle,
+              subtitle: l10n.settingsStyleTileSubtitle,
+              enabled: true,
+              onTap: () => context.push('/app/settings/style'),
+            ),
+            const Divider(height: 1),
+            SwitchListTile(
+              secondary: PrideColoredLeading(
+                icon: Icons.share_outlined,
+                color: prideSettingsIconColor(3),
+              ),
+              title: Text(l10n.catalogSharingToggleTitle),
+              subtitle: Text(l10n.catalogSharingToggleSubtitle),
+              value: ref.watch(catalogSharingEnabledProvider),
+              onChanged: (v) =>
+                  ref.read(catalogSharingEnabledProvider.notifier).set(v),
+            ),
+            const Divider(height: 1),
+            _LockedTile(
               leading: Icons.checklist_outlined,
+              iconColor: prideSettingsIconColor(4),
               title: l10n.tasksTitle,
               subtitle: l10n.tasksSettingsSubtitle,
               enabled: true,
               onTap: () => context.push('/app/settings/tasks'),
             ),
             const Divider(height: 1),
-            _LockedTile(
-              leading: Icons.person_outline,
-              title: l10n.settingsCurrentUserTitle,
-              subtitle: userSubtitle,
-              enabled: false,
-            ),
-            const Divider(height: 1),
-            _LockedTile(
-              leading: Icons.card_membership_outlined,
-              title: l10n.subscriptionTitle,
-              subtitle: l10n.subscriptionListTileSubtitle,
-              enabled: true,
-              onTap: () => context.push('/app/settings/subscription'),
-            ),
-            const Divider(height: 1),
             ListTile(
-              leading: const Icon(Icons.logout),
+              leading: PrideColoredLeading(
+                icon: Icons.logout,
+                color: Theme.of(context).extension<PrideActionColors>()!.delete,
+              ),
               title: Text(l10n.settingsSignOutTitle),
               subtitle: Text(l10n.settingsSignOutSubtitle),
               onTap: () => _showSignOutDialog(context, ref),
@@ -205,6 +253,7 @@ class SettingsTabScreen extends ConsumerWidget {
           children: [
             _LockedTile(
               leading: Icons.group_outlined,
+              iconColor: prideSettingsIconColor(7),
               title: l10n.settingsUsersTitle,
               subtitle: apiOn
                   ? (effectiveOwner
@@ -220,25 +269,13 @@ class SettingsTabScreen extends ConsumerWidget {
         ),
         const SizedBox(height: 16),
         _SettingsSection(
-          title: l10n.settingsSectionBackupRestore,
-          children: [
-            _LockedTile(
-              leading: Icons.backup_outlined,
-              title: l10n.settingsBackupRestoreTitle,
-              subtitle: effectiveOwner
-                  ? l10n.settingsBackupRestoreSubtitleOwner
-                  : l10n.settingsOwnerOnly,
-              enabled: effectiveOwner,
-              onTap: () => context.push('/app/settings/backup-restore'),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        _SettingsSection(
           title: l10n.settingsSectionNotifications,
           children: [
             SwitchListTile(
-              secondary: const Icon(Icons.notifications_off_outlined),
+              secondary: PrideColoredLeading(
+                icon: Icons.notifications_off_outlined,
+                color: prideSettingsIconColor(9),
+              ),
               title: Text(l10n.settingsMuteNotificationsTitle),
               subtitle: Text(l10n.settingsMuteNotificationsSubtitle),
               value: ref.watch(notificationsMutedProvider),
@@ -248,6 +285,7 @@ class SettingsTabScreen extends ConsumerWidget {
             const Divider(height: 1),
             _LockedTile(
               leading: Icons.inbox_outlined,
+              iconColor: prideSettingsIconColor(0),
               title: l10n.settingsNotificationsInboxTitle,
               subtitle: l10n.settingsNotificationsInboxSubtitle,
               enabled: true,
@@ -261,6 +299,7 @@ class SettingsTabScreen extends ConsumerWidget {
           children: [
             _LockedTile(
               leading: Icons.print_outlined,
+              iconColor: prideSettingsIconColor(1),
               title: l10n.settingsPrinterTileTitle,
               subtitle: l10n.settingsPrinterTileSubtitle,
               enabled: true,
@@ -270,14 +309,17 @@ class SettingsTabScreen extends ConsumerWidget {
         ),
         const SizedBox(height: 16),
         _SettingsSection(
-          title: l10n.settingsSectionSyncDiagnostics,
+          title: l10n.settingsSectionBackupRestore,
           children: [
             _LockedTile(
-              leading: Icons.sync_outlined,
-              title: l10n.settingsSyncDiagnosticsTitle,
-              subtitle: l10n.settingsSyncDiagnosticsSubtitle,
-              enabled: true,
-              onTap: () => context.push('/app/settings/sync-diagnostics'),
+              leading: Icons.backup_outlined,
+              iconColor: prideSettingsIconColor(8),
+              title: l10n.settingsBackupRestoreTitle,
+              subtitle: effectiveOwner
+                  ? l10n.settingsBackupRestoreSubtitleOwner
+                  : l10n.settingsOwnerOnly,
+              enabled: effectiveOwner,
+              onTap: () => context.push('/app/settings/backup-restore'),
             ),
           ],
         ),
@@ -287,6 +329,7 @@ class SettingsTabScreen extends ConsumerWidget {
           children: [
             _LockedTile(
               leading: Icons.palette_outlined,
+              iconColor: prideSettingsIconColor(3),
               title: l10n.settingsAppearanceLanguageTitle,
               subtitle: l10n.settingsAppearanceLanguageSubtitle,
               enabled: true,
@@ -296,10 +339,25 @@ class SettingsTabScreen extends ConsumerWidget {
         ),
         const SizedBox(height: 16),
         _SettingsSection(
+          title: l10n.settingsSectionSyncDiagnostics,
+          children: [
+            _LockedTile(
+              leading: Icons.sync_outlined,
+              iconColor: prideSettingsIconColor(2),
+              title: l10n.settingsSyncDiagnosticsTitle,
+              subtitle: l10n.settingsSyncDiagnosticsSubtitle,
+              enabled: true,
+              onTap: () => context.push('/app/settings/sync-diagnostics'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _SettingsSection(
           title: l10n.settingsSectionAbout,
           children: [
             _LockedTile(
               leading: Icons.info_outline,
+              iconColor: prideSettingsIconColor(4),
               title: l10n.settingsAboutTitle,
               subtitle: l10n.settingsAboutSubtitle,
               enabled: true,
@@ -314,6 +372,7 @@ class SettingsTabScreen extends ConsumerWidget {
             children: [
               _LockedTile(
                 leading: Icons.developer_mode_outlined,
+                iconColor: prideSettingsIconColor(5),
                 title: l10n.settingsDeveloperPortalTitle,
                 subtitle: l10n.settingsDeveloperPortalSubtitle,
                 enabled: true,

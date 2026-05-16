@@ -67,6 +67,44 @@ Future<PrideApiAdminMeResult> getPrideApiAdminMe({
   }
 }
 
+/// `POST /admin/me/password` — change own password (developer portal).
+Future<({bool ok, String? error})> postPrideApiAdminChangeMyPassword({
+  required String accessToken,
+  required String currentPassword,
+  required String newPassword,
+  Duration timeout = const Duration(seconds: 20),
+}) async {
+  final base = PrideApiConfig.normalizedBase;
+  if (base == null) {
+    return (ok: false, error: 'API_BASE_URL not set');
+  }
+  try {
+    final response = await http
+        .post(
+          Uri.parse('$base/admin/me/password'),
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+          body: jsonEncode({
+            'current_password': currentPassword,
+            'new_password': newPassword,
+          }),
+        )
+        .timeout(timeout);
+    if (response.statusCode == 200) {
+      return (ok: true, error: null);
+    }
+    return (
+      ok: false,
+      error: _extractErr(response.body) ?? 'HTTP ${response.statusCode}',
+    );
+  } on Exception catch (e) {
+    return (ok: false, error: e.toString());
+  }
+}
+
 String? _extractErr(String body) {
   try {
     final decoded = jsonDecode(body);
@@ -430,5 +468,184 @@ Future<({bool ok, String? error})> postPrideApiAdminRevokeActivationCode({
     );
   } on Exception catch (e) {
     return (ok: false, error: e.toString());
+  }
+}
+
+Future<({bool ok, String? error})> postPrideApiAdminDisableShop({
+  required String accessToken,
+  required String shopId,
+  Duration timeout = const Duration(seconds: 20),
+}) async {
+  final base = PrideApiConfig.normalizedBase;
+  if (base == null) {
+    return (ok: false, error: 'API_BASE_URL not set');
+  }
+  try {
+    final response = await http
+        .post(
+          Uri.parse('$base/admin/shops/$shopId/disable'),
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+        )
+        .timeout(timeout);
+    if (response.statusCode == 200) {
+      return (ok: true, error: null);
+    }
+    return (
+      ok: false,
+      error: _extractErr(response.body) ?? 'HTTP ${response.statusCode}',
+    );
+  } on Exception catch (e) {
+    return (ok: false, error: e.toString());
+  }
+}
+
+Future<({bool ok, String? error})> postPrideApiAdminEnableShop({
+  required String accessToken,
+  required String shopId,
+  Duration timeout = const Duration(seconds: 20),
+}) async {
+  final base = PrideApiConfig.normalizedBase;
+  if (base == null) {
+    return (ok: false, error: 'API_BASE_URL not set');
+  }
+  try {
+    final response = await http
+        .post(
+          Uri.parse('$base/admin/shops/$shopId/enable'),
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+        )
+        .timeout(timeout);
+    if (response.statusCode == 200) {
+      return (ok: true, error: null);
+    }
+    return (
+      ok: false,
+      error: _extractErr(response.body) ?? 'HTTP ${response.statusCode}',
+    );
+  } on Exception catch (e) {
+    return (ok: false, error: e.toString());
+  }
+}
+
+Future<({bool ok, String? error})> postPrideApiAdminExtendShopLicense({
+  required String accessToken,
+  required String shopId,
+  required int addDays,
+  Duration timeout = const Duration(seconds: 20),
+}) async {
+  final base = PrideApiConfig.normalizedBase;
+  if (base == null) {
+    return (ok: false, error: 'API_BASE_URL not set');
+  }
+  try {
+    final response = await http
+        .post(
+          Uri.parse('$base/admin/shops/$shopId/extend-license'),
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+          body: jsonEncode({'add_days': addDays}),
+        )
+        .timeout(timeout);
+    if (response.statusCode == 200) {
+      return (ok: true, error: null);
+    }
+    return (
+      ok: false,
+      error: _extractErr(response.body) ?? 'HTTP ${response.statusCode}',
+    );
+  } on Exception catch (e) {
+    return (ok: false, error: e.toString());
+  }
+}
+
+Future<({
+  bool ok,
+  String? error,
+  String? reason,
+  int successCount,
+  int failureCount,
+})> postPrideApiAdminPushShop({
+  required String accessToken,
+  required String shopId,
+  required String title,
+  required String bodyText,
+  Map<String, dynamic>? data,
+  Duration timeout = const Duration(seconds: 40),
+}) async {
+  final base = PrideApiConfig.normalizedBase;
+  if (base == null) {
+    return (
+      ok: false,
+      error: 'API_BASE_URL not set',
+      reason: null,
+      successCount: 0,
+      failureCount: 0,
+    );
+  }
+  try {
+    final body = <String, dynamic>{
+      'shop_id': shopId,
+      'title': title,
+      'body_text': bodyText,
+      if (data != null && data.isNotEmpty) 'data': data,
+    };
+    final response = await http
+        .post(
+          Uri.parse('$base/admin/push/shop'),
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+          body: jsonEncode(body),
+        )
+        .timeout(timeout);
+    if (response.statusCode != 200) {
+      return (
+        ok: false,
+        error: _extractErr(response.body) ?? 'HTTP ${response.statusCode}',
+        reason: null,
+        successCount: 0,
+        failureCount: 0,
+      );
+    }
+    final decoded = jsonDecode(response.body);
+    if (decoded is! Map<String, dynamic>) {
+      return (
+        ok: false,
+        error: 'Unexpected response',
+        reason: null,
+        successCount: 0,
+        failureCount: 0,
+      );
+    }
+    final reason = decoded['reason'] is String ? decoded['reason'] as String : '';
+    final sc = decoded['successCount'];
+    final fc = decoded['failureCount'];
+    final apiOk = decoded['ok'] == true;
+    return (
+      ok: apiOk,
+      error: apiOk ? null : (reason.isEmpty ? 'push_failed' : reason),
+      reason: reason.isEmpty ? null : reason,
+      successCount: sc is int ? sc : int.tryParse('$sc') ?? 0,
+      failureCount: fc is int ? fc : int.tryParse('$fc') ?? 0,
+    );
+  } on Exception catch (e) {
+    return (
+      ok: false,
+      error: e.toString(),
+      reason: null,
+      successCount: 0,
+      failureCount: 0,
+    );
   }
 }

@@ -8,6 +8,7 @@ import '../../data/local/order_list_repository.dart';
 import '../../data/local/payment_repository.dart';
 import '../../data/local/sync_outbox_repository.dart';
 import '../../data/local/task_repository.dart';
+import '../../data/local/style_catalog_repository.dart';
 import '../api/pride_api_sync.dart';
 import '../persistence/sync_cursor_storage.dart';
 import 'outbox_push_batch.dart';
@@ -48,6 +49,7 @@ Future<ManualSyncOutcome> runManualSyncWithOutbox({
   required OrderListRepository orders,
   required MeasurementProfileRepository measurementProfiles,
   required CatalogRepository catalog,
+  required StyleCatalogRepository styleCatalog,
 }) async {
   final applier = SyncInboundApplier(
     notifications: notifications,
@@ -57,6 +59,7 @@ Future<ManualSyncOutcome> runManualSyncWithOutbox({
     orders: orders,
     measurementProfiles: measurementProfiles,
     catalog: catalog,
+    styleCatalog: styleCatalog,
     shopId: syncShopId,
   );
 

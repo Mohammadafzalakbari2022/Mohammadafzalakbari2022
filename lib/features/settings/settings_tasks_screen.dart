@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pride_v3/core/widgets/compact_search_toolbar.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../auth/auth_providers.dart';
@@ -83,6 +84,69 @@ class _SettingsTasksScreenState extends ConsumerState<SettingsTasksScreen> {
       return b.updatedAt.compareTo(a.updatedAt);
     });
     return list;
+  }
+
+  void _openFilterSheet(AppLocalizations l10n) {
+    var filter = _filter;
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (context, setModal) {
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      l10n.listToolbarFilterTooltip,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 12),
+                    RadioGroup<_TasksFilter>(
+                      groupValue: filter,
+                      onChanged: (v) => setModal(() => filter = v!),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          for (final f in _TasksFilter.values)
+                            RadioListTile<_TasksFilter>(
+                              title: Text(_tasksFilterLabel(l10n, f)),
+                              value: f,
+                            ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    FilledButton(
+                      onPressed: () {
+                        setState(() => _filter = filter);
+                        Navigator.of(sheetContext).pop();
+                      },
+                      child: Text(l10n.ordersFilterApply),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  String _tasksFilterLabel(AppLocalizations l10n, _TasksFilter f) {
+    switch (f) {
+      case _TasksFilter.all:
+        return l10n.tasksFilterAll;
+      case _TasksFilter.open:
+        return l10n.tasksFilterOpen;
+      case _TasksFilter.done:
+        return l10n.tasksFilterDone;
+    }
   }
 
   Future<void> _openEditor(AppLocalizations l10n, {TaskSummary? task}) async {
@@ -281,46 +345,14 @@ class _SettingsTasksScreenState extends ConsumerState<SettingsTasksScreen> {
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: SearchBar(
-                    hintText: l10n.tasksSearchHint,
-                    controller: _search,
-                    leading: const Icon(Icons.search),
-                    trailing: [
-                      if (_search.text.isNotEmpty)
-                        IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () => setState(() => _search.clear()),
-                        ),
-                    ],
-                    onChanged: (_) => setState(() {}),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                DropdownButton<_TasksFilter>(
-                  value: _filter,
-                  onChanged: (v) => setState(() => _filter = v!),
-                  items: [
-                    DropdownMenuItem(
-                      value: _TasksFilter.all,
-                      child: Text(l10n.tasksFilterAll),
-                    ),
-                    DropdownMenuItem(
-                      value: _TasksFilter.open,
-                      child: Text(l10n.tasksFilterOpen),
-                    ),
-                    DropdownMenuItem(
-                      value: _TasksFilter.done,
-                      child: Text(l10n.tasksFilterDone),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+          CompactSearchToolbar(
+            searchController: _search,
+            searchHint: l10n.tasksSearchHint,
+            searchTooltip: l10n.listToolbarSearchTooltip,
+            filterTooltip: l10n.listToolbarFilterTooltip,
+            filterActive: _filter != _TasksFilter.open,
+            onSearchChanged: () => setState(() {}),
+            onFilterTap: () => _openFilterSheet(l10n),
           ),
           Expanded(
             child: asyncTasks.when(

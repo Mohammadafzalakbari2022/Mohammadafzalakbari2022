@@ -10,10 +10,13 @@ class OrderSummary {
     required this.customerName,
     this.customerPhone,
     this.measurementsSnapshot = '',
-    this.styleNotes = '',
     this.internalNotes = '',
     this.sourceMeasurementProfileId,
     this.sourceMeasurementProfileLabel = '',
+    this.styleName = '',
+    this.styleNameInternalId,
+    this.styleSelectionJson = '',
+    this.styleSummary = '',
     required this.status,
     required this.deliveryDate,
     required this.createdAt,
@@ -29,10 +32,13 @@ class OrderSummary {
   final String customerName;
   final String? customerPhone;
   final String measurementsSnapshot;
-  final String styleNotes;
   final String internalNotes;
   final String? sourceMeasurementProfileId;
   final String sourceMeasurementProfileLabel;
+  final String styleName;
+  final String? styleNameInternalId;
+  final String styleSelectionJson;
+  final String styleSummary;
   final OrderLocalStatus status;
   final DateTime deliveryDate;
   final DateTime createdAt;

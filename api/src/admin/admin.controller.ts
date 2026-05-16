@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   ForbiddenException,
@@ -15,17 +16,37 @@ import type { Request } from 'express';
 
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import type { PrideAccessPayload } from '../auth/jwt-payload.interface';
+import { PushDispatchService } from '../push/push-dispatch.service';
 import { AdminService } from './admin.service';
 
 @Controller('admin')
 export class AdminController {
-  constructor(private readonly admin: AdminService) {}
+  constructor(
+    private readonly admin: AdminService,
+    private readonly pushDispatch: PushDispatchService,
+  ) {}
 
   /** `GET /admin/me` — developer gate (`plan-18`). */
   @Get('me')
   @UseGuards(JwtAuthGuard)
   me(@Req() req: Request & { user: PrideAccessPayload }) {
-    return { is_developer: this.admin.isDeveloperSub(req.user.sub) };
+    return { is_developer: this.admin.isDeveloper(req.user) };
+  }
+
+  /** `POST /admin/me/password` — change own password (developer portal only). */
+  @Post('me/password')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  async changeMyPassword(
+    @Req() req: Request & { user: PrideAccessPayload },
+    @Body() body: { current_password?: string; new_password?: string },
+  ): Promise<{ ok: true }> {
+    await this.admin.changeDeveloperOwnPassword(
+      req.user,
+      body?.current_password ?? '',
+      body?.new_password ?? '',
+    );
+    return { ok: true };
   }
 
   /** `GET /admin/audit-log` — developer-only (`plan-18`). */
@@ -35,7 +56,7 @@ export class AdminController {
     @Req() req: Request & { user: PrideAccessPayload },
     @Query('limit') limitRaw?: string,
   ) {
-    if (!this.admin.isDeveloperSub(req.user.sub)) {
+    if (!this.admin.isDeveloper(req.user)) {
       throw new ForbiddenException();
     }
     const parsed = Number(limitRaw ?? '100');
@@ -57,7 +78,7 @@ export class AdminController {
   @Get('stats')
   @UseGuards(JwtAuthGuard)
   async stats(@Req() req: Request & { user: PrideAccessPayload }) {
-    if (!this.admin.isDeveloperSub(req.user.sub)) {
+    if (!this.admin.isDeveloper(req.user)) {
       throw new ForbiddenException();
     }
     return this.admin.getStats();
@@ -71,7 +92,7 @@ export class AdminController {
     @Req() req: Request & { user: PrideAccessPayload },
     @Body() body: unknown,
   ) {
-    if (!this.admin.isDeveloperSub(req.user.sub)) {
+    if (!this.admin.isDeveloper(req.user)) {
       throw new ForbiddenException();
     }
     const echo =
@@ -85,7 +106,7 @@ export class AdminController {
   @Get('shops')
   @UseGuards(JwtAuthGuard)
   async shops(@Req() req: Request & { user: PrideAccessPayload }) {
-    if (!this.admin.isDeveloperSub(req.user.sub)) {
+    if (!this.admin.isDeveloper(req.user)) {
       throw new ForbiddenException();
     }
     return {
@@ -98,7 +119,7 @@ export class AdminController {
   @Get('activation-codes')
   @UseGuards(JwtAuthGuard)
   async activationCodes(@Req() req: Request & { user: PrideAccessPayload }) {
-    if (!this.admin.isDeveloperSub(req.user.sub)) {
+    if (!this.admin.isDeveloper(req.user)) {
       throw new ForbiddenException();
     }
     const rows = await this.admin.listActivationCodes();
@@ -134,7 +155,7 @@ export class AdminController {
       expires_at?: unknown;
     },
   ) {
-    if (!this.admin.isDeveloperSub(req.user.sub)) {
+    if (!this.admin.isDeveloper(req.user)) {
       throw new ForbiddenException();
     }
     return this.admin.createActivationCode(req.user.sub, body ?? {});
@@ -148,7 +169,7 @@ export class AdminController {
     @Req() req: Request & { user: PrideAccessPayload },
     @Param('id') id: string,
   ) {
-    if (!this.admin.isDeveloperSub(req.user.sub)) {
+    if (!this.admin.isDeveloper(req.user)) {
       throw new ForbiddenException();
     }
     return this.admin.revokeActivationCode(req.user.sub, id);
@@ -158,7 +179,7 @@ export class AdminController {
   @Get('password-reset-requests')
   @UseGuards(JwtAuthGuard)
   async passwordResetRequests(@Req() req: Request & { user: PrideAccessPayload }) {
-    if (!this.admin.isDeveloperSub(req.user.sub)) {
+    if (!this.admin.isDeveloper(req.user)) {
       throw new ForbiddenException();
     }
     return {
@@ -176,11 +197,97 @@ export class AdminController {
     @Param('id') id: string,
     @Body() body: { new_password?: string },
   ) {
-    if (!this.admin.isDeveloperSub(req.user.sub)) {
+    if (!this.admin.isDeveloper(req.user)) {
       throw new ForbiddenException();
     }
     const pw = body?.new_password ?? '';
     await this.admin.resolvePasswordReset(req.user.sub, id, pw);
     return { ok: true };
+  }
+
+  /** `POST /admin/shops/:shopId/disable` — block logins and sync (`plan-05`). */
+  @Post('shops/:shopId/disable')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  async disableShop(
+    @Req() req: Request & { user: PrideAccessPayload },
+    @Param('shopId') shopId: string,
+  ) {
+    if (!this.admin.isDeveloper(req.user)) {
+      throw new ForbiddenException();
+    }
+    return this.admin.disableShop(req.user.sub, shopId);
+  }
+
+  /** `POST /admin/shops/:shopId/enable` — undo disable. */
+  @Post('shops/:shopId/enable')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  async enableShop(
+    @Req() req: Request & { user: PrideAccessPayload },
+    @Param('shopId') shopId: string,
+  ) {
+    if (!this.admin.isDeveloper(req.user)) {
+      throw new ForbiddenException();
+    }
+    return this.admin.enableShop(req.user.sub, shopId);
+  }
+
+  /** `POST /admin/shops/:shopId/extend-license` — extend paid window (`plan-05`). */
+  @Post('shops/:shopId/extend-license')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  async extendShopLicense(
+    @Req() req: Request & { user: PrideAccessPayload },
+    @Param('shopId') shopId: string,
+    @Body() body: { add_days?: unknown },
+  ) {
+    if (!this.admin.isDeveloper(req.user)) {
+      throw new ForbiddenException();
+    }
+    return this.admin.extendShopLicense(req.user.sub, shopId, body?.add_days);
+  }
+
+  /**
+   * `POST /admin/push/shop` — send FCM notification to every registered device token
+   * for the shop (`plan-22`). Requires `FIREBASE_SERVICE_ACCOUNT_JSON` on the API host.
+   */
+  @Post('push/shop')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  async pushShop(
+    @Req() req: Request & { user: PrideAccessPayload },
+    @Body()
+    body: {
+      shop_id?: unknown;
+      title?: unknown;
+      body_text?: unknown;
+      data?: unknown;
+    },
+  ) {
+    if (!this.admin.isDeveloper(req.user)) {
+      throw new ForbiddenException();
+    }
+    const shopId = String(body.shop_id ?? '').trim();
+    const title = String(body.title ?? '').trim();
+    const text = String(body.body_text ?? '').trim();
+    if (!shopId || !title || !text) {
+      throw new BadRequestException('shop_id, title, and body_text are required');
+    }
+    const data =
+      body.data !== undefined &&
+      body.data !== null &&
+      typeof body.data === 'object' &&
+      !Array.isArray(body.data)
+        ? (body.data as Record<string, unknown>)
+        : undefined;
+    const result = await this.pushDispatch.sendToShop(shopId, title, text, data);
+    await this.admin.appendAudit(req.user.sub, 'push.shop', {
+      shop_id: shopId,
+      title,
+      body_len: text.length,
+      ...result,
+    });
+    return { schema_version: 1, ...result };
   }
 }

@@ -30,6 +30,6 @@ class MeasurementProfileSummary {
   String get displayMeasurementsText =>
       MeasurementProfileFormatting.buildDisplayText(
         lines: lines,
-        notes: notes,
+        notes: '',
       );
 }

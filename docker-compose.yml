@@ -2,15 +2,21 @@
 #
 # Host port **5433** → container 5432 avoids clashing with a Windows PostgreSQL
 # install that already uses 127.0.0.1:5432 (wrong server = Prisma P1000 for user `pride`).
+#
+# If Postgres exits with "superuser password is not specified", the container did not
+# get POSTGRES_PASSWORD (wrong compose file, or empty override). Run from this repo
+# root and check: `docker compose config` → under `postgres.environment` you must see
+# POSTGRES_PASSWORD. Fresh init after a bad volume: `docker compose down -v` (deletes data).
 services:
   postgres:
     image: postgres:16-alpine
     ports:
       - "5433:5432"
     environment:
-      POSTGRES_USER: pride
-      POSTGRES_PASSWORD: pride
-      POSTGRES_DB: pride_api
+      # Defaults survive an empty POSTGRES_PASSWORD in the host shell / .env used for substitution.
+      POSTGRES_USER: ${POSTGRES_USER:-pride}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pride}
+      POSTGRES_DB: ${POSTGRES_DB:-pride_api}
     volumes:
       - pride_pg_data:/var/lib/postgresql/data
 

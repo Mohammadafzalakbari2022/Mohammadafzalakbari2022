@@ -30,12 +30,15 @@ abstract class OrderListRepository {
     required DateTime deliveryDate,
     required int totalAmountMinor,
     required String measurementsSnapshot,
-    required String styleNotes,
     String? customerSnapshotName,
     String? customerSnapshotPhone,
     String? sourceMeasurementProfileId,
     String sourceMeasurementProfileLabel = '',
     List<OrderMeasurementSnapshotItemInput>? measurementSnapshotItems,
+    required String styleName,
+    String? styleNameInternalId,
+    String styleSelectionJson = '',
+    String styleSummary = '',
   });
 
   /// Update order status locally (plan-12).

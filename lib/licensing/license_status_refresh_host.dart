@@ -6,6 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../auth/auth_providers.dart';
 import '../core/api/pride_api_config.dart';
 import '../core/api/pride_api_license.dart';
+import '../core/persistence/shared_preferences_provider.dart';
+import 'license_clock_guard.dart';
+import 'license_providers.dart';
 import 'license_snapshot_persist.dart';
 
 /// Periodically calls `GET /license/status` while an API session is active (plan-06).
@@ -55,9 +58,19 @@ class _LicenseStatusRefreshHostState extends ConsumerState<LicenseStatusRefreshH
       return;
     }
     if (state == AppLifecycleState.resumed) {
-      _restartTimer();
-      unawaited(_pull(bypassMinGap: true));
+      unawaited(_onResumed());
     }
+  }
+
+  Future<void> _onResumed() async {
+    final prefs = ref.read(sharedPreferencesProvider);
+    await LicenseClockGuard.onResumeWallClock(prefs);
+    if (!mounted) return;
+    ref.read(licenseNotifierProvider).setSuspectedTimeTamper(
+          LicenseClockGuard.readTamperFlag(prefs),
+        );
+    _restartTimer();
+    await _pull(bypassMinGap: true);
   }
 
   bool _shouldPoll() {

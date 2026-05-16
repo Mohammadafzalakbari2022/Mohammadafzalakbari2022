@@ -12,10 +12,12 @@ model Shop {
   name                 String
   createdAt            DateTime           @default(now()) @map("created_at")
   lastMutationRevision Int                @default(0) @map("last_mutation_revision")
+  disabledAt           DateTime?          @map("disabled_at")
 
-  users          ShopUser[]
-  license        ShopLicense?
-  syncMutations  ShopSyncMutation[]
+  users                  ShopUser[]
+  license                ShopLicense?
+  syncMutations          ShopSyncMutation[]
+  licenseExpiryPushDays  LicenseExpiryPushDay[]
 
   @@map("shops")
 }
@@ -86,6 +88,19 @@ model ShopPushToken {
 
   @@unique([shopId, userId, platform])
   @@map("shop_push_tokens")
+}
+
+/// One row per shop per UTC calendar day — avoids duplicate license-expiry FCM reminders (`plan-22`).
+model LicenseExpiryPushDay {
+  id        String   @id @default(uuid())
+  shopId    String   @map("shop_id")
+  shop      Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  dayUtc    String   @map("day_utc") @db.VarChar(10)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([shopId, dayUtc])
+  @@index([shopId])
+  @@map("license_expiry_push_days")
 }
 
 /// Developer-created license activation strings (`plan-18` / `plan-06`).

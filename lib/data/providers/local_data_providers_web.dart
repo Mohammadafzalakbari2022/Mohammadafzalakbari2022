@@ -29,6 +29,11 @@ import '../local/app_notification_repository.dart';
 import '../local/app_notification_summary.dart';
 import '../local/memory_app_notification_repository.dart';
 import '../local/memory_sync_outbox_repository.dart';
+import '../local/memory_style_catalog_repository.dart';
+import '../local/style_catalog_repository.dart';
+import '../local/style_name_summary.dart';
+import '../local/style_part_summary.dart';
+import '../local/style_figure_summary.dart';
 
 /// Web: in-memory orders only. Isar `.g.dart` uses int64 schema IDs that JS cannot compile.
 final orderListRepositoryProvider =
@@ -187,4 +192,40 @@ final syncPendingOutboxEntriesProvider =
   final repo = await ref.watch(syncOutboxRepositoryProvider.future);
   final shopId = ref.watch(effectiveShopIdProvider);
   yield* repo.watchPendingEntries(shopId, limit: 50);
+});
+
+final styleCatalogRepositoryProvider =
+    FutureProvider<StyleCatalogRepository>((ref) async {
+  final repo = MemoryStyleCatalogRepository();
+  final shopId = ref.watch(effectiveShopIdProvider);
+  await repo.seedIfEmpty(shopId);
+  return repo;
+});
+
+final styleNamesStreamProvider =
+    StreamProvider<List<StyleNameSummary>>((ref) async* {
+  final repo = await ref.watch(styleCatalogRepositoryProvider.future);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchStyleNames(shopId);
+});
+
+final stylePartsStreamProvider =
+    StreamProvider<List<StylePartSummary>>((ref) async* {
+  final repo = await ref.watch(styleCatalogRepositoryProvider.future);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchStyleParts(shopId);
+});
+
+final styleFiguresForPartProvider = StreamProvider.family<
+    List<StyleFigureSummary>, String>((ref, partInternalId) async* {
+  final repo = await ref.watch(styleCatalogRepositoryProvider.future);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchFiguresForPart(shopId, partInternalId);
+});
+
+final styleAllFiguresStreamProvider =
+    StreamProvider<List<StyleFigureSummary>>((ref) async* {
+  final repo = await ref.watch(styleCatalogRepositoryProvider.future);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchAllFigures(shopId);
 });

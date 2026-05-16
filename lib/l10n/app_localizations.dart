@@ -115,8 +115,14 @@ abstract class AppLocalizations {
   /// No description provided for @tabCustomers.
   ///
   /// In en, this message translates to:
-  /// **'Customers'**
+  /// **'Customer list'**
   String get tabCustomers;
+
+  /// No description provided for @tabOrdersList.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders list'**
+  String get tabOrdersList;
 
   /// No description provided for @tabCatalog.
   ///
@@ -457,8 +463,26 @@ abstract class AppLocalizations {
   /// No description provided for @dashboardOpenMenuTooltip.
   ///
   /// In en, this message translates to:
-  /// **'Open menu'**
+  /// **'Open dashboard'**
   String get dashboardOpenMenuTooltip;
+
+  /// No description provided for @dashboardOrdersPipelineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order pipeline'**
+  String get dashboardOrdersPipelineTitle;
+
+  /// No description provided for @dashboardRecentIncomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Income — last 7 days'**
+  String get dashboardRecentIncomeTitle;
+
+  /// No description provided for @dashboardActivitySectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync & notifications'**
+  String get dashboardActivitySectionTitle;
 
   /// No description provided for @subscriptionTitle.
   ///
@@ -574,6 +598,12 @@ abstract class AppLocalizations {
   /// **'Delivery: {date}'**
   String ordersDeliveryOn(String date);
 
+  /// No description provided for @ordersTakenOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken: {dateTime}'**
+  String ordersTakenOn(String dateTime);
+
   /// No description provided for @ordersWebDataHint.
   ///
   /// In en, this message translates to:
@@ -669,6 +699,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No orders match your search or filters.'**
   String get ordersFilteredEmpty;
+
+  /// No description provided for @ordersFilterSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get ordersFilterSheetTitle;
+
+  /// No description provided for @ordersFilterQuickSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick filters'**
+  String get ordersFilterQuickSection;
+
+  /// No description provided for @ordersFilterDeliverySection.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery date'**
+  String get ordersFilterDeliverySection;
+
+  /// No description provided for @ordersFilterStatusSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get ordersFilterStatusSection;
+
+  /// No description provided for @ordersFilterClearAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get ordersFilterClearAll;
+
+  /// No description provided for @ordersFilterApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get ordersFilterApply;
+
+  /// No description provided for @listToolbarSearchTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get listToolbarSearchTooltip;
+
+  /// No description provided for @listToolbarFilterTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get listToolbarFilterTooltip;
+
+  /// No description provided for @appShellTapTitleForMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to open dashboard menu'**
+  String get appShellTapTitleForMenu;
+
+  /// No description provided for @ordersDetailFromNewBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: use the toolbar above to print the receipt or share the invoice.'**
+  String get ordersDetailFromNewBanner;
+
+  /// No description provided for @ordersComposerPostSaveSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Print, share, or open the full order.'**
+  String get ordersComposerPostSaveSubtitle;
 
   /// No description provided for @ordersDetailNotFound.
   ///
@@ -949,7 +1045,7 @@ abstract class AppLocalizations {
   /// No description provided for @paymentAmountHint.
   ///
   /// In en, this message translates to:
-  /// **'Enter amount (no decimals)'**
+  /// **'Example: 300'**
   String get paymentAmountHint;
 
   /// No description provided for @paymentAmount.
@@ -1041,6 +1137,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No orders for today.'**
   String get customerNoTodayOrders;
+
+  /// No description provided for @customerOrderHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order history'**
+  String get customerOrderHistoryTitle;
+
+  /// No description provided for @customerNoOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'No orders yet for this customer.'**
+  String get customerNoOrders;
 
   /// No description provided for @customerViewAllOrders.
   ///
@@ -1858,6 +1966,30 @@ abstract class AppLocalizations {
   /// **'Add design'**
   String get catalogAddDesignCta;
 
+  /// No description provided for @catalogViewDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get catalogViewDescription;
+
+  /// No description provided for @catalogDescriptionSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get catalogDescriptionSheetTitle;
+
+  /// No description provided for @catalogNoDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'No description for this design.'**
+  String get catalogNoDescription;
+
+  /// No description provided for @catalogViewerManageA11y.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage design'**
+  String get catalogViewerManageA11y;
+
   /// No description provided for @catalogAddDesignPlaceholder.
   ///
   /// In en, this message translates to:
@@ -2248,6 +2380,30 @@ abstract class AppLocalizations {
   /// **'Dark'**
   String get themeDark;
 
+  /// No description provided for @settingsUiSoundsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'UI sounds'**
+  String get settingsUiSoundsTitle;
+
+  /// No description provided for @settingsUiSoundsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Short sound when an action succeeds (for example, saving).'**
+  String get settingsUiSoundsSubtitle;
+
+  /// No description provided for @settingsUiHapticsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Haptic feedback'**
+  String get settingsUiHapticsTitle;
+
+  /// No description provided for @settingsUiHapticsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Light vibration on successful actions.'**
+  String get settingsUiHapticsSubtitle;
+
   /// No description provided for @settingsLanguageTitle.
   ///
   /// In en, this message translates to:
@@ -2440,6 +2596,18 @@ abstract class AppLocalizations {
   /// **'Reset'**
   String get resetCta;
 
+  /// No description provided for @licenseGraceReadOnlySnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Read-only until your license is verified online.'**
+  String get licenseGraceReadOnlySnack;
+
+  /// No description provided for @licenseClockTamperSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Read-only: device clock looks inconsistent. Open Subscription while online to verify.'**
+  String get licenseClockTamperSnack;
+
   /// No description provided for @licenseExpiredReadOnly.
   ///
   /// In en, this message translates to:
@@ -2506,30 +2674,6 @@ abstract class AppLocalizations {
   /// **'From profile: {name}'**
   String ordersComposerProfileLinked(String name);
 
-  /// No description provided for @ordersComposerStyleTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Style'**
-  String get ordersComposerStyleTitle;
-
-  /// No description provided for @ordersComposerStyleRequired.
-  ///
-  /// In en, this message translates to:
-  /// **'Select style (required)'**
-  String get ordersComposerStyleRequired;
-
-  /// No description provided for @ordersComposerStyleLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Design / style'**
-  String get ordersComposerStyleLabel;
-
-  /// No description provided for @ordersComposerStyleHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Example: Karzai, collar, pockets…'**
-  String get ordersComposerStyleHint;
-
   /// No description provided for @ordersComposerPaymentTitle.
   ///
   /// In en, this message translates to:
@@ -2561,7 +2705,7 @@ abstract class AppLocalizations {
   /// No description provided for @ordersComposerTotalHint.
   ///
   /// In en, this message translates to:
-  /// **'Example: 150000'**
+  /// **'Example: 1500'**
   String get ordersComposerTotalHint;
 
   /// No description provided for @ordersComposerPaidLabel.
@@ -2573,7 +2717,7 @@ abstract class AppLocalizations {
   /// No description provided for @ordersComposerPaidHint.
   ///
   /// In en, this message translates to:
-  /// **'Example: 50000'**
+  /// **'Example: 500'**
   String get ordersComposerPaidHint;
 
   /// No description provided for @ordersComposerDeliveryDateTitle.
@@ -2624,6 +2768,18 @@ abstract class AppLocalizations {
   /// **'Please select a customer before continuing.'**
   String get ordersComposerSelectCustomerFirstBody;
 
+  /// No description provided for @ordersComposerValidationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete required steps'**
+  String get ordersComposerValidationTitle;
+
+  /// No description provided for @ordersComposerValidationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in the following before saving this order:'**
+  String get ordersComposerValidationBody;
+
   /// No description provided for @ordersComposerRecentOrdersTitle.
   ///
   /// In en, this message translates to:
@@ -2641,6 +2797,282 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{date} • {remaining} remaining'**
   String ordersComposerRecentOrderRowSubtitle(String date, String remaining);
+
+  /// No description provided for @ordersComposerMeasurementsSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Measurements'**
+  String get ordersComposerMeasurementsSheetTitle;
+
+  /// No description provided for @ordersComposerMeasurementsNoTypesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add measurement types in Settings → Measurement types first.'**
+  String get ordersComposerMeasurementsNoTypesBody;
+
+  /// No description provided for @ordersComposerMeasurementsProfileAutoLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pattern #{date}'**
+  String ordersComposerMeasurementsProfileAutoLabel(String date);
+
+  /// No description provided for @ordersComposerSaveMeasurementsToProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as customer profile'**
+  String get ordersComposerSaveMeasurementsToProfile;
+
+  /// No description provided for @ordersComposerSaveMeasurementsToProfileSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Updates saved measurements on the selected customer.'**
+  String get ordersComposerSaveMeasurementsToProfileSubtitle;
+
+  /// No description provided for @ordersComposerAddMeasurementsCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Add measurements'**
+  String get ordersComposerAddMeasurementsCta;
+
+  /// No description provided for @ordersComposerStyleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Style'**
+  String get ordersComposerStyleTitle;
+
+  /// No description provided for @ordersComposerStyleRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Add style (required)'**
+  String get ordersComposerStyleRequired;
+
+  /// No description provided for @ordersComposerStyleSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Style selected'**
+  String get ordersComposerStyleSummary;
+
+  /// No description provided for @ordersComposerStyleSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order style'**
+  String get ordersComposerStyleSheetTitle;
+
+  /// No description provided for @ordersComposerStyleMainTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Main cloth style'**
+  String get ordersComposerStyleMainTitle;
+
+  /// No description provided for @ordersComposerStyleCustomLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Style name'**
+  String get ordersComposerStyleCustomLabel;
+
+  /// No description provided for @ordersComposerStyleCustomHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select above or type custom'**
+  String get ordersComposerStyleCustomHint;
+
+  /// No description provided for @ordersComposerStyleFiguresTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Design figures'**
+  String get ordersComposerStyleFiguresTitle;
+
+  /// No description provided for @ordersComposerStyleNoFigures.
+  ///
+  /// In en, this message translates to:
+  /// **'No design figures yet — add them in Settings → Order style.'**
+  String get ordersComposerStyleNoFigures;
+
+  /// No description provided for @ordersComposerStyleClearFigures.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all selections'**
+  String get ordersComposerStyleClearFigures;
+
+  /// No description provided for @settingsStyleHubTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order style'**
+  String get settingsStyleHubTitle;
+
+  /// No description provided for @settingsStyleTileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order style'**
+  String get settingsStyleTileTitle;
+
+  /// No description provided for @settingsStyleTileSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Style names and design figures'**
+  String get settingsStyleTileSubtitle;
+
+  /// No description provided for @settingsStyleNamesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloth style names'**
+  String get settingsStyleNamesTitle;
+
+  /// No description provided for @settingsStyleNamesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Qasimi, Kandahari, and custom names'**
+  String get settingsStyleNamesSubtitle;
+
+  /// No description provided for @settingsStyleNamesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No style names yet.'**
+  String get settingsStyleNamesEmpty;
+
+  /// No description provided for @settingsStyleNameAddCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Add style name'**
+  String get settingsStyleNameAddCta;
+
+  /// No description provided for @settingsStyleNameFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get settingsStyleNameFieldLabel;
+
+  /// No description provided for @settingsStyleNameRenameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename style'**
+  String get settingsStyleNameRenameTitle;
+
+  /// No description provided for @settingsStyleNameDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete style?'**
+  String get settingsStyleNameDeleteTitle;
+
+  /// No description provided for @settingsStyleNameDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This removes the name from the list. Existing orders are not changed.'**
+  String get settingsStyleNameDeleteBody;
+
+  /// No description provided for @settingsStylePartsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Garment parts'**
+  String get settingsStylePartsTitle;
+
+  /// No description provided for @settingsStylePartsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleeve, collar, pocket, and more'**
+  String get settingsStylePartsSubtitle;
+
+  /// No description provided for @settingsStylePartsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No parts yet.'**
+  String get settingsStylePartsEmpty;
+
+  /// No description provided for @settingsStylePartAddCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Add part'**
+  String get settingsStylePartAddCta;
+
+  /// No description provided for @settingsStylePartFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Part name'**
+  String get settingsStylePartFieldLabel;
+
+  /// No description provided for @settingsStylePartRenameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename part'**
+  String get settingsStylePartRenameTitle;
+
+  /// No description provided for @settingsStylePartDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete part?'**
+  String get settingsStylePartDeleteTitle;
+
+  /// No description provided for @settingsStylePartDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Figures for this part are also removed.'**
+  String get settingsStylePartDeleteBody;
+
+  /// No description provided for @settingsStyleFiguresTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Design figures'**
+  String get settingsStyleFiguresTitle;
+
+  /// No description provided for @settingsStyleFiguresSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'All tailoring design images'**
+  String get settingsStyleFiguresSubtitle;
+
+  /// No description provided for @settingsStyleFiguresEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No design figures yet.'**
+  String get settingsStyleFiguresEmpty;
+
+  /// No description provided for @settingsStyleFigurePartLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Garment part'**
+  String get settingsStyleFigurePartLabel;
+
+  /// No description provided for @settingsStyleFigureAddCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Add figure'**
+  String get settingsStyleFigureAddCta;
+
+  /// No description provided for @settingsStyleFigureNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Figure name'**
+  String get settingsStyleFigureNameLabel;
+
+  /// No description provided for @settingsStyleFigureDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete figure?'**
+  String get settingsStyleFigureDeleteTitle;
+
+  /// No description provided for @settingsStyleFigureDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This removes the design from your catalog.'**
+  String get settingsStyleFigureDeleteBody;
+
+  /// No description provided for @settingsStyleFigureWebOnlyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Adding custom images is available on Android and iOS. Bundled figures still work on web.'**
+  String get settingsStyleFigureWebOnlyBody;
+
+  /// No description provided for @settingsStyleActiveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get settingsStyleActiveLabel;
+
+  /// No description provided for @settingsStyleInactiveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get settingsStyleInactiveLabel;
 
   /// No description provided for @saveCta.
   ///
@@ -2870,6 +3302,18 @@ abstract class AppLocalizations {
   /// **'Your license is expired. Renew to edit again.'**
   String get dashboardLicenseExpiredBanner;
 
+  /// No description provided for @dashboardLicenseGraceBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'You have been offline too long since the server verified your license. Open Subscription and refresh while online.'**
+  String get dashboardLicenseGraceBanner;
+
+  /// No description provided for @dashboardLicenseClockTamperBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Device time may have been changed. Connect online and refresh your license on Subscription to keep editing.'**
+  String get dashboardLicenseClockTamperBanner;
+
   /// No description provided for @dashboardTodayDeliveriesTitle.
   ///
   /// In en, this message translates to:
@@ -3031,6 +3475,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'View-only mode until you renew.'**
   String get subscriptionReadOnlyHint;
+
+  /// No description provided for @subscriptionGraceReadOnlyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Read-only until the server can verify your license. Connect to the internet and tap Refresh status below.'**
+  String get subscriptionGraceReadOnlyHint;
+
+  /// No description provided for @subscriptionClockTamperHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Read-only until the server confirms your license after a device time check. Tap Refresh status while online.'**
+  String get subscriptionClockTamperHint;
 
   /// No description provided for @subscriptionActivationTitle.
   ///
@@ -3495,7 +3951,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsNotificationsFiltersTitle.
   ///
   /// In en, this message translates to:
-  /// **'Filters (preview)'**
+  /// **'Filters'**
   String get settingsNotificationsFiltersTitle;
 
   /// No description provided for @settingsNotifFilterAll.
@@ -3533,6 +3989,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'History will appear here for order, license, and backup events.'**
   String get settingsNotificationsInboxEmptyHint;
+
+  /// No description provided for @settingsNotificationsInboxFilterEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications match this filter.'**
+  String get settingsNotificationsInboxFilterEmpty;
 
   /// No description provided for @settingsSyncLastSyncTitle.
   ///
@@ -3642,6 +4104,12 @@ abstract class AppLocalizations {
   /// **'The server refused sync because the license is expired. Open Subscription.'**
   String get settingsSyncRetryLicenseExpired;
 
+  /// No description provided for @settingsSyncRetryEditingBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync is paused in read-only mode. Open Subscription when you are online.'**
+  String get settingsSyncRetryEditingBlocked;
+
   /// No description provided for @settingsSyncRetrySuccess.
   ///
   /// In en, this message translates to:
@@ -3750,6 +4218,66 @@ abstract class AppLocalizations {
   /// **'Diagnostics'**
   String get devPortalTabDiagnostics;
 
+  /// No description provided for @devPortalTabAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'My password'**
+  String get devPortalTabAccount;
+
+  /// No description provided for @devPortalMyPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change your password'**
+  String get devPortalMyPasswordTitle;
+
+  /// No description provided for @devPortalMyPasswordSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Username cannot be changed here. Use your current password, then choose a new one (at least 6 characters).'**
+  String get devPortalMyPasswordSubtitle;
+
+  /// No description provided for @devPortalCurrentPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password'**
+  String get devPortalCurrentPasswordLabel;
+
+  /// No description provided for @devPortalNewPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get devPortalNewPasswordLabel;
+
+  /// No description provided for @devPortalConfirmPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm new password'**
+  String get devPortalConfirmPasswordLabel;
+
+  /// No description provided for @devPortalPasswordMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'New password and confirmation do not match.'**
+  String get devPortalPasswordMismatch;
+
+  /// No description provided for @devPortalChangePasswordCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Update password'**
+  String get devPortalChangePasswordCta;
+
+  /// No description provided for @devPortalChangePasswordOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Password updated. Use the new password next time you sign in.'**
+  String get devPortalChangePasswordOk;
+
+  /// No description provided for @devPortalChangePasswordFail.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update password.'**
+  String get devPortalChangePasswordFail;
+
   /// No description provided for @devPortalOnlineRequired.
   ///
   /// In en, this message translates to:
@@ -3803,6 +4331,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, one{1 user} other{{count} users}}'**
   String devPortalShopRowUsers(int count);
+
+  /// No description provided for @devPortalShopDisabledLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Disabled'**
+  String get devPortalShopDisabledLabel;
+
+  /// No description provided for @devPortalShopActionsTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop actions'**
+  String get devPortalShopActionsTooltip;
+
+  /// No description provided for @devPortalShopDisableCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Disable shop'**
+  String get devPortalShopDisableCta;
+
+  /// No description provided for @devPortalShopEnableCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable shop'**
+  String get devPortalShopEnableCta;
+
+  /// No description provided for @devPortalShopExtendCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Extend license…'**
+  String get devPortalShopExtendCta;
+
+  /// No description provided for @devPortalShopExtendTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Extend license'**
+  String get devPortalShopExtendTitle;
+
+  /// No description provided for @devPortalShopExtendHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Days to add from today or current expiry (whichever is later).'**
+  String get devPortalShopExtendHint;
+
+  /// No description provided for @devPortalShopExtendDaysLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Days'**
+  String get devPortalShopExtendDaysLabel;
+
+  /// No description provided for @devPortalShopActionOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Done.'**
+  String get devPortalShopActionOk;
+
+  /// No description provided for @devPortalShopPushTestCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Test push…'**
+  String get devPortalShopPushTestCta;
+
+  /// No description provided for @devPortalShopPushTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Test push notification'**
+  String get devPortalShopPushTitle;
+
+  /// No description provided for @devPortalShopPushNotifTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification title'**
+  String get devPortalShopPushNotifTitleLabel;
+
+  /// No description provided for @devPortalShopPushBodyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get devPortalShopPushBodyLabel;
+
+  /// No description provided for @devPortalShopPushResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent: {success}, failed: {failed}. Reason: {reason}.'**
+  String devPortalShopPushResult(int success, int failed, String reason);
 
   /// No description provided for @devPortalCodesLoadError.
   ///
@@ -3999,7 +4611,7 @@ abstract class AppLocalizations {
   /// No description provided for @shopProfileIntro.
   ///
   /// In en, this message translates to:
-  /// **'This shop name appears as the designer label on your catalog items. Contact fields are for your reference until invoicing is connected.'**
+  /// **'Name, logo, address, and thank-you message appear on printed receipts and shared invoices. Notes below are for your own reference only.'**
   String get shopProfileIntro;
 
   /// No description provided for @shopProfileNameLabel.
@@ -4011,7 +4623,7 @@ abstract class AppLocalizations {
   /// No description provided for @shopProfileNameHint.
   ///
   /// In en, this message translates to:
-  /// **'Example: Pride Tailoring'**
+  /// **'Example: Karzai Tailoring Shop'**
   String get shopProfileNameHint;
 
   /// No description provided for @shopProfileNameRequired.
@@ -4035,7 +4647,7 @@ abstract class AppLocalizations {
   /// No description provided for @shopProfileShopPhoneHint.
   ///
   /// In en, this message translates to:
-  /// **'Example: 0700000000'**
+  /// **'Example: 0701234567'**
   String get shopProfileShopPhoneHint;
 
   /// No description provided for @shopProfileAddressLabel.
@@ -4047,8 +4659,20 @@ abstract class AppLocalizations {
   /// No description provided for @shopProfileAddressHint.
   ///
   /// In en, this message translates to:
-  /// **'Street, area, city…'**
+  /// **'Example: Karte Char, Kabul'**
   String get shopProfileAddressHint;
+
+  /// No description provided for @shopProfileReceiptThanksLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt thank-you message (optional)'**
+  String get shopProfileReceiptThanksLabel;
+
+  /// No description provided for @shopProfileReceiptThanksHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: Thank you for your business!'**
+  String get shopProfileReceiptThanksHint;
 
   /// No description provided for @shopProfileNotesLabel.
   ///
@@ -4398,10 +5022,124 @@ abstract class AppLocalizations {
   /// **'Payments'**
   String get receiptPaymentsHeader;
 
+  /// No description provided for @receiptShopPhoneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop phone'**
+  String get receiptShopPhoneLabel;
+
+  /// No description provided for @receiptShopAddressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get receiptShopAddressLabel;
+
+  /// No description provided for @receiptShareDivider.
+  ///
+  /// In en, this message translates to:
+  /// **'--------------------------------'**
+  String get receiptShareDivider;
+
+  /// No description provided for @receiptShareSectionRule.
+  ///
+  /// In en, this message translates to:
+  /// **'================================'**
+  String get receiptShareSectionRule;
+
+  /// No description provided for @settingsPrinterRetryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'If the printer is busy, the app retries the connection a few times automatically.'**
+  String get settingsPrinterRetryHint;
+
+  /// No description provided for @shopProfileLogoSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice header logo'**
+  String get shopProfileLogoSectionTitle;
+
+  /// No description provided for @shopProfileLogoSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown at the top of thermal receipts and shared invoice text (Android / iOS). Square images work best.'**
+  String get shopProfileLogoSubtitle;
+
+  /// No description provided for @shopProfileLogoPickCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose image'**
+  String get shopProfileLogoPickCta;
+
+  /// No description provided for @shopProfileLogoRemoveCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove logo'**
+  String get shopProfileLogoRemoveCta;
+
+  /// No description provided for @shopProfileLogoSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Logo saved.'**
+  String get shopProfileLogoSaved;
+
+  /// No description provided for @shopProfileLogoWebHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Logo upload is available in the Android and iOS apps.'**
+  String get shopProfileLogoWebHint;
+
+  /// No description provided for @shopProfileLogoStatusOnFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Logo saved on this device for receipts.'**
+  String get shopProfileLogoStatusOnFile;
+
+  /// No description provided for @shopProfileLogoDefaultCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'Default logo on receipts until you upload your own.'**
+  String get shopProfileLogoDefaultCaption;
+
+  /// No description provided for @defaultShopName.
+  ///
+  /// In en, this message translates to:
+  /// **'My tailoring shop'**
+  String get defaultShopName;
+
+  /// No description provided for @defaultShopAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Kabul, Afghanistan'**
+  String get defaultShopAddress;
+
+  /// No description provided for @defaultShopPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'0701234567'**
+  String get defaultShopPhone;
+
+  /// No description provided for @orderShareInvoiceTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Share invoice'**
+  String get orderShareInvoiceTooltip;
+
+  /// No description provided for @orderShareInvoiceFail.
+  ///
+  /// In en, this message translates to:
+  /// **'Share failed: {detail}'**
+  String orderShareInvoiceFail(String detail);
+
+  /// No description provided for @orderShareInvoiceSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Order {orderNo}'**
+  String orderShareInvoiceSubject(String orderNo);
+
   /// No description provided for @receiptFooterThanks.
   ///
   /// In en, this message translates to:
-  /// **'Thank you'**
+  /// **'Thank you for your business!'**
   String get receiptFooterThanks;
 }
 

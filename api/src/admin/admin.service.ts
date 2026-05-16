@@ -1,13 +1,17 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { randomBytes, randomUUID } from 'crypto';
 
+import type { PrideAccessPayload } from '../auth/jwt-payload.interface';
 import { licenseStatusDtoFromRow } from '../license/license-status.helper';
 import { PrismaService } from '../prisma/prisma.service';
 import { PasswordResetService } from '../shop/password-reset.service';
+import { ShopRegistryService } from '../shop/shop-registry.service';
 
 /** Comma-separated JWT `sub` values that count as developer (`plan-18`). */
 @Injectable()
@@ -15,6 +19,7 @@ export class AdminService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly passwordResets: PasswordResetService,
+    private readonly shopRegistry: ShopRegistryService,
   ) {}
 
   isDeveloperSub(sub: string): boolean {
@@ -24,6 +29,50 @@ export class AdminService {
       .map((s) => s.trim())
       .filter((s) => s.length > 0);
     return ids.includes(sub);
+  }
+
+  /**
+   * Developer portal access: JWT `sub` in PRIDE_DEVELOPER_IDS, or
+   * `shop_id|username` entries in PRIDE_DEVELOPER_USERS (comma-separated).
+   */
+  isDeveloper(user: PrideAccessPayload): boolean {
+    if (this.isDeveloperSub(user.sub)) return true;
+    const raw = process.env.PRIDE_DEVELOPER_USERS ?? '';
+    for (const part of raw.split(',')) {
+      const t = part.trim();
+      if (!t) continue;
+      const i = t.indexOf('|');
+      if (i <= 0) continue;
+      const shopId = t.slice(0, i).trim();
+      const username = t.slice(i + 1).trim();
+      if (shopId === user.shop_id && username === user.username) return true;
+    }
+    return false;
+  }
+
+  /** Changes password for the authenticated user (developer portal only). */
+  async changeDeveloperOwnPassword(
+    user: PrideAccessPayload,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<void> {
+    if (!this.isDeveloper(user)) {
+      throw new ForbiddenException();
+    }
+    const trimmed = newPassword?.trim() ?? '';
+    if (trimmed.length < 6) {
+      throw new BadRequestException('new_password must be at least 6 characters');
+    }
+    const ok = await this.shopRegistry.verifyUserPassword(
+      user.shop_id,
+      user.sub,
+      currentPassword,
+    );
+    if (!ok) {
+      throw new UnauthorizedException('current_password invalid');
+    }
+    await this.shopRegistry.setUserPasswordPlain(user.shop_id, user.sub, trimmed);
+    await this.appendAudit(user.sub, 'admin.me_password_change', {});
   }
 
   async appendAudit(
@@ -87,6 +136,7 @@ export class AdminService {
       user_count: number;
       license_status: string;
       license_expires_at: string | null;
+      disabled_at: string | null;
     }>
   > {
     const now = new Date();
@@ -100,6 +150,7 @@ export class AdminService {
       user_count: number;
       license_status: string;
       license_expires_at: string | null;
+      disabled_at: string | null;
     }> = [];
     for (const s of rows) {
       const user_count = await this.prisma.shopUser.count({
@@ -121,6 +172,7 @@ export class AdminService {
         user_count,
         license_status,
         license_expires_at,
+        disabled_at: s.disabledAt?.toISOString() ?? null,
       });
     }
     return out;
@@ -221,5 +273,50 @@ export class AdminService {
       code: row.code,
     });
     return { ok: true };
+  }
+
+  async disableShop(developerSub: string, shopId: string) {
+    const row = await this.prisma.shop.findUnique({ where: { id: shopId } });
+    if (!row) throw new NotFoundException('shop not found');
+    await this.prisma.shop.update({
+      where: { id: shopId },
+      data: { disabledAt: new Date() },
+    });
+    await this.appendAudit(developerSub, 'shop.disable', { shop_id: shopId });
+    return { ok: true };
+  }
+
+  async enableShop(developerSub: string, shopId: string) {
+    const row = await this.prisma.shop.findUnique({ where: { id: shopId } });
+    if (!row) throw new NotFoundException('shop not found');
+    await this.prisma.shop.update({
+      where: { id: shopId },
+      data: { disabledAt: null },
+    });
+    await this.appendAudit(developerSub, 'shop.enable', { shop_id: shopId });
+    return { ok: true };
+  }
+
+  async extendShopLicense(
+    developerSub: string,
+    shopId: string,
+    addDaysRaw: unknown,
+  ) {
+    const addDays = Math.min(Math.max(Number(addDaysRaw) || 0, 1), 3650);
+    const lic = await this.prisma.shopLicense.findUnique({ where: { shopId } });
+    if (!lic) throw new NotFoundException('license not found for shop');
+    const now = new Date();
+    const base = lic.expiresAt.getTime() > now.getTime() ? lic.expiresAt : now;
+    const next = new Date(base.getTime() + addDays * 86_400_000);
+    await this.prisma.shopLicense.update({
+      where: { shopId },
+      data: { expiresAt: next, statusStored: 'active' },
+    });
+    await this.appendAudit(developerSub, 'shop.extend_license', {
+      shop_id: shopId,
+      add_days: addDays,
+      new_expires_at: next.toISOString(),
+    });
+    return { ok: true, expires_at: next.toISOString() };
   }
 }

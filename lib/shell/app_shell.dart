@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pride_v3/app/app_theme.dart';
+import 'package:pride_v3/core/widgets/app_back_button.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../dashboard/dashboard_drawer.dart';
 import '../data/providers/local_data_providers.dart';
 import '../features/settings/shop_profile_provider.dart';
-import 'shell_app_bar_actions.dart';
 import 'shell_app_bar_title.dart';
 import 'shell_primary_tab.dart';
 
@@ -57,24 +58,41 @@ class _AppShellState extends ConsumerState<AppShell> {
         ? shopName
         : moduleTitle;
 
+    final openDrawer = !canPop && primaryTab
+        ? () => _scaffoldKey.currentState?.openDrawer()
+        : null;
+
     return Scaffold(
       key: _scaffoldKey,
       drawer: const DashboardDrawer(),
+      drawerEdgeDragWidth: 56,
       appBar: AppBar(
-        title: Text(title),
-        leading: canPop
-            ? BackButton(onPressed: () => context.pop())
-            : IconButton(
-                icon: const Icon(Icons.menu),
-                tooltip: l10n.dashboardOpenMenuTooltip,
-                onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+        automaticallyImplyLeading: false,
+        title: openDrawer == null
+            ? Text(title)
+            : Tooltip(
+                message: l10n.appShellTapTitleForMenu,
+                child: InkWell(
+                  onTap: openDrawer,
+                  borderRadius: BorderRadius.circular(8),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Text(title),
+                  ),
+                ),
               ),
-        actions: [
-          ShellAppBarActions(
-            scaffoldKey: _scaffoldKey,
-            showDashboardShortcut: canPop,
-          ),
-        ],
+        leading: canPop
+            ? AppBackButton(onPressed: () => context.pop())
+            : openDrawer != null
+                ? IconButton(
+                    icon: Icon(
+                      Icons.space_dashboard_outlined,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    tooltip: l10n.dashboardOpenMenuTooltip,
+                    onPressed: openDrawer,
+                  )
+                : null,
       ),
       body: widget.navigationShell,
       bottomNavigationBar: NavigationBar(
@@ -87,28 +105,43 @@ class _AppShellState extends ConsumerState<AppShell> {
         },
         destinations: [
           NavigationDestination(
-            icon: const Icon(Icons.receipt_long_outlined),
-            selectedIcon: const Icon(Icons.receipt_long),
+            icon: Icon(
+              Icons.receipt_long_outlined,
+              color: prideNavTabColor(0).withValues(alpha: 0.72),
+            ),
+            selectedIcon: Icon(Icons.receipt_long, color: prideNavTabColor(0)),
             label: l10n.tabOrders,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.people_outline),
-            selectedIcon: const Icon(Icons.people),
+            icon: Icon(
+              Icons.people_outline,
+              color: prideNavTabColor(1).withValues(alpha: 0.72),
+            ),
+            selectedIcon: Icon(Icons.people, color: prideNavTabColor(1)),
             label: l10n.tabCustomers,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.grid_view_outlined),
-            selectedIcon: const Icon(Icons.grid_view),
+            icon: Icon(
+              Icons.grid_view_outlined,
+              color: prideNavTabColor(2).withValues(alpha: 0.72),
+            ),
+            selectedIcon: Icon(Icons.grid_view, color: prideNavTabColor(2)),
             label: l10n.tabCatalog,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.bar_chart_outlined),
-            selectedIcon: const Icon(Icons.bar_chart),
+            icon: Icon(
+              Icons.bar_chart_outlined,
+              color: prideNavTabColor(3).withValues(alpha: 0.72),
+            ),
+            selectedIcon: Icon(Icons.bar_chart, color: prideNavTabColor(3)),
             label: l10n.tabReports,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.settings_outlined),
-            selectedIcon: const Icon(Icons.settings),
+            icon: Icon(
+              Icons.settings_outlined,
+              color: prideNavTabColor(4).withValues(alpha: 0.72),
+            ),
+            selectedIcon: Icon(Icons.settings, color: prideNavTabColor(4)),
             label: l10n.tabSettings,
           ),
         ],

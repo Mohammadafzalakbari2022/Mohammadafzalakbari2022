@@ -1,8 +1,10 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../auth/auth_providers.dart';
+import '../auth/auth_session.dart';
 import '../auth/forgot_password_screen.dart';
 import '../auth/login_screen.dart';
 import '../features/customers/customer_profile_screen.dart';
@@ -24,6 +26,10 @@ import '../features/settings/settings_backup_restore_screen.dart';
 import '../features/settings/settings_notifications_screen.dart';
 import '../features/settings/settings_sync_diagnostics_screen.dart';
 import '../features/settings/settings_measurement_types_screen.dart';
+import '../features/settings/settings_style_screen.dart';
+import '../features/settings/settings_style_names_screen.dart';
+import '../features/settings/settings_style_parts_screen.dart';
+import '../features/settings/settings_style_figures_screen.dart';
 import '../features/settings/settings_tasks_screen.dart';
 import '../features/settings/settings_tab_screen.dart';
 import '../features/settings/settings_printer_screen.dart';
@@ -33,20 +39,49 @@ import '../features/settings/settings_appearance_language_screen.dart';
 import '../features/settings/settings_users_screen.dart';
 import '../features/subscription/subscription_screen.dart';
 import '../licensing/license_providers.dart';
+import '../licensing/license_notifier.dart';
 import '../shell/app_shell.dart';
+import '../shell/shell_sync_providers.dart';
 import 'license_paths.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
+/// Notifies [GoRouter] on auth, license, or connectivity changes (plan-06 grace).
+///
+/// Caches [AuthSession] and [LicenseNotifier] so [dispose] never calls [Ref.read]
+/// after the [ProviderScope] has disposed its [ProviderContainer] (widget tests).
+class _GoRouterRefresh extends ChangeNotifier {
+  _GoRouterRefresh(Ref ref)
+      : _auth = ref.read(authSessionProvider),
+        _license = ref.read(licenseNotifierProvider) {
+    _auth.addListener(notifyListeners);
+    _license.addListener(notifyListeners);
+    ref.listen<AsyncValue<List<ConnectivityResult>>>(
+      connectivityListProvider,
+      (previous, next) => notifyListeners(),
+    );
+  }
+
+  final AuthSession _auth;
+  final LicenseNotifier _license;
+
+  @override
+  void dispose() {
+    _auth.removeListener(notifyListeners);
+    _license.removeListener(notifyListeners);
+    super.dispose();
+  }
+}
+
 final goRouterProvider = Provider<GoRouter>((ref) {
   final auth = ref.read(authSessionProvider);
-  final license = ref.read(licenseNotifierProvider);
-  final listenable = Listenable.merge([auth, license]);
+  final refresh = _GoRouterRefresh(ref);
+  ref.onDispose(refresh.dispose);
 
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/auth/login',
-    refreshListenable: listenable,
+    refreshListenable: refresh,
     redirect: (context, state) {
       final loggedIn = auth.authenticated;
       final atLogin = state.matchedLocation == '/auth/login';
@@ -59,10 +94,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         return '/app/orders';
       }
 
-      if (loggedIn && license.isExpired) {
-        final path = state.uri.path;
-        if (isPathBlockedWhenLicenseExpired(path)) {
-          return subscriptionPath;
+      if (loggedIn) {
+        final editingBlocked = ref.read(licenseEditingBlockedProvider);
+        if (editingBlocked) {
+          final path = state.uri.path;
+          if (isPathBlockedWhenLicenseEditingBlocked(path)) {
+            return subscriptionPath;
+          }
         }
       }
 
@@ -209,6 +247,28 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                     parentNavigatorKey: _rootNavigatorKey,
                     builder: (context, state) =>
                         const SettingsMeasurementTypesScreen(),
+                  ),
+                  GoRoute(
+                    path: 'style',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) => const SettingsStyleScreen(),
+                    routes: [
+                      GoRoute(
+                        path: 'names',
+                        builder: (context, state) =>
+                            const SettingsStyleNamesScreen(),
+                      ),
+                      GoRoute(
+                        path: 'parts',
+                        builder: (context, state) =>
+                            const SettingsStylePartsScreen(),
+                      ),
+                      GoRoute(
+                        path: 'figures',
+                        builder: (context, state) =>
+                            const SettingsStyleFiguresScreen(),
+                      ),
+                    ],
                   ),
                   GoRoute(
                     path: 'tasks',

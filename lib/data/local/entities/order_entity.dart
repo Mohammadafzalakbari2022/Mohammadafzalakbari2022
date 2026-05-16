@@ -39,9 +39,6 @@ class OrderEntity {
   /// Text snapshot at creation; not edited after save (plan-12).
   String measurementsSnapshot = '';
 
-  /// Style / design notes at creation (plan-12).
-  String styleNotes = '';
-
   /// Staff-only notes; editable after the order is otherwise locked (plan-12).
   String internalNotes = '';
 
@@ -50,6 +47,18 @@ class OrderEntity {
 
   /// Denormalized label at order creation for display when profile is later edited.
   String sourceMeasurementProfileLabel = '';
+
+  /// Main cloth style label at order creation (catalog name or custom text).
+  String styleName = '';
+
+  /// Set when [styleName] came from [StyleNameEntity].
+  String? styleNameInternalId;
+
+  /// JSON list of figure internal ids (legacy: part id → figure id map).
+  String styleSelectionJson = '';
+
+  /// Human-readable style lines for lists, receipts, and sync.
+  String styleSummary = '';
 
   DateTime? deletedAt;
 }

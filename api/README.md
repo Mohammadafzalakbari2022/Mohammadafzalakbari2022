@@ -26,7 +26,7 @@
 
 **Afghan Pride (`pride-api`)** — NestJS service for [`plan-04-backend-api.md`](../plan-04-backend-api.md).
 
-**Database:** PostgreSQL via **Prisma** (`prisma/schema.prisma`). Set `DATABASE_URL` (see [`.env.example`](.env.example)). Local DB: from repo root run `docker compose up -d`, then `cd api && npx prisma migrate deploy && npm run start:dev`.
+**Database:** PostgreSQL via **Prisma** (`prisma/schema.prisma`). Set `DATABASE_URL` in **`api/.env`** (see [`.env.example`](.env.example); never commit `.env`). **Migrations:** from repo root run `npm run db:migrate` (runs Prisma inside `api/` so the schema is found), or `cd api && npx prisma migrate deploy`. Local DB: `docker compose up -d` from repo root, then point `DATABASE_URL` at `postgresql://pride:pride@127.0.0.1:5433/pride_api` (see `docker-compose.yml`). Deploy: same migration command against your hosted `DATABASE_URL` (e.g. Render `preDeployCommand` in [`render.yaml`](../render.yaml)).
 
 **Endpoints (scaffold):**
 
@@ -37,8 +37,9 @@
 - `POST /shop/create` — body `{ "shop_name", "owner_username", "owner_password" }`; creates **Postgres** shop + owner + trial license; response same as login.
 - `POST /shop/join` — same body and response as `POST /auth/login` (shop bootstrap for an existing shop; `plan-04`).
 - `GET /shop/users`, `POST /shop/users`, `DELETE /shop/users/:userId` — **Bearer JWT** required; **owner only**; trial max **2** users, paid max **5** (`plan-04`).
-- `GET /admin/me` — **Bearer JWT** required; body `{ "is_developer": boolean }` (`plan-18`). Set comma-separated **`shop_users.id`** values (same as JWT `sub`) in `PRIDE_DEVELOPER_IDS` to grant developer access.
-- `GET /admin/stats`, `GET /admin/shops`, `GET /admin/activation-codes`, `POST /admin/activation-codes`, `POST /admin/activation-codes/:id/revoke`, `GET /admin/password-reset-requests`, `POST /admin/password-reset-requests/:id/resolve`, `GET /admin/audit-log` — **developer-only** (`plan-18`); **403** if not in `PRIDE_DEVELOPER_IDS`.
+- `GET /admin/me` — **Bearer JWT** required; body `{ "is_developer": boolean }` (`plan-18`). Developer access if JWT `sub` is listed in **`PRIDE_DEVELOPER_IDS`** (comma-separated `shop_users.id`) **or** `shop_id|username` matches an entry in **`PRIDE_DEVELOPER_USERS`** (comma-separated).
+- `POST /admin/me/password` — **Bearer JWT**; body `{ "current_password", "new_password" }`; **developer only**; changes the signed-in user’s password (username unchanged).
+- `GET /admin/stats`, `GET /admin/shops`, `GET /admin/activation-codes`, `POST /admin/activation-codes`, `POST /admin/activation-codes/:id/revoke`, `GET /admin/password-reset-requests`, `POST /admin/password-reset-requests/:id/resolve`, `GET /admin/audit-log` — **developer-only** (`plan-18`); **403** if not developer.
 - `POST /sync/push`, `GET /sync/pull?cursor=` — **Bearer JWT** required; JSON contract in [`plan-04-backend-api.md`](../plan-04-backend-api.md). Mutations are persisted in **Postgres** (`shop_sync_mutations`); pull returns appended rows. **403** `{ "error": "license_expired", ... }` when license is expired (`plan-03`).
 
 **JWT:** set `JWT_SECRET` in production (min 32 chars recommended). Default dev secret is embedded for local runs only.
@@ -46,6 +47,8 @@
 **Dev seed user:** non-production defaults to shop `dev`, username `owner`, password `changeme`. Override with `PRIDE_AUTH_SEED`:
 - `shop_id|username|password` **or**
 - `shop_id|shop_display_name|username|password`
+
+Optional **`PRIDE_OPERATOR_SEED=shop_id|username|password`**: after the auth seed shop exists, creates a **non-owner** user (idempotent if username already present). Pair with **`PRIDE_DEVELOPER_USERS=shop_id|username`** so that login can use the Developer Portal without looking up `shop_users.id`.
 
 In production, set `PRIDE_AUTH_SEED` explicitly or only `/shop/create` can bootstrap the first shop.
 

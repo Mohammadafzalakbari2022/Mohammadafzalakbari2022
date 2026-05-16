@@ -118,9 +118,8 @@ class SettingsMeasurementTypesScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
-    final license = ref.watch(licenseNotifierProvider);
     final typesAsync = ref.watch(measurementTypesAdminStreamProvider);
-    final canEdit = !license.isExpired;
+    final canEdit = !ref.watch(licenseEditingBlockedProvider);
 
     return Scaffold(
       appBar: AppBar(

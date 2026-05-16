@@ -2,12 +2,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pride_v3/core/calendar/app_calendar_format.dart';
-import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
+import 'package:pride_v3/app/app_theme.dart';
+import 'package:pride_v3/core/widgets/pride_action_buttons.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../data/local/catalog_item_summary.dart';
 import '../../data/providers/local_data_providers.dart';
+import 'catalog_fullscreen_viewer.dart';
 import 'catalog_sharing_provider.dart';
 import 'catalog_tile_image.dart';
 
@@ -24,7 +25,6 @@ enum _CatalogSort { newest, oldest, nameAsc, nameDesc }
 
 class _CatalogTabScreenState extends ConsumerState<CatalogTabScreen> {
   _CatalogSegment _segment = _CatalogSegment.myDesigns;
-  bool _grid = true;
   _CatalogSort _sort = _CatalogSort.newest;
   final _search = TextEditingController();
 
@@ -53,14 +53,60 @@ class _CatalogTabScreenState extends ConsumerState<CatalogTabScreen> {
         list.sort((a, b) => a.createdAt.compareTo(b.createdAt));
       case _CatalogSort.nameAsc:
         list.sort(
-          (a, b) => a.designName.toLowerCase().compareTo(b.designName.toLowerCase()),
+          (a, b) =>
+              a.designName.toLowerCase().compareTo(b.designName.toLowerCase()),
         );
       case _CatalogSort.nameDesc:
         list.sort(
-          (a, b) => b.designName.toLowerCase().compareTo(a.designName.toLowerCase()),
+          (a, b) =>
+              b.designName.toLowerCase().compareTo(a.designName.toLowerCase()),
         );
     }
     return list;
+  }
+
+  void _openSearchDialog(AppLocalizations l10n) {
+    final draft = TextEditingController(text: _search.text);
+    showDialog<void>(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title: Text(l10n.listToolbarSearchTooltip),
+          content: TextField(
+            controller: draft,
+            autofocus: true,
+            textInputAction: TextInputAction.search,
+            decoration: InputDecoration(hintText: l10n.catalogSearchHint),
+            onSubmitted: (_) {
+              _search.text = draft.text;
+              setState(() {});
+              Navigator.of(ctx).pop();
+            },
+          ),
+          actions: [
+            if (_search.text.isNotEmpty)
+              TextButton(
+                onPressed: () {
+                  _search.clear();
+                  setState(() {});
+                  Navigator.of(ctx).pop();
+                },
+                child: Text(l10n.ordersFilterClearAll),
+              ),
+            ...prideDialogCancelSave(
+              context: ctx,
+              onCancel: () => Navigator.of(ctx).pop(),
+              onConfirm: () {
+                _search.text = draft.text;
+                setState(() {});
+                Navigator.of(ctx).pop();
+              },
+              saveLabel: l10n.ordersFilterApply,
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _openSortSheet(AppLocalizations l10n) {
@@ -120,19 +166,19 @@ class _CatalogTabScreenState extends ConsumerState<CatalogTabScreen> {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        TextButton(
+                        PrideCancelButton(
                           onPressed: () {
                             setModal(() => sort = _CatalogSort.newest);
                           },
-                          child: Text(l10n.catalogResetSort),
+                          label: l10n.catalogResetSort,
                         ),
                         const Spacer(),
-                        FilledButton(
+                        PrideSaveButton(
                           onPressed: () {
                             setState(() => _sort = sort);
                             Navigator.of(sheetContext).pop();
                           },
-                          child: Text(l10n.catalogApplySort),
+                          label: l10n.catalogApplySort,
                         ),
                       ],
                     ),
@@ -146,11 +192,15 @@ class _CatalogTabScreenState extends ConsumerState<CatalogTabScreen> {
     );
   }
 
+  int _gridCrossAxisCount(double width) {
+    if (width >= 900) return 4;
+    if (width >= 600) return 3;
+    return 2;
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final locale = Localizations.localeOf(context).toString();
-    final calendar = ref.watch(dateCalendarSystemProvider);
     final asyncMy = ref.watch(myCatalogStreamProvider);
     final asyncShared = ref.watch(sharedCatalogStreamProvider);
 
@@ -159,196 +209,127 @@ class _CatalogTabScreenState extends ConsumerState<CatalogTabScreen> {
     final catalogAsync = showShared ? asyncShared : asyncMy;
     final emptyMessage =
         showShared ? l10n.catalogSharedDirectoryEmpty : l10n.catalogEmptyMyDesigns;
+    final hasSearch = _search.text.trim().isNotEmpty;
+    final width = MediaQuery.sizeOf(context).width;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+          padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
           child: Row(
-            children: [
-              Expanded(
-                child: SegmentedButton<_CatalogSegment>(
-                  segments: [
-                    ButtonSegment(
-                      value: _CatalogSegment.myDesigns,
-                      label: Text(l10n.catalogMyDesigns),
+                children: [
+                  _SegmentIcon(
+                    tooltip: l10n.catalogMyDesigns,
+                    icon: Icons.folder_outlined,
+                    colorIndex: 0,
+                    selected: _segment == _CatalogSegment.myDesigns,
+                    onPressed: () =>
+                        setState(() => _segment = _CatalogSegment.myDesigns),
+                  ),
+                  _SegmentIcon(
+                    tooltip: l10n.catalogSharedDesigns,
+                    icon: Icons.public_outlined,
+                    colorIndex: 3,
+                    selected: _segment == _CatalogSegment.sharedDesigns,
+                    enabled: sharedEnabled,
+                    onPressed: sharedEnabled
+                        ? () => setState(
+                              () => _segment = _CatalogSegment.sharedDesigns,
+                            )
+                        : null,
+                  ),
+                  const Spacer(),
+                  Tooltip(
+                    message: l10n.listToolbarSearchTooltip,
+                    child: IconButton(
+                      icon: Icon(
+                        hasSearch ? Icons.search : Icons.search_outlined,
+                        color: hasSearch
+                            ? Theme.of(context).colorScheme.primary
+                            : null,
+                      ),
+                      onPressed: () => _openSearchDialog(l10n),
                     ),
-                    ButtonSegment(
-                      value: _CatalogSegment.sharedDesigns,
-                      label: Text(l10n.catalogSharedDesigns),
-                      enabled: sharedEnabled,
+                  ),
+                  Tooltip(
+                    message: l10n.catalogSortTooltip,
+                    child: IconButton(
+                      icon: Icon(
+                        _sort != _CatalogSort.newest
+                            ? Icons.filter_list
+                            : Icons.filter_list_outlined,
+                        color: _sort != _CatalogSort.newest
+                            ? Theme.of(context).colorScheme.primary
+                            : null,
+                      ),
+                      onPressed: () => _openSortSheet(l10n),
                     ),
-                  ],
-                  selected: {_segment},
-                  onSelectionChanged: (s) {
-                    setState(() => _segment = s.first);
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              IconButton(
-                onPressed: () => _openSortSheet(l10n),
-                icon: const Icon(Icons.filter_list),
-                tooltip: l10n.catalogSortTooltip,
-              ),
-              IconButton(
-                onPressed: () => setState(() => _grid = !_grid),
-                icon: Icon(_grid ? Icons.view_list : Icons.grid_view),
-                tooltip: _grid ? l10n.catalogListView : l10n.catalogGridView,
-              ),
+                  ),
             ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-          child: SearchBar(
-            hintText: l10n.catalogSearchHint,
-            controller: _search,
-            leading: const Icon(Icons.search),
-            trailing: [
-              if (_search.text.isNotEmpty)
-                IconButton(
-                  icon: const Icon(Icons.clear),
-                  onPressed: () => setState(() => _search.clear()),
-                ),
-            ],
-            onChanged: (_) => setState(() {}),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-          child: SwitchListTile.adaptive(
-            contentPadding: EdgeInsets.zero,
-            title: Text(l10n.catalogSharingToggleTitle),
-            subtitle: Text(l10n.catalogSharingToggleSubtitle),
-            value: sharedEnabled,
-            onChanged: (v) {
-              ref.read(catalogSharingEnabledProvider.notifier).set(v);
-              if (!v && _segment == _CatalogSegment.sharedDesigns) {
-                setState(() => _segment = _CatalogSegment.myDesigns);
-              }
-            },
           ),
         ),
         Expanded(
           child: catalogAsync.when(
-            data: (items) {
-              final filtered = _applySort(_applySearch(items));
-              if (filtered.isEmpty) {
-                return Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Text(
-                      emptyMessage,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                );
-              }
-              if (_grid) {
-                return GridView.builder(
-                  padding: const EdgeInsets.all(12),
-                  gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 0.95,
-                  ),
-                  itemCount: filtered.length,
-                  itemBuilder: (context, i) {
-                    final it = filtered[i];
-                    return InkWell(
-                      onTap: () => context.push('/app/catalog/${it.internalId}'),
-                      child: Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: CatalogTileImage(
-                                  thumbnailPath: it.thumbnailPath,
-                                  imagePath: it.imagePath,
-                                  borderRadius: 12,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                it.designName,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleSmall,
-                              ),
-                              Text(
-                                it.designerShopName,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style:
-                                    Theme.of(context).textTheme.bodySmall,
-                              ),
-                              Text(
-                                AppCalendarFormat.mediumDate(
-                                  l10n,
-                                  calendar,
-                                  it.createdAt,
-                                  locale,
-                                ),
-                                style:
-                                    Theme.of(context).textTheme.bodySmall,
-                              ),
-                            ],
-                          ),
+                data: (items) {
+                  final filtered = _applySort(_applySearch(items));
+                  if (filtered.isEmpty) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Text(
+                          emptyMessage,
+                          textAlign: TextAlign.center,
                         ),
                       ),
                     );
-                  },
-                );
-              }
-              return ListView.separated(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                itemCount: filtered.length,
-                separatorBuilder: (context, index) =>
-                    const Divider(height: 1),
-                itemBuilder: (context, i) {
-                  final it = filtered[i];
-                  return ListTile(
-                    leading: CatalogTileImage(
-                      thumbnailPath: it.thumbnailPath,
-                      imagePath: it.imagePath,
-                      borderRadius: 8,
-                      dimension: 56,
+                  }
+                  return GridView.builder(
+                    padding: const EdgeInsets.all(4),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: _gridCrossAxisCount(width),
+                      crossAxisSpacing: 4,
+                      mainAxisSpacing: 4,
+                      childAspectRatio: 1,
                     ),
-                    title: Text(it.designName),
-                    subtitle: Text(
-                      '${it.designerShopName} · ${AppCalendarFormat.mediumDate(l10n, calendar, it.createdAt, locale)}',
-                    ),
-                    trailing: (showShared || it.isSharedPublic)
-                        ? const Icon(Icons.public)
-                        : null,
-                    onTap: () =>
-                        context.push('/app/catalog/${it.internalId}'),
+                    itemCount: filtered.length,
+                    itemBuilder: (context, i) {
+                      final it = filtered[i];
+                      return Material(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .surfaceContainerHighest,
+                        clipBehavior: Clip.antiAlias,
+                        child: InkWell(
+                          onTap: () =>
+                              CatalogFullscreenViewer.open(context, it.internalId),
+                          child: CatalogTileImage(
+                            thumbnailPath: it.thumbnailPath,
+                            imagePath: it.imagePath,
+                            borderRadius: 0,
+                          ),
+                        ),
+                      );
+                    },
                   );
                 },
-              );
-            },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Text('$e', textAlign: TextAlign.center),
+                loading: () =>
+                    const Center(child: CircularProgressIndicator()),
+                error: (e, _) => Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Text('$e', textAlign: TextAlign.center),
+                  ),
+                ),
               ),
-            ),
-          ),
         ),
         if (!showShared)
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
             child: FilledButton.icon(
-              onPressed: kIsWeb ? null : () => context.push('/app/catalog/new'),
+              onPressed:
+                  kIsWeb ? null : () => context.push('/app/catalog/new'),
+              style: prideButtonStyle(context, PrideButtonVariant.add),
               icon: const Icon(Icons.add),
               label: Text(l10n.catalogAddDesignCta),
             ),
@@ -358,3 +339,34 @@ class _CatalogTabScreenState extends ConsumerState<CatalogTabScreen> {
   }
 }
 
+class _SegmentIcon extends StatelessWidget {
+  const _SegmentIcon({
+    required this.tooltip,
+    required this.icon,
+    required this.colorIndex,
+    required this.selected,
+    required this.onPressed,
+    this.enabled = true,
+  });
+
+  final String tooltip;
+  final IconData icon;
+  final int colorIndex;
+  final bool selected;
+  final bool enabled;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = prideSettingsIconColor(colorIndex);
+    return Tooltip(
+      message: tooltip,
+      child: IconButton(
+        onPressed: enabled ? onPressed : null,
+        icon: selected
+            ? PrideColoredLeading(icon: icon, color: color)
+            : Icon(icon, color: Theme.of(context).colorScheme.onSurfaceVariant),
+      ),
+    );
+  }
+}

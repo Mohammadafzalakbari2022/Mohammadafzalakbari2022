@@ -36,6 +36,18 @@ const int kSyncPushOutboxBatchLimit = 100;
       return (entityType: 'catalog_item', operation: 'upsert');
     case SyncOutboxKinds.catalogItemDelete:
       return (entityType: 'catalog_item', operation: 'delete');
+    case SyncOutboxKinds.styleNameUpsert:
+      return (entityType: 'style_name', operation: 'upsert');
+    case SyncOutboxKinds.styleNameDelete:
+      return (entityType: 'style_name', operation: 'delete');
+    case SyncOutboxKinds.stylePartUpsert:
+      return (entityType: 'style_part', operation: 'upsert');
+    case SyncOutboxKinds.stylePartDelete:
+      return (entityType: 'style_part', operation: 'delete');
+    case SyncOutboxKinds.styleFigureUpsert:
+      return (entityType: 'style_figure', operation: 'upsert');
+    case SyncOutboxKinds.styleFigureDelete:
+      return (entityType: 'style_figure', operation: 'delete');
     default:
       return null;
   }

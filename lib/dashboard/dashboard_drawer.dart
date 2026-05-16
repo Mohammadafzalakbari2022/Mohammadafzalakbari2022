@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+import 'package:pride_v3/app/app_theme.dart';
 import 'package:pride_v3/core/calendar/app_calendar_format.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
 import 'package:pride_v3/core/calendar/report_month_period.dart';
+import 'package:pride_v3/core/widgets/pride_nav_card_tile.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../auth/auth_providers.dart';
+import '../data/local/app_notification_summary.dart';
 import '../data/local/entities/order_status.dart';
+import '../data/local/order_summary.dart';
 import '../data/providers/local_data_providers.dart';
 import '../features/orders/order_status_label.dart';
+import '../features/reports/report_money_format.dart';
 import '../features/settings/settings_providers.dart';
 import '../licensing/license_providers.dart';
+import '../shell/shell_drawer_quick_actions.dart';
+import 'dashboard_widgets.dart';
 
 /// Edge drawer: live KPIs + shortcuts (plan-09). Read-only navigation; no CRUD here.
 class DashboardDrawer extends ConsumerStatefulWidget {
@@ -48,9 +54,11 @@ class _DashboardDrawerState extends ConsumerState<DashboardDrawer> {
     final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).toString();
     final calendar = ref.watch(dateCalendarSystemProvider);
-    final moneyFmt = NumberFormat.decimalPattern(locale);
-    final width = MediaQuery.sizeOf(context).width * 0.88;
+    final scheme = Theme.of(context).colorScheme;
+    final actions = Theme.of(context).extension<PrideActionColors>()!;
+    final width = MediaQuery.sizeOf(context).width * 0.92;
     final license = ref.watch(licenseNotifierProvider);
+    final editingBlocked = ref.watch(licenseEditingBlockedProvider);
     final shopId = ref.watch(effectiveShopIdProvider);
     final ordersAsync = ref.watch(ordersListStreamProvider);
     final paymentsAsync = ref.watch(paymentsForShopProvider(shopId));
@@ -59,473 +67,596 @@ class _DashboardDrawerState extends ConsumerState<DashboardDrawer> {
 
     return Drawer(
       width: width,
-      child: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          children: [
-            Text(
-              l10n.dashboardTitle,
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              l10n.dashboardSubtitle,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _orderSearchController,
-              textInputAction: TextInputAction.search,
-              decoration: InputDecoration(
-                hintText: l10n.dashboardSearchOrdersHint,
-                border: const OutlineInputBorder(),
-                isDense: true,
-                suffixIcon: IconButton(
-                  tooltip: l10n.dashboardSearchOrdersTooltip,
-                  icon: const Icon(Icons.search),
-                  onPressed: () => _submitOrdersSearch(context),
-                ),
-              ),
-              onSubmitted: (_) => _submitOrdersSearch(context),
-            ),
-            if (license.isExpired) ...[
-              const SizedBox(height: 12),
-              MaterialBanner(
-                content: Text(l10n.dashboardLicenseExpiredBanner),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      _closeDrawerThen(
-                        context,
-                        () => context.push('/app/settings/subscription'),
-                      );
-                    },
-                    child: Text(l10n.subscriptionTitle),
+      backgroundColor: scheme.surface,
+      child: Column(
+        children: [
+          DashboardHeader(
+            title: l10n.dashboardTitle,
+            subtitle: l10n.dashboardSubtitle,
+            onClose: () => Navigator.of(context).pop(),
+          ),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+              children: [
+                DashboardSection(
+                  title: l10n.dashboardSearchOrdersTooltip,
+                  icon: Icons.search,
+                  colorIndex: 4,
+                  child: TextField(
+                    controller: _orderSearchController,
+                    textInputAction: TextInputAction.search,
+                    decoration: InputDecoration(
+                      hintText: l10n.dashboardSearchOrdersHint,
+                      filled: true,
+                      fillColor: scheme.surfaceContainerLow,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: scheme.outlineVariant),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: scheme.outlineVariant),
+                      ),
+                      isDense: true,
+                      suffixIcon: IconButton(
+                        tooltip: l10n.dashboardSearchOrdersTooltip,
+                        icon: Icon(Icons.search, color: scheme.primary),
+                        onPressed: () => _submitOrdersSearch(context),
+                      ),
+                    ),
+                    onSubmitted: (_) => _submitOrdersSearch(context),
                   ),
-                ],
-              ),
-            ],
-            const SizedBox(height: 16),
-            Text(
-              l10n.dashboardNotificationsPreviewTitle,
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-            const SizedBox(height: 8),
-            if (notificationsMuted)
-              Text(
-                l10n.dashboardNotificationsMutedHint,
-                style: Theme.of(context).textTheme.bodyMedium,
-              )
-            else
-              notifAsync.when(
-                loading: () => const SizedBox.shrink(),
-                error: (Object e, StackTrace st) => const SizedBox.shrink(),
-                data: (items) {
-                  if (items.isEmpty) {
-                    return Text(
-                      l10n.dashboardNotificationsPreviewEmpty,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    );
-                  }
-                  final preview = items.take(3).toList();
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      ...preview.map(
-                        (n) => ListTile(
-                          dense: true,
-                          contentPadding: EdgeInsets.zero,
-                          title: Text(
-                            n.title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          subtitle: Text(
-                            n.body,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          trailing: n.isRead
-                              ? null
-                              : Icon(
-                                  Icons.circle,
-                                  size: 10,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                          onTap: () {
-                            final oid = n.relatedOrderInternalId;
-                            _closeDrawerThen(
-                              context,
-                              () {
-                                if (oid != null && oid.isNotEmpty) {
-                                  context.push('/app/orders/$oid');
-                                } else {
-                                  context.push('/app/settings/notifications');
-                                }
-                              },
-                            );
-                          },
-                        ),
+                ),
+                if (editingBlocked) ...[
+                  const SizedBox(height: 12),
+                  Material(
+                    color: scheme.errorContainer,
+                    borderRadius: BorderRadius.circular(12),
+                    child: ListTile(
+                      leading: Icon(Icons.warning_amber_rounded,
+                          color: scheme.onErrorContainer),
+                      title: Text(
+                        license.suspectedTimeTamper
+                            ? l10n.dashboardLicenseClockTamperBanner
+                            : license.isExpired
+                                ? l10n.dashboardLicenseExpiredBanner
+                                : l10n.dashboardLicenseGraceBanner,
+                        style: TextStyle(color: scheme.onErrorContainer),
                       ),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: TextButton(
-                          onPressed: () => _closeDrawerThen(
+                      trailing: TextButton(
+                        onPressed: () {
+                          _closeDrawerThen(
                             context,
-                            () => context.push('/app/settings/notifications'),
-                          ),
-                          child: Text(l10n.dashboardNotificationsViewAll),
-                        ),
+                            () => context.push('/app/settings/subscription'),
+                          );
+                        },
+                        child: Text(l10n.subscriptionTitle),
                       ),
-                    ],
-                  );
-                },
-              ),
-            const SizedBox(height: 16),
-            Text(
-              l10n.dashboardKpisSectionTitle,
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-            const SizedBox(height: 8),
-            ordersAsync.when(
-              data: (orders) {
-                return paymentsAsync.when(
-                  data: (payments) {
-                    final now = DateTime.now();
-                    final monthStart = startOfMonthContaining(now, calendar);
-                    final monthEnd = endExclusiveForMonthStart(monthStart, calendar);
-                    final monthIncome = payments
-                        .where(
-                          (p) =>
-                              !p.createdAt.isBefore(monthStart) &&
-                              p.createdAt.isBefore(monthEnd),
-                        )
-                        .fold<int>(0, (s, p) => s + p.amountMinor);
-
-                    final unpaidTotal = orders.fold<int>(
-                      0,
-                      (sum, o) =>
-                          sum +
-                          (o.remainingAmountMinor > 0
-                              ? o.remainingAmountMinor
-                              : 0),
-                    );
-
-                    int count(OrderLocalStatus s) =>
-                        orders.where((o) => o.status == s).length;
-
-                    final newCount = count(OrderLocalStatus.newOrder);
-                    final inProg = count(OrderLocalStatus.inProgress);
-                    final ready = count(OrderLocalStatus.ready);
-
-                    final todayStart =
-                        DateTime(now.year, now.month, now.day);
-                    final todayEnd = todayStart.add(const Duration(days: 1));
-                    final todayDeliveries = orders
-                        .where(
-                          (o) =>
-                              o.status == OrderLocalStatus.delivered &&
-                              !o.deliveryDate.isBefore(todayStart) &&
-                              o.deliveryDate.isBefore(todayEnd),
-                        )
-                        .take(5)
-                        .toList();
-
-                    final overdueOrders = orders
-                        .where(
-                          (o) =>
-                              o.status != OrderLocalStatus.delivered &&
-                              o.status != OrderLocalStatus.cancelled &&
-                              o.deliveryDate.isBefore(todayStart),
-                        )
-                        .take(5)
-                        .toList();
-
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _KpiGrid(
-                          children: [
-                            _KpiTile(
-                              title: l10n.dashboardKpiNewOrders,
-                              value: '$newCount',
-                              onTap: () => _closeDrawerThen(
-                                context,
-                                () => context.go('/app/orders?status=newOrder'),
-                              ),
-                            ),
-                            _KpiTile(
-                              title: l10n.dashboardKpiInProgress,
-                              value: '$inProg',
-                              onTap: () => _closeDrawerThen(
-                                context,
-                                () =>
-                                    context.go('/app/orders?status=inProgress'),
-                              ),
-                            ),
-                            _KpiTile(
-                              title: l10n.dashboardKpiReady,
-                              value: '$ready',
-                              onTap: () => _closeDrawerThen(
-                                context,
-                                () => context.go('/app/orders?status=ready'),
-                              ),
-                            ),
-                            _KpiTile(
-                              title: l10n.dashboardKpiUnpaid,
-                              value: l10n.moneyAfn(
-                                moneyFmt.format(unpaidTotal),
-                              ),
-                              onTap: () => _closeDrawerThen(
-                                context,
-                                () => context.push('/app/reports/unpaid'),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Card(
-                          child: ListTile(
-                            leading: const Icon(Icons.payments_outlined),
-                            title: Text(l10n.dashboardThisMonthIncomeTitle),
-                            subtitle: Text(
-                              l10n.moneyAfn(
-                                moneyFmt.format(monthIncome),
-                              ),
-                            ),
-                            trailing: const Icon(Icons.chevron_right),
-                            onTap: () => _closeDrawerThen(
-                              context,
-                              () =>
-                                  context.push('/app/reports/monthly-income'),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          l10n.dashboardQuickLinksTitle,
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ),
-                        const SizedBox(height: 8),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            ActionChip(
-                              label: Text(l10n.reportsUnpaidCardTitle),
-                              onPressed: () => _closeDrawerThen(
-                                context,
-                                () => context.push('/app/reports/unpaid'),
-                              ),
-                            ),
-                            ActionChip(
-                              label: Text(l10n.reportsPaymentsLedgerTitle),
-                              onPressed: () => _closeDrawerThen(
-                                context,
-                                () => context.push('/app/reports/payments'),
-                              ),
-                            ),
-                            ActionChip(
-                              label: Text(l10n.dashboardQuickLinkOverdue),
-                              onPressed: () => _closeDrawerThen(
-                                context,
-                                () => context.go('/app/orders?overdue=1'),
-                              ),
-                            ),
-                            ActionChip(
-                              label: Text(l10n.dashboardQuickLinkDeliveredToday),
-                              onPressed: () => _closeDrawerThen(
-                                context,
-                                () => context.go('/app/orders?deliveredToday=1'),
-                              ),
-                            ),
-                            ActionChip(
-                              label: Text(l10n.tabReports),
-                              onPressed: () => _closeDrawerThen(
-                                context,
-                                () => context.go('/app/reports'),
-                              ),
-                            ),
-                            ActionChip(
-                              label: Text(l10n.tasksTitle),
-                              onPressed: () => _closeDrawerThen(
-                                context,
-                                () => context.push('/app/settings/tasks'),
-                              ),
-                            ),
-                            ActionChip(
-                              label: Text(l10n.tabCustomers),
-                              onPressed: () => _closeDrawerThen(
-                                context,
-                                () => context.go('/app/customers'),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          l10n.dashboardOverdueTitle,
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ),
-                        const SizedBox(height: 8),
-                        if (overdueOrders.isEmpty)
-                          Text(
-                            l10n.dashboardOverdueEmpty,
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          )
-                        else
-                          ...overdueOrders.map(
-                            (o) => ListTile(
-                              dense: true,
-                              contentPadding: EdgeInsets.zero,
-                              title: Text(
-                                l10n.ordersNumberPrefix(o.displayOrderNo),
-                              ),
-                              subtitle: Text(
-                                l10n.ordersDeliveryOn(
-                                  AppCalendarFormat.mediumDate(
-                                    l10n,
-                                    calendar,
-                                    o.deliveryDate,
-                                    locale,
-                                  ),
-                                ),
-                              ),
-                              trailing: Chip(
-                                label: Text(
-                                  orderStatusLabel(o.status, l10n),
-                                ),
-                                visualDensity: VisualDensity.compact,
-                              ),
-                              onTap: () => _closeDrawerThen(
-                                context,
-                                () => context.push('/app/orders/${o.internalId}'),
-                              ),
-                            ),
-                          ),
-                        TextButton(
-                          onPressed: () => _closeDrawerThen(
-                            context,
-                            () => context.go('/app/orders?overdue=1'),
-                          ),
-                          child: Text(l10n.dashboardOverdueViewAll),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          l10n.dashboardTodayDeliveriesTitle,
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ),
-                        const SizedBox(height: 8),
-                        if (todayDeliveries.isEmpty)
-                          Text(
-                            l10n.dashboardTodayDeliveriesEmpty,
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          )
-                        else
-                          ...todayDeliveries.map(
-                            (o) => ListTile(
-                              dense: true,
-                              contentPadding: EdgeInsets.zero,
-                              title: Text(
-                                l10n.ordersNumberPrefix(o.displayOrderNo),
-                              ),
-                              subtitle: Text(o.customerName),
-                              trailing: Chip(
-                                label: Text(
-                                  orderStatusLabel(o.status, l10n),
-                                ),
-                                visualDensity: VisualDensity.compact,
-                              ),
-                              onTap: () => _closeDrawerThen(
-                                context,
-                                () => context.push('/app/orders/${o.internalId}'),
-                              ),
-                            ),
-                          ),
-                      ],
-                    );
-                  },
-                  loading: () => const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(24),
-                      child: CircularProgressIndicator(),
                     ),
                   ),
-                  error: (e, _) => Text('$e'),
-                );
-              },
-              loading: () => const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(24),
-                  child: CircularProgressIndicator(),
+                ],
+                const SizedBox(height: 12),
+                DashboardSection(
+                  title: l10n.dashboardActivitySectionTitle,
+                  icon: Icons.tune_outlined,
+                  colorIndex: 7,
+                  child: const ShellDrawerQuickActions(),
                 ),
-              ),
-              error: (e, _) => Text('$e'),
+                const SizedBox(height: 12),
+                DashboardSection(
+                  title: l10n.dashboardNotificationsPreviewTitle,
+                  icon: Icons.notifications_outlined,
+                  colorIndex: 5,
+                  child: _NotificationsPreview(
+                    muted: notificationsMuted,
+                    notifAsync: notifAsync,
+                    onOpenOrder: (oid) => _closeDrawerThen(
+                      context,
+                      () {
+                        if (oid != null && oid.isNotEmpty) {
+                          context.push('/app/orders/$oid');
+                        } else {
+                          context.push('/app/settings/notifications');
+                        }
+                      },
+                    ),
+                    onViewAll: () => _closeDrawerThen(
+                      context,
+                      () => context.push('/app/settings/notifications'),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                ordersAsync.when(
+                  data: (orders) {
+                    return paymentsAsync.when(
+                      data: (payments) {
+                        final now = DateTime.now();
+                        final monthStart =
+                            startOfMonthContaining(now, calendar);
+                        final monthEnd =
+                            endExclusiveForMonthStart(monthStart, calendar);
+                        final monthIncome = payments
+                            .where(
+                              (p) =>
+                                  !p.createdAt.isBefore(monthStart) &&
+                                  p.createdAt.isBefore(monthEnd),
+                            )
+                            .fold<int>(0, (s, p) => s + p.amountMinor);
+
+                        final unpaidTotal = orders.fold<int>(
+                          0,
+                          (sum, o) =>
+                              sum +
+                              (o.remainingAmountMinor > 0
+                                  ? o.remainingAmountMinor
+                                  : 0),
+                        );
+
+                        int count(OrderLocalStatus s) =>
+                            orders.where((o) => o.status == s).length;
+
+                        final newCount = count(OrderLocalStatus.newOrder);
+                        final inProg = count(OrderLocalStatus.inProgress);
+                        final ready = count(OrderLocalStatus.ready);
+
+                        final todayStart =
+                            DateTime(now.year, now.month, now.day);
+                        final todayEnd =
+                            todayStart.add(const Duration(days: 1));
+                        final todayDeliveries = orders
+                            .where(
+                              (o) =>
+                                  o.status == OrderLocalStatus.delivered &&
+                                  !o.deliveryDate.isBefore(todayStart) &&
+                                  o.deliveryDate.isBefore(todayEnd),
+                            )
+                            .take(5)
+                            .toList();
+
+                        final overdueOrders = orders
+                            .where(
+                              (o) =>
+                                  o.status != OrderLocalStatus.delivered &&
+                                  o.status != OrderLocalStatus.cancelled &&
+                                  o.deliveryDate.isBefore(todayStart),
+                            )
+                            .take(5)
+                            .toList();
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            DashboardSection(
+                              title: l10n.dashboardKpisSectionTitle,
+                              icon: Icons.insights_outlined,
+                              colorIndex: 0,
+                              child: GridView.count(
+                                crossAxisCount: 2,
+                                mainAxisSpacing: 10,
+                                crossAxisSpacing: 10,
+                                childAspectRatio: 1.2,
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                children: [
+                                  DashboardKpiTile(
+                                    title: l10n.dashboardKpiNewOrders,
+                                    value: '$newCount',
+                                    icon: Icons.fiber_new_outlined,
+                                    color: prideNavTabColor(0),
+                                    onTap: () => _closeDrawerThen(
+                                      context,
+                                      () => context.go(
+                                        '/app/orders?status=newOrder',
+                                      ),
+                                    ),
+                                  ),
+                                  DashboardKpiTile(
+                                    title: l10n.dashboardKpiInProgress,
+                                    value: '$inProg',
+                                    icon: Icons.pending_outlined,
+                                    color: prideNavTabColor(1),
+                                    onTap: () => _closeDrawerThen(
+                                      context,
+                                      () => context.go(
+                                        '/app/orders?status=inProgress',
+                                      ),
+                                    ),
+                                  ),
+                                  DashboardKpiTile(
+                                    title: l10n.dashboardKpiReady,
+                                    value: '$ready',
+                                    icon: Icons.check_circle_outline,
+                                    color: actions.add,
+                                    onTap: () => _closeDrawerThen(
+                                      context,
+                                      () => context.go(
+                                        '/app/orders?status=ready',
+                                      ),
+                                    ),
+                                  ),
+                                  DashboardKpiTile(
+                                    title: l10n.dashboardKpiUnpaid,
+                                    value: reportFormatMoney(l10n, unpaidTotal),
+                                    icon: Icons.account_balance_wallet_outlined,
+                                    color: scheme.tertiary,
+                                    onTap: () => _closeDrawerThen(
+                                      context,
+                                      () => context.push('/app/reports/unpaid'),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            DashboardSection(
+                              title: l10n.dashboardOrdersPipelineTitle,
+                              icon: Icons.stacked_bar_chart,
+                              colorIndex: 2,
+                              child: DashboardOrderPipelineChart(
+                                newCount: newCount,
+                                inProgressCount: inProg,
+                                readyCount: ready,
+                                newLabel: l10n.dashboardKpiNewOrders,
+                                inProgressLabel: l10n.dashboardKpiInProgress,
+                                readyLabel: l10n.dashboardKpiReady,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            DashboardSection(
+                              title: l10n.dashboardThisMonthIncomeTitle,
+                              icon: Icons.payments_outlined,
+                              colorIndex: 3,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  PrideNavCardTile(
+                                    icon: Icons.trending_up,
+                                    colorIndex: 3,
+                                    title: l10n.dashboardThisMonthIncomeTitle,
+                                    subtitle: reportFormatMoney(
+                                      l10n,
+                                      monthIncome,
+                                    ),
+                                    showChevron: true,
+                                    onTap: () => _closeDrawerThen(
+                                      context,
+                                      () => context.push(
+                                        '/app/reports/monthly-income',
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    l10n.dashboardRecentIncomeTitle,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelLarge
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  DashboardRecentIncomeBars(
+                                    payments: payments,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            DashboardSection(
+                              title: l10n.dashboardQuickLinksTitle,
+                              icon: Icons.bolt_outlined,
+                              colorIndex: 1,
+                              child: Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: [
+                                  DashboardQuickLinkChip(
+                                    label: l10n.reportsUnpaidCardTitle,
+                                    icon: Icons.warning_amber_outlined,
+                                    color: scheme.tertiary,
+                                    onPressed: () => _closeDrawerThen(
+                                      context,
+                                      () => context.push('/app/reports/unpaid'),
+                                    ),
+                                  ),
+                                  DashboardQuickLinkChip(
+                                    label: l10n.reportsPaymentsLedgerTitle,
+                                    icon: Icons.receipt_long_outlined,
+                                    color: actions.payment,
+                                    onPressed: () => _closeDrawerThen(
+                                      context,
+                                      () =>
+                                          context.push('/app/reports/payments'),
+                                    ),
+                                  ),
+                                  DashboardQuickLinkChip(
+                                    label: l10n.dashboardQuickLinkOverdue,
+                                    icon: Icons.schedule_outlined,
+                                    color: actions.warning,
+                                    onPressed: () => _closeDrawerThen(
+                                      context,
+                                      () => context.go('/app/orders?overdue=1'),
+                                    ),
+                                  ),
+                                  DashboardQuickLinkChip(
+                                    label: l10n.dashboardQuickLinkDeliveredToday,
+                                    icon: Icons.local_shipping_outlined,
+                                    color: actions.add,
+                                    onPressed: () => _closeDrawerThen(
+                                      context,
+                                      () => context.go(
+                                        '/app/orders?deliveredToday=1',
+                                      ),
+                                    ),
+                                  ),
+                                  DashboardQuickLinkChip(
+                                    label: l10n.tabReports,
+                                    icon: Icons.bar_chart,
+                                    color: prideNavTabColor(3),
+                                    onPressed: () => _closeDrawerThen(
+                                      context,
+                                      () => context.go('/app/reports'),
+                                    ),
+                                  ),
+                                  DashboardQuickLinkChip(
+                                    label: l10n.tasksTitle,
+                                    icon: Icons.task_alt_outlined,
+                                    color: prideNavTabColor(4),
+                                    onPressed: () => _closeDrawerThen(
+                                      context,
+                                      () => context.push('/app/settings/tasks'),
+                                    ),
+                                  ),
+                                  DashboardQuickLinkChip(
+                                    label: l10n.tabCustomers,
+                                    icon: Icons.people_outline,
+                                    color: prideNavTabColor(1),
+                                    onPressed: () => _closeDrawerThen(
+                                      context,
+                                      () => context.go('/app/customers'),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            DashboardSection(
+                              title: l10n.dashboardOverdueTitle,
+                              icon: Icons.event_busy_outlined,
+                              colorIndex: 6,
+                              child: _OrderPreviewList(
+                                orders: overdueOrders,
+                                emptyText: l10n.dashboardOverdueEmpty,
+                                calendar: calendar,
+                                locale: locale,
+                                l10n: l10n,
+                                onTapOrder: (id) => _closeDrawerThen(
+                                  context,
+                                  () => context.push('/app/orders/$id'),
+                                ),
+                                viewAllLabel: l10n.dashboardOverdueViewAll,
+                                onViewAll: () => _closeDrawerThen(
+                                  context,
+                                  () => context.go('/app/orders?overdue=1'),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            DashboardSection(
+                              title: l10n.dashboardTodayDeliveriesTitle,
+                              icon: Icons.local_shipping_outlined,
+                              colorIndex: 3,
+                              child: _OrderPreviewList(
+                                orders: todayDeliveries,
+                                emptyText: l10n.dashboardTodayDeliveriesEmpty,
+                                calendar: calendar,
+                                locale: locale,
+                                l10n: l10n,
+                                showCustomerName: true,
+                                onTapOrder: (id) => _closeDrawerThen(
+                                  context,
+                                  () => context.push('/app/orders/$id'),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                      loading: () => const _DashboardLoading(),
+                      error: (e, _) => Text('$e'),
+                    );
+                  },
+                  loading: () => const _DashboardLoading(),
+                  error: (e, _) => Text('$e'),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _KpiGrid extends StatelessWidget {
-  const _KpiGrid({required this.children});
-
-  final List<Widget> children;
+class _DashboardLoading extends StatelessWidget {
+  const _DashboardLoading();
 
   @override
   Widget build(BuildContext context) {
-    return GridView.count(
-      crossAxisCount: 2,
-      mainAxisSpacing: 8,
-      crossAxisSpacing: 8,
-      childAspectRatio: 1.35,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      children: children,
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 32),
+      child: Center(child: CircularProgressIndicator()),
     );
   }
 }
 
-class _KpiTile extends StatelessWidget {
-  const _KpiTile({
-    required this.title,
-    required this.value,
-    required this.onTap,
+class _NotificationsPreview extends StatelessWidget {
+  const _NotificationsPreview({
+    required this.muted,
+    required this.notifAsync,
+    required this.onOpenOrder,
+    required this.onViewAll,
   });
 
-  final String title;
-  final String value;
-  final VoidCallback onTap;
+  final bool muted;
+  final AsyncValue<List<AppNotificationSummary>> notifAsync;
+  final void Function(String? oid) onOpenOrder;
+  final VoidCallback onViewAll;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                title,
-                style: Theme.of(context).textTheme.labelMedium,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+    final l10n = AppLocalizations.of(context)!;
+    final scheme = Theme.of(context).colorScheme;
+
+    if (muted) {
+      return Text(
+        l10n.dashboardNotificationsMutedHint,
+        style: Theme.of(context).textTheme.bodyMedium,
+      );
+    }
+
+    return notifAsync.when(
+      loading: () => const SizedBox.shrink(),
+      error: (Object e, StackTrace st) => const SizedBox.shrink(),
+      data: (items) {
+        if (items.isEmpty) {
+          return Text(
+            l10n.dashboardNotificationsPreviewEmpty,
+            style: Theme.of(context).textTheme.bodyMedium,
+          );
+        }
+        final preview = items.take(3).toList();
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ...preview.map(
+              (n) => Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                decoration: BoxDecoration(
+                  color: scheme.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: scheme.outlineVariant.withValues(alpha: 0.5),
+                  ),
+                ),
+                child: ListTile(
+                  dense: true,
+                  title: Text(
+                    n.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  subtitle: Text(
+                    n.body,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  trailing: n.isRead
+                      ? null
+                      : Icon(Icons.circle, size: 10, color: scheme.primary),
+                  onTap: () => onOpenOrder(n.relatedOrderInternalId),
+                ),
               ),
-              const SizedBox(height: 6),
-              Text(
-                value,
-                style: Theme.of(context).textTheme.titleLarge,
+            ),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton.icon(
+                onPressed: onViewAll,
+                icon: const Icon(Icons.arrow_forward, size: 18),
+                label: Text(l10n.dashboardNotificationsViewAll),
               ),
-            ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _OrderPreviewList extends StatelessWidget {
+  const _OrderPreviewList({
+    required this.orders,
+    required this.emptyText,
+    required this.calendar,
+    required this.locale,
+    required this.l10n,
+    required this.onTapOrder,
+    this.showCustomerName = false,
+    this.viewAllLabel,
+    this.onViewAll,
+  });
+
+  final List<OrderSummary> orders;
+  final String emptyText;
+  final dynamic calendar;
+  final String locale;
+  final AppLocalizations l10n;
+  final void Function(String id) onTapOrder;
+  final bool showCustomerName;
+  final String? viewAllLabel;
+  final VoidCallback? onViewAll;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    if (orders.isEmpty) {
+      return Text(
+        emptyText,
+        style: Theme.of(context).textTheme.bodyMedium,
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ...orders.map(
+          (o) => Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            decoration: BoxDecoration(
+              color: scheme.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: scheme.outlineVariant.withValues(alpha: 0.5),
+              ),
+            ),
+            child: ListTile(
+              dense: true,
+              title: Text(
+                l10n.ordersNumberPrefix(o.displayOrderNo),
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+              subtitle: Text(
+                showCustomerName
+                    ? o.customerName
+                    : l10n.ordersDeliveryOn(
+                        AppCalendarFormat.mediumDate(
+                          l10n,
+                          calendar,
+                          o.deliveryDate,
+                          locale,
+                        ),
+                      ),
+              ),
+              trailing: Chip(
+                label: Text(orderStatusLabel(o.status, l10n)),
+                visualDensity: VisualDensity.compact,
+                backgroundColor: scheme.primaryContainer.withValues(alpha: 0.5),
+              ),
+              onTap: () => onTapOrder(o.internalId),
+            ),
           ),
         ),
-      ),
+        if (viewAllLabel != null && onViewAll != null)
+          TextButton(
+            onPressed: onViewAll,
+            child: Text(viewAllLabel!),
+          ),
+      ],
     );
   }
 }

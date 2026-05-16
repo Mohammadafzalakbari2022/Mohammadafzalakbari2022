@@ -10,7 +10,10 @@ import 'package:pride_v3/core/persistence/sync_cursor_storage.dart';
 import 'package:pride_v3/core/persistence/sync_diagnostics_storage.dart';
 import 'package:pride_v3/shell/shell_sync_providers.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
+import 'package:pride_v3/licensing/license_clock_guard.dart';
+import 'package:pride_v3/licensing/license_notifier.dart';
 import 'package:pride_v3/licensing/license_providers.dart';
+import 'package:pride_v3/licensing/license_snapshot_persist.dart';
 
 import 'auth_providers.dart';
 import 'auth_session_storage.dart';
@@ -54,9 +57,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         );
     ref.read(licenseNotifierProvider).applyLicenseSnapshotMap(ok.licenseSnapshot);
     final prefs = ref.read(sharedPreferencesProvider);
+    final serverUtc = snapshotServerUtcFromLicenseJson(ok.licenseSnapshot);
+    await LicenseClockGuard.onTrustedServerSnapshot(
+      prefs,
+      serverNowUtc: serverUtc,
+    );
+    ref.read(licenseNotifierProvider).setSuspectedTimeTamper(
+          LicenseClockGuard.readTamperFlag(prefs),
+        );
     final licRaw = ok.licenseSnapshot['status'];
     final licStr =
         licRaw is String && licRaw.isNotEmpty ? licRaw : 'trial_active';
+    final expRaw = ok.licenseSnapshot['expires_at'];
+    final expStr = expRaw is String && expRaw.isNotEmpty ? expRaw : null;
+    final lastRaw = ok.licenseSnapshot['last_successful_check_at'] ??
+        ok.licenseSnapshot['server_now'];
+    final lastStr = lastRaw is String && lastRaw.isNotEmpty ? lastRaw : null;
     await AuthSessionStorage.persist(
       prefs,
       accessToken: ok.accessToken,
@@ -65,6 +81,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       username: ok.username,
       isShopOwner: ok.isShopOwner,
       licenseStatusApi: licStr,
+      licenseExpiresAtIso: expStr,
+      licenseLastSuccessfulCheckAtIso: lastStr,
     );
   }
 
@@ -75,11 +93,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     setState(() => _busy = true);
     try {
       if (PrideApiConfig.isConfigured) {
-        final result = await postPrideApiLogin(
-          username: _username.text,
-          password: _password.text,
-          shopId: _shopId.text.trim().isEmpty ? null : _shopId.text,
-        );
+        final sid = _shopId.text.trim();
+        final result = sid.isNotEmpty
+            ? await postPrideApiShopJoin(
+                username: _username.text,
+                password: _password.text,
+                shopId: sid,
+              )
+            : await postPrideApiLogin(
+                username: _username.text,
+                password: _password.text,
+              );
         if (!mounted) return;
 
         if (result is PrideApiLoginFailure) {
@@ -106,6 +130,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               password: _password.text,
               shopId: _shopId.text,
             );
+        ref.read(licenseNotifierProvider)
+          ..setStatus(LicenseStatus.trialActive)
+          ..setSuspectedTimeTamper(false);
       }
     } finally {
       if (mounted) setState(() => _busy = false);

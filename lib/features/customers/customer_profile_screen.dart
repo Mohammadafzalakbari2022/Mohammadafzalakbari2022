@@ -5,6 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pride_v3/core/calendar/app_calendar_format.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
+import 'package:pride_v3/app/app_theme.dart';
+import 'package:pride_v3/core/feedback/app_feedback.dart';
+import 'package:pride_v3/core/widgets/pride_action_buttons.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../auth/auth_providers.dart';
@@ -33,12 +36,14 @@ class CustomerProfileScreen extends ConsumerWidget {
     required String currentName,
     required String? currentPhone,
     required String? currentAddress,
-    required String? currentNotes,
   }) async {
     final license = ref.read(licenseNotifierProvider);
-    if (license.isExpired) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.licenseExpiredReadOnly)),
+    if (ref.read(licenseEditingBlockedProvider)) {
+      showAppFeedback(
+        context,
+        ref,
+        kind: AppFeedbackKind.error,
+        message: licenseWriteBlockedMessage(license, l10n),
       );
       return;
     }
@@ -46,7 +51,6 @@ class CustomerProfileScreen extends ConsumerWidget {
     final nameCtrl = TextEditingController(text: currentName);
     final phoneCtrl = TextEditingController(text: currentPhone ?? '');
     final addressCtrl = TextEditingController(text: currentAddress ?? '');
-    final notesCtrl = TextEditingController(text: currentNotes ?? '');
 
     final ok = await showDialog<bool>(
       context: context,
@@ -83,31 +87,15 @@ class CustomerProfileScreen extends ConsumerWidget {
                   alignLabelWithHint: true,
                 ),
               ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: notesCtrl,
-                minLines: 2,
-                maxLines: 4,
-                decoration: InputDecoration(
-                  labelText: l10n.customerNotesLabel,
-                  hintText: l10n.customerNotesHint,
-                  border: const OutlineInputBorder(),
-                  alignLabelWithHint: true,
-                ),
-              ),
             ],
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(l10n.saveCta),
-          ),
-        ],
+        actions: prideDialogCancelSave(
+          context: context,
+          onCancel: () => Navigator.of(context).pop(false),
+          onConfirm: () => Navigator.of(context).pop(true),
+          saveLabel: l10n.saveCta,
+        ),
       ),
     );
 
@@ -115,7 +103,6 @@ class CustomerProfileScreen extends ConsumerWidget {
       nameCtrl.dispose();
       phoneCtrl.dispose();
       addressCtrl.dispose();
-      notesCtrl.dispose();
       return;
     }
     final nextName = nameCtrl.text.trim();
@@ -123,17 +110,14 @@ class CustomerProfileScreen extends ConsumerWidget {
       nameCtrl.dispose();
       phoneCtrl.dispose();
       addressCtrl.dispose();
-      notesCtrl.dispose();
       return;
     }
 
     final phoneText = phoneCtrl.text;
     final addressText = addressCtrl.text;
-    final notesText = notesCtrl.text;
     nameCtrl.dispose();
     phoneCtrl.dispose();
     addressCtrl.dispose();
-    notesCtrl.dispose();
 
     final repo = await ref.read(customerListRepositoryProvider.future);
     await repo.updateCustomer(
@@ -141,7 +125,7 @@ class CustomerProfileScreen extends ConsumerWidget {
       name: nextName,
       phone: phoneText,
       address: addressText,
-      notes: notesText,
+      notes: '',
     );
 
     final shopId = ref.read(effectiveShopIdProvider);
@@ -154,14 +138,16 @@ class CustomerProfileScreen extends ConsumerWidget {
         'name': nextName,
         if (phoneText.trim().isNotEmpty) 'phone': phoneText.trim(),
         if (addressText.trim().isNotEmpty) 'address': addressText.trim(),
-        if (notesText.trim().isNotEmpty) 'notes': notesText.trim(),
         'created_at': customerCreatedAt.toUtc().toIso8601String(),
       }),
     );
 
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.customerUpdated)),
+    showAppFeedback(
+      context,
+      ref,
+      kind: AppFeedbackKind.success,
+      message: l10n.customerUpdated,
     );
   }
 
@@ -171,9 +157,12 @@ class CustomerProfileScreen extends ConsumerWidget {
     AppLocalizations l10n,
   ) async {
     final license = ref.read(licenseNotifierProvider);
-    if (license.isExpired) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.licenseExpiredReadOnly)),
+    if (ref.read(licenseEditingBlockedProvider)) {
+      showAppFeedback(
+        context,
+        ref,
+        kind: AppFeedbackKind.error,
+        message: licenseWriteBlockedMessage(license, l10n),
       );
       return;
     }
@@ -183,16 +172,12 @@ class CustomerProfileScreen extends ConsumerWidget {
       builder: (ctx) => AlertDialog(
         title: Text(l10n.customerDeleteConfirmTitle),
         content: Text(l10n.customerDeleteConfirmBody),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(MaterialLocalizations.of(ctx).cancelButtonLabel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(l10n.deleteCta),
-          ),
-        ],
+        actions: prideDialogCancelDelete(
+          context: ctx,
+          onCancel: () => Navigator.pop(ctx, false),
+          onConfirm: () => Navigator.pop(ctx, true),
+          deleteLabel: l10n.deleteCta,
+        ),
       ),
     );
     if (ok != true || !context.mounted) return;
@@ -209,8 +194,11 @@ class CustomerProfileScreen extends ConsumerWidget {
     await repo.softDeleteCustomer(customerId);
 
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.customerDeleted)),
+    showAppFeedback(
+      context,
+      ref,
+      kind: AppFeedbackKind.success,
+      message: l10n.customerDeleted,
     );
     context.go('/app/customers');
   }
@@ -258,7 +246,6 @@ class CustomerProfileScreen extends ConsumerWidget {
         final customerName = c.name;
         final customerPhone = c.phone;
         final customerAddress = c.address;
-        final customerNotes = c.notes;
 
         return Scaffold(
           appBar: AppBar(
@@ -280,7 +267,6 @@ class CustomerProfileScreen extends ConsumerWidget {
                   currentName: customerName,
                   currentPhone: customerPhone,
                   currentAddress: customerAddress,
-                  currentNotes: customerNotes,
                 ),
               ),
               PopupMenuButton<String>(
@@ -334,17 +320,13 @@ class CustomerProfileScreen extends ConsumerWidget {
                                 : l10n.customerFieldEmpty,
                           ),
                         ),
-                        ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          leading: const Icon(Icons.notes_outlined),
-                          title: Text(l10n.customerNotesLabel),
-                          subtitle: Text(
-                            (customerNotes != null &&
-                                    customerNotes.trim().isNotEmpty)
-                                ? customerNotes.trim()
-                                : l10n.customerFieldEmpty,
+                        if (c.notes != null && c.notes!.trim().isNotEmpty)
+                          ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            leading: const Icon(Icons.notes_outlined),
+                            title: Text(l10n.customerNotesLabel),
+                            subtitle: Text(c.notes!.trim()),
                           ),
-                        ),
                       ],
                     ),
                   ),
@@ -397,7 +379,11 @@ class CustomerProfileScreen extends ConsumerWidget {
                                 const SizedBox(height: 8),
                                 Align(
                                   alignment: Alignment.centerLeft,
-                                  child: FilledButton.tonalIcon(
+                                  child: FilledButton.icon(
+                                    style: prideButtonStyle(
+                                      context,
+                                      PrideButtonVariant.add,
+                                    ),
                                     onPressed: () => _openMeasurementProfileEditor(
                                       context,
                                       ref,
@@ -421,90 +407,63 @@ class CustomerProfileScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                child: Text(
-                  l10n.customerTodayOrdersTitle,
-                  style: Theme.of(context).textTheme.titleSmall,
-                ),
-              ),
-              asyncOrders.when(
-                data: (orders) {
-                  final today = DateTime.now();
-                  final start = DateTime(today.year, today.month, today.day);
-                  final end = start.add(const Duration(days: 1));
+              ExpansionTile(
+                initiallyExpanded: true,
+                title: Text(l10n.customerOrderHistoryTitle),
+                children: [
+                  asyncOrders.when(
+                    data: (orders) {
+                      final history = orders
+                          .where((o) => o.customerInternalId == customerId)
+                          .toList()
+                        ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
-                  final todays = orders
-                      .where((o) =>
-                          o.customerInternalId == customerId &&
-                          !o.deliveryDate.isBefore(start) &&
-                          o.deliveryDate.isBefore(end))
-                      .toList();
+                      if (history.isEmpty) {
+                        return Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                          child: Text(l10n.customerNoOrders),
+                        );
+                      }
 
-                  if (todays.isEmpty) {
-                    return Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                      child: Text(l10n.customerNoTodayOrders),
-                    );
-                  }
-
-                  return Column(
-                    children: [
-                      for (final o in todays.take(10))
-                        ListTile(
-                          title: Text(l10n.ordersNumberPrefix(o.displayOrderNo)),
-                          subtitle: Text(
-                            l10n.ordersDeliveryOn(
-                              AppCalendarFormat.mediumDate(
-                                l10n,
-                                calendar,
-                                o.deliveryDate,
-                                locale,
+                      return Column(
+                        children: [
+                          for (final o in history)
+                            ListTile(
+                              title: Text(
+                                l10n.ordersNumberPrefix(o.displayOrderNo),
+                              ),
+                              subtitle: Text(
+                                '${l10n.ordersTakenOn(AppCalendarFormat.dateTimeMedium(l10n, calendar, o.createdAt, locale))}\n'
+                                '${l10n.ordersDeliveryOn(AppCalendarFormat.mediumDate(l10n, calendar, o.deliveryDate, locale))}',
+                              ),
+                              isThreeLine: true,
+                              trailing: Chip(
+                                label: Text(
+                                  o.isUnpaid
+                                      ? '${orderStatusLabel(o.status, l10n)} · ${l10n.ordersRemainingChip(o.remainingAmountMinor.toString())}'
+                                      : orderStatusLabel(o.status, l10n),
+                                ),
+                                visualDensity: VisualDensity.compact,
+                                materialTapTargetSize:
+                                    MaterialTapTargetSize.shrinkWrap,
+                              ),
+                              onTap: () => context.push(
+                                '/app/orders/${o.internalId}',
                               ),
                             ),
-                          ),
-                          trailing: Wrap(
-                            spacing: 6,
-                            alignment: WrapAlignment.end,
-                            children: [
-                              Chip(
-                                label: Text(orderStatusLabel(o.status, l10n)),
-                                visualDensity: VisualDensity.compact,
-                              ),
-                              if (o.isUnpaid)
-                                Chip(
-                                  label: Text(
-                                    l10n.ordersRemainingChip(
-                                      o.remainingAmountMinor.toString(),
-                                    ),
-                                  ),
-                                  visualDensity: VisualDensity.compact,
-                                ),
-                            ],
-                          ),
-                          onTap: () => context.push('/app/orders/${o.internalId}'),
-                        ),
-                    ],
-                  );
-                },
-                loading: () => const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Center(child: CircularProgressIndicator()),
-                ),
-                error: (e, _) => Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Text('$e'),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: FilledButton.tonal(
-                  onPressed: () {
-                    context.go('/app/orders?customer=$customerId');
-                  },
-                  child: Text(l10n.customerViewAllOrders),
-                ),
+                        ],
+                      );
+                    },
+                    loading: () => const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                    error: (e, _) => Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text('$e'),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -629,7 +588,6 @@ class _MeasurementProfileEditorBody extends StatefulWidget {
 class _MeasurementProfileEditorBodyState
     extends State<_MeasurementProfileEditorBody> {
   late final TextEditingController _labelCtrl;
-  late final TextEditingController _notesCtrl;
   late final Map<String, TextEditingController> _valueCtrls;
   late int _unit;
 
@@ -638,7 +596,6 @@ class _MeasurementProfileEditorBodyState
     super.initState();
     final existing = widget.existing;
     _labelCtrl = TextEditingController(text: existing?.label ?? '');
-    _notesCtrl = TextEditingController(text: existing?.notes ?? '');
     _unit = existing?.unitCode ?? MeasurementUnitCodes.cm;
     _valueCtrls = {};
     for (final t in widget.types) {
@@ -658,7 +615,6 @@ class _MeasurementProfileEditorBodyState
   @override
   void dispose() {
     _labelCtrl.dispose();
-    _notesCtrl.dispose();
     for (final c in _valueCtrls.values) {
       c.dispose();
     }
@@ -666,7 +622,6 @@ class _MeasurementProfileEditorBodyState
   }
 
   bool get _canSave {
-    if (_notesCtrl.text.trim().isNotEmpty) return true;
     for (final c in _valueCtrls.values) {
       if (c.text.trim().isNotEmpty) return true;
     }
@@ -695,7 +650,7 @@ class _MeasurementProfileEditorBodyState
       shopId: shopId,
       customerInternalId: widget.customerId,
       label: trimmedLabel,
-      notes: _notesCtrl.text.trim(),
+      notes: '',
       unitCode: _unit,
       items: _collectItems(),
     );
@@ -707,7 +662,7 @@ class _MeasurementProfileEditorBodyState
       payloadJson: _measurementProfileSyncPayloadJson(
         customerInternalId: widget.customerId,
         label: trimmedLabel,
-        notes: _notesCtrl.text.trim(),
+        notes: '',
         unitCode: _unit,
         items: _collectItems(),
         createdAt: now,
@@ -790,17 +745,6 @@ class _MeasurementProfileEditorBodyState
                 ),
                 const SizedBox(height: 8),
               ],
-              TextField(
-                controller: _notesCtrl,
-                minLines: 2,
-                maxLines: 6,
-                decoration: InputDecoration(
-                  labelText: l10n.measurementProfileNotesField,
-                  border: const OutlineInputBorder(),
-                  alignLabelWithHint: true,
-                ),
-                onChanged: (_) => setModal(() {}),
-              ),
               const SizedBox(height: 16),
               if (existing != null)
                 Row(
@@ -810,18 +754,15 @@ class _MeasurementProfileEditorBodyState
                         onPressed: !_canSave
                             ? null
                             : () async {
-                                final license = widget.ref.read(
-                                  licenseNotifierProvider,
-                                );
-                                if (license.isExpired) {
+                                if (widget.ref.read(licenseEditingBlockedProvider)) {
                                   if (widget.outerContext.mounted) {
-                                    ScaffoldMessenger.of(
+                                    showAppFeedback(
                                       widget.outerContext,
-                                    ).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          l10n.licenseExpiredReadOnly,
-                                        ),
+                                      widget.ref,
+                                      kind: AppFeedbackKind.error,
+                                      message: licenseWriteBlockedMessage(
+                                        widget.ref.read(licenseNotifierProvider),
+                                        l10n,
                                       ),
                                     );
                                   }
@@ -840,7 +781,7 @@ class _MeasurementProfileEditorBodyState
                                   label: _labelCtrl.text.trim().isEmpty
                                       ? '${existing.label} (2)'
                                       : _labelCtrl.text.trim(),
-                                  notes: _notesCtrl.text.trim(),
+                                  notes: '',
                                   unitCode: _unit,
                                   items: _collectItems(),
                                 );
@@ -857,7 +798,7 @@ class _MeasurementProfileEditorBodyState
                                       _measurementProfileSyncPayloadJson(
                                     customerInternalId: widget.customerId,
                                     label: lbl,
-                                    notes: _notesCtrl.text.trim(),
+                                    notes: '',
                                     unitCode: _unit,
                                     items: _collectItems(),
                                     createdAt: now,
@@ -868,13 +809,11 @@ class _MeasurementProfileEditorBodyState
                                   Navigator.pop(widget.sheetContext);
                                 }
                                 if (widget.outerContext.mounted) {
-                                  ScaffoldMessenger.of(widget.outerContext)
-                                      .showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        l10n.measurementProfileCreated,
-                                      ),
-                                    ),
+                                  showAppFeedback(
+                                    widget.outerContext,
+                                    widget.ref,
+                                    kind: AppFeedbackKind.success,
+                                    message: l10n.measurementProfileCreated,
                                   );
                                 }
                               },
@@ -887,18 +826,15 @@ class _MeasurementProfileEditorBodyState
                         onPressed: !_canSave
                             ? null
                             : () async {
-                                final license = widget.ref.read(
-                                  licenseNotifierProvider,
-                                );
-                                if (license.isExpired) {
+                                if (widget.ref.read(licenseEditingBlockedProvider)) {
                                   if (widget.outerContext.mounted) {
-                                    ScaffoldMessenger.of(
+                                    showAppFeedback(
                                       widget.outerContext,
-                                    ).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          l10n.licenseExpiredReadOnly,
-                                        ),
+                                      widget.ref,
+                                      kind: AppFeedbackKind.error,
+                                      message: licenseWriteBlockedMessage(
+                                        widget.ref.read(licenseNotifierProvider),
+                                        l10n,
                                       ),
                                     );
                                   }
@@ -910,7 +846,7 @@ class _MeasurementProfileEditorBodyState
                                 await repo.updateProfile(
                                   internalId: existing.internalId,
                                   label: _labelCtrl.text,
-                                  notes: _notesCtrl.text.trim(),
+                                  notes: '',
                                   unitCode: _unit,
                                   items: _collectItems(),
                                 );
@@ -930,7 +866,7 @@ class _MeasurementProfileEditorBodyState
                                     label: _labelCtrl.text.trim().isEmpty
                                         ? '—'
                                         : _labelCtrl.text.trim(),
-                                    notes: _notesCtrl.text.trim(),
+                                    notes: '',
                                     unitCode: _unit,
                                     items: _collectItems(),
                                     createdAt: existing.createdAt,
@@ -941,13 +877,11 @@ class _MeasurementProfileEditorBodyState
                                   Navigator.pop(widget.sheetContext);
                                 }
                                 if (widget.outerContext.mounted) {
-                                  ScaffoldMessenger.of(widget.outerContext)
-                                      .showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        l10n.measurementProfileUpdated,
-                                      ),
-                                    ),
+                                  showAppFeedback(
+                                    widget.outerContext,
+                                    widget.ref,
+                                    kind: AppFeedbackKind.success,
+                                    message: l10n.measurementProfileUpdated,
                                   );
                                 }
                               },
@@ -961,15 +895,15 @@ class _MeasurementProfileEditorBodyState
                   onPressed: !_canSave
                       ? null
                       : () async {
-                          final license = widget.ref.read(
-                            licenseNotifierProvider,
-                          );
-                          if (license.isExpired) {
+                          if (widget.ref.read(licenseEditingBlockedProvider)) {
                             if (widget.outerContext.mounted) {
-                              ScaffoldMessenger.of(widget.outerContext)
-                                  .showSnackBar(
-                                SnackBar(
-                                  content: Text(l10n.licenseExpiredReadOnly),
+                              showAppFeedback(
+                                widget.outerContext,
+                                widget.ref,
+                                kind: AppFeedbackKind.error,
+                                message: licenseWriteBlockedMessage(
+                                  widget.ref.read(licenseNotifierProvider),
+                                  l10n,
                                 ),
                               );
                             }
@@ -984,11 +918,11 @@ class _MeasurementProfileEditorBodyState
                             Navigator.pop(widget.sheetContext);
                           }
                           if (widget.outerContext.mounted) {
-                            ScaffoldMessenger.of(widget.outerContext)
-                                .showSnackBar(
-                              SnackBar(
-                                content: Text(l10n.measurementProfileCreated),
-                              ),
+                            showAppFeedback(
+                              widget.outerContext,
+                              widget.ref,
+                              kind: AppFeedbackKind.success,
+                              message: l10n.measurementProfileCreated,
                             );
                           }
                         },

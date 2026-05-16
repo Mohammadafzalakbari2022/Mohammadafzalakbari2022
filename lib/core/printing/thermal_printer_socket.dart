@@ -6,10 +6,12 @@ Future<void> sendThermalReceiptBytes({
   required int port,
   required List<int> bytes,
   Duration timeout = const Duration(seconds: 10),
+  int maxAttempts = 3,
 }) =>
     impl.sendThermalReceiptBytes(
       host: host,
       port: port,
       bytes: bytes,
       timeout: timeout,
+      maxAttempts: maxAttempts,
     );

@@ -181,7 +181,7 @@ From the project root (`Pride-v3`):
 
 | Step | Command | Purpose |
 |------|---------|--------|
-| **Nest API (optional)** | `cd api` then `npm install` / `npm run build` / `npm test` / `npm run test:e2e` | Verify the NestJS service in [`api/`](api/) after backend edits. Endpoint list and env vars: [`api/README.md`](api/README.md). On Windows, if `npm install` fails with `ENOTEMPTY`, delete `api/node_modules` and retry. |
+| **Nest API (optional)** | `cd api` then `npm install` / `npm run build` / `npm test` / `npm run test:e2e` | Verify the NestJS service in [`api/`](api/) after backend edits. **DB migrations from repo root:** `npm run db:migrate` (uses `api/.env` and `api/prisma/` — avoids “schema not found” if you run Prisma from the wrong folder). Endpoint list and env: [`api/README.md`](api/README.md). On Windows, if `npm install` fails with `ENOTEMPTY`, delete `api/node_modules` and retry. |
 
 **Developer portal (API):** set `PRIDE_DEVELOPER_IDS` to the **`shop_users.id`** of the account (this is the same value as JWT `sub`). Comma-separated for several users. Then the in-app Developer Portal can call `GET /admin/stats`, `GET /admin/activation-codes`, `POST /admin/activation-codes`, `GET /admin/audit-log`, etc. License redeem accepts codes created via the portal, or any code listed in `PRIDE_LEGACY_REDEEM_CODES` (default includes `pilot-2026` for dev/e2e).
 
@@ -300,7 +300,7 @@ Use this pass after merges that touch **orders**, **notifications**, **sync UI**
    (hash the shop owner password with SHA-256). Wrong password → snackbar; no status change.
 6. **Notifications** — App bar bell → inbox; unread **badge** when not muted. **Settings → Notifications** — list, mark read, **Mark all read**. **Menu / dashboard drawer** — **Recent notifications** + **View all**; quick links include **Tasks**.
 7. **Sync & diagnostics** — **Settings → Sync & diagnostics** — **Local data snapshot** counts match expectations; **API server** shows whether `API_BASE_URL` was passed at build time; when online and a URL is set, **Test connection** calls `GET /health` (expect `200` when the NestJS app exposes that route). **Sync now**: when **signed in with the online API** (JWT), runs **`GET /sync/pull`** then **`POST /sync/push`**; accepted outbox rows are marked synced — the server persists mutations in Postgres and pull returns the append log for that shop (see `plan-04-backend-api.md`). **Queued local changes** reflects rows in the **persisted outbox** (Isar on device; in-memory on Web). **Pending mutations** lists recent queue entries (kind + time).
-8. **New order** — From Orders toolbar → **composer** (customer, measurements/profile, delivery, totals, save) → detail for new id.
+8. **New order (hub v1)** — Orders → **New order**: hub cards for **Customer** / **Measurements** / **Style**; **Payment** inline. **Customer** sheet: pick existing or **Add new** (`returnTo=orderComposer`) — notes hidden; **Save** selects customer and closes sheet. **Measurements** sheet: fields from **Settings → Measurement fields**; optional load profile; optional “save to customer library”; **Save** updates hub. **Style** sheet: if **Settings → Order style** has catalog entries, structured picks + extra notes; else free text. **Save order** → snackbar → **Print / Share / View** sheet → order detail (`fromNew=1` shows hint banner). From **Customers** tab, **Add customer** still opens profile after save (not composer return).
 9. **Settings → Subscription** — Opens; back returns.
 10. **License (debug)** — Settings → set **Expired** → **New order** should redirect to **Subscription**; order detail and internal notes become read-only where enforced.
 11. **Backup & restore (native only)** — **Settings → Backup & restore**: owner password (`pride-dev-owner` in dev). Exports **v2 JSON** (`pride_backup_v2_*.json`): customers, **measurement types + profiles + profile lines**, orders (including **internal notes**), payments, order measurement snapshots, notifications. **v1** backup files still restore (without measurement tables). Restore **merges** as before. **Web** shows “use native app” (no Isar).
@@ -311,6 +311,24 @@ Use this pass after merges that touch **orders**, **notifications**, **sync UI**
 16. **Developer portal (debug)** — Enable **Developer account** in Settings → **Diagnostics** tab shows **local** entity counts (offline).
 
 When you add **RTL** or **new strings**, repeat on **Web** and **Android** at least once.
+
+---
+
+## New Order v1 — focused manual checks
+
+| Step | Web | Android (or iOS) |
+|------|-----|------------------|
+| Hub cards + Edit opens sheet | | |
+| New customer from composer returns with customer selected; notes hidden | | |
+| New customer from Customers tab still goes to profile | | |
+| Measurements sheet with 0 types → message points to Settings | | |
+| Measurements: load profile + save snapshot | | |
+| Optional “save to customer library” creates profile + pending sync | | |
+| Style: empty catalog → free-text only | | |
+| Style: catalog with designs/parts → must complete before save | | |
+| Post-save sheet: Print (native), Share, View order | | |
+| Order detail `fromNew=1` hint banner dismiss | | |
+| Settings → Order style (designs & parts) CRUD + save | | |
 
 ---
 

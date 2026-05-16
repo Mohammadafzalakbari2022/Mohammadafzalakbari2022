@@ -15,7 +15,10 @@ class AppLocalizationsFa extends AppLocalizations {
   String get tabOrders => 'سفارش‌ها';
 
   @override
-  String get tabCustomers => 'مشتریان';
+  String get tabCustomers => 'لیست مشتریان';
+
+  @override
+  String get tabOrdersList => 'لیست سفارش‌ها';
 
   @override
   String get tabCatalog => 'کاتالوگ';
@@ -208,7 +211,16 @@ class AppLocalizationsFa extends AppLocalizations {
   String get dashboardKpiValuePlaceholder => '—';
 
   @override
-  String get dashboardOpenMenuTooltip => 'باز کردن منو';
+  String get dashboardOpenMenuTooltip => 'باز کردن داشبورد';
+
+  @override
+  String get dashboardOrdersPipelineTitle => 'خط سفارش‌ها';
+
+  @override
+  String get dashboardRecentIncomeTitle => 'درآمد — ۷ روز اخیر';
+
+  @override
+  String get dashboardActivitySectionTitle => 'همگام‌سازی و اعلان‌ها';
 
   @override
   String get subscriptionTitle => 'اشتراک';
@@ -274,6 +286,11 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String ordersTakenOn(String dateTime) {
+    return 'ثبت سفارش: $dateTime';
+  }
+
+  @override
   String get ordersWebDataHint =>
       'پیش‌نمایش وب از دادهٔ نمونه در حافظه استفاده می‌کند (Isar روی اندروید/iOS/دسکتاپ).';
 
@@ -328,6 +345,41 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get ordersFilteredEmpty =>
       'هیچ سفارشی با جستجو یا فیلتر مطابقت ندارد.';
+
+  @override
+  String get ordersFilterSheetTitle => 'فیلترها';
+
+  @override
+  String get ordersFilterQuickSection => 'فیلترهای سریع';
+
+  @override
+  String get ordersFilterDeliverySection => 'تاریخ تحویل';
+
+  @override
+  String get ordersFilterStatusSection => 'وضعیت';
+
+  @override
+  String get ordersFilterClearAll => 'پاک کردن همه';
+
+  @override
+  String get ordersFilterApply => 'اعمال';
+
+  @override
+  String get listToolbarSearchTooltip => 'جستجو';
+
+  @override
+  String get listToolbarFilterTooltip => 'فیلترها';
+
+  @override
+  String get appShellTapTitleForMenu => 'برای باز کردن داشبورد ضربه بزنید';
+
+  @override
+  String get ordersDetailFromNewBanner =>
+      'برای چاپ رسید یا اشتراک‌گذاری فاکتور از نوار ابزار بالا استفاده کنید.';
+
+  @override
+  String get ordersComposerPostSaveSubtitle =>
+      'چاپ، اشتراک‌گذاری، یا باز کردن جزئیات کامل سفارش.';
 
   @override
   String get ordersDetailNotFound => 'این سفارش یافت نشد.';
@@ -486,7 +538,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get paymentAmountLabel => 'مبلغ';
 
   @override
-  String get paymentAmountHint => 'مبلغ را وارد کنید (بدون اعشار)';
+  String get paymentAmountHint => 'مثال: 300';
 
   @override
   String paymentAmount(String amount) {
@@ -534,6 +586,12 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get customerNoTodayOrders => 'برای امروز سفارشی نیست.';
+
+  @override
+  String get customerOrderHistoryTitle => 'تاریخچه سفارش‌ها';
+
+  @override
+  String get customerNoOrders => 'هنوز سفارشی برای این مشتری نیست.';
 
   @override
   String get customerViewAllOrders => 'همه سفارش‌های این مشتری';
@@ -855,19 +913,19 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get reportsUnpaidFilteredEmpty =>
-      'No unpaid orders match this filter.';
+      'هیچ سفارش پرداخت‌نشده‌ای با این فیلتر مطابقت ندارد.';
 
   @override
-  String get reportsUnpaidFilterSection => 'Delivery window';
+  String get reportsUnpaidFilterSection => 'پنجره تحویل';
 
   @override
-  String get reportsUnpaidFilterAll => 'All';
+  String get reportsUnpaidFilterAll => 'همه';
 
   @override
-  String get reportsUnpaidFilterOverdue => 'Overdue';
+  String get reportsUnpaidFilterOverdue => 'معوق';
 
   @override
-  String get reportsUnpaidFilterDueSoon => 'Due in 7 days';
+  String get reportsUnpaidFilterDueSoon => 'سررسید در ۷ روز';
 
   @override
   String get reportsUnpaidAmountSection => 'مانده سفارش';
@@ -885,25 +943,25 @@ class AppLocalizationsFa extends AppLocalizations {
   String get reportsUnpaidAmountOver20000 => 'بالای ۲۰٬۰۰۰';
 
   @override
-  String get reportsUnpaidSortSection => 'Sort';
+  String get reportsUnpaidSortSection => 'مرتب‌سازی';
 
   @override
-  String get reportsUnpaidSortAmount => 'Amount';
+  String get reportsUnpaidSortAmount => 'مبلغ';
 
   @override
-  String get reportsUnpaidSortDueDate => 'Due date';
+  String get reportsUnpaidSortDueDate => 'تاریخ سررسید';
 
   @override
-  String get reportsMonthlyCompareToggle => 'Compare to previous month';
+  String get reportsMonthlyCompareToggle => 'مقایسه با ماه قبل';
 
   @override
-  String get reportsMonthlyPreviousPaymentsLabel => 'Previous month (payments)';
+  String get reportsMonthlyPreviousPaymentsLabel => 'ماه قبل (پرداخت‌ها)';
 
   @override
-  String get reportsMonthlyDeltaLabel => 'Change from previous month';
+  String get reportsMonthlyDeltaLabel => 'تغییر نسبت به ماه قبل';
 
   @override
-  String get reportsMonthlyDeltaSame => 'No change';
+  String get reportsMonthlyDeltaSame => 'بدون تغییر';
 
   @override
   String reportsRemainingChip(String amount) {
@@ -975,6 +1033,18 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get catalogAddDesignCta => 'افزودن طرح';
+
+  @override
+  String get catalogViewDescription => 'توضیحات';
+
+  @override
+  String get catalogDescriptionSheetTitle => 'توضیحات';
+
+  @override
+  String get catalogNoDescription => 'توضیحی برای این طرح ثبت نشده است.';
+
+  @override
+  String get catalogViewerManageA11y => 'مدیریت طرح';
 
   @override
   String get catalogAddDesignPlaceholder =>
@@ -1194,6 +1264,19 @@ class AppLocalizationsFa extends AppLocalizations {
   String get themeDark => 'تیره';
 
   @override
+  String get settingsUiSoundsTitle => 'صداهای رابط';
+
+  @override
+  String get settingsUiSoundsSubtitle =>
+      'صدای کوتاه هنگام موفقیت عملیات (مثلاً ذخیره).';
+
+  @override
+  String get settingsUiHapticsTitle => 'لرزش لمسی';
+
+  @override
+  String get settingsUiHapticsSubtitle => 'لرزش سبک برای عملیات موفق.';
+
+  @override
   String get settingsLanguageTitle => 'زبان';
 
   @override
@@ -1291,6 +1374,13 @@ class AppLocalizationsFa extends AppLocalizations {
   String get resetCta => 'بازنشانی';
 
   @override
+  String get licenseGraceReadOnlySnack => 'فقط‌خواندنی تا تأیید مجوز آنلاین.';
+
+  @override
+  String get licenseClockTamperSnack =>
+      'فقط‌خواندنی: زمان دستگاه نامعتبر به‌نظر می‌رسد. آنلاین اشتراک را باز کنید و تأیید کنید.';
+
+  @override
   String get licenseExpiredReadOnly => 'مجوز منقضی — حالت فقط‌خواندنی.';
 
   @override
@@ -1330,18 +1420,6 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
-  String get ordersComposerStyleTitle => 'استایل';
-
-  @override
-  String get ordersComposerStyleRequired => 'استایل را انتخاب کنید (الزامی)';
-
-  @override
-  String get ordersComposerStyleLabel => 'طرح / استایل';
-
-  @override
-  String get ordersComposerStyleHint => 'مثال: کرزی، یقه، جیب…';
-
-  @override
   String get ordersComposerPaymentTitle => 'پرداخت';
 
   @override
@@ -1360,13 +1438,13 @@ class AppLocalizationsFa extends AppLocalizations {
   String get ordersComposerTotalLabel => 'مبلغ کل (افغانی)';
 
   @override
-  String get ordersComposerTotalHint => 'مثال: 150000';
+  String get ordersComposerTotalHint => 'مثال: 1500';
 
   @override
   String get ordersComposerPaidLabel => 'پرداخت اولیه (افغانی)';
 
   @override
-  String get ordersComposerPaidHint => 'مثال: 50000';
+  String get ordersComposerPaidHint => 'مثال: 500';
 
   @override
   String get ordersComposerDeliveryDateTitle => 'تاریخ تحویل';
@@ -1395,6 +1473,13 @@ class AppLocalizationsFa extends AppLocalizations {
       'لطفاً پیش از ادامه مشتری را انتخاب کنید.';
 
   @override
+  String get ordersComposerValidationTitle => 'مراحل الزامی را تکمیل کنید';
+
+  @override
+  String get ordersComposerValidationBody =>
+      'قبل از ذخیرهٔ این سفارش موارد زیر را پر کنید:';
+
+  @override
   String get ordersComposerRecentOrdersTitle => 'سفارش‌های اخیر';
 
   @override
@@ -1404,6 +1489,152 @@ class AppLocalizationsFa extends AppLocalizations {
   String ordersComposerRecentOrderRowSubtitle(String date, String remaining) {
     return '$date • مانده $remaining';
   }
+
+  @override
+  String get ordersComposerMeasurementsSheetTitle => 'اندازه‌ها';
+
+  @override
+  String get ordersComposerMeasurementsNoTypesBody =>
+      'ابتدا انواع اندازه را در تنظیمات ← انواع اندازه اضافه کنید.';
+
+  @override
+  String ordersComposerMeasurementsProfileAutoLabel(String date) {
+    return 'الگو #$date';
+  }
+
+  @override
+  String get ordersComposerSaveMeasurementsToProfile =>
+      'ذخیره به‌عنوان پروفایل مشتری';
+
+  @override
+  String get ordersComposerSaveMeasurementsToProfileSubtitle =>
+      'اندازه‌های ذخیره‌شدهٔ مشتری انتخاب‌شده به‌روز می‌شود.';
+
+  @override
+  String get ordersComposerAddMeasurementsCta => 'افزودن اندازه‌ها';
+
+  @override
+  String get ordersComposerStyleTitle => 'استایل';
+
+  @override
+  String get ordersComposerStyleRequired => 'استایل را اضافه کنید (الزامی)';
+
+  @override
+  String get ordersComposerStyleSummary => 'استایل انتخاب شد';
+
+  @override
+  String get ordersComposerStyleSheetTitle => 'استایل سفارش';
+
+  @override
+  String get ordersComposerStyleMainTitle => 'نام استایل لباس';
+
+  @override
+  String get ordersComposerStyleCustomLabel => 'نام استایل';
+
+  @override
+  String get ordersComposerStyleCustomHint => 'از بالا انتخاب کنید یا بنویسید';
+
+  @override
+  String get ordersComposerStyleFiguresTitle => 'شکل‌های طرح';
+
+  @override
+  String get ordersComposerStyleNoFigures =>
+      'هنوز شکل طرح نیست — در تنظیمات → استایل سفارش اضافه کنید.';
+
+  @override
+  String get ordersComposerStyleClearFigures => 'پاک کردن همه انتخاب‌ها';
+
+  @override
+  String get settingsStyleHubTitle => 'استایل سفارش';
+
+  @override
+  String get settingsStyleTileTitle => 'استایل سفارش';
+
+  @override
+  String get settingsStyleTileSubtitle => 'نام‌های استایل و شکل‌های طرح';
+
+  @override
+  String get settingsStyleNamesTitle => 'نام‌های استایل لباس';
+
+  @override
+  String get settingsStyleNamesSubtitle => 'قاسمی، کندهاری و نام‌های دیگر';
+
+  @override
+  String get settingsStyleNamesEmpty => 'هنوز نامی نیست.';
+
+  @override
+  String get settingsStyleNameAddCta => 'افزودن نام';
+
+  @override
+  String get settingsStyleNameFieldLabel => 'نام';
+
+  @override
+  String get settingsStyleNameRenameTitle => 'تغییر نام';
+
+  @override
+  String get settingsStyleNameDeleteTitle => 'حذف نام؟';
+
+  @override
+  String get settingsStyleNameDeleteBody =>
+      'از فهرست حذف می‌شود. سفارش‌های قبلی تغییر نمی‌کنند.';
+
+  @override
+  String get settingsStylePartsTitle => 'قسمت‌های لباس';
+
+  @override
+  String get settingsStylePartsSubtitle => 'آستین، یقه، جیب و غیره';
+
+  @override
+  String get settingsStylePartsEmpty => 'هنوز قسمتی نیست.';
+
+  @override
+  String get settingsStylePartAddCta => 'افزودن قسمت';
+
+  @override
+  String get settingsStylePartFieldLabel => 'نام قسمت';
+
+  @override
+  String get settingsStylePartRenameTitle => 'تغییر نام قسمت';
+
+  @override
+  String get settingsStylePartDeleteTitle => 'حذف قسمت؟';
+
+  @override
+  String get settingsStylePartDeleteBody => 'شکل‌های این قسمت هم حذف می‌شوند.';
+
+  @override
+  String get settingsStyleFiguresTitle => 'شکل‌های طرح';
+
+  @override
+  String get settingsStyleFiguresSubtitle => 'همه تصاویر طرح دوزی';
+
+  @override
+  String get settingsStyleFiguresEmpty => 'هنوز شکل طرح نیست.';
+
+  @override
+  String get settingsStyleFigurePartLabel => 'قسمت لباس';
+
+  @override
+  String get settingsStyleFigureAddCta => 'افزودن شکل';
+
+  @override
+  String get settingsStyleFigureNameLabel => 'نام شکل';
+
+  @override
+  String get settingsStyleFigureDeleteTitle => 'حذف شکل؟';
+
+  @override
+  String get settingsStyleFigureDeleteBody => 'از فهرست طرح‌ها حذف می‌شود.';
+
+  @override
+  String get settingsStyleFigureWebOnlyBody =>
+      'افزودن تصویر سفارشی روی اندروید و iOS است. شکل‌های پیش‌فرض در وب کار می‌کنند.';
+
+  @override
+  String get settingsStyleActiveLabel => 'فعال';
+
+  @override
+  String get settingsStyleInactiveLabel => 'غیرفعال';
 
   @override
   String get saveCta => 'ذخیره';
@@ -1527,6 +1758,14 @@ class AppLocalizationsFa extends AppLocalizations {
       'مجوز شما منقضی شده است. برای ویرایش مجدد تمدید کنید.';
 
   @override
+  String get dashboardLicenseGraceBanner =>
+      'از آخرین تأیید مجوز توسط سرور مدت زیادی آفلاین بوده‌اید. اشتراک را باز کنید و آنلاین تازه‌سازی کنید.';
+
+  @override
+  String get dashboardLicenseClockTamperBanner =>
+      'زمان دستگاه ممکن است دستکاری شده باشد. آنلاین شوید و در اشتراک، مجوز را تازه‌سازی کنید تا ویرایش ادامه یابد.';
+
+  @override
   String get dashboardTodayDeliveriesTitle => 'تحویل امروز';
 
   @override
@@ -1616,6 +1855,14 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get subscriptionReadOnlyHint => 'فقط مشاهده تا تمدید.';
+
+  @override
+  String get subscriptionGraceReadOnlyHint =>
+      'فقط‌خواندنی تا زمانی که سرور مجوز را تأیید کند. به اینترنت وصل شوید و پایین، «تازه‌سازی وضعیت مجوز» را بزنید.';
+
+  @override
+  String get subscriptionClockTamperHint =>
+      'فقط‌خواندنی تا پس از بررسی زمان دستگاه، سرور مجوز را تأیید کند. آنلاین «تازه‌سازی وضعیت» را بزنید.';
 
   @override
   String get subscriptionActivationTitle => 'فعال‌سازی';
@@ -1886,7 +2133,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get settingsBackupInvalidFile => 'خواندن این فایل پشتیبان ممکن نیست.';
 
   @override
-  String get settingsNotificationsFiltersTitle => 'فیلترها (پیش‌نمایش)';
+  String get settingsNotificationsFiltersTitle => 'فیلترها';
 
   @override
   String get settingsNotifFilterAll => 'همه';
@@ -1906,6 +2153,10 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get settingsNotificationsInboxEmptyHint =>
       'تاریخچه برای سفارش، مجوز و پشتیبان اینجا نمایش داده می‌شود.';
+
+  @override
+  String get settingsNotificationsInboxFilterEmpty =>
+      'اعلانی با این فیلتر نیست.';
 
   @override
   String get settingsSyncLastSyncTitle => 'آخرین همگام‌سازی موفق';
@@ -1967,6 +2218,10 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get settingsSyncRetryLicenseExpired =>
       'سرور همگام‌سازی را رد کرد چون مجوز منقضی شده است. اشتراک را باز کنید.';
+
+  @override
+  String get settingsSyncRetryEditingBlocked =>
+      'همگام‌سازی در حالت فقط‌خواندنی متوقف است. آنلاین که شدید اشتراک را باز کنید.';
 
   @override
   String settingsSyncRetrySuccess(int pushed, int pulled) {
@@ -2032,6 +2287,38 @@ class AppLocalizationsFa extends AppLocalizations {
   String get devPortalTabDiagnostics => 'تشخیص';
 
   @override
+  String get devPortalTabAccount => 'رمز عبور من';
+
+  @override
+  String get devPortalMyPasswordTitle => 'تغییر رمز عبور';
+
+  @override
+  String get devPortalMyPasswordSubtitle =>
+      'نام کاربری اینجا تغییر نمی‌کند. رمز فعلی را وارد کنید، سپس رمز جدید (حداقل ۶ نویسه).';
+
+  @override
+  String get devPortalCurrentPasswordLabel => 'رمز فعلی';
+
+  @override
+  String get devPortalNewPasswordLabel => 'رمز جدید';
+
+  @override
+  String get devPortalConfirmPasswordLabel => 'تکرار رمز جدید';
+
+  @override
+  String get devPortalPasswordMismatch => 'رمز جدید و تکرار آن یکسان نیستند.';
+
+  @override
+  String get devPortalChangePasswordCta => 'به‌روزرسانی رمز';
+
+  @override
+  String get devPortalChangePasswordOk =>
+      'رمز به‌روز شد. دفعه بعد با رمز جدید وارد شوید.';
+
+  @override
+  String get devPortalChangePasswordFail => 'به‌روزرسانی رمز ناموفق بود.';
+
+  @override
   String get devPortalOnlineRequired =>
       'ابزارهای توسعه‌دهنده به اتصال آنلاین و حساب تأییدشده نیاز دارند.';
 
@@ -2067,6 +2354,51 @@ class AppLocalizationsFa extends AppLocalizations {
       one: '۱ کاربر',
     );
     return '$_temp0';
+  }
+
+  @override
+  String get devPortalShopDisabledLabel => 'غیرفعال';
+
+  @override
+  String get devPortalShopActionsTooltip => 'اقدامات فروشگاه';
+
+  @override
+  String get devPortalShopDisableCta => 'غیرفعال‌سازی فروشگاه';
+
+  @override
+  String get devPortalShopEnableCta => 'فعال‌سازی فروشگاه';
+
+  @override
+  String get devPortalShopExtendCta => 'تمدید مجوز…';
+
+  @override
+  String get devPortalShopExtendTitle => 'تمدید مجوز';
+
+  @override
+  String get devPortalShopExtendHint =>
+      'روزهای افزوده از امروز یا از تاریخ انقضای فعلی (هرکدام دیرتر باشد).';
+
+  @override
+  String get devPortalShopExtendDaysLabel => 'روز';
+
+  @override
+  String get devPortalShopActionOk => 'انجام شد.';
+
+  @override
+  String get devPortalShopPushTestCta => 'آزمایش اعلان…';
+
+  @override
+  String get devPortalShopPushTitle => 'اعلان آزمایشی';
+
+  @override
+  String get devPortalShopPushNotifTitleLabel => 'عنوان اعلان';
+
+  @override
+  String get devPortalShopPushBodyLabel => 'پیام';
+
+  @override
+  String devPortalShopPushResult(int success, int failed, String reason) {
+    return 'ارسال‌شده: $success، ناموفق: $failed. دلیل: $reason.';
   }
 
   @override
@@ -2183,13 +2515,13 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get shopProfileIntro =>
-      'این نام فروشگاه به‌عنوان برچسب طراح روی اقلام کاتالوگ نمایش داده می‌شود. تماس تا اتصال فاکتور برای مرجع شماست.';
+      'نام، لوگو، آدرس و پیام تشکر در رسید چاپی و فاکتور اشتراکی نمایش داده می‌شود. یادداشت پایین فقط برای خودتان است.';
 
   @override
   String get shopProfileNameLabel => 'نام فروشگاه';
 
   @override
-  String get shopProfileNameHint => 'مثال: خیاطی پراید';
+  String get shopProfileNameHint => 'مثال: خیاطی کرزی';
 
   @override
   String get shopProfileNameRequired => 'نام فروشگاه الزامی است.';
@@ -2201,13 +2533,19 @@ class AppLocalizationsFa extends AppLocalizations {
   String get shopProfileShopPhoneLabel => 'تلفن فروشگاه (اختیاری)';
 
   @override
-  String get shopProfileShopPhoneHint => 'مثال: 0700000000';
+  String get shopProfileShopPhoneHint => 'مثال: 0701234567';
 
   @override
   String get shopProfileAddressLabel => 'آدرس (اختیاری)';
 
   @override
-  String get shopProfileAddressHint => 'خیابان، منطقه، شهر…';
+  String get shopProfileAddressHint => 'مثال: کارته چهار، کابل';
+
+  @override
+  String get shopProfileReceiptThanksLabel => 'پیام تشکر رسید (اختیاری)';
+
+  @override
+  String get shopProfileReceiptThanksHint => 'مثال: از همکاری شما سپاسگزاریم!';
 
   @override
   String get shopProfileNotesLabel => 'یادداشت (اختیاری)';
@@ -2399,5 +2737,71 @@ class AppLocalizationsFa extends AppLocalizations {
   String get receiptPaymentsHeader => 'پرداخت‌ها';
 
   @override
-  String get receiptFooterThanks => 'متشکریم';
+  String get receiptShopPhoneLabel => 'تلفن فروشگاه';
+
+  @override
+  String get receiptShopAddressLabel => 'آدرس';
+
+  @override
+  String get receiptShareDivider => '--------------------------------';
+
+  @override
+  String get receiptShareSectionRule => '================================';
+
+  @override
+  String get settingsPrinterRetryHint =>
+      'اگر چاپگر مشغول باشد، برنامه چند بار به‌صورت خودکار دوباره اتصال را امتحان می‌کند.';
+
+  @override
+  String get shopProfileLogoSectionTitle => 'لوگوی سربرگ فاکتور';
+
+  @override
+  String get shopProfileLogoSubtitle =>
+      'در بالای رسید حرارتی و متن فاکتور اشتراکی (اندروید / iOS) نمایش داده می‌شود. تصویر مربعی بهتر است.';
+
+  @override
+  String get shopProfileLogoPickCta => 'انتخاب تصویر';
+
+  @override
+  String get shopProfileLogoRemoveCta => 'حذف لوگو';
+
+  @override
+  String get shopProfileLogoSaved => 'لوگو ذخیره شد.';
+
+  @override
+  String get shopProfileLogoWebHint =>
+      'بارگذاری لوگو در برنامه‌های اندروید و iOS در دسترس است.';
+
+  @override
+  String get shopProfileLogoStatusOnFile =>
+      'لوگو برای رسید روی این دستگاه ذخیره شده است.';
+
+  @override
+  String get shopProfileLogoDefaultCaption =>
+      'تا بارگذاری لوگوی خودتان، لوگوی پیش‌فرض روی رسید چاپ می‌شود.';
+
+  @override
+  String get defaultShopName => 'خیاطی من';
+
+  @override
+  String get defaultShopAddress => 'کابل، افغانستان';
+
+  @override
+  String get defaultShopPhone => '0701234567';
+
+  @override
+  String get orderShareInvoiceTooltip => 'اشتراک فاکتور';
+
+  @override
+  String orderShareInvoiceFail(String detail) {
+    return 'اشتراک ناموفق: $detail';
+  }
+
+  @override
+  String orderShareInvoiceSubject(String orderNo) {
+    return 'سفارش $orderNo';
+  }
+
+  @override
+  String get receiptFooterThanks => 'از همکاری شما سپاسگزاریم!';
 }

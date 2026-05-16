@@ -31,25 +31,78 @@ export class AppSeedService implements OnModuleInit {
           ? 'dev|owner|changeme'
           : '';
     if (!effective) {
-      this.log.log('PRIDE_AUTH_SEED unset in production — skipping dev seed');
+      this.log.log('PRIDE_AUTH_SEED unset in production — skipping auth shop seed');
+    } else {
+      const parts = effective.split('|').map((s) => s.trim());
+      if (parts.length === 3) {
+        const [shopId, username, password] = parts;
+        if (!shopId || !username || !password) {
+          await this.ensureOperatorFromEnv();
+          return;
+        }
+        await this.ensureShopWithOwner(shopId, shopId, username, password);
+      } else if (parts.length === 4) {
+        const [shopId, shopName, username, password] = parts;
+        if (!shopId || !shopName || !username || !password) {
+          await this.ensureOperatorFromEnv();
+          return;
+        }
+        await this.ensureShopWithOwner(shopId, shopName, username, password);
+      } else {
+        throw new Error(
+          'PRIDE_AUTH_SEED must be "shop_id|username|password" or "shop_id|shop_name|username|password"',
+        );
+      }
+    }
+
+    await this.ensureOperatorFromEnv();
+  }
+
+  /**
+   * Optional `PRIDE_OPERATOR_SEED=shop_id|username|password` — non-owner user for
+   * developer portal when paired with `PRIDE_DEVELOPER_USERS=shop_id|username`.
+   * Runs after `PRIDE_AUTH_SEED` so the shop exists.
+   */
+  private async ensureOperatorFromEnv(): Promise<void> {
+    const raw = process.env.PRIDE_OPERATOR_SEED?.trim();
+    if (!raw) return;
+    const p = raw.split('|').map((s) => s.trim());
+    if (p.length !== 3) {
+      this.log.warn(
+        'PRIDE_OPERATOR_SEED must be "shop_id|username|password" — skipping operator seed',
+      );
+      return;
+    }
+    const [shopId, username, password] = p;
+    if (!shopId || !username || !password) return;
+
+    const shop = await this.prisma.shop.findUnique({ where: { id: shopId } });
+    if (!shop) {
+      this.log.warn(
+        `PRIDE_OPERATOR_SEED: shop "${shopId}" not found — create it with PRIDE_AUTH_SEED first`,
+      );
       return;
     }
 
-    const parts = effective.split('|').map((s) => s.trim());
-    if (parts.length === 3) {
-      const [shopId, username, password] = parts;
-      if (!shopId || !username || !password) return;
-      await this.ensureShopWithOwner(shopId, shopId, username, password);
+    const existing = await this.prisma.shopUser.findFirst({
+      where: { shopId, username, deletedAt: null },
+    });
+    if (existing) {
+      this.log.log(`Operator seed: user "${username}" already exists in shop "${shopId}"`);
       return;
     }
-    if (parts.length === 4) {
-      const [shopId, shopName, username, password] = parts;
-      if (!shopId || !shopName || !username || !password) return;
-      await this.ensureShopWithOwner(shopId, shopName, username, password);
-      return;
-    }
-    throw new Error(
-      'PRIDE_AUTH_SEED must be "shop_id|username|password" or "shop_id|shop_name|username|password"',
+
+    await this.prisma.shopUser.create({
+      data: {
+        id: randomUUID(),
+        shopId,
+        username,
+        passwordHash: sha256Hex(password),
+        isShopOwner: false,
+      },
+    });
+    this.log.log(
+      `Seeded operator user "${username}" in shop "${shopId}" — set PRIDE_DEVELOPER_USERS=${shopId}|${username} (or add user id to PRIDE_DEVELOPER_IDS)`,
     );
   }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pride_v3/app/app_theme.dart';
 import 'package:pride_v3/core/api/pride_api_config.dart';
 import 'package:pride_v3/core/api/pride_api_health.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
@@ -101,7 +102,8 @@ class _SettingsApiConnectionCardState
             ],
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: FilledButton.tonalIcon(
+              child: FilledButton.icon(
+                style: prideLedgerTonalButtonStyle(context),
                 onPressed: (!online || _pinging || base == null)
                     ? null
                     : () => _runPing(l10n),

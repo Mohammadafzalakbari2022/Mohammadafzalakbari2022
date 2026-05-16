@@ -1,6 +1,7 @@
 import 'sync_change_server_time.dart';
 import '../../data/local/app_notification_repository.dart';
 import '../../data/local/catalog_repository.dart';
+import '../../data/local/style_catalog_repository.dart';
 import '../../data/local/customer_list_repository.dart';
 import '../../data/local/measurement_profile_repository.dart';
 import '../../data/local/order_list_repository.dart';
@@ -17,6 +18,7 @@ class SyncInboundApplier {
     required this.orders,
     required this.measurementProfiles,
     required this.catalog,
+    required this.styleCatalog,
     required this.shopId,
   });
 
@@ -27,6 +29,7 @@ class SyncInboundApplier {
   final OrderListRepository orders;
   final MeasurementProfileRepository measurementProfiles;
   final CatalogRepository catalog;
+  final StyleCatalogRepository styleCatalog;
   final String shopId;
 
   /// Returns number of rows applied (skipped kinds return 0 contribution per change).
@@ -96,6 +99,30 @@ class SyncInboundApplier {
         applied++;
       } else if (et == 'catalog_item') {
         await catalog.mergeRemoteCatalogItem(
+          shopId: shopId,
+          internalId: id,
+          operation: op,
+          data: raw['data'],
+        );
+        applied++;
+      } else if (et == 'style_name') {
+        await styleCatalog.mergeRemoteStyleName(
+          shopId: shopId,
+          internalId: id,
+          operation: op,
+          data: raw['data'],
+        );
+        applied++;
+      } else if (et == 'style_part') {
+        await styleCatalog.mergeRemoteStylePart(
+          shopId: shopId,
+          internalId: id,
+          operation: op,
+          data: raw['data'],
+        );
+        applied++;
+      } else if (et == 'style_figure') {
+        await styleCatalog.mergeRemoteStyleFigure(
           shopId: shopId,
           internalId: id,
           operation: op,

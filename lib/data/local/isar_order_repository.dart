@@ -1,6 +1,7 @@
 import 'package:isar/isar.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../core/defaults/afghan_market_defaults.dart';
 import 'dev_shop_constants.dart';
 import 'entities/customer_entity.dart';
 import 'entities/order_entity.dart';
@@ -57,10 +58,9 @@ class IsarOrderRepository implements OrderListRepository {
         ..deliveryDate = now.add(const Duration(days: 2))
         ..createdAt = now
         ..updatedAt = now
-        ..totalAmountMinor = 150000
+        ..totalAmountMinor = AfghanMarketDefaults.exampleOrderTotalAfn
         ..measurementsSnapshot =
             'Chest: 98 cm\nWaist: 84 cm\nLength: 112 cm'
-        ..styleNotes = 'Karzai collar, two pockets'
         ..sourceMeasurementProfileId = DevSeedIds.measurementProfile1
         ..sourceMeasurementProfileLabel = 'Default',
       OrderEntity()
@@ -72,9 +72,8 @@ class IsarOrderRepository implements OrderListRepository {
         ..deliveryDate = now.add(const Duration(days: 5))
         ..createdAt = now
         ..updatedAt = now
-        ..totalAmountMinor = 80000
+        ..totalAmountMinor = 800
         ..measurementsSnapshot = 'Shoulder: 46 cm\nSleeve: 62 cm'
-        ..styleNotes = 'Simple collar'
         ..sourceMeasurementProfileId = DevSeedIds.measurementProfile2
         ..sourceMeasurementProfileLabel = 'Default',
       OrderEntity()
@@ -86,9 +85,8 @@ class IsarOrderRepository implements OrderListRepository {
         ..deliveryDate = now
         ..createdAt = now
         ..updatedAt = now
-        ..totalAmountMinor = 120000
+        ..totalAmountMinor = 1200
         ..measurementsSnapshot = 'Full suit — see notes'
-        ..styleNotes = 'Classic fit, plain cuffs'
         ..sourceMeasurementProfileId = DevSeedIds.measurementProfile1
         ..sourceMeasurementProfileLabel = 'Default',
     ];
@@ -154,7 +152,7 @@ class IsarOrderRepository implements OrderListRepository {
         ..internalId = DevSeedIds.payment1
         ..shopId = kDevShopId
         ..orderInternalId = DevSeedIds.order1
-        ..amountMinor = 50000
+        ..amountMinor = 500
         ..method = 'cash'
         ..isAdjustment = false
         ..createdAt = now.subtract(const Duration(days: 1)),
@@ -162,7 +160,7 @@ class IsarOrderRepository implements OrderListRepository {
         ..internalId = DevSeedIds.payment2
         ..shopId = kDevShopId
         ..orderInternalId = DevSeedIds.order1
-        ..amountMinor = 20000
+        ..amountMinor = 200
         ..method = 'cash'
         ..isAdjustment = false
         ..createdAt = now,
@@ -170,7 +168,7 @@ class IsarOrderRepository implements OrderListRepository {
         ..internalId = DevSeedIds.payment3
         ..shopId = kDevShopId
         ..orderInternalId = DevSeedIds.order3
-        ..amountMinor = 120000
+        ..amountMinor = 1200
         ..method = 'cash'
         ..isAdjustment = false
         ..createdAt = now,
@@ -258,10 +256,13 @@ class IsarOrderRepository implements OrderListRepository {
           customerName: c?.name ?? '—',
           customerPhone: c?.phone,
           measurementsSnapshot: o.measurementsSnapshot,
-          styleNotes: o.styleNotes,
           internalNotes: o.internalNotes,
           sourceMeasurementProfileId: o.sourceMeasurementProfileId,
           sourceMeasurementProfileLabel: o.sourceMeasurementProfileLabel,
+          styleName: o.styleName,
+          styleNameInternalId: o.styleNameInternalId,
+          styleSelectionJson: o.styleSelectionJson,
+          styleSummary: o.styleSummary,
           status: orderStatusFromCode(o.statusIndex),
           deliveryDate: o.deliveryDate,
           createdAt: o.createdAt ?? o.updatedAt,
@@ -315,12 +316,15 @@ class IsarOrderRepository implements OrderListRepository {
     required DateTime deliveryDate,
     required int totalAmountMinor,
     required String measurementsSnapshot,
-    required String styleNotes,
     String? customerSnapshotName,
     String? customerSnapshotPhone,
     String? sourceMeasurementProfileId,
     String sourceMeasurementProfileLabel = '',
     List<OrderMeasurementSnapshotItemInput>? measurementSnapshotItems,
+    required String styleName,
+    String? styleNameInternalId,
+    String styleSelectionJson = '',
+    String styleSummary = '',
   }) async {
     final now = DateTime.now();
     final internalId = _uuid.v4();
@@ -344,9 +348,12 @@ class IsarOrderRepository implements OrderListRepository {
       ..updatedAt = now
       ..totalAmountMinor = totalAmountMinor
       ..measurementsSnapshot = measurementsSnapshot
-      ..styleNotes = styleNotes
       ..sourceMeasurementProfileId = sourceMeasurementProfileId
-      ..sourceMeasurementProfileLabel = sourceMeasurementProfileLabel;
+      ..sourceMeasurementProfileLabel = sourceMeasurementProfileLabel
+      ..styleName = styleName.trim()
+      ..styleNameInternalId = styleNameInternalId
+      ..styleSelectionJson = styleSelectionJson
+      ..styleSummary = styleSummary;
 
     final snap = measurementSnapshotItems;
     await _isar.writeTxn(() async {
@@ -452,10 +459,6 @@ class IsarOrderRepository implements OrderListRepository {
         existing?.measurementsSnapshot ??
         '';
 
-    final styleNotes = syncPullString(m, const ['style_notes', 'styleNotes']) ??
-        existing?.styleNotes ??
-        '';
-
     final internalNotes = syncPullString(
           m,
           const ['internal_notes', 'internalNotes'],
@@ -474,6 +477,26 @@ class IsarOrderRepository implements OrderListRepository {
             'sourceMeasurementProfileLabel',
           ],
     );
+
+    final styleName = syncPullString(m, const ['style_name', 'styleName']) ??
+        existing?.styleName ??
+        '';
+    final styleNameInternalId = syncPullString(
+      m,
+      const ['style_name_internal_id', 'styleNameInternalId'],
+    );
+    final styleSelectionJson = syncPullString(
+          m,
+          const ['style_selection_json', 'styleSelectionJson'],
+        ) ??
+        existing?.styleSelectionJson ??
+        '';
+    final styleSummary = syncPullString(
+          m,
+          const ['style_summary', 'styleSummary'],
+        ) ??
+        existing?.styleSummary ??
+        '';
 
     final displayNo = syncPullString(
           m,
@@ -511,10 +534,13 @@ class IsarOrderRepository implements OrderListRepository {
           ..updatedAt = updatedAt
           ..totalAmountMinor = total
           ..measurementsSnapshot = measurements
-          ..styleNotes = styleNotes
           ..internalNotes = internalNotes
           ..sourceMeasurementProfileId = profileId
           ..sourceMeasurementProfileLabel = profileLabel ?? ''
+          ..styleName = styleName
+          ..styleNameInternalId = styleNameInternalId
+          ..styleSelectionJson = styleSelectionJson
+          ..styleSummary = styleSummary
           ..deletedAt = null;
       } else {
         final row = await _isar.orderEntitys.getByInternalId(internalId);
@@ -530,11 +556,17 @@ class IsarOrderRepository implements OrderListRepository {
           ..updatedAt = updatedAt
           ..totalAmountMinor = total
           ..measurementsSnapshot = measurements
-          ..styleNotes = styleNotes
           ..internalNotes = internalNotes
           ..sourceMeasurementProfileId = profileId ?? e.sourceMeasurementProfileId
           ..sourceMeasurementProfileLabel =
               profileLabel ?? e.sourceMeasurementProfileLabel
+          ..styleName = styleName.isNotEmpty ? styleName : e.styleName
+          ..styleNameInternalId = styleNameInternalId ?? e.styleNameInternalId
+          ..styleSelectionJson = styleSelectionJson.isNotEmpty
+              ? styleSelectionJson
+              : e.styleSelectionJson
+          ..styleSummary =
+              styleSummary.isNotEmpty ? styleSummary : e.styleSummary
           ..deletedAt = null;
         e.createdAt ??= createdAt;
       }

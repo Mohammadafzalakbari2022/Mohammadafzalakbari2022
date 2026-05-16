@@ -7,6 +7,7 @@ import 'package:pride_v3/core/api/pride_api_health.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../shell/shell_sync_providers.dart';
+import 'developer_portal_account_tab.dart';
 import 'developer_portal_codes_tab.dart';
 import 'developer_portal_diagnostics_tab.dart';
 
@@ -19,7 +20,7 @@ class DeveloperPortalScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final online = ref.watch(connectivityOnlineProvider);
     return DefaultTabController(
-      length: 5,
+      length: 6,
       child: Scaffold(
         appBar: AppBar(
           title: Text(l10n.devPortalTitle),
@@ -31,6 +32,7 @@ class DeveloperPortalScreen extends ConsumerWidget {
               Tab(text: l10n.devPortalTabShops),
               Tab(text: l10n.devPortalTabResets),
               Tab(text: l10n.devPortalTabDiagnostics),
+              Tab(text: l10n.devPortalTabAccount),
             ],
           ),
         ),
@@ -55,6 +57,7 @@ class DeveloperPortalScreen extends ConsumerWidget {
                   _DevPortalShopsTab(l10n: l10n),
                   _DevPortalResetsTab(l10n: l10n),
                   const DeveloperPortalDiagnosticsTab(),
+                  const DeveloperPortalAccountTab(),
                 ],
               ),
             ),
@@ -321,6 +324,160 @@ class _DevPortalShopsTabState extends ConsumerState<_DevPortalShopsTab> {
   String? _error;
   List<Map<String, dynamic>> _rows = const [];
 
+  Future<void> _disableShop(String shopId) async {
+    final token = ref.read(authSessionProvider).accessToken;
+    if (token == null) return;
+    final r = await postPrideApiAdminDisableShop(
+      accessToken: token,
+      shopId: shopId,
+    );
+    if (!mounted) return;
+    if (!r.ok) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(r.error ?? 'HTTP')),
+      );
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(widget.l10n.devPortalShopActionOk)),
+    );
+    await _load();
+  }
+
+  Future<void> _enableShop(String shopId) async {
+    final token = ref.read(authSessionProvider).accessToken;
+    if (token == null) return;
+    final r = await postPrideApiAdminEnableShop(
+      accessToken: token,
+      shopId: shopId,
+    );
+    if (!mounted) return;
+    if (!r.ok) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(r.error ?? 'HTTP')),
+      );
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(widget.l10n.devPortalShopActionOk)),
+    );
+    await _load();
+  }
+
+  Future<void> _extendLicense(String shopId) async {
+    final ctrl = TextEditingController(text: '30');
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(widget.l10n.devPortalShopExtendTitle),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(widget.l10n.devPortalShopExtendHint),
+            const SizedBox(height: 12),
+            TextField(
+              controller: ctrl,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: widget.l10n.devPortalShopExtendDaysLabel,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(MaterialLocalizations.of(ctx).cancelButtonLabel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(widget.l10n.saveCta),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    final days = int.tryParse(ctrl.text.trim()) ?? 0;
+    if (days < 1) return;
+    final token = ref.read(authSessionProvider).accessToken;
+    if (token == null) return;
+    final r = await postPrideApiAdminExtendShopLicense(
+      accessToken: token,
+      shopId: shopId,
+      addDays: days,
+    );
+    if (!mounted) return;
+    if (!r.ok) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(r.error ?? 'HTTP')),
+      );
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(widget.l10n.devPortalShopActionOk)),
+    );
+    await _load();
+  }
+
+  Future<void> _pushTest(String shopId, String shopLabel) async {
+    final titleCtrl = TextEditingController(text: 'Afghan Pride');
+    final bodyCtrl = TextEditingController(text: 'Test: $shopLabel');
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(widget.l10n.devPortalShopPushTitle),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: titleCtrl,
+              decoration: InputDecoration(
+                labelText: widget.l10n.devPortalShopPushNotifTitleLabel,
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: bodyCtrl,
+              decoration: InputDecoration(
+                labelText: widget.l10n.devPortalShopPushBodyLabel,
+              ),
+              minLines: 2,
+              maxLines: 4,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(MaterialLocalizations.of(ctx).cancelButtonLabel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(widget.l10n.devPortalShopPushTestCta),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    final token = ref.read(authSessionProvider).accessToken;
+    if (token == null) return;
+    final r = await postPrideApiAdminPushShop(
+      accessToken: token,
+      shopId: shopId,
+      title: titleCtrl.text.trim().isEmpty ? 'Afghan Pride' : titleCtrl.text.trim(),
+      bodyText: bodyCtrl.text.trim(),
+    );
+    if (!mounted) return;
+    final msg = r.error ??
+        widget.l10n.devPortalShopPushResult(
+          r.successCount,
+          r.failureCount,
+          r.reason ?? '—',
+        );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  }
+
   Future<void> _load() async {
     if (!PrideApiConfig.isConfigured) {
       setState(() {
@@ -411,11 +568,51 @@ class _DevPortalShopsTabState extends ConsumerState<_DevPortalShopsTab> {
           final count = uc is int ? uc : int.tryParse('$uc') ?? 0;
           final lic = '${m['license_status'] ?? ''}';
           final exp = '${m['license_expires_at'] ?? ''}';
+          final disabledRaw = m['disabled_at'];
+          final disabled = disabledRaw != null &&
+              '$disabledRaw'.trim().isNotEmpty &&
+              '$disabledRaw' != 'null';
           return Card(
             child: ListTile(
               title: Text(name.isEmpty ? id : name),
               subtitle: Text(
-                '$id · ${widget.l10n.devPortalShopRowUsers(count)}\n$lic · $exp',
+                '$id · ${widget.l10n.devPortalShopRowUsers(count)}\n$lic · $exp'
+                '${disabled ? '\n${widget.l10n.devPortalShopDisabledLabel}' : ''}',
+              ),
+              isThreeLine: true,
+              trailing: PopupMenuButton<String>(
+                tooltip: widget.l10n.devPortalShopActionsTooltip,
+                onSelected: (v) async {
+                  if (v == 'disable') {
+                    await _disableShop(id);
+                  } else if (v == 'enable') {
+                    await _enableShop(id);
+                  } else if (v == 'extend') {
+                    await _extendLicense(id);
+                  } else if (v == 'push') {
+                    await _pushTest(id, name.isEmpty ? id : name);
+                  }
+                },
+                itemBuilder: (ctx) => [
+                  if (!disabled)
+                    PopupMenuItem(
+                      value: 'disable',
+                      child: Text(widget.l10n.devPortalShopDisableCta),
+                    )
+                  else
+                    PopupMenuItem(
+                      value: 'enable',
+                      child: Text(widget.l10n.devPortalShopEnableCta),
+                    ),
+                  PopupMenuItem(
+                    value: 'extend',
+                    child: Text(widget.l10n.devPortalShopExtendCta),
+                  ),
+                  PopupMenuItem(
+                    value: 'push',
+                    child: Text(widget.l10n.devPortalShopPushTestCta),
+                  ),
+                ],
               ),
             ),
           );

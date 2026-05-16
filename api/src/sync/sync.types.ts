@@ -8,6 +8,9 @@ export const SYNC_ENTITY_TYPES = [
   'measurement_profile',
   'catalog_item',
   'task',
+  'style_name',
+  'style_part',
+  'style_figure',
 ] as const;
 
 export type SyncEntityType = (typeof SYNC_ENTITY_TYPES)[number];

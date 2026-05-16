@@ -129,10 +129,13 @@ class MemoryOrderRepository implements OrderListRepository {
           customerName: o.customerName,
           customerPhone: o.customerPhone,
           measurementsSnapshot: o.measurementsSnapshot,
-          styleNotes: o.styleNotes,
           internalNotes: o.internalNotes,
           sourceMeasurementProfileId: o.sourceMeasurementProfileId,
           sourceMeasurementProfileLabel: o.sourceMeasurementProfileLabel,
+          styleName: o.styleName,
+          styleNameInternalId: o.styleNameInternalId,
+          styleSelectionJson: o.styleSelectionJson,
+          styleSummary: o.styleSummary,
           status: o.status,
           deliveryDate: o.deliveryDate,
           createdAt: o.createdAt,
@@ -153,12 +156,15 @@ class MemoryOrderRepository implements OrderListRepository {
     required DateTime deliveryDate,
     required int totalAmountMinor,
     required String measurementsSnapshot,
-    required String styleNotes,
     String? customerSnapshotName,
     String? customerSnapshotPhone,
     String? sourceMeasurementProfileId,
     String sourceMeasurementProfileLabel = '',
     List<OrderMeasurementSnapshotItemInput>? measurementSnapshotItems,
+    required String styleName,
+    String? styleNameInternalId,
+    String styleSelectionJson = '',
+    String styleSummary = '',
   }) async {
     await seedIfEmpty();
     final nextNo = _nextOrderNo();
@@ -174,10 +180,13 @@ class MemoryOrderRepository implements OrderListRepository {
             customerSnapshotName ?? _resolveCustomerName(customerInternalId),
         customerPhone: customerSnapshotPhone,
         measurementsSnapshot: measurementsSnapshot,
-        styleNotes: styleNotes,
         internalNotes: '',
         sourceMeasurementProfileId: sourceMeasurementProfileId,
         sourceMeasurementProfileLabel: sourceMeasurementProfileLabel,
+        styleName: styleName.trim(),
+        styleNameInternalId: styleNameInternalId,
+        styleSelectionJson: styleSelectionJson,
+        styleSummary: styleSummary,
         status: OrderLocalStatus.newOrder,
         deliveryDate: deliveryDate,
         createdAt: now,
@@ -235,7 +244,6 @@ class MemoryOrderRepository implements OrderListRepository {
         customerName: '—',
         customerPhone: null,
         measurementsSnapshot: '',
-        styleNotes: '',
         internalNotes: '',
         sourceMeasurementProfileId: null,
         sourceMeasurementProfileLabel: '',
@@ -266,10 +274,13 @@ class MemoryOrderRepository implements OrderListRepository {
           customerName: o.customerName,
           customerPhone: o.customerPhone,
           measurementsSnapshot: o.measurementsSnapshot,
-          styleNotes: o.styleNotes,
           internalNotes: o.internalNotes,
           sourceMeasurementProfileId: o.sourceMeasurementProfileId,
           sourceMeasurementProfileLabel: o.sourceMeasurementProfileLabel,
+          styleName: o.styleName,
+          styleNameInternalId: o.styleNameInternalId,
+          styleSelectionJson: o.styleSelectionJson,
+          styleSummary: o.styleSummary,
           status: newStatus,
           deliveryDate: o.deliveryDate,
           createdAt: o.createdAt,
@@ -299,10 +310,13 @@ class MemoryOrderRepository implements OrderListRepository {
           customerName: o.customerName,
           customerPhone: o.customerPhone,
           measurementsSnapshot: o.measurementsSnapshot,
-          styleNotes: o.styleNotes,
           internalNotes: internalNotes,
           sourceMeasurementProfileId: o.sourceMeasurementProfileId,
           sourceMeasurementProfileLabel: o.sourceMeasurementProfileLabel,
+          styleName: o.styleName,
+          styleNameInternalId: o.styleNameInternalId,
+          styleSelectionJson: o.styleSelectionJson,
+          styleSummary: o.styleSummary,
           status: o.status,
           deliveryDate: o.deliveryDate,
           createdAt: o.createdAt,
@@ -371,10 +385,6 @@ class MemoryOrderRepository implements OrderListRepository {
         existing?.measurementsSnapshot ??
         '';
 
-    final styleNotes = syncPullString(m, const ['style_notes', 'styleNotes']) ??
-        existing?.styleNotes ??
-        '';
-
     final internalNotes = syncPullString(
           m,
           const ['internal_notes', 'internalNotes'],
@@ -393,6 +403,26 @@ class MemoryOrderRepository implements OrderListRepository {
         'sourceMeasurementProfileLabel',
       ],
     );
+
+    final styleName = syncPullString(m, const ['style_name', 'styleName']) ??
+        existing?.styleName ??
+        '';
+    final styleNameInternalId = syncPullString(
+      m,
+      const ['style_name_internal_id', 'styleNameInternalId'],
+    );
+    final styleSelectionJson = syncPullString(
+          m,
+          const ['style_selection_json', 'styleSelectionJson'],
+        ) ??
+        existing?.styleSelectionJson ??
+        '';
+    final styleSummary = syncPullString(
+          m,
+          const ['style_summary', 'styleSummary'],
+        ) ??
+        existing?.styleSummary ??
+        '';
 
     final displayNo = syncPullString(
           m,
@@ -419,11 +449,14 @@ class MemoryOrderRepository implements OrderListRepository {
       customerName: existing?.customerName ?? _resolveCustomerName(customerId),
       customerPhone: existing?.customerPhone,
       measurementsSnapshot: measurements,
-      styleNotes: styleNotes,
       internalNotes: internalNotes,
       sourceMeasurementProfileId: profileId ?? existing?.sourceMeasurementProfileId,
       sourceMeasurementProfileLabel:
           profileLabel ?? existing?.sourceMeasurementProfileLabel ?? '',
+      styleName: styleName,
+      styleNameInternalId: styleNameInternalId ?? existing?.styleNameInternalId,
+      styleSelectionJson: styleSelectionJson,
+      styleSummary: styleSummary,
       status: status,
       deliveryDate: delivery,
       createdAt: createdAt,

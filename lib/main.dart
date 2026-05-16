@@ -11,6 +11,7 @@ import 'core/persistence/shared_preferences_provider.dart';
 import 'core/persistence/sync_diagnostics_storage.dart';
 import 'shell/shell_sync_providers.dart';
 import 'features/settings/settings_providers.dart';
+import 'licensing/license_clock_guard.dart';
 import 'licensing/license_notifier.dart';
 import 'licensing/license_providers.dart';
 
@@ -19,9 +20,12 @@ Future<void> main() async {
     WidgetsFlutterBinding.ensureInitialized();
     final prefs = await SharedPreferences.getInstance();
     final initialLocale = localeOverrideFromPrefs(prefs);
+    final initialUiSounds = uiSoundsFromPrefs(prefs);
+    final initialUiHaptics = uiHapticsFromPrefs(prefs);
 
     final authSession = AuthSession();
     final licenseNotifier = LicenseNotifier();
+    await LicenseClockGuard.bootstrapIfNeeded(prefs);
     await AuthSessionStorage.restoreInto(prefs, authSession, licenseNotifier);
     final initialLastSync =
         SyncDiagnosticsStorage.readLastSuccessfulSync(prefs);
@@ -33,6 +37,8 @@ Future<void> main() async {
           authSessionProvider.overrideWith((ref) => authSession),
           licenseNotifierProvider.overrideWith((ref) => licenseNotifier),
           localeOverrideProvider.overrideWith((ref) => initialLocale),
+          uiSoundsEnabledProvider.overrideWith((ref) => initialUiSounds),
+          uiHapticsEnabledProvider.overrideWith((ref) => initialUiHaptics),
           lastSuccessfulSyncAtProvider.overrideWith((_) => initialLastSync),
         ],
         child: const AfghanPrideApp(),

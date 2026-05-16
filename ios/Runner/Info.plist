@@ -47,5 +47,11 @@
 	<true/>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Pride connects to a receipt printer on your shop Wi‑Fi or LAN.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Pride uses the camera to add style figure and catalog photos.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Pride accesses your photo library to add style figure and catalog images.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Pride saves images you choose for style figures and catalog items.</string>
 </dict>
 </plist>

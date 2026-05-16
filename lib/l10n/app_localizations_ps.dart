@@ -9,13 +9,16 @@ class AppLocalizationsPs extends AppLocalizations {
   AppLocalizationsPs([String locale = 'ps']) : super(locale);
 
   @override
-  String get appTitle => 'Pride';
+  String get appTitle => 'افغان پراید';
 
   @override
   String get tabOrders => 'امرونه';
 
   @override
-  String get tabCustomers => 'پیرودونکي';
+  String get tabCustomers => 'د پیرودونکو لیست';
+
+  @override
+  String get tabOrdersList => 'د پیرو لیست';
 
   @override
   String get tabCatalog => 'کتلاګ';
@@ -27,187 +30,195 @@ class AppLocalizationsPs extends AppLocalizations {
   String get tabSettings => 'تنظیمات';
 
   @override
-  String get loginTitle => 'Sign in';
+  String get loginTitle => 'ننوتل';
 
   @override
   String get loginSubtitle =>
-      'Use your shop username and password. The server will verify this when the API is connected (plan-04).';
+      'د خپلې هټۍ کارن نوم او پاسورډ ولیکئ. کله چې API ونښلوي سرور به تایید کړي.';
 
   @override
   String get loginMockHint =>
-      'In this build, any non-empty username and password will sign you in locally.';
+      'په دې نسخه کې هر غیرخالي کارن نوم او پاسورډ په محلي ډول ننوتل کوي.';
 
   @override
-  String get loginShopIdLabel => 'Shop ID (optional)';
+  String get loginShopIdLabel => 'د هټۍ پېژند (اختیاري)';
 
   @override
-  String get loginShopIdHint => 'Leave blank for single-shop dev';
+  String get loginShopIdHint => 'د یوې هټۍ پراختیا لپاره خالي پرېږدئ';
 
   @override
-  String get loginUsernameLabel => 'Username';
+  String get loginUsernameLabel => 'کارن نوم';
 
   @override
-  String get loginUsernameHint => 'Your shop login name';
+  String get loginUsernameHint => 'ستاسو د هټۍ د ننوتلو نوم';
 
   @override
-  String get loginPasswordLabel => 'Password';
+  String get loginPasswordLabel => 'پاسورډ';
 
   @override
-  String get loginSignInCta => 'Sign in';
+  String get loginSignInCta => 'ننوتل';
 
   @override
-  String get loginForgotPasswordCta => 'Forgot password?';
+  String get loginForgotPasswordCta => 'پاسورډ هیر شوی؟';
 
   @override
-  String get loginForgotPasswordTitle => 'Reset password';
+  String get loginForgotPasswordTitle => 'پاسورډ بیا تنظیم';
 
   @override
   String get loginForgotPasswordBody =>
-      'Enter your shop ID and username. A developer can set a new password from the Developer Portal when your request appears in the queue.';
+      'د هټۍ پېژند او کارن نوم ولیکئ. کله چې غوښتنه په قطار کې راشي، پراختیاګر له پراختیا پورټل څخه نوی پاسورډ ټاکلی شي.';
 
   @override
-  String get loginForgotPasswordSubmit => 'Submit request';
+  String get loginForgotPasswordSubmit => 'غوښتنه وسپارئ';
 
   @override
   String get loginForgotPasswordQueued =>
-      'If the account exists, a reset request was queued for support.';
+      'که حساب شتون ولري، د ملاتړ لپاره د بیا تنظیم غوښتنه په قطار کې ثبت شوه.';
 
   @override
   String get loginForgotPasswordFieldsRequired =>
-      'Shop ID and username are required.';
+      'د هټۍ پېژند او کارن نوم اړین دي.';
 
   @override
-  String get settingsPushTokenTitle => 'Push notification token (beta)';
+  String get settingsPushTokenTitle => 'د فشاري خبرتیا توکن (ازمایښتي)';
 
   @override
   String get settingsPushTokenHint =>
-      'Paste an FCM device token, pick a platform, then save. The server stores it for future push delivery.';
+      'د FCM وسیلې توکن ولګوئ، پلیټفارم وټاکئ، بیا خوندي کړئ. سرور د راتلونکي لیږد لپاره ساتي.';
 
   @override
-  String get settingsPushTokenFieldLabel => 'Device token';
+  String get settingsPushTokenFieldLabel => 'د وسیلې توکن';
 
   @override
-  String get settingsPushPlatformLabel => 'Platform';
+  String get settingsPushPlatformLabel => 'پلیټفارم';
 
   @override
-  String get settingsPushRegisterCta => 'Save token to server';
+  String get settingsPushRegisterCta => 'توکن په سرور خوندي کړئ';
 
   @override
-  String get settingsPushRegisterOk => 'Token saved.';
+  String get settingsPushRegisterOk => 'توکن خوندي شو.';
 
   @override
-  String get settingsPushRegisterFail => 'Could not save token.';
+  String get settingsPushRegisterFail => 'توکن نشو خوندي کېدلی.';
 
   @override
   String devPortalShopsLoadError(String error) {
-    return 'Could not load shops: $error';
+    return 'هټۍ نشې بارولای: $error';
   }
 
   @override
   String devPortalResetsLoadError(String error) {
-    return 'Could not load reset queue: $error';
+    return 'د بیا تنظیم قطار نشو بارولای: $error';
   }
 
   @override
-  String get devPortalResetsEmpty => 'No pending password reset requests.';
+  String get devPortalResetsEmpty => 'د پاسورډ بیا تنظیم غوښتنې په تمه نشته.';
 
   @override
-  String get devPortalResetsSetPasswordTitle => 'Set new password';
+  String get devPortalResetsSetPasswordTitle => 'نوی پاسورډ ټاکل';
 
   @override
-  String get devPortalResetsSetPasswordHint => 'At least 6 characters.';
+  String get devPortalResetsSetPasswordHint => 'لږترلږه ۶ توري.';
 
   @override
-  String get devPortalResetsResolveCta => 'Apply password';
+  String get devPortalResetsResolveCta => 'پاسورډ پلي کړئ';
 
   @override
-  String get devPortalResetsResolved => 'Password updated.';
+  String get devPortalResetsResolved => 'پاسورډ تازه شو.';
 
   @override
   String devPortalResetsResolveFailed(String error) {
-    return 'Could not update: $error';
+    return 'تازه کول ناکام: $error';
   }
 
   @override
-  String get loginFieldRequired => 'Required';
+  String get loginFieldRequired => 'اړین';
 
   @override
-  String get loginDevContinue => 'Continue without account (dev)';
+  String get loginDevContinue => 'پرته له حساب دوام (پراختیا)';
 
   @override
   String get loginApiHint =>
-      'API_BASE_URL is set. The server verifies shop ID, username, and password (POST /auth/login).';
+      'API_BASE_URL ټاکل شوی. سرور د هټۍ پېژند، کارن نوم او پاسورډ تاییدوي.';
 
   @override
-  String get loginSigningIn => 'Signing in…';
+  String get loginSigningIn => 'ننوتل روان دي…';
 
   @override
-  String get loginApiUnauthorized => 'Invalid shop, username, or password.';
+  String get loginApiUnauthorized => 'ناسم هټۍ، کارن نوم یا پاسورډ.';
 
   @override
   String loginApiError(String error) {
-    return 'Could not sign in: $error';
+    return 'ننوتل ناکام: $error';
   }
 
   @override
-  String get loginShopCreateSectionTitle => 'New shop (API)';
+  String get loginShopCreateSectionTitle => 'نوې هټۍ (API)';
 
   @override
   String get loginShopCreateSubtitle =>
-      'Create a shop on the server and sign in as owner (plan-04).';
+      'په سرور هټۍ جوړه کړئ او د مالک په توګه ننوځئ.';
 
   @override
-  String get loginShopCreateNameLabel => 'Shop name';
+  String get loginShopCreateNameLabel => 'د هټۍ نوم';
 
   @override
-  String get loginShopCreateOwnerUsernameLabel => 'Owner username';
+  String get loginShopCreateOwnerUsernameLabel => 'د مالک کارن نوم';
 
   @override
-  String get loginShopCreateOwnerPasswordLabel => 'Owner password';
+  String get loginShopCreateOwnerPasswordLabel => 'د مالک پاسورډ';
 
   @override
-  String get loginShopCreateCta => 'Create shop & sign in';
+  String get loginShopCreateCta => 'هټۍ جوړول او ننوتل';
 
   @override
-  String get loginShopCreating => 'Creating shop…';
+  String get loginShopCreating => 'هټۍ جوړېږي…';
 
   @override
   String loginShopCreateError(String error) {
-    return 'Could not create shop: $error';
+    return 'هټۍ نشوه جوړېدلی: $error';
   }
 
   @override
   String modulePlaceholder(String moduleName) {
-    return '$moduleName — UI coming soon.';
+    return '$moduleName — انټرفیس ژر راځي.';
   }
 
   @override
-  String get dashboardTitle => 'Dashboard';
+  String get dashboardTitle => 'ډشبورډ';
 
   @override
-  String get dashboardSubtitle =>
-      'KPIs and shortcuts will load from local data (plan-09).';
+  String get dashboardSubtitle => 'شاخصونه او لنډلارې به له محلي ډیټا بار شي.';
 
   @override
-  String get dashboardKpisPlaceholder => 'Today at a glance';
+  String get dashboardKpisPlaceholder => 'نن په یوه کتنه';
 
   @override
-  String get dashboardKpiNewOrders => 'New orders';
+  String get dashboardKpiNewOrders => 'نوي امرونه';
 
   @override
-  String get dashboardKpiInProgress => 'In progress';
+  String get dashboardKpiInProgress => 'روان';
 
   @override
-  String get dashboardKpiReady => 'Ready';
+  String get dashboardKpiReady => 'چمتو';
 
   @override
-  String get dashboardKpiUnpaid => 'Unpaid balance';
+  String get dashboardKpiUnpaid => 'نه ورکړل شوې پاتې';
 
   @override
   String get dashboardKpiValuePlaceholder => '—';
 
   @override
-  String get dashboardOpenMenuTooltip => 'Open menu';
+  String get dashboardOpenMenuTooltip => 'ډشبورډ پرانیزئ';
+
+  @override
+  String get dashboardOrdersPipelineTitle => 'د امرونو لړۍ';
+
+  @override
+  String get dashboardRecentIncomeTitle => 'عاید — وروستۍ ۷ ورځې';
+
+  @override
+  String get dashboardActivitySectionTitle => 'همغږي او خبرتیاوې';
 
   @override
   String get subscriptionTitle => 'ګډون';
@@ -220,262 +231,300 @@ class AppLocalizationsPs extends AppLocalizations {
   String get subscriptionListTileSubtitle => 'جواز، ازمایښت او فعالول';
 
   @override
-  String get licenseDevControlsTitle => 'License (dev only)';
+  String get licenseDevControlsTitle => 'جواز (یوازې پراختیا)';
 
   @override
-  String get licenseStatusTrial => 'Trial';
+  String get licenseStatusTrial => 'ازمایښتي';
 
   @override
-  String get licenseStatusPaid => 'Paid';
+  String get licenseStatusPaid => 'ورکړل شوی';
 
   @override
-  String get licenseStatusExpired => 'Expired';
+  String get licenseStatusExpired => 'پای ته رسېدلی';
 
   @override
-  String get ordersNewTitle => 'New order';
+  String get ordersNewTitle => 'نوی امر';
 
   @override
-  String get ordersNewCta => 'New order';
+  String get ordersNewCta => 'نوی امر';
 
   @override
-  String get ordersComposerPlaceholderBody =>
-      'Order composer will go here (plan-11).';
+  String get ordersComposerPlaceholderBody => 'د امر فورمه به دلته راشي.';
 
   @override
-  String get ordersDetailTitle => 'Order details';
+  String get ordersDetailTitle => 'د امر جزئیات';
 
   @override
   String ordersDetailPlaceholderBody(String orderId) {
-    return 'Order $orderId — details UI coming soon (plan-12).';
+    return 'امر $orderId — جزئیات ژر راځي.';
   }
 
   @override
-  String get orderStatusNew => 'New';
+  String get orderStatusNew => 'نوی';
 
   @override
-  String get orderStatusInProgress => 'In progress';
+  String get orderStatusInProgress => 'روان';
 
   @override
-  String get orderStatusReady => 'Ready';
+  String get orderStatusReady => 'چمتو';
 
   @override
-  String get orderStatusDelivered => 'Delivered';
+  String get orderStatusDelivered => 'تحویلي شوی';
 
   @override
-  String get orderStatusCancelled => 'Cancelled';
+  String get orderStatusCancelled => 'لغوه شوی';
 
   @override
-  String get ordersListEmpty => 'No orders yet';
+  String get ordersListEmpty => 'تر اوسه امر نشته';
 
   @override
   String ordersDeliveryOn(String date) {
-    return 'Delivery: $date';
+    return 'تحویلي: $date';
+  }
+
+  @override
+  String ordersTakenOn(String dateTime) {
+    return 'اخیستل: $dateTime';
   }
 
   @override
   String get ordersWebDataHint =>
-      'Web preview uses in-memory sample data (Isar runs on Android/iOS/desktop).';
+      'د ویب مخکتنه له نمونې ډیټا کار اخلي (Isar په اندروید/iOS/ډیسکټاپ کې).';
 
   @override
   String ordersNumberPrefix(String number) {
-    return 'No. $number';
+    return 'شم. $number';
   }
 
   @override
-  String get ordersSearchHint => 'Search order number, customer, or phone';
+  String get ordersSearchHint => 'د امر شمیره، پیرودونکی یا تلیفون ولټوئ';
 
   @override
-  String get ordersDateChipAny => 'All dates';
+  String get ordersDateChipAny => 'ټولې نیټې';
 
   @override
-  String get ordersDateChipToday => 'Delivery today';
+  String get ordersDateChipToday => 'نن تحویلي';
 
   @override
-  String get ordersDateChipThisWeek => 'Delivery this week';
+  String get ordersDateChipThisWeek => 'دا اونۍ تحویلي';
 
   @override
-  String get ordersDateChipCustom => 'Custom range';
+  String get ordersDateChipCustom => 'خپلواکه موده';
 
   @override
-  String get ordersDateCustomPickerHelp =>
-      'Filter by delivery date (inclusive).';
+  String get ordersDateCustomPickerHelp => 'د تحویلي نیټې له مخې فلټر (شامل).';
 
   @override
   String ordersCustomerFilterChip(String name) {
-    return 'Customer: $name';
+    return 'پیرودونکی: $name';
   }
 
   @override
-  String get ordersCustomerFilterUnknown => 'Customer filter on';
+  String get ordersCustomerFilterUnknown => 'د پیرودونکي فلټر فعال دی';
 
   @override
-  String get ordersClearFilterA11y => 'Clear filter';
+  String get ordersClearFilterA11y => 'فلټر پاک کړئ';
 
   @override
-  String get ordersOnlyUnpaidChip => 'Only unpaid';
+  String get ordersOnlyUnpaidChip => 'یوازې نه ورکړل شوي';
 
   @override
-  String get ordersFilterOverdueChip => 'Overdue';
+  String get ordersFilterOverdueChip => 'وروسته پاتې';
 
   @override
-  String get ordersFilterDeliveredTodayChip => 'Delivered today';
+  String get ordersFilterDeliveredTodayChip => 'نن تحویلي شوي';
 
   @override
   String ordersRemainingChip(String amount) {
-    return 'Remaining: $amount';
+    return 'پاتې: $amount';
   }
 
   @override
-  String get ordersFilteredEmpty => 'No orders match your search or filters.';
+  String get ordersFilteredEmpty => 'ستاسو لټون یا فلټر سره امر نه مېښي.';
 
   @override
-  String get ordersDetailNotFound => 'This order could not be found.';
+  String get ordersFilterSheetTitle => 'فلټرونه';
 
   @override
-  String get ordersDetailChangeStatus => 'Change status';
+  String get ordersFilterQuickSection => 'چټک فلټرونه';
 
   @override
-  String get ordersDetailChangeStatusSubtitle => 'Ready / Delivered / Cancel';
+  String get ordersFilterDeliverySection => 'د تحویلي نیټه';
 
   @override
-  String get ordersDetailConfirmTitle => 'Confirm';
+  String get ordersFilterStatusSection => 'حالت';
+
+  @override
+  String get ordersFilterClearAll => 'ټول پاک کړئ';
+
+  @override
+  String get ordersFilterApply => 'پلي کړئ';
+
+  @override
+  String get listToolbarSearchTooltip => 'لټون';
+
+  @override
+  String get listToolbarFilterTooltip => 'فلټرونه';
+
+  @override
+  String get appShellTapTitleForMenu => 'د ډشبورډ مینو لپاره ټک وکړئ';
+
+  @override
+  String get ordersDetailFromNewBanner =>
+      'لارښوونه: د رسید چاپ یا د فاکتور شریکولو لپاره پورته توډبار وکاروئ.';
+
+  @override
+  String get ordersComposerPostSaveSubtitle =>
+      'چاپ، شریکول یا بشپړ امر پرانیزئ.';
+
+  @override
+  String get ordersDetailNotFound => 'دا امر ونه موندل شو.';
+
+  @override
+  String get ordersDetailChangeStatus => 'حالت بدل کړئ';
+
+  @override
+  String get ordersDetailChangeStatusSubtitle => 'چمتو / تحویلي شوی / لغوه';
+
+  @override
+  String get ordersDetailConfirmTitle => 'تایید';
 
   @override
   String ordersDetailConfirmBody(String status) {
-    return 'Change status to $status?';
+    return 'حالت $status ته بدل شي؟';
   }
 
   @override
-  String get ordersDetailConfirmCta => 'Confirm';
+  String get ordersDetailConfirmCta => 'تایید';
 
   @override
   String ordersDetailStatusUpdated(String status) {
-    return 'Status updated: $status';
+    return 'حالت تازه شو: $status';
   }
 
   @override
-  String get ordersDetailSectionCustomer => 'Customer';
+  String get ordersDetailSectionCustomer => 'پیرودونکی';
 
   @override
-  String get ordersDetailSectionMeasurements => 'Measurements';
+  String get ordersDetailSectionMeasurements => 'پیمانې';
 
   @override
-  String get ordersDetailSectionStyle => 'Style';
+  String get ordersDetailSectionStyle => 'سټایل';
 
   @override
-  String get ordersDetailSectionInternalNotes => 'Internal notes';
+  String get ordersDetailSectionInternalNotes => 'داخلي یادښتونه';
 
   @override
-  String get ordersDetailSectionPayments => 'Payments';
+  String get ordersDetailSectionPayments => 'ورکړې';
 
   @override
-  String get ordersDetailSectionAudit => 'Audit';
+  String get ordersDetailSectionAudit => 'تاریخچه';
 
   @override
   String get ordersDetailSectionPlaceholder =>
-      'Details will appear here as the module is built.';
+      'جزئیات به د ماډل جوړېدو سره دلته ښکاري.';
 
   @override
   String get ordersDetailAuditIntro =>
-      'Local record metadata on this device. Full status-change history is not logged yet; use Payments for dated ledger entries.';
+      'په دې وسیله محلي ریکارډ معلومات. بشپړ د حالت بدلون تاریخچه لا ثبت نه ده؛ د نیټې لپاره ورکړې وګورئ.';
 
   @override
-  String get ordersAuditInternalId => 'Internal ID';
+  String get ordersAuditInternalId => 'داخلي پېژند';
 
   @override
-  String get ordersAuditCopyIdTooltip => 'Copy ID';
+  String get ordersAuditCopyIdTooltip => 'پېژند کاپي کړئ';
 
   @override
-  String get ordersAuditCopiedId => 'Copied order ID';
+  String get ordersAuditCopiedId => 'د امر پېژند کاپي شوه';
 
   @override
-  String get ordersAuditCreatedAt => 'Created';
+  String get ordersAuditCreatedAt => 'جوړ شو';
 
   @override
-  String get ordersAuditUpdatedAt => 'Last updated';
+  String get ordersAuditUpdatedAt => 'وروستی تازه کول';
 
   @override
-  String get ordersAuditStatus => 'Status';
+  String get ordersAuditStatus => 'حالت';
 
   @override
-  String get ordersAuditDelivery => 'Delivery date';
+  String get ordersAuditDelivery => 'د تحویلي نیټه';
 
   @override
-  String get ordersAuditPaymentsTitle => 'Payment ledger';
+  String get ordersAuditPaymentsTitle => 'د ورکړو دفتر';
 
   @override
-  String get ordersAuditPaymentsEmpty => 'No payment rows for this order yet.';
+  String get ordersAuditPaymentsEmpty => 'تر اوسه د دې امر لپاره ورکړه نشته.';
 
   @override
   String ordersAuditPaymentsLine(int count, String first, String last) {
-    return '$count payment rows · earliest $first · latest $last';
+    return '$count د ورکړو کرښې · لومړی $first · وروستی $last';
   }
 
   @override
-  String get ordersDetailSnapshotEmpty => 'Nothing recorded.';
+  String get ordersDetailSnapshotEmpty => 'هېڅ ثبت نشوی.';
 
   @override
   String ordersDetailMeasurementsFromProfile(String label) {
-    return 'Snapshot based on profile “$label”.';
+    return 'د پروفایل «$label» پر بنسټ عکس.';
   }
 
   @override
-  String get ordersDetailMeasurementsNotes => 'Notes on order';
+  String get ordersDetailMeasurementsNotes => 'په امر باندې یادښتونه';
 
   @override
   String get ordersDetailLockedHint =>
-      'This order is locked because it is Delivered or Cancelled (plan-12).';
+      'دا امر قفل دی ځکه تحویلي شوی یا لغوه شوی دی.';
 
   @override
   String get ordersDetailLockedStillInternalNotes =>
-      'You can still edit internal notes below.';
+      'لا هم لاندې داخلي یادښتونه سمولی شئ.';
 
   @override
-  String get ordersInternalNotesDialogTitle => 'Internal notes';
+  String get ordersInternalNotesDialogTitle => 'داخلي یادښتونه';
 
   @override
   String get ordersInternalNotesHint =>
-      'Staff-only — not shown to the customer.';
+      'یوازې کارکوونکو — پیرودونکي ته نه ښکاري.';
 
   @override
-  String get ordersInternalNotesSaved => 'Internal notes saved.';
+  String get ordersInternalNotesSaved => 'داخلي یادښتونه خوندي شول.';
 
   @override
   String get licenseReadOnlyHint =>
-      'Read-only mode: editing is disabled while the license is expired.';
+      'یوازې لوستل: د جواز د پای په دوره کې سمون بند دی.';
 
   @override
-  String get ownerPasswordTitle => 'Owner password';
+  String get ownerPasswordTitle => 'د مالک پاسورډ';
 
   @override
-  String get ownerPasswordLabel => 'Enter owner password';
+  String get ownerPasswordLabel => 'د مالک پاسورډ ولیکئ';
 
   @override
   String get ownerPasswordMismatch =>
-      'That password does not match the owner password for this device.';
+      'دا پاسورډ د دې وسیلې د مالک پاسورډ سره نه سمون خوري.';
 
   @override
   String get ordersDetailChangeStatusSoon =>
-      'Status changes will open a confirmation flow (plan-12).';
+      'د حالت بدلون به د تایید جریان پرانیزي.';
 
   @override
-  String get addPaymentCta => 'Add payment';
+  String get addPaymentCta => 'ورکړه زیاتول';
 
   @override
-  String get addAdjustmentCta => 'Add adjustment';
+  String get addAdjustmentCta => 'سمون زیاتول';
 
   @override
   String get paymentAdjustmentHint =>
-      'Use a negative amount to reduce recorded payments (append-only ledger).';
+      'د ثبت شویو ورکړو کمولو لپاره منفي بېله ولیکئ (یوازې زیاتېدونکی دفتر).';
 
   @override
   String get paymentLedgerAdjustmentTag => 'سمون';
 
   @override
-  String get paymentAdjustmentAdded => 'Adjustment recorded';
+  String get paymentAdjustmentAdded => 'سمون ثبت شو';
 
   @override
-  String get paymentAdded => 'Payment added';
+  String get paymentAdded => 'ورکړه زیاته شوه';
 
   @override
   String get paymentsEmpty => 'تر اوسه هېڅ ورکړه نشته.';
@@ -484,7 +533,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get paymentAmountLabel => 'بېله';
 
   @override
-  String get paymentAmountHint => 'بېله ولیکئ (بې اعشار)';
+  String get paymentAmountHint => 'بېلګه: 300';
 
   @override
   String paymentAmount(String amount) {
@@ -501,95 +550,101 @@ class AppLocalizationsPs extends AppLocalizations {
   String get paymentRemaining => 'پاتې';
 
   @override
-  String get customersSearchHint => 'Search name or phone';
+  String get customersSearchHint => 'نوم یا تلیفون ولټوئ';
 
   @override
-  String get customersEmptyTitle => 'No customers yet';
+  String get customersEmptyTitle => 'تر اوسه پیرودونکی نشته';
 
   @override
-  String get customersAddCta => 'Add customer';
+  String get customersAddCta => 'پیرودونکی زیاتول';
 
   @override
-  String get customersFilteredEmpty => 'No customers match your search.';
+  String get customersFilteredEmpty => 'ستاسو لټون سره پیرودونکی نه مېښي.';
 
   @override
-  String get customersPhoneMissing => 'No phone';
+  String get customersPhoneMissing => 'تلیفون نشته';
 
   @override
-  String get customerProfileTitle => 'Customer';
+  String get customerProfileTitle => 'پیرودونکی';
 
   @override
-  String get customerNotFound => 'This customer could not be found.';
+  String get customerNotFound => 'دا پیرودونکی ونه موندل شو.';
 
   @override
-  String get customerInfoSection => 'Customer info';
+  String get customerInfoSection => 'د پیرودونکي معلومات';
 
   @override
-  String get customerMeasurementProfilesSection => 'Measurement profiles';
+  String get customerMeasurementProfilesSection => 'د پیمانو پروفایلونه';
 
   @override
-  String get customerTodayOrdersTitle => 'Today’s orders';
+  String get customerTodayOrdersTitle => 'نن امرونه';
 
   @override
-  String get customerNoTodayOrders => 'No orders for today.';
+  String get customerNoTodayOrders => 'نن امر نشته.';
 
   @override
-  String get customerViewAllOrders => 'View all orders for this customer';
+  String get customerOrderHistoryTitle => 'د امرونو تاریخچه';
+
+  @override
+  String get customerNoOrders => 'تر اوسه د دې پیرودونکي لپاره امر نشته.';
+
+  @override
+  String get customerViewAllOrders => 'د دې پیرودونکي ټول امرونه وګورئ';
 
   @override
   String get customerViewAllOrdersSoon =>
-      'This will open Orders with a customer filter (plan-13).';
+      'دا به د پیرودونکي فلټر سره امرونه پرانیزي.';
 
   @override
   String get customerSectionPlaceholder =>
-      'Details will appear here as the module is built.';
+      'جزئیات به د ماډل جوړېدو سره دلته ښکاري.';
 
   @override
   String get customerNewPlaceholderBody =>
-      'New customer form will go here (plan-13).';
+      'د نوي پیرودونکي فورمه به دلته راشي.';
 
   @override
-  String get measurementUnitCm => 'Centimeters';
+  String get measurementUnitCm => 'سانتي‌متر';
 
   @override
-  String get measurementUnitInch => 'Inches';
+  String get measurementUnitInch => 'انچ';
 
   @override
   String get measurementProfilesEmpty =>
-      'No saved profiles yet. Add one to reuse measurements on new orders.';
+      'لا خوندي پروفایل نشته. په نوو امرونو کې بیا کارولو لپاره یو زیات کړئ.';
 
   @override
-  String get measurementProfilesAddCta => 'Add profile';
+  String get measurementProfilesAddCta => 'پروفایل زیاتول';
 
   @override
-  String get measurementProfileEditorTitleNew => 'New measurement profile';
+  String get measurementProfileEditorTitleNew => 'نوی د پیمانو پروفایل';
 
   @override
-  String get measurementProfileEditorTitleEdit => 'Edit measurement profile';
+  String get measurementProfileEditorTitleEdit => 'د پیمانو پروفایل سمول';
 
   @override
-  String get measurementProfileLabelField => 'Profile name';
+  String get measurementProfileLabelField => 'د پروفایل نوم';
 
   @override
-  String get measurementProfileBodyField => 'Measurements';
+  String get measurementProfileBodyField => 'پیمانې';
 
   @override
-  String get measurementProfileNotesField => 'Extra notes';
+  String get measurementProfileNotesField => 'اضافي یادښتونه';
 
   @override
-  String get measurementProfileUnitSection => 'Unit';
+  String get measurementProfileUnitSection => 'واحد';
 
   @override
-  String get measurementProfileSaveAsNew => 'Save as new profile';
+  String get measurementProfileSaveAsNew => 'نوې پروفایل په توګه خوندي کړئ';
 
   @override
-  String get measurementProfileCreated => 'Profile saved';
+  String get measurementProfileCreated => 'پروفایل خوندي شو';
 
   @override
-  String get measurementProfileUpdated => 'Profile updated';
+  String get measurementProfileUpdated => 'پروفایل تازه شو';
 
   @override
-  String get measurementProfilePickSheetTitle => 'Saved profiles';
+  String get measurementProfilePickSheetTitle => 'خوندي پروفایلونه';
 
   @override
   String get settingsMeasurementTypesTitle => 'د اندازې ساحې';
@@ -599,121 +654,121 @@ class AppLocalizationsPs extends AppLocalizations {
       'د پیرودونکي پروفایل او امرونو لپاره لیبلونه';
 
   @override
-  String get tasksTitle => 'Tasks';
+  String get tasksTitle => 'دندې';
 
   @override
-  String get tasksSettingsSubtitle => 'Simple to-do list (offline)';
+  String get tasksSettingsSubtitle => 'ساده دندو لیست (آفلاین)';
 
   @override
-  String get tasksSearchHint => 'Search tasks';
+  String get tasksSearchHint => 'دندې ولټوئ';
 
   @override
-  String get tasksFilterAll => 'All';
+  String get tasksFilterAll => 'ټول';
 
   @override
-  String get tasksFilterOpen => 'Open';
+  String get tasksFilterOpen => 'خلاص';
 
   @override
-  String get tasksFilterDone => 'Done';
+  String get tasksFilterDone => 'ترسره شوي';
 
   @override
-  String get tasksEmpty => 'No tasks yet. Add your first task.';
+  String get tasksEmpty => 'تر اوسه دنده نشته. خپله لومړۍ دنده زیاته کړئ.';
 
   @override
-  String get tasksEmptyFiltered => 'No tasks match this filter.';
+  String get tasksEmptyFiltered => 'په دې فلټر کې دنده نشته.';
 
   @override
-  String get tasksAddTitle => 'Add task';
+  String get tasksAddTitle => 'دنده زیاتول';
 
   @override
-  String get tasksEditTitle => 'Edit task';
+  String get tasksEditTitle => 'دنده سمول';
 
   @override
-  String get tasksTitleLabel => 'Title';
+  String get tasksTitleLabel => 'سرلیک';
 
   @override
-  String get tasksNotesLabel => 'Notes';
+  String get tasksNotesLabel => 'یادښتونه';
 
   @override
-  String get tasksDueDatePick => 'Pick due date';
+  String get tasksDueDatePick => 'د سررسید نیټه وټاکئ';
 
   @override
-  String get tasksDueDateNone => 'No due date';
+  String get tasksDueDateNone => 'سررسید نشته';
 
   @override
-  String get tasksDueDateSet => 'Set';
+  String get tasksDueDateSet => 'ټاکل';
 
   @override
-  String get tasksDueDateClear => 'Clear due date';
+  String get tasksDueDateClear => 'سررسید پاک کړئ';
 
   @override
   String tasksDueDateShort(String date) {
-    return 'Due: $date';
+    return 'سررسید: $date';
   }
 
   @override
   String tasksDueDateValue(String date) {
-    return 'Due date: $date';
+    return 'د سررسید نیټه: $date';
   }
 
   @override
-  String get tasksSave => 'Save';
+  String get tasksSave => 'خوندي کول';
 
   @override
-  String get tasksDeleteAction => 'Delete';
+  String get tasksDeleteAction => 'ړنګول';
 
   @override
-  String get tasksDeleteTitle => 'Delete task?';
+  String get tasksDeleteTitle => 'دنده ړنګ شي؟';
 
   @override
-  String get tasksDeleteBody => 'This will remove the task from your list.';
+  String get tasksDeleteBody => 'دا به ستاسو له لیست څخه لرې کړي.';
 
   @override
-  String get tasksDeleteCancel => 'Cancel';
+  String get tasksDeleteCancel => 'لغوه';
 
   @override
-  String get tasksDeleteConfirm => 'Delete';
+  String get tasksDeleteConfirm => 'ړنګول';
 
   @override
-  String get measurementTypesScreenTitle => 'Measurement fields';
+  String get measurementTypesScreenTitle => 'د پیمانو ساحې';
 
   @override
   String get measurementTypesEmpty =>
-      'No fields yet. Add the sizes your shop records.';
+      'لا ساحه نشته. هغه اندازې زیاتې کړئ چې هټۍ ثبتوي.';
 
   @override
-  String get measurementTypesAddCta => 'Add field';
+  String get measurementTypesAddCta => 'ساحه زیاتول';
 
   @override
-  String get measurementTypesFieldNameLabel => 'Field name';
+  String get measurementTypesFieldNameLabel => 'د ساحې نوم';
 
   @override
-  String get measurementTypesRenameTitle => 'Rename field';
+  String get measurementTypesRenameTitle => 'د ساحې نوم بدلول';
 
   @override
-  String get measurementTypesDeleteTitle => 'Remove field?';
+  String get measurementTypesDeleteTitle => 'ساحه لرې شي؟';
 
   @override
   String get measurementTypesDeleteBody =>
-      'The field is hidden for new measurements. Values already saved on profiles and orders stay as they are.';
+      'ساحه د نوو پیمانو لپاره پټه کېږي. په پروفایلونو او امرونو کې خوندي ارزښتونه پاتې کېږي.';
 
   @override
-  String get measurementTypesActiveLabel => 'In use';
+  String get measurementTypesActiveLabel => 'په کار کې';
 
   @override
-  String get measurementTypesInactiveLabel => 'Hidden';
+  String get measurementTypesInactiveLabel => 'پټ';
 
   @override
-  String get measurementTypesReorderHint => 'Drag to reorder';
+  String get measurementTypesReorderHint => 'د ترتیب لپاره کش کړئ';
 
   @override
-  String get measurementTypesCreated => 'Field added';
+  String get measurementTypesCreated => 'ساحه زیاته شوه';
 
   @override
-  String get measurementTypesUpdated => 'Field updated';
+  String get measurementTypesUpdated => 'ساحه تازه شوه';
 
   @override
-  String get measurementTypesDeleted => 'Field removed';
+  String get measurementTypesDeleted => 'ساحه لرې شوه';
 
   @override
   String get reportsOverviewTitle => 'راپورونه';
@@ -760,19 +815,19 @@ class AppLocalizationsPs extends AppLocalizations {
   String get reportsDeliveredEmpty => 'په دې میاشت کې تحویلي شوی امر نشته.';
 
   @override
-  String get reportsPaymentsLedgerTitle => 'Payments ledger';
+  String get reportsPaymentsLedgerTitle => 'د ورکړو دفتر';
 
   @override
-  String get reportsPaymentsLedgerSubtitle => 'List payments by date range';
+  String get reportsPaymentsLedgerSubtitle => 'ورکړې د نیټې مودې له مخې لیست';
 
   @override
-  String get reportsPaymentsPickRange => 'Pick date range';
+  String get reportsPaymentsPickRange => 'د نیټې موده وټاکئ';
 
   @override
-  String get reportsPaymentsApplyRange => 'Apply';
+  String get reportsPaymentsApplyRange => 'پلي کړئ';
 
   @override
-  String get reportsPaymentsSelectedRangeLabel => 'Selected range';
+  String get reportsPaymentsSelectedRangeLabel => 'ټاکل شوې موده';
 
   @override
   String reportsPaymentsRangeValue(String from, String to) {
@@ -780,16 +835,16 @@ class AppLocalizationsPs extends AppLocalizations {
   }
 
   @override
-  String get reportsPaymentsTotalLabel => 'Total';
+  String get reportsPaymentsTotalLabel => 'ټول';
 
   @override
-  String get reportsPaymentsEmpty => 'No payments in this date range.';
+  String get reportsPaymentsEmpty => 'په دې نیټې موده کې ورکړه نشته.';
 
   @override
-  String get reportsPaymentsUnknownOrder => 'Unknown order';
+  String get reportsPaymentsUnknownOrder => 'نامعلوم امر';
 
   @override
-  String get reportsPaymentsAdjustmentChip => 'Adjustment';
+  String get reportsPaymentsAdjustmentChip => 'سمون';
 
   @override
   String reportsPaymentsSectionHeader(String title, String total) {
@@ -853,19 +908,19 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get reportsUnpaidFilteredEmpty =>
-      'No unpaid orders match this filter.';
+      'په دې فلټر کې نه ورکړل شوی امر نشته.';
 
   @override
-  String get reportsUnpaidFilterSection => 'Delivery window';
+  String get reportsUnpaidFilterSection => 'د تحویلي موده';
 
   @override
-  String get reportsUnpaidFilterAll => 'All';
+  String get reportsUnpaidFilterAll => 'ټول';
 
   @override
-  String get reportsUnpaidFilterOverdue => 'Overdue';
+  String get reportsUnpaidFilterOverdue => 'وروسته پاتې';
 
   @override
-  String get reportsUnpaidFilterDueSoon => 'Due in 7 days';
+  String get reportsUnpaidFilterDueSoon => 'په ۷ ورځو کې سررسید';
 
   @override
   String get reportsUnpaidAmountSection => 'پاتې بېله';
@@ -883,25 +938,25 @@ class AppLocalizationsPs extends AppLocalizations {
   String get reportsUnpaidAmountOver20000 => 'د ۲۰٬۰۰۰ پورته';
 
   @override
-  String get reportsUnpaidSortSection => 'Sort';
+  String get reportsUnpaidSortSection => 'ترتیب';
 
   @override
-  String get reportsUnpaidSortAmount => 'Amount';
+  String get reportsUnpaidSortAmount => 'بېله';
 
   @override
-  String get reportsUnpaidSortDueDate => 'Due date';
+  String get reportsUnpaidSortDueDate => 'د سررسید نیټه';
 
   @override
-  String get reportsMonthlyCompareToggle => 'Compare to previous month';
+  String get reportsMonthlyCompareToggle => 'د تیرې میاشتې سره پرتله';
 
   @override
-  String get reportsMonthlyPreviousPaymentsLabel => 'Previous month (payments)';
+  String get reportsMonthlyPreviousPaymentsLabel => 'تیره میاشت (ورکړې)';
 
   @override
-  String get reportsMonthlyDeltaLabel => 'Change from previous month';
+  String get reportsMonthlyDeltaLabel => 'د تیرې میاشتې څخه بدلون';
 
   @override
-  String get reportsMonthlyDeltaSame => 'No change';
+  String get reportsMonthlyDeltaSame => 'بدلون نشته';
 
   @override
   String reportsRemainingChip(String amount) {
@@ -909,82 +964,93 @@ class AppLocalizationsPs extends AppLocalizations {
   }
 
   @override
-  String get catalogMyDesigns => 'My designs';
+  String get catalogMyDesigns => 'زما ډیزاینونه';
 
   @override
-  String get catalogSharedDesigns => 'Shared designs';
+  String get catalogSharedDesigns => 'شریک ډیزاینونه';
 
   @override
-  String get catalogGridView => 'Grid view';
+  String get catalogGridView => 'ګریډ لید';
 
   @override
-  String get catalogListView => 'List view';
+  String get catalogListView => 'لیست لید';
 
   @override
-  String get catalogSearchHint => 'Search design or shop name';
+  String get catalogSearchHint => 'ډیزاین یا د هټۍ نوم ولټوئ';
 
   @override
-  String get catalogSortTooltip => 'Sort';
+  String get catalogSortTooltip => 'ترتیب';
 
   @override
-  String get catalogSortSheetTitle => 'Sort designs';
+  String get catalogSortSheetTitle => 'ډیزاینونه ترتیب کړئ';
 
   @override
-  String get catalogSortSectionTitle => 'Sort by';
+  String get catalogSortSectionTitle => 'ترتیب له مخې';
 
   @override
-  String get catalogSortNewest => 'Newest first';
+  String get catalogSortNewest => 'لومړی نوي';
 
   @override
-  String get catalogSortOldest => 'Oldest first';
+  String get catalogSortOldest => 'لومړی زړي';
 
   @override
-  String get catalogSortNameAsc => 'Name A–Z';
+  String get catalogSortNameAsc => 'نوم الف-ی';
 
   @override
-  String get catalogSortNameDesc => 'Name Z–A';
+  String get catalogSortNameDesc => 'نوم ی-الف';
 
   @override
-  String get catalogResetSort => 'Reset';
+  String get catalogResetSort => 'بیا تنظیم';
 
   @override
-  String get catalogApplySort => 'Apply';
+  String get catalogApplySort => 'پلي کړئ';
 
   @override
-  String get catalogSharedDirectoryEmpty =>
-      'No shared listings in the directory yet.';
+  String get catalogSharedDirectoryEmpty => 'په شریک فهرست کې لا نه دی.';
 
   @override
   String get catalogCommunityReadOnlyBanner =>
-      'Shared directory entry — view only. You cannot edit or delete another shop’s listing.';
+      'شریک فهرست — یوازې لید. د بلې هټۍ ننوتل نشئ سمولی یا ړنګولی.';
 
   @override
-  String get catalogSharingToggleTitle => 'Enable catalog sharing';
+  String get catalogSharingToggleTitle => 'د کتلاګ شریکول فعال کړئ';
 
   @override
   String get catalogSharingToggleSubtitle =>
-      'Mutual opt-in: enable to browse and be listed in public directory (plan-14).';
+      'دوه اړخیزه: د عامه فهرست لیدلو او ښودلو لپاره فعال کړئ.';
 
   @override
   String get catalogSharedPlaceholder =>
-      'Shared designs directory will appear here when online (plan-14).';
+      'شریک ډیزاینونه به آنلاین کې دلته ښکاره شي.';
 
   @override
-  String get catalogEmptyMyDesigns => 'No designs yet.';
+  String get catalogEmptyMyDesigns => 'لا ډیزاین نشته.';
 
   @override
-  String get catalogAddDesignCta => 'Add design';
+  String get catalogAddDesignCta => 'ډیزاین زیاتول';
+
+  @override
+  String get catalogViewDescription => 'تشریح';
+
+  @override
+  String get catalogDescriptionSheetTitle => 'تشریح';
+
+  @override
+  String get catalogNoDescription => 'د دې ډیزاین لپاره تشریح نشته.';
+
+  @override
+  String get catalogViewerManageA11y => 'ډیزاین مدیریت';
 
   @override
   String get catalogAddDesignPlaceholder =>
-      'Camera / Gallery add will be implemented on Android/iOS only (plan-14).';
+      'د کیمرې/ګالري زیاتول یوازې په اندروید/iOS کې.';
 
   @override
-  String get catalogDetailTitle => 'Catalog item';
+  String get catalogDetailTitle => 'د کتلاګ توکی';
 
   @override
   String catalogDetailPlaceholder(String id) {
-    return 'Catalog item $id — detail screen coming soon.';
+    return 'کتلاګ توکی $id — جزئیات ژر راځي.';
   }
 
   @override
@@ -1192,19 +1258,32 @@ class AppLocalizationsPs extends AppLocalizations {
   String get themeDark => 'تیاره';
 
   @override
+  String get settingsUiSoundsTitle => 'د انټرفیس غږونه';
+
+  @override
+  String get settingsUiSoundsSubtitle =>
+      'کله چې یوه کړنه بریالۍ وي لنډ غږ (د بېلګې په توګه خوندي کول).';
+
+  @override
+  String get settingsUiHapticsTitle => 'لمسی لرزش';
+
+  @override
+  String get settingsUiHapticsSubtitle => 'د بریالۍ کړنې لپاره سپک لرزش.';
+
+  @override
   String get settingsLanguageTitle => 'ژبه';
 
   @override
-  String get languageSystem => 'System';
+  String get languageSystem => 'سیستم';
 
   @override
-  String get languageEnglish => 'English';
+  String get languageEnglish => 'انګلیسي';
 
   @override
-  String get languageDari => 'Dari';
+  String get languageDari => 'دري';
 
   @override
-  String get languagePashto => 'Pashto';
+  String get languagePashto => 'پښتو';
 
   @override
   String get settingsDateCalendarTitle => 'د نیټې تقویم';
@@ -1214,10 +1293,10 @@ class AppLocalizationsPs extends AppLocalizations {
       'په اپ کې نیټې څنګه ښکاري او غوره کېږي';
 
   @override
-  String get dateCalendarGregorian => 'Gregorian (AD)';
+  String get dateCalendarGregorian => 'میلادي (عیسوي)';
 
   @override
-  String get dateCalendarSolarHijri => 'Solar Hijri (Afghan)';
+  String get dateCalendarSolarHijri => 'لمریز هجري (افغان)';
 
   @override
   String get calendarMonthHamal => 'حمل';
@@ -1256,95 +1335,89 @@ class AppLocalizationsPs extends AppLocalizations {
   String get calendarMonthHut => 'حوت';
 
   @override
-  String get datePickerSolarHijriTitle => 'Choose date (Solar Hijri)';
+  String get datePickerSolarHijriTitle => 'نیټه وټاکئ (لمریز هجري)';
 
   @override
-  String get datePickerSolarHijriRangeTitle =>
-      'Choose date range (Solar Hijri)';
+  String get datePickerSolarHijriRangeTitle => 'د نیټې موده وټاکئ (لمریز هجري)';
 
   @override
-  String get datePickerYearLabel => 'Year';
+  String get datePickerYearLabel => 'کال';
 
   @override
-  String get datePickerMonthLabel => 'Month';
+  String get datePickerMonthLabel => 'میاشت';
 
   @override
-  String get datePickerDayLabel => 'Day';
+  String get datePickerDayLabel => 'ورځ';
 
   @override
-  String get dateRangeFromLabel => 'From';
+  String get dateRangeFromLabel => 'له';
 
   @override
-  String get dateRangeToLabel => 'To';
+  String get dateRangeToLabel => 'تر';
 
   @override
   String get settingsComingSoon => 'ژر راځي.';
 
   @override
-  String get loading => 'Loading…';
+  String get loading => 'بارېږي…';
 
   @override
-  String get genericError => 'Something went wrong.';
+  String get genericError => 'یو څه ستونزه رامنځته شوه.';
 
   @override
   String get resetCta => 'بیا تنظیم';
 
   @override
-  String get licenseExpiredReadOnly => 'License expired — read-only mode.';
+  String get licenseGraceReadOnlySnack =>
+      'یوازې لوستل تر هغه چې جواز آنلاین تایید شي.';
+
+  @override
+  String get licenseClockTamperSnack =>
+      'یوازې لوستل: د وسیلې وخت ناسم ښکاري. آنلاین ګډون پرانیزئ او تایید کړئ.';
+
+  @override
+  String get licenseExpiredReadOnly => 'جواز پای ته رسېدلی — یوازې لوستل.';
 
   @override
   String moneyAfn(String amount) {
-    return '$amount AFN';
+    return '$amount افغانی';
   }
 
   @override
-  String get ordersComposerCustomerTitle => 'Customer';
+  String get ordersComposerCustomerTitle => 'پیرودونکی';
 
   @override
-  String get ordersComposerCustomerRequired => 'Select customer (required)';
+  String get ordersComposerCustomerRequired => 'پیرودونکی وټاکئ (اړین)';
 
   @override
-  String get ordersComposerMeasurementsTitle => 'Measurements';
+  String get ordersComposerMeasurementsTitle => 'پیمانې';
 
   @override
-  String get ordersComposerMeasurementsRequired =>
-      'Add measurements (required)';
+  String get ordersComposerMeasurementsRequired => 'پیمانې زیاتې کړئ (اړین)';
 
   @override
-  String get ordersComposerMeasurementsSummary => 'Measurements captured';
+  String get ordersComposerMeasurementsSummary => 'پیمانې ثبت شوې';
 
   @override
-  String get ordersComposerMeasurementsLabel => 'Measurements notes';
+  String get ordersComposerMeasurementsLabel => 'د پیمانو یادښتونه';
 
   @override
   String get ordersComposerMeasurementsHint =>
-      'Type measurements or load a saved customer profile.';
+      'پیمانې ولیکئ یا د پیرودونکي خوندي پروفایل بار کړئ.';
 
   @override
-  String get ordersComposerLoadProfileCta => 'Load from saved profile';
+  String get ordersComposerLoadProfileCta => 'له خوندي پروفایل بار کړئ';
 
   @override
   String ordersComposerProfileLinked(String name) {
-    return 'From profile: $name';
+    return 'له پروفایل: $name';
   }
 
   @override
-  String get ordersComposerStyleTitle => 'Style';
+  String get ordersComposerPaymentTitle => 'ورکړه';
 
   @override
-  String get ordersComposerStyleRequired => 'Select style (required)';
-
-  @override
-  String get ordersComposerStyleLabel => 'Design / style';
-
-  @override
-  String get ordersComposerStyleHint => 'Example: Karzai, collar, pockets…';
-
-  @override
-  String get ordersComposerPaymentTitle => 'Payment';
-
-  @override
-  String get ordersComposerPaymentRequired => 'Enter totals (required)';
+  String get ordersComposerPaymentRequired => 'ټولې بېلې ولیکئ (اړین)';
 
   @override
   String ordersComposerPaymentSummary(
@@ -1352,120 +1425,273 @@ class AppLocalizationsPs extends AppLocalizations {
     String paid,
     String remaining,
   ) {
-    return 'Total $total • Paid $paid • Remaining $remaining';
+    return 'ټول $total • ورکړل شوی $paid • پاتې $remaining';
   }
 
   @override
-  String get ordersComposerTotalLabel => 'Total amount (AFN)';
+  String get ordersComposerTotalLabel => 'ټوله بېله (افغانی)';
 
   @override
-  String get ordersComposerTotalHint => 'Example: 150000';
+  String get ordersComposerTotalHint => 'بېلګه: 1500';
 
   @override
-  String get ordersComposerPaidLabel => 'Initial paid (AFN)';
+  String get ordersComposerPaidLabel => 'لومړنۍ ورکړه (افغانی)';
 
   @override
-  String get ordersComposerPaidHint => 'Example: 50000';
+  String get ordersComposerPaidHint => 'بېلګه: 500';
 
   @override
-  String get ordersComposerDeliveryDateTitle => 'Delivery date';
+  String get ordersComposerDeliveryDateTitle => 'د تحویلي نیټه';
 
   @override
-  String get ordersComposerDeliveryDateUnset => 'Select delivery date';
+  String get ordersComposerDeliveryDateUnset => 'د تحویلي نیټه وټاکئ';
 
   @override
-  String get ordersComposerSaveCta => 'Save order';
+  String get ordersComposerSaveCta => 'امر خوندي کړئ';
 
   @override
-  String get ordersComposerSaved => 'Order saved.';
+  String get ordersComposerSaved => 'امر خوندي شو.';
 
   @override
-  String get ordersComposerResetTitle => 'Reset form?';
+  String get ordersComposerResetTitle => 'فورمه بیا تنظیم شي؟';
 
   @override
-  String get ordersComposerResetBody => 'This will clear all entered fields.';
+  String get ordersComposerResetBody => 'ټول ډک شوي ساحې به پاک شي.';
 
   @override
-  String get ordersComposerSelectCustomerFirstTitle => 'Select customer first';
+  String get ordersComposerSelectCustomerFirstTitle => 'لومړی پیرودونکی وټاکئ';
 
   @override
   String get ordersComposerSelectCustomerFirstBody =>
-      'Please select a customer before continuing.';
+      'مهرباني وکړئ مخکې له دوامه پیرودونکی وټاکئ.';
 
   @override
-  String get ordersComposerRecentOrdersTitle => 'Recent orders';
+  String get ordersComposerValidationTitle => 'اړین ګامونه بشپړ کړئ';
 
   @override
-  String get ordersComposerRecentOrdersSubtitle => 'For this customer';
+  String get ordersComposerValidationBody =>
+      'د دې امر خوندي کولو مخکې لاندې برخې ډکې کړئ:';
+
+  @override
+  String get ordersComposerRecentOrdersTitle => 'وروستي امرونه';
+
+  @override
+  String get ordersComposerRecentOrdersSubtitle => 'د دې پیرودونکي لپاره';
 
   @override
   String ordersComposerRecentOrderRowSubtitle(String date, String remaining) {
-    return '$date • $remaining remaining';
+    return '$date • پاتې $remaining';
   }
+
+  @override
+  String get ordersComposerMeasurementsSheetTitle => 'پیمانې';
+
+  @override
+  String get ordersComposerMeasurementsNoTypesBody =>
+      'لومړی په تنظیمات → د پیمانو ډولونه زیات کړئ.';
+
+  @override
+  String ordersComposerMeasurementsProfileAutoLabel(String date) {
+    return 'نمونه #$date';
+  }
+
+  @override
+  String get ordersComposerSaveMeasurementsToProfile =>
+      'د پیرودونکي پروفایل په توګه خوندي کړئ';
+
+  @override
+  String get ordersComposerSaveMeasurementsToProfileSubtitle =>
+      'د ټاکل شوي پیرودونکي خوندي پیمانې تازه کېږي.';
+
+  @override
+  String get ordersComposerAddMeasurementsCta => 'پیمانې زیات کړئ';
+
+  @override
+  String get ordersComposerStyleTitle => 'سټایل';
+
+  @override
+  String get ordersComposerStyleRequired => 'سټایل اضافه کړئ (اړین)';
+
+  @override
+  String get ordersComposerStyleSummary => 'سټایل وټاکل شو';
+
+  @override
+  String get ordersComposerStyleSheetTitle => 'د امر سټایل';
+
+  @override
+  String get ordersComposerStyleMainTitle => 'د جامې اصلي سټایل نوم';
+
+  @override
+  String get ordersComposerStyleCustomLabel => 'د سټایل نوم';
+
+  @override
+  String get ordersComposerStyleCustomHint => 'پورته وټاکئ یا خپل ولیکئ';
+
+  @override
+  String get ordersComposerStyleFiguresTitle => 'د ډیزاین شکلونه';
+
+  @override
+  String get ordersComposerStyleNoFigures =>
+      'لا ډیزاین شکل نشته — په تنظیمات → د امر سټایل کې زیات کړئ.';
+
+  @override
+  String get ordersComposerStyleClearFigures => 'ټول انتخابونه پاک کړئ';
+
+  @override
+  String get settingsStyleHubTitle => 'د امر سټایل';
+
+  @override
+  String get settingsStyleTileTitle => 'د امر سټایل';
+
+  @override
+  String get settingsStyleTileSubtitle => 'د سټایل نومونه او د ډیزاین شکلونه';
+
+  @override
+  String get settingsStyleNamesTitle => 'د جامې سټایل نومونه';
+
+  @override
+  String get settingsStyleNamesSubtitle => 'قاسمي، کندهاري او نور';
+
+  @override
+  String get settingsStyleNamesEmpty => 'لا نوم نشته.';
+
+  @override
+  String get settingsStyleNameAddCta => 'نوم زیات کړئ';
+
+  @override
+  String get settingsStyleNameFieldLabel => 'نوم';
+
+  @override
+  String get settingsStyleNameRenameTitle => 'نوم بدل کړئ';
+
+  @override
+  String get settingsStyleNameDeleteTitle => 'نوم ړنګ کړئ؟';
+
+  @override
+  String get settingsStyleNameDeleteBody =>
+      'له لست څخه لرې کېږي. پخواني امرونه بدل نه کېږي.';
+
+  @override
+  String get settingsStylePartsTitle => 'د جامې برخې';
+
+  @override
+  String get settingsStylePartsSubtitle => 'اوږه، یخن، جیب او نور';
+
+  @override
+  String get settingsStylePartsEmpty => 'لا برخه نشته.';
+
+  @override
+  String get settingsStylePartAddCta => 'برخه زیات کړئ';
+
+  @override
+  String get settingsStylePartFieldLabel => 'د برخې نوم';
+
+  @override
+  String get settingsStylePartRenameTitle => 'د برخې نوم بدل کړئ';
+
+  @override
+  String get settingsStylePartDeleteTitle => 'برخه ړنګ کړئ؟';
+
+  @override
+  String get settingsStylePartDeleteBody => 'د دې برخې شکلونه هم لرې کېږي.';
+
+  @override
+  String get settingsStyleFiguresTitle => 'د ډیزاین شکلونه';
+
+  @override
+  String get settingsStyleFiguresSubtitle => 'ټول د ډیزاین انځورونه';
+
+  @override
+  String get settingsStyleFiguresEmpty => 'لا ډیزاین شکل نشته.';
+
+  @override
+  String get settingsStyleFigurePartLabel => 'د جامې برخه';
+
+  @override
+  String get settingsStyleFigureAddCta => 'شکل زیات کړئ';
+
+  @override
+  String get settingsStyleFigureNameLabel => 'د شکل نوم';
+
+  @override
+  String get settingsStyleFigureDeleteTitle => 'شکل ړنګ کړئ؟';
+
+  @override
+  String get settingsStyleFigureDeleteBody => 'له کتلاګ څخه لرې کېږي.';
+
+  @override
+  String get settingsStyleFigureWebOnlyBody =>
+      'خپل انځور په اندروید او iOS زیاتېږي. ډیفالټ شکلونه په ویب کې کار کوي.';
+
+  @override
+  String get settingsStyleActiveLabel => 'فعال';
+
+  @override
+  String get settingsStyleInactiveLabel => 'غیرفعال';
 
   @override
   String get saveCta => 'ساتل';
 
   @override
-  String get customersCreated => 'Customer created.';
+  String get customersCreated => 'پیرودونکی جوړ شو.';
 
   @override
-  String get customerNameLabel => 'Name';
+  String get customerNameLabel => 'نوم';
 
   @override
-  String get customerNameHint => 'Example: Ahmad Karimi';
+  String get customerNameHint => 'بېلګه: احمد کریمي';
 
   @override
-  String get customerNameRequired => 'Name is required.';
+  String get customerNameRequired => 'نوم اړین دی.';
 
   @override
-  String get customerNameTooShort => 'Name is too short.';
+  String get customerNameTooShort => 'نوم ډېر لنډ دی.';
 
   @override
-  String get customerPhoneLabel => 'Phone (optional)';
+  String get customerPhoneLabel => 'تلیفون (اختیاري)';
 
   @override
-  String get customerPhoneHint => 'Example: 0700000001';
+  String get customerPhoneHint => 'بېلګه: 0700000001';
 
   @override
   String get saved => 'ساتل شو.';
 
   @override
-  String get deleted => 'Deleted.';
+  String get deleted => 'ړنګ شو.';
 
   @override
-  String get editCta => 'Edit';
+  String get editCta => 'سمول';
 
   @override
-  String get deleteCta => 'Delete';
+  String get deleteCta => 'ړنګول';
 
   @override
-  String get deleteConfirmTitle => 'Delete?';
+  String get deleteConfirmTitle => 'ړنګ شي؟';
 
   @override
-  String get deleteConfirmBody => 'This action cannot be undone.';
+  String get deleteConfirmBody => 'دا کړنه بیرته نشي راګرځېدلی.';
 
   @override
-  String get catalogItemNotFound => 'This catalog item could not be found.';
+  String get catalogItemNotFound => 'دا کتلاګ توکی ونه موندل شو.';
 
   @override
-  String get catalogEditMetadataTitle => 'Edit metadata';
+  String get catalogEditMetadataTitle => 'معلومات سمول';
 
   @override
-  String get catalogDesignNameLabel => 'Design name';
+  String get catalogDesignNameLabel => 'د ډیزاین نوم';
 
   @override
-  String get catalogDesignNameHint => 'Example: Karzai suit';
+  String get catalogDesignNameHint => 'بېلګه: کرزي کورتی';
 
   @override
-  String get catalogNotesLabel => 'Notes (optional)';
+  String get catalogNotesLabel => 'یادښتونه (اختیاري)';
 
   @override
-  String get catalogNotesHint => 'Any details you want to remember…';
+  String get catalogNotesHint => 'هر جز چې یادول غواړئ…';
 
   @override
   String catalogDeleteConfirmBody(String name) {
-    return 'Delete “$name”?';
+    return '«$name» ړنګ شي؟';
   }
 
   @override
@@ -1474,83 +1700,90 @@ class AppLocalizationsPs extends AppLocalizations {
   }
 
   @override
-  String get catalogSharePublicTitle => 'Share publicly';
+  String get catalogSharePublicTitle => 'عامه شریکول';
 
   @override
   String get catalogSharePublicSubtitle =>
-      'If enabled, this design can appear in the public directory (metadata only).';
+      'که فعال وي، دا ډیزاین په عامه فهرست کې ښکاره کېدی شي (یوازې معلومات).';
 
   @override
   String get catalogSharePublicDisabledSubtitle =>
-      'Enable catalog sharing in Catalog to use this.';
+      'د کارولو لپاره په کتلاګ کې شریکول فعال کړئ.';
 
   @override
-  String get catalogNotesTitle => 'Notes';
+  String get catalogNotesTitle => 'یادښتونه';
 
   @override
-  String get catalogNotesEmpty => 'No notes';
+  String get catalogNotesEmpty => 'یادښت نشته';
 
   @override
-  String get catalogAddNotAvailableOnWeb =>
-      'Adding images is not available on Web.';
+  String get catalogAddNotAvailableOnWeb => 'په ویب کې انځور زیاتول نشي.';
 
   @override
-  String get catalogDesignNameRequired => 'Design name is required.';
+  String get catalogDesignNameRequired => 'د ډیزاین نوم اړین دی.';
 
   @override
-  String get catalogImageRequired => 'Please pick an image first.';
+  String get catalogImageRequired => 'لومړی انځور وټاکئ.';
 
   @override
-  String get catalogCreated => 'Design added.';
+  String get catalogCreated => 'ډیزاین زیات شو.';
 
   @override
-  String get catalogMyShopNameFallback => 'My Shop';
+  String get catalogMyShopNameFallback => 'زما هټۍ';
 
   @override
-  String get cameraCta => 'Camera';
+  String get cameraCta => 'کیمره';
 
   @override
-  String get galleryCta => 'Gallery';
+  String get galleryCta => 'ګالري';
 
   @override
-  String get dashboardKpisSectionTitle => 'At a glance';
+  String get dashboardKpisSectionTitle => 'په یوه کتنه';
 
   @override
-  String get dashboardQuickLinksTitle => 'Quick links';
+  String get dashboardQuickLinksTitle => 'چټک لینکونه';
 
   @override
-  String get dashboardThisMonthIncomeTitle => 'This month income';
+  String get dashboardThisMonthIncomeTitle => 'د دې میاشتې عاید';
 
   @override
   String get dashboardLicenseExpiredBanner =>
-      'Your license is expired. Renew to edit again.';
+      'ستاسو جواز پای ته رسېدلی. د بیا سمون لپاره نوي کړئ.';
 
   @override
-  String get dashboardTodayDeliveriesTitle => 'Delivered today';
+  String get dashboardLicenseGraceBanner =>
+      'له سرور د جواز تایید وروسته ډېر وخت آفلاین یاست. ګډون پرانیزئ او آنلاین تازه کړئ.';
 
   @override
-  String get dashboardTodayDeliveriesEmpty => 'No orders delivered today.';
+  String get dashboardLicenseClockTamperBanner =>
+      'د وسیلې وخت ممکن بدل شوی وي. آنلاین شئ او په ګډون کې جواز تازه کړئ.';
 
   @override
-  String get dashboardSearchOrdersHint => 'Search order #, customer, phone';
+  String get dashboardTodayDeliveriesTitle => 'نن تحویلي شوي';
 
   @override
-  String get dashboardSearchOrdersTooltip => 'Search orders';
+  String get dashboardTodayDeliveriesEmpty => 'نن تحویلي شوی امر نشته.';
 
   @override
-  String get dashboardOverdueTitle => 'Overdue deliveries';
+  String get dashboardSearchOrdersHint => 'د امر #، پیرودونکی، تلیفون ولټوئ';
 
   @override
-  String get dashboardOverdueEmpty => 'No overdue open orders.';
+  String get dashboardSearchOrdersTooltip => 'امرونه ولټوئ';
 
   @override
-  String get dashboardOverdueViewAll => 'View all overdue';
+  String get dashboardOverdueTitle => 'وروسته پاتې تحویلۍ';
 
   @override
-  String get dashboardQuickLinkOverdue => 'Overdue orders';
+  String get dashboardOverdueEmpty => 'خلاص وروسته پاتې امر نشته.';
 
   @override
-  String get dashboardQuickLinkDeliveredToday => 'Delivered today';
+  String get dashboardOverdueViewAll => 'ټول وروسته پاتې وګورئ';
+
+  @override
+  String get dashboardQuickLinkOverdue => 'وروسته پاتې امرونه';
+
+  @override
+  String get dashboardQuickLinkDeliveredToday => 'نن تحویلي شوي';
 
   @override
   String get shellAppBarSyncA11y => 'د سنک حالت';
@@ -1578,33 +1811,33 @@ class AppLocalizationsPs extends AppLocalizations {
   }
 
   @override
-  String get dashboardNotificationsPreviewTitle => 'Recent notifications';
+  String get dashboardNotificationsPreviewTitle => 'وروستۍ خبرتیاوې';
 
   @override
-  String get dashboardNotificationsPreviewEmpty => 'No notifications yet.';
+  String get dashboardNotificationsPreviewEmpty => 'تر اوسه خبرتیا نشته.';
 
   @override
   String get dashboardNotificationsMutedHint =>
-      'Notifications are muted. Change this in Settings → Notifications.';
+      'خبرتیاوې بې غږ دي. په تنظیمات → خبرتیاوې بدل کړئ.';
 
   @override
-  String get dashboardNotificationsViewAll => 'View all notifications';
+  String get dashboardNotificationsViewAll => 'ټولې خبرتیاوې وګورئ';
 
   @override
-  String get notifSeedWelcomeTitle => 'Welcome to Afghan Pride';
+  String get notifSeedWelcomeTitle => 'افغان پراید ته ښه راغلاست';
 
   @override
   String get notifSeedWelcomeBody =>
-      'Order updates and shop notices will appear here. Open any row to mark it read.';
+      'د امر تازه معلومات او د هټۍ خبرتیاوې به دلته ښکاره شي. د لوستلو لپاره کرښه پرانیزئ.';
 
   @override
   String notifOrderStatusTitle(String orderNo) {
-    return 'Order $orderNo';
+    return 'امر $orderNo';
   }
 
   @override
   String notifOrderStatusBody(String status) {
-    return 'Status updated to $status.';
+    return 'حالت $status ته تازه شو.';
   }
 
   @override
@@ -1615,6 +1848,14 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get subscriptionReadOnlyHint => 'تر نوي کولو پورې یوازې لید.';
+
+  @override
+  String get subscriptionGraceReadOnlyHint =>
+      'یوازې لوستل تر هغه چې سرور جواز تایید کړي. آنلاین شئ او لاندې «د جواز حالت تازه کړئ» ووهئ.';
+
+  @override
+  String get subscriptionClockTamperHint =>
+      'یوازې لوستل تر هغه چې سرور د وخت ازموینې وروسته جواز تایید کړي. آنلاین «تازه کړئ» ووهئ.';
 
   @override
   String get subscriptionActivationTitle => 'فعالول';
@@ -1642,86 +1883,86 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get subscriptionActivationCodeHintApi =>
-      'Enter the activation code from your distributor.';
+      'د خپل توزیع کوونکي فعالولو کوډ ولیکئ.';
 
   @override
-  String get subscriptionApplying => 'Applying…';
+  String get subscriptionApplying => 'پلي کېږي…';
 
   @override
-  String get subscriptionRefreshing => 'Refreshing…';
+  String get subscriptionRefreshing => 'تازه کېږي…';
 
   @override
-  String get subscriptionRedeemSuccess => 'License updated.';
+  String get subscriptionRedeemSuccess => 'جواز تازه شو.';
 
   @override
   String subscriptionRedeemError(String error) {
-    return 'Activation failed: $error';
+    return 'فعالول ناکام: $error';
   }
 
   @override
   String subscriptionRefreshError(String error) {
-    return 'Could not refresh: $error';
+    return 'تازه کول ناکام: $error';
   }
 
   @override
-  String get customersListView => 'List view';
+  String get customersListView => 'لیست لید';
 
   @override
-  String get customersCardView => 'Card view';
+  String get customersCardView => 'کارت لید';
 
   @override
-  String get customerEditDialogTitle => 'Edit customer';
+  String get customerEditDialogTitle => 'پیرودونکی سمول';
 
   @override
-  String get customerUpdated => 'Customer updated.';
+  String get customerUpdated => 'پیرودونکی تازه شو.';
 
   @override
-  String get customerAddressLabel => 'Address';
+  String get customerAddressLabel => 'پته';
 
   @override
-  String get customerAddressHint => 'Optional';
+  String get customerAddressHint => 'اختیاري';
 
   @override
-  String get customerNotesLabel => 'Notes';
+  String get customerNotesLabel => 'یادښتونه';
 
   @override
-  String get customerNotesHint => 'Optional';
+  String get customerNotesHint => 'اختیاري';
 
   @override
   String get customerFieldEmpty => '—';
 
   @override
-  String get customerDeleteMenu => 'Delete customer';
+  String get customerDeleteMenu => 'پیرودونکی ړنګول';
 
   @override
-  String get customerDeleteConfirmTitle => 'Delete this customer?';
+  String get customerDeleteConfirmTitle => 'دا پیرودونکی ړنګ شي؟';
 
   @override
   String get customerDeleteConfirmBody =>
-      'They will be removed from your list. Existing orders stay in the Orders tab.';
+      'له ستاسو لیست څخه لرې کېږي. موجود امرونه په امرونو ټب کې پاتې کېږي.';
 
   @override
-  String get customerDeleted => 'Customer removed';
+  String get customerDeleted => 'پیرودونکی لرې شو';
 
   @override
-  String get customersFinancialSectionTitle => 'Balance';
+  String get customersFinancialSectionTitle => 'پاتې';
 
   @override
-  String get customersFinancialFilterAll => 'Any balance';
+  String get customersFinancialFilterAll => 'هر پاتې';
 
   @override
-  String get customersFilterHasUnpaid => 'Has unpaid orders';
+  String get customersFilterHasUnpaid => 'نه ورکړل شوي امرونه لري';
 
   @override
-  String get customersSortMostOrders => 'Most orders';
+  String get customersSortMostOrders => 'ډېر امرونه';
 
   @override
   String customersRowMeta(int orderCount, String unpaid) {
-    return '$orderCount orders · $unpaid';
+    return '$orderCount امرونه · $unpaid';
   }
 
   @override
-  String get customersRowNoOrdersYet => 'No orders yet';
+  String get customersRowNoOrdersYet => 'تر اوسه امر نشته';
 
   @override
   String get settingsUsersLimitsTitle => 'د کارنو حدونه';
@@ -1754,48 +1995,47 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get settingsUsersSubtitleTeam =>
-      'View accounts on the server (read-only unless you are the owner).';
+      'په سرور حسابونه وګورئ (یوازې لوستل مګر مالک نه یاست).';
 
   @override
   String settingsUsersLoadError(String error) {
-    return 'Could not load users: $error';
+    return 'کارنان نشول بارولای: $error';
   }
 
   @override
-  String get settingsUsersRetryCta => 'Retry';
+  String get settingsUsersRetryCta => 'بیا هڅه';
 
   @override
-  String get settingsUsersDeleteConfirmTitle => 'Remove user?';
+  String get settingsUsersDeleteConfirmTitle => 'کارن لرې شي؟';
 
   @override
-  String get settingsUsersDeleteConfirmBody =>
-      'They will no longer be able to sign in.';
+  String get settingsUsersDeleteConfirmBody => 'نور نشي کولی ننوځي.';
 
   @override
-  String get settingsUsersDeleteCta => 'Remove';
+  String get settingsUsersDeleteCta => 'لرې کول';
 
   @override
-  String get settingsUsersAddDialogTitle => 'Add user';
+  String get settingsUsersAddDialogTitle => 'کارن زیاتول';
 
   @override
-  String get settingsUsersAddUsernameLabel => 'Username';
+  String get settingsUsersAddUsernameLabel => 'کارن نوم';
 
   @override
-  String get settingsUsersAddPasswordLabel => 'Password';
+  String get settingsUsersAddPasswordLabel => 'پاسورډ';
 
   @override
-  String get settingsUsersAddSubmitCta => 'Create';
+  String get settingsUsersAddSubmitCta => 'جوړول';
 
   @override
   String settingsUsersAddError(String error) {
-    return 'Could not add user: $error';
+    return 'کارن نشو زیاتېدلی: $error';
   }
 
   @override
-  String get settingsUsersAddedSnackbar => 'User created.';
+  String get settingsUsersAddedSnackbar => 'کارن جوړ شو.';
 
   @override
-  String get settingsUsersRemovedSnackbar => 'User removed.';
+  String get settingsUsersRemovedSnackbar => 'کارن لرې شو.';
 
   @override
   String get settingsBackupOwnerPasswordNote =>
@@ -1886,7 +2126,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get settingsBackupInvalidFile => 'دا بیکاپ فایل نه شو لوستلی.';
 
   @override
-  String get settingsNotificationsFiltersTitle => 'فلټرونه (مخکتنه)';
+  String get settingsNotificationsFiltersTitle => 'فلټرونه';
 
   @override
   String get settingsNotifFilterAll => 'ټول';
@@ -1908,6 +2148,10 @@ class AppLocalizationsPs extends AppLocalizations {
       'د امر، جواز او بیکاپ پیښو لپاره تاریخ به دلته ښکاري.';
 
   @override
+  String get settingsNotificationsInboxFilterEmpty =>
+      'په دې فلټر کې هېڅ خبرتیا نشته.';
+
+  @override
   String get settingsSyncLastSyncTitle => 'وروستی بریالی سنک';
 
   @override
@@ -1926,57 +2170,60 @@ class AppLocalizationsPs extends AppLocalizations {
   }
 
   @override
-  String get settingsSyncLocalSnapshotTitle => 'Local data snapshot';
+  String get settingsSyncLocalSnapshotTitle => 'د محلي ډیټا عکس';
 
   @override
-  String get settingsSyncLocalOrders => 'Orders';
+  String get settingsSyncLocalOrders => 'امرونه';
 
   @override
-  String get settingsSyncLocalCustomers => 'Customers';
+  String get settingsSyncLocalCustomers => 'پیرودونکي';
 
   @override
-  String get settingsSyncLocalPayments => 'Payments';
+  String get settingsSyncLocalPayments => 'ورکړې';
 
   @override
-  String get settingsSyncLocalTasks => 'Tasks';
+  String get settingsSyncLocalTasks => 'دندې';
 
   @override
-  String get settingsSyncLocalNotifications => 'Notifications';
+  String get settingsSyncLocalNotifications => 'خبرتیاوې';
 
   @override
-  String get settingsSyncLocalUnread => 'Unread notifications';
+  String get settingsSyncLocalUnread => 'نه لوستل شوې خبرتیاوې';
 
   @override
-  String get settingsSyncRetryTitle => 'Sync now';
+  String get settingsSyncRetryTitle => 'اوس سنک کړئ';
 
   @override
   String get settingsSyncRetrySubtitle =>
-      'Pull from the server, then push the local queue when API_BASE_URL is set and you are signed in online (plan-04).';
+      'له سرور راښکته کړئ، بیا محلي قطار واستوئ کله چې API_BASE_URL ټاکل شوی او آنلاین ننوتلي یاست.';
 
   @override
   String get settingsSyncRetryOffline =>
-      'You appear offline. Connect to the internet and try again.';
+      'آفلاین یاست. انټرنټ ونښلوئ او بیا هڅه وکړئ.';
 
   @override
   String get settingsSyncRetryConfigureApi =>
-      'Set API_BASE_URL at build time, then open Settings → API connection.';
+      'د بیلد په وخت کې API_BASE_URL ټاکئ، بیا تنظیمات → د API پیوستون پرانیزئ.';
 
   @override
-  String get settingsSyncRetrySignIn =>
-      'Sign in with your online server account first.';
+  String get settingsSyncRetrySignIn => 'لومړی د آنلاین سرور حساب سره ننوځئ.';
 
   @override
   String get settingsSyncRetryLicenseExpired =>
-      'The server refused sync because the license is expired. Open Subscription.';
+      'سرور سنک رد کړ ځکه جواز پای ته رسېدلی. ګډون پرانیزئ.';
+
+  @override
+  String get settingsSyncRetryEditingBlocked =>
+      'سنک په یوازې لوستل حالت کې ودرول شو. آنلاین کې ګډون پرانیزئ.';
 
   @override
   String settingsSyncRetrySuccess(int pushed, int pulled) {
-    return 'Sync OK: pushed $pushed mutation(s); received $pulled server change(s).';
+    return 'سنک بریالی: $pushed بدلون واستول شول؛ $pulled له سرور راښکته شول.';
   }
 
   @override
   String settingsSyncRetryFailed(String detail) {
-    return 'Sync failed: $detail';
+    return 'سنک ناکام: $detail';
   }
 
   @override
@@ -2016,168 +2263,246 @@ class AppLocalizationsPs extends AppLocalizations {
       'ملاتړ ممکن د سنک ستونزو لپاره دا بسته وغواړي.';
 
   @override
-  String get devPortalTitle => 'Developer Portal';
+  String get devPortalTitle => 'د پراختیاګر پورټل';
 
   @override
-  String get devPortalTabOverview => 'Overview';
+  String get devPortalTabOverview => 'کتنه';
 
   @override
-  String get devPortalTabCodes => 'Codes';
+  String get devPortalTabCodes => 'کوډونه';
 
   @override
-  String get devPortalTabShops => 'Shops';
+  String get devPortalTabShops => 'هټۍ';
 
   @override
-  String get devPortalTabResets => 'Resets';
+  String get devPortalTabResets => 'بیا تنظیمونه';
 
   @override
-  String get devPortalTabDiagnostics => 'Diagnostics';
+  String get devPortalTabDiagnostics => 'تشخیص';
+
+  @override
+  String get devPortalTabAccount => 'زما پاسورډ';
+
+  @override
+  String get devPortalMyPasswordTitle => 'پاسورډ بدل کړئ';
+
+  @override
+  String get devPortalMyPasswordSubtitle =>
+      'کارن نوم دلته نشي بدلېدلی. اوسنی پاسورډ ولیکئ، بیا نوی (لږترلږه ۶ توري).';
+
+  @override
+  String get devPortalCurrentPasswordLabel => 'اوسنی پاسورډ';
+
+  @override
+  String get devPortalNewPasswordLabel => 'نوی پاسورډ';
+
+  @override
+  String get devPortalConfirmPasswordLabel => 'نوی پاسورډ تایید';
+
+  @override
+  String get devPortalPasswordMismatch =>
+      'نوی پاسورډ او تایید سره نه سمون خوري.';
+
+  @override
+  String get devPortalChangePasswordCta => 'پاسورډ تازه کړئ';
+
+  @override
+  String get devPortalChangePasswordOk =>
+      'پاسورډ تازه شو. بل ځل له نوي پاسورډ سره ننوځئ.';
+
+  @override
+  String get devPortalChangePasswordFail => 'پاسورډ نشو تازه کېدلی.';
 
   @override
   String get devPortalOnlineRequired =>
-      'Developer tools require an online connection and a verified developer account.';
+      'د پراختیاګر وسیلې آنلاین پیوستون او تایید شوی حساب ته اړتیا لري.';
 
   @override
-  String get devPortalRetryCta => 'Retry';
+  String get devPortalRetryCta => 'بیا هڅه';
 
   @override
-  String get devPortalStubAction => 'API not connected in this build.';
+  String get devPortalStubAction => 'په دې نسخه کې API نښلول شوی نه دی.';
 
   @override
-  String get devPortalAdviceOfflineTitle => 'You appear offline';
+  String get devPortalAdviceOfflineTitle => 'آفلاین یاست';
 
   @override
   String get devPortalAdviceOfflineBody =>
-      'Connect to the internet to test public API health. Admin lists need the deployed admin APIs.';
+      'د عامه API روغتیا ازموینې لپاره انټرنټ ونښلوئ. اداري لیستونه د استقرار شویو API څخه اړتیا لري.';
 
   @override
-  String get devPortalAdviceOnlineTitle => 'Developer tools';
+  String get devPortalAdviceOnlineTitle => 'د پراختیاګر وسیلې';
 
   @override
   String get devPortalAdviceOnlineBody =>
-      'Overview pings GET /health. Shops and Resets load when you are signed in with the API as a developer (PRIDE_DEVELOPER_IDS). Export diagnostics from Settings → Sync & Diagnostics.';
+      'کتنه GET /health کوي. هټۍ او بیا تنظیمونه کله چې د پراختیاګر په توګه ننوتلي یاست بارېږي. تشخیص له تنظیمات → سنک او تشخیص صادر کړئ.';
 
   @override
-  String get devPortalShopsEmpty => 'No shops on the server yet.';
+  String get devPortalShopsEmpty => 'لا په سرور هټۍ نشته.';
 
   @override
   String devPortalShopRowUsers(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count users',
-      one: '1 user',
+      other: '$count کارنان',
+      one: '۱ کارن',
     );
     return '$_temp0';
   }
 
   @override
+  String get devPortalShopDisabledLabel => 'غیرفعال';
+
+  @override
+  String get devPortalShopActionsTooltip => 'د هټۍ کړنې';
+
+  @override
+  String get devPortalShopDisableCta => 'هټۍ غیرفعاله کړئ';
+
+  @override
+  String get devPortalShopEnableCta => 'هټۍ فعاله کړئ';
+
+  @override
+  String get devPortalShopExtendCta => 'جواز غځول…';
+
+  @override
+  String get devPortalShopExtendTitle => 'جواز غځول';
+
+  @override
+  String get devPortalShopExtendHint =>
+      'د نن یا اوسني پای نیټې څخه ورځې زیاتول (هرکوم وروستی).';
+
+  @override
+  String get devPortalShopExtendDaysLabel => 'ورځې';
+
+  @override
+  String get devPortalShopActionOk => 'ترسره شو.';
+
+  @override
+  String get devPortalShopPushTestCta => 'فشاري خبرتیا ازموینه…';
+
+  @override
+  String get devPortalShopPushTitle => 'د فشاري خبرتیا ازموینه';
+
+  @override
+  String get devPortalShopPushNotifTitleLabel => 'د خبرتیا سرلیک';
+
+  @override
+  String get devPortalShopPushBodyLabel => 'پیغام';
+
+  @override
+  String devPortalShopPushResult(int success, int failed, String reason) {
+    return 'لیږل شوي: $success، ناکام: $failed. دلیل: $reason.';
+  }
+
+  @override
   String devPortalCodesLoadError(String error) {
-    return 'Could not load codes: $error';
+    return 'کوډونه نشول بارولای: $error';
   }
 
   @override
   String get devPortalCodesEmpty =>
-      'No activation codes yet. Generate one to issue paid time.';
+      'لا فعالولو کوډ نشته. د پیسو وخت صادرولو لپاره یو جوړ کړئ.';
 
   @override
-  String get devPortalCodesCreateTitle => 'New activation code';
+  String get devPortalCodesCreateTitle => 'نوی فعالولو کوډ';
 
   @override
-  String get devPortalCodesPlanDaysLabel => 'Paid days added on redeem';
+  String get devPortalCodesPlanDaysLabel => 'د فعالولو وروسته ورکړل شوې ورځې';
 
   @override
-  String get devPortalCodesMaxUsesLabel => 'Max redemptions';
+  String get devPortalCodesMaxUsesLabel => 'اعظمي کارونه';
 
   @override
-  String get devPortalCodesCreateCta => 'Generate code';
+  String get devPortalCodesCreateCta => 'کوډ جوړول';
 
   @override
   String devPortalCodesCreated(String code) {
-    return 'Created: $code';
+    return 'جوړ شو: $code';
   }
 
   @override
-  String get devPortalCodesCreateFail => 'Could not create code.';
+  String get devPortalCodesCreateFail => 'کوډ نشو جوړېدلی.';
 
   @override
-  String get devPortalCodesRevokeTitle => 'Revoke code';
+  String get devPortalCodesRevokeTitle => 'کوډ لغوه کړئ';
 
   @override
   String devPortalCodesRevokeBody(String code) {
-    return 'Shops can no longer redeem “$code”.';
+    return 'هټۍ نور «$code» نشي فعالولی.';
   }
 
   @override
-  String get devPortalCodesRevoked => 'Code revoked.';
+  String get devPortalCodesRevoked => 'کوډ لغوه شو.';
 
   @override
-  String get devPortalCodesRevokeFail => 'Could not revoke.';
+  String get devPortalCodesRevokeFail => 'لغوه کول ناکام شو.';
 
   @override
-  String get devPortalCodesRevokeCta => 'Revoke';
+  String get devPortalCodesRevokeCta => 'لغوه';
 
   @override
   String get devPortalApiHealthPrompt =>
-      'Pull down to refresh and call GET /health.';
+      'د تازه کولو لپاره ښکته کش کړئ او GET /health ووهئ.';
 
   @override
-  String get devPortalEnvBadge => 'Environment: dev';
+  String get devPortalEnvBadge => 'چاپیریال: پراختیا';
 
   @override
-  String get devPortalStatShops => 'Total shops';
+  String get devPortalStatShops => 'ټولې هټۍ';
 
   @override
-  String get devPortalStatActiveExpired => 'Active / expired';
+  String get devPortalStatActiveExpired => 'فعال / پای ته رسېدلی';
 
   @override
-  String get devPortalStatTrials => 'Trials running';
+  String get devPortalStatTrials => 'روان ازمایښتونه';
 
   @override
-  String get devPortalStatActivations => 'Code creates (audit)';
+  String get devPortalStatActivations => 'د کوډ جوړول (ممیزي)';
 
   @override
-  String get devPortalApiHealthTitle => 'API health';
+  String get devPortalApiHealthTitle => 'د API روغتیا';
 
   @override
-  String get devPortalApiHealthUnknown => 'Unknown — connect to the API';
+  String get devPortalApiHealthUnknown => 'نامعلوم — API ته ونښلوئ';
 
   @override
   String get devPortalCodesStub =>
-      'Activation codes: search, create, and revoke will load from the admin API (plan-18).';
+      'فعالولو کوډونه: لټون، جوړول او لغوه کول له اداري API بارېږي.';
 
   @override
   String get devPortalShopsStub =>
-      'Shops & licenses: list and detail views will load from the admin API.';
+      'هټۍ او جوازونه: لیست او جزئیات له اداري API بارېږي.';
 
   @override
   String get devPortalResetsStub =>
-      'Password reset requests: support queue will load from the admin API.';
+      'د پاسورډ بیا تنظیم غوښتنې: د ملاتړ قطار له اداري API بارېږي.';
 
   @override
   String get devPortalDiagStub =>
-      'For a full device bundle, use Settings → Sync & Diagnostics → Export diagnostics bundle.';
+      'د بشپړې وسیلې بسته لپاره تنظیمات → سنک او تشخیص → تشخیص بسته صادرول وکاروئ.';
 
   @override
-  String get devPortalDiagLocalTitle => 'This device (offline cache)';
+  String get devPortalDiagLocalTitle => 'دا وسیله (آفلاین حافظه)';
 
   @override
   String get devPortalDiagLocalSubtitle =>
-      'Counts from local storage — useful when the admin API is offline.';
+      'له محلي ذخیرې شمېر — کله اداري API آفلاین وي ګټور دی.';
 
   @override
   String get devPortalDiagCountLoading => '…';
 
   @override
-  String get devPortalAdminAuditTitle => 'Admin audit log';
+  String get devPortalAdminAuditTitle => 'د اداري ممیزي یادښت';
 
   @override
   String get devPortalAdminAuditNeedSignIn =>
-      'Sign in with the API, then pull to refresh.';
+      'له API سره ننوځئ، بیا د تازه کولو لپاره کش کړئ.';
 
   @override
   String devPortalAdminAuditLine(int count, int schema) {
-    return 'GET /admin/audit-log — $count row(s), schema v$schema';
+    return 'GET /admin/audit-log — $count کرښې، طرحواره v$schema';
   }
 
   @override
@@ -2185,13 +2510,13 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get shopProfileIntro =>
-      'دا د هټۍ نوم ستاسو د کتلاګ توکو په ډیزاین لیبل کې ښکاري. د اړیکو ساحې ستاسو لپاره د مراجعې دي تر هغه چې بلینګ ونښلول شي.';
+      'نوم، لوګو، پته او مننه پیغام په چاپ شوي رسید او شریک شوي فاکتور کې ښکاري. لاندې یادښتونه یوازې ستاسو لپاره دي.';
 
   @override
   String get shopProfileNameLabel => 'د هټۍ نوم';
 
   @override
-  String get shopProfileNameHint => 'بېلګه: د پریډ خیاطي';
+  String get shopProfileNameHint => 'بېلګه: د کرزی خیاطي';
 
   @override
   String get shopProfileNameRequired => 'د هټۍ نوم اړین دی.';
@@ -2203,13 +2528,19 @@ class AppLocalizationsPs extends AppLocalizations {
   String get shopProfileShopPhoneLabel => 'د هټۍ تلیفون (اختیاري)';
 
   @override
-  String get shopProfileShopPhoneHint => 'بېلګه: 0700000000';
+  String get shopProfileShopPhoneHint => 'بېلګه: 0701234567';
 
   @override
   String get shopProfileAddressLabel => 'پته (اختیاري)';
 
   @override
-  String get shopProfileAddressHint => 'سړک، سیمه، ښار…';
+  String get shopProfileAddressHint => 'بېلګه: کارته چار، کابل';
+
+  @override
+  String get shopProfileReceiptThanksLabel => 'د رسید مننه پیغام (اختیاري)';
+
+  @override
+  String get shopProfileReceiptThanksHint => 'بېلګه: ستاسو له سوداګرۍ مننه!';
 
   @override
   String get shopProfileNotesLabel => 'یادښتونه (اختیاري)';
@@ -2233,172 +2564,237 @@ class AppLocalizationsPs extends AppLocalizations {
   }
 
   @override
-  String get customersFilterTooltip => 'Sort & filter';
+  String get customersFilterTooltip => 'ترتیب او فلټر';
 
   @override
-  String get customersFilterSheetTitle => 'Sort & filter';
+  String get customersFilterSheetTitle => 'ترتیب او فلټر';
 
   @override
-  String get customersSortSectionTitle => 'Sort';
+  String get customersSortSectionTitle => 'ترتیب';
 
   @override
-  String get customersSortNameAsc => 'A–Z';
+  String get customersSortNameAsc => 'الف-ی';
 
   @override
-  String get customersSortNameDesc => 'Z–A';
+  String get customersSortNameDesc => 'ی-الف';
 
   @override
-  String get customersSortRecentActivity => 'Recent activity';
+  String get customersSortRecentActivity => 'وروستۍ فعالیت';
 
   @override
-  String get customersCreatedSectionTitle => 'Added';
+  String get customersCreatedSectionTitle => 'زیات شوی';
 
   @override
-  String get customersCreatedFilterAll => 'Any time';
+  String get customersCreatedFilterAll => 'هر وخت';
 
   @override
-  String get customersCreatedFilterToday => 'Today';
+  String get customersCreatedFilterToday => 'نن';
 
   @override
-  String get customersCreatedFilterThisWeek => 'This week';
+  String get customersCreatedFilterThisWeek => 'دا اونۍ';
 
   @override
-  String get customersActivitySectionTitle => 'Activity';
+  String get customersActivitySectionTitle => 'فعالیت';
 
   @override
-  String get customersFilterAll => 'All customers';
+  String get customersFilterAll => 'ټول پیرودونکي';
 
   @override
-  String get customersFilterHasOrders => 'Has orders';
+  String get customersFilterHasOrders => 'امرونه لري';
 
   @override
-  String get customersFilterNoOrders => 'No orders yet';
+  String get customersFilterNoOrders => 'تر اوسه امر نشته';
 
   @override
-  String get customersApplyFilters => 'Apply';
+  String get customersApplyFilters => 'پلي کړئ';
 
   @override
-  String get customersResetFilters => 'Reset';
+  String get customersResetFilters => 'بیا تنظیم';
 
   @override
-  String get settingsSectionPrinter => 'Printer';
+  String get settingsSectionPrinter => 'چاپګر';
 
   @override
-  String get settingsPrinterTileTitle => 'Thermal printer';
+  String get settingsPrinterTileTitle => 'حرارتي چاپګر';
 
   @override
   String get settingsPrinterTileSubtitle =>
-      'Network receipt printer (58 / 80 mm)';
+      'د شبکې رسید چاپګر (۵۸ / ۸۰ ملی‌متر)';
 
   @override
-  String get settingsPrinterScreenTitle => 'Thermal printer';
+  String get settingsPrinterScreenTitle => 'حرارتي چاپګر';
 
   @override
   String get settingsPrinterIntro =>
-      'Send receipts to a network ESC/POS printer (usually raw TCP on port 9100). Enter the printer’s IP address or hostname on your Wi‑Fi or LAN.';
+      'رسید شبکې ESC/POS چاپګر ته واستوئ (معمولاً خام TCP په ۹۱۰۰ پورت). د وای‌فای یا LAN IP یا میزبان نوم ولیکئ.';
 
   @override
   String get settingsPrinterAsciiNotice =>
-      'Receipts use a simple printer character set. Names or notes outside Latin letters and digits may print as “?” on the slip.';
+      'رسید ساده د چاپګر توري کاروي. له لاتیني بهر نومونه یا یادښتونه ممکن «؟» چاپ شي.';
 
   @override
-  String get settingsPrinterHostLabel => 'Printer address';
+  String get settingsPrinterHostLabel => 'د چاپګر پته';
 
   @override
-  String get settingsPrinterHostHint => 'Example: 192.168.1.50';
+  String get settingsPrinterHostHint => 'بېلګه: 192.168.1.50';
 
   @override
-  String get settingsPrinterPortLabel => 'Port';
+  String get settingsPrinterPortLabel => 'پورت';
 
   @override
-  String get settingsPrinterPaperWidthLabel => 'Paper width';
+  String get settingsPrinterPaperWidthLabel => 'د کاغذ عرض';
 
   @override
-  String get settingsPrinterPaper58Label => '58 mm';
+  String get settingsPrinterPaper58Label => '۵۸ ملی‌متر';
 
   @override
-  String get settingsPrinterPaper80Label => '80 mm';
+  String get settingsPrinterPaper80Label => '۸۰ ملی‌متر';
 
   @override
-  String get settingsPrinterSaved => 'Printer settings saved.';
+  String get settingsPrinterSaved => 'د چاپګر تنظیمات خوندي شول.';
 
   @override
-  String get settingsPrinterTestCta => 'Test print';
+  String get settingsPrinterTestCta => 'ازموینه چاپ';
 
   @override
-  String get settingsPrinterTestHeadline => 'Afghan Pride';
+  String get settingsPrinterTestHeadline => 'افغان پراید';
 
   @override
   String get settingsPrinterTestDetail =>
-      'Test print — if you can read this, the connection works.';
+      'ازموینه چاپ — که دا لوستلی شئ، پیوستون کار کوي.';
 
   @override
-  String get settingsPrinterTestOk => 'Test page sent to the printer.';
+  String get settingsPrinterTestOk => 'ازموینه پاڼه چاپګر ته واستول شوه.';
 
   @override
   String settingsPrinterTestFail(String detail) {
-    return 'Test print failed: $detail';
+    return 'ازموینه چاپ ناکام: $detail';
   }
 
   @override
   String get settingsPrinterWebUnavailable =>
-      'Thermal printing is available on the Android and iOS apps. Use a device with the app installed to print; the web app does not send jobs to hardware printers.';
+      'حرارتي چاپ په اندروید او iOS اپ کې شتون لري. د چاپ لپاره د اپ لرونکې وسیله وکاروئ؛ ویب اپ سخت‌افزاري چاپګر ته نه لیږي.';
 
   @override
   String get settingsPrinterHostEmptyError =>
-      'Enter the printer address to save or test.';
+      'د خوندي کولو یا ازموینې لپاره د چاپګر پته ولیکئ.';
 
   @override
-  String get settingsPrinterPortInvalidError => 'Enter a valid port (1–65535).';
+  String get settingsPrinterPortInvalidError => 'معتبر پورت ولیکئ (۱–۶۵۵۳۵).';
 
   @override
-  String get orderPrintReceiptTooltip => 'Print receipt';
+  String get orderPrintReceiptTooltip => 'رسید چاپ';
 
   @override
   String get orderPrintReceiptNeedPrinter =>
-      'Set the printer address under Settings → Thermal printer.';
+      'د چاپګر پته په تنظیمات → حرارتي چاپګر کې ټاکئ.';
 
   @override
-  String get orderPrintReceiptOk => 'Receipt sent to the printer.';
+  String get orderPrintReceiptOk => 'رسید چاپګر ته واستول شو.';
 
   @override
   String orderPrintReceiptFail(String detail) {
-    return 'Printing failed: $detail';
+    return 'چاپ ناکام: $detail';
   }
 
   @override
-  String get receiptCustomerLabel => 'Customer';
+  String get receiptCustomerLabel => 'پیرودونکی';
 
   @override
-  String get receiptPhoneLabel => 'Phone';
+  String get receiptPhoneLabel => 'تلیفون';
 
   @override
-  String get receiptDeliveryLabel => 'Delivery';
+  String get receiptDeliveryLabel => 'تحویلي';
 
   @override
-  String get receiptStatusLabel => 'Status';
+  String get receiptStatusLabel => 'حالت';
 
   @override
-  String get receiptMeasurementsLabel => 'Measurements';
+  String get receiptMeasurementsLabel => 'پیمانې';
 
   @override
-  String get receiptStyleLabel => 'Style notes';
+  String get receiptStyleLabel => 'د سټایل یادښتونه';
 
   @override
-  String get receiptInternalNotesHeader => 'Internal notes';
+  String get receiptInternalNotesHeader => 'داخلي یادښتونه';
 
   @override
-  String get receiptTotalLabel => 'Total';
+  String get receiptTotalLabel => 'ټول';
 
   @override
-  String get receiptPaidLabel => 'Paid';
+  String get receiptPaidLabel => 'ورکړل شوی';
 
   @override
-  String get receiptBalanceLabel => 'Balance';
+  String get receiptBalanceLabel => 'پاتې';
 
   @override
-  String get receiptPaymentsHeader => 'Payments';
+  String get receiptPaymentsHeader => 'ورکړې';
 
   @override
-  String get receiptFooterThanks => 'Thank you';
+  String get receiptShopPhoneLabel => 'د هټۍ تلیفون';
+
+  @override
+  String get receiptShopAddressLabel => 'پته';
+
+  @override
+  String get receiptShareDivider => '--------------------------------';
+
+  @override
+  String get receiptShareSectionRule => '================================';
+
+  @override
+  String get settingsPrinterRetryHint =>
+      'که چاپګر بوخت وي، اپ په اوتومات ډول څو ځله بیا پیوستون هڅه کوي.';
+
+  @override
+  String get shopProfileLogoSectionTitle => 'د فاکتور سرلیک لوګو';
+
+  @override
+  String get shopProfileLogoSubtitle =>
+      'په حرارتي رسیدونو او شریک شوي فاکتور متن سر کې (اندروید / iOS). مربع انځور غوره دی.';
+
+  @override
+  String get shopProfileLogoPickCta => 'انځور وټاکئ';
+
+  @override
+  String get shopProfileLogoRemoveCta => 'لوګو لرې کړئ';
+
+  @override
+  String get shopProfileLogoSaved => 'لوګو خوندي شو.';
+
+  @override
+  String get shopProfileLogoWebHint => 'لوګو په اندروید او iOS اپ کې شتون لري.';
+
+  @override
+  String get shopProfileLogoStatusOnFile =>
+      'لوګو د رسیدونو لپاره په دې وسیله خوندي دی.';
+
+  @override
+  String get shopProfileLogoDefaultCaption =>
+      'تر خپل لوګو پورته کولو پورې، ډیفالټ لوګو په رسید چاپېږي.';
+
+  @override
+  String get defaultShopName => 'زما خیاطي';
+
+  @override
+  String get defaultShopAddress => 'کابل، افغانستان';
+
+  @override
+  String get defaultShopPhone => '0701234567';
+
+  @override
+  String get orderShareInvoiceTooltip => 'فاکتور شریکول';
+
+  @override
+  String orderShareInvoiceFail(String detail) {
+    return 'شریکول ناکام: $detail';
+  }
+
+  @override
+  String orderShareInvoiceSubject(String orderNo) {
+    return 'امر $orderNo';
+  }
+
+  @override
+  String get receiptFooterThanks => 'ستاسو له سوداګرۍ مننه!';
 }

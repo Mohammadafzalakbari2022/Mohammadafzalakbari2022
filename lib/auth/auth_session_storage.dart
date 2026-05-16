@@ -1,6 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/api/pride_api_config.dart';
+import '../licensing/license_clock_guard.dart';
 import '../licensing/license_notifier.dart';
 import 'auth_session.dart';
 
@@ -12,6 +13,9 @@ abstract final class AuthSessionStorage {
   static const _username = 'pride_auth_api_username';
   static const _isOwner = 'pride_auth_api_is_shop_owner';
   static const _licenseStatus = 'pride_auth_api_license_status';
+  static const _licenseExpiresAt = 'pride_auth_api_license_expires_at';
+  static const _licenseLastCheckAt =
+      'pride_auth_api_license_last_successful_check_at';
 
   static Future<void> persist(
     SharedPreferences prefs, {
@@ -21,6 +25,8 @@ abstract final class AuthSessionStorage {
     required String username,
     required bool isShopOwner,
     required String licenseStatusApi,
+    String? licenseExpiresAtIso,
+    String? licenseLastSuccessfulCheckAtIso,
   }) async {
     await prefs.setString(_accessToken, accessToken);
     await prefs.setString(_userId, userId);
@@ -28,6 +34,26 @@ abstract final class AuthSessionStorage {
     await prefs.setString(_username, username);
     await prefs.setBool(_isOwner, isShopOwner);
     await prefs.setString(_licenseStatus, licenseStatusApi);
+    await _writeOptionalIso(
+      prefs,
+      _licenseExpiresAt,
+      licenseExpiresAtIso,
+    );
+    await _writeOptionalIso(
+      prefs,
+      _licenseLastCheckAt,
+      licenseLastSuccessfulCheckAtIso,
+    );
+  }
+
+  static Future<void> _writeOptionalIso(
+    SharedPreferences prefs,
+    String key,
+    String? iso,
+  ) async {
+    final t = iso?.trim();
+    if (t == null || t.isEmpty) return;
+    await prefs.setString(key, t);
   }
 
   static Future<void> clear(SharedPreferences prefs) async {
@@ -37,16 +63,29 @@ abstract final class AuthSessionStorage {
     await prefs.remove(_username);
     await prefs.remove(_isOwner);
     await prefs.remove(_licenseStatus);
+    await prefs.remove(_licenseExpiresAt);
+    await prefs.remove(_licenseLastCheckAt);
   }
 
-  /// Updates stored license status when a persisted API session exists.
-  static Future<void> updatePersistedLicenseStatus(
+  /// Updates stored license fields when a persisted API session exists.
+  static Future<void> updatePersistedLicenseFromSnapshot(
     SharedPreferences prefs,
-    String licenseStatusApi,
+    Map<String, dynamic> snapshot,
   ) async {
     final token = prefs.getString(_accessToken);
     if (token == null || token.isEmpty) return;
-    await prefs.setString(_licenseStatus, licenseStatusApi);
+    final raw = snapshot['status'];
+    if (raw is String && raw.isNotEmpty) {
+      await prefs.setString(_licenseStatus, raw);
+    }
+    final exp = snapshot['expires_at'];
+    if (exp is String && exp.isNotEmpty) {
+      await prefs.setString(_licenseExpiresAt, exp);
+    }
+    final last = snapshot['last_successful_check_at'] ?? snapshot['server_now'];
+    if (last is String && last.isNotEmpty) {
+      await prefs.setString(_licenseLastCheckAt, last);
+    }
   }
 
   /// Restores [session] and [license] when `API_BASE_URL` is set and prefs are complete.
@@ -83,6 +122,11 @@ abstract final class AuthSessionStorage {
       isShopOwner: owner,
     );
     license.applyLicenseSnapshotMap({'status': lic});
+    license.restoreTimingFromIso(
+      expiresAtIso: prefs.getString(_licenseExpiresAt),
+      lastSuccessfulCheckAtIso: prefs.getString(_licenseLastCheckAt),
+    );
+    license.setSuspectedTimeTamper(LicenseClockGuard.readTamperFlag(prefs));
     return true;
   }
 }

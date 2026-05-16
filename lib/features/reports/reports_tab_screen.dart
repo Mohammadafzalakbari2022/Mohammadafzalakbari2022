@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
 import 'package:pride_v3/core/calendar/report_month_period.dart';
+import 'package:pride_v3/core/widgets/pride_nav_card_tile.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../auth/auth_providers.dart';
@@ -82,78 +83,60 @@ class ReportsTabScreen extends ConsumerWidget {
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 12),
-                Card(
-                  child: ListTile(
-                    leading: const Icon(Icons.payments_outlined),
-                    title: Text(l10n.reportsThisMonthIncomeTitle),
-                    subtitle: Text(
-                      l10n.reportsThisMonthIncomeSubtitle(
-                        reportFormatMoney(l10n, monthIncome),
-                      ),
-                    ),
+                PrideNavCardTile(
+                  icon: Icons.payments_outlined,
+                  colorIndex: 0,
+                  title: l10n.reportsThisMonthIncomeTitle,
+                  subtitle: l10n.reportsThisMonthIncomeSubtitle(
+                    reportFormatMoney(l10n, monthIncome),
                   ),
+                  showChevron: false,
                 ),
-                Card(
-                  child: ListTile(
-                    leading: const Icon(Icons.pending_actions_outlined),
-                    title: Text(l10n.reportsThisMonthOpenUnpaidTitle),
-                    subtitle: Text(
-                      l10n.reportsThisMonthOpenUnpaidSubtitle(
-                        reportFormatMoney(l10n, openUnpaid),
-                      ),
-                    ),
+                PrideNavCardTile(
+                  icon: Icons.pending_actions_outlined,
+                  colorIndex: 1,
+                  title: l10n.reportsThisMonthOpenUnpaidTitle,
+                  subtitle: l10n.reportsThisMonthOpenUnpaidSubtitle(
+                    reportFormatMoney(l10n, openUnpaid),
                   ),
+                  showChevron: false,
                 ),
-                Card(
-                  child: ListTile(
-                    leading: const Icon(Icons.pie_chart_outline),
-                    title: Text(l10n.reportsOrdersSummaryTitle),
-                    subtitle: Text(
-                      statusLine ?? l10n.reportsOrdersSummaryEmpty,
-                      maxLines: 4,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
+                PrideNavCardTile(
+                  icon: Icons.pie_chart_outline,
+                  colorIndex: 2,
+                  title: l10n.reportsOrdersSummaryTitle,
+                  subtitle: statusLine ?? l10n.reportsOrdersSummaryEmpty,
+                  showChevron: false,
                 ),
-                Card(
-                  child: ListTile(
-                    leading: const Icon(Icons.warning_amber_outlined),
-                    title: Text(l10n.reportsUnpaidCardTitle),
-                    subtitle: Text(
-                      l10n.reportsUnpaidCardSubtitle(
-                        reportFormatMoney(l10n, unpaidTotal),
-                      ),
-                    ),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => context.push('/app/reports/unpaid'),
+                PrideNavCardTile(
+                  icon: Icons.warning_amber_outlined,
+                  colorIndex: 3,
+                  title: l10n.reportsUnpaidCardTitle,
+                  subtitle: l10n.reportsUnpaidCardSubtitle(
+                    reportFormatMoney(l10n, unpaidTotal),
                   ),
+                  onTap: () => context.push('/app/reports/unpaid'),
                 ),
-                Card(
-                  child: ListTile(
-                    leading: const Icon(Icons.calendar_month_outlined),
-                    title: Text(l10n.reportsMonthlyIncomeTitle),
-                    subtitle: Text(l10n.reportsMonthlyIncomeSubtitle),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => context.push('/app/reports/monthly-income'),
-                  ),
+                PrideNavCardTile(
+                  icon: Icons.calendar_month_outlined,
+                  colorIndex: 4,
+                  title: l10n.reportsMonthlyIncomeTitle,
+                  subtitle: l10n.reportsMonthlyIncomeSubtitle,
+                  onTap: () => context.push('/app/reports/monthly-income'),
                 ),
-                Card(
-                  child: ListTile(
-                    leading: const Icon(Icons.local_shipping_outlined),
-                    title: Text(l10n.reportsDeliveredCardTitle),
-                    subtitle: Text(l10n.reportsDeliveredCardSubtitle),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => context.push('/app/reports/delivered'),
-                  ),
+                PrideNavCardTile(
+                  icon: Icons.local_shipping_outlined,
+                  colorIndex: 5,
+                  title: l10n.reportsDeliveredCardTitle,
+                  subtitle: l10n.reportsDeliveredCardSubtitle,
+                  onTap: () => context.push('/app/reports/delivered'),
                 ),
-                Card(
-                  child: ListTile(
-                    leading: const Icon(Icons.receipt_long_outlined),
-                    title: Text(l10n.reportsPaymentsLedgerTitle),
-                    subtitle: Text(l10n.reportsPaymentsLedgerSubtitle),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => context.push('/app/reports/payments'),
-                  ),
+                PrideNavCardTile(
+                  icon: Icons.receipt_long_outlined,
+                  colorIndex: 6,
+                  title: l10n.reportsPaymentsLedgerTitle,
+                  subtitle: l10n.reportsPaymentsLedgerSubtitle,
+                  onTap: () => context.push('/app/reports/payments'),
                 ),
               ],
             );

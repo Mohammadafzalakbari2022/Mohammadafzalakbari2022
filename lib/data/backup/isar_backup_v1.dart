@@ -312,10 +312,13 @@ abstract final class IsarBackupV1 {
         'updatedAt': o.updatedAt.toUtc().toIso8601String(),
         'totalAmountMinor': o.totalAmountMinor,
         'measurementsSnapshot': o.measurementsSnapshot,
-        'styleNotes': o.styleNotes,
         'internalNotes': o.internalNotes,
         'sourceMeasurementProfileId': o.sourceMeasurementProfileId,
         'sourceMeasurementProfileLabel': o.sourceMeasurementProfileLabel,
+        'styleName': o.styleName,
+        'styleNameInternalId': o.styleNameInternalId,
+        'styleSelectionJson': o.styleSelectionJson,
+        'styleSummary': o.styleSummary,
         'deletedAt': o.deletedAt?.toUtc().toIso8601String(),
       };
 
@@ -330,12 +333,15 @@ abstract final class IsarBackupV1 {
       ..updatedAt = DateTime.parse(m['updatedAt']! as String).toLocal()
       ..totalAmountMinor = (m['totalAmountMinor'] as num).toInt()
       ..measurementsSnapshot = m['measurementsSnapshot'] as String? ?? ''
-      ..styleNotes = m['styleNotes'] as String? ?? ''
       ..internalNotes = m['internalNotes'] as String? ?? ''
       ..sourceMeasurementProfileId =
           m['sourceMeasurementProfileId'] as String?
       ..sourceMeasurementProfileLabel =
-          m['sourceMeasurementProfileLabel'] as String? ?? '';
+          m['sourceMeasurementProfileLabel'] as String? ?? ''
+      ..styleName = m['styleName'] as String? ?? ''
+      ..styleNameInternalId = m['styleNameInternalId'] as String?
+      ..styleSelectionJson = m['styleSelectionJson'] as String? ?? ''
+      ..styleSummary = m['styleSummary'] as String? ?? '';
     final createdRaw = m['createdAt'] as String?;
     o.createdAt =
         createdRaw == null ? null : DateTime.parse(createdRaw).toLocal();

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 import 'package:pride_v3/licensing/license_status_refresh_host.dart';
 
+import 'app_theme.dart';
 import '../features/settings/settings_providers.dart';
 import '../router/app_router.dart';
 
@@ -38,17 +39,8 @@ class AfghanPrideApp extends ConsumerWidget {
           return const Locale('fa');
         },
         locale: localeOverride,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF7C3AED)),
-          useMaterial3: true,
-        ),
-        darkTheme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFF7C3AED),
-            brightness: Brightness.dark,
-          ),
-          useMaterial3: true,
-        ),
+        theme: buildPrideLightTheme(),
+        darkTheme: buildPrideDarkTheme(),
         themeMode: themeMode,
       ),
     );

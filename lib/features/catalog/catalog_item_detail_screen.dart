@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pride_v3/core/calendar/app_calendar_format.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
+import 'package:pride_v3/core/feedback/app_feedback.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../auth/auth_providers.dart';
@@ -28,40 +29,28 @@ class CatalogItemDetailScreen extends ConsumerWidget {
     CatalogItemDetail item,
   ) async {
     final license = ref.read(licenseNotifierProvider);
-    if (license.isExpired) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(l10n.licenseExpiredReadOnly)));
+    if (ref.read(licenseEditingBlockedProvider)) {
+      showAppFeedback(
+        context,
+        ref,
+        kind: AppFeedbackKind.error,
+        message: licenseWriteBlockedMessage(license, l10n),
+      );
       return;
     }
 
     final nameCtrl = TextEditingController(text: item.designName);
-    final notesCtrl = TextEditingController(text: item.notes ?? '');
 
     final ok = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(l10n.catalogEditMetadataTitle),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameCtrl,
-              decoration: InputDecoration(
-                labelText: l10n.catalogDesignNameLabel,
-                hintText: l10n.catalogDesignNameHint,
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: notesCtrl,
-              minLines: 2,
-              maxLines: 6,
-              decoration: InputDecoration(
-                labelText: l10n.catalogNotesLabel,
-                hintText: l10n.catalogNotesHint,
-              ),
-            ),
-          ],
+        content: TextField(
+          controller: nameCtrl,
+          decoration: InputDecoration(
+            labelText: l10n.catalogDesignNameLabel,
+            hintText: l10n.catalogDesignNameHint,
+          ),
         ),
         actions: [
           TextButton(
@@ -79,13 +68,11 @@ class CatalogItemDetailScreen extends ConsumerWidget {
     if (ok != true) return;
     final nextName = nameCtrl.text.trim();
     if (nextName.isEmpty) return;
-    final nextNotes = notesCtrl.text.trim();
-
     final repo = await ref.read(catalogRepositoryProvider.future);
     await repo.updateMetadata(
       internalId: item.internalId,
       designName: nextName,
-      notes: nextNotes.isEmpty ? null : nextNotes,
+      notes: item.notes,
     );
     final shopId = ref.read(effectiveShopIdProvider);
     final now = DateTime.now();
@@ -97,7 +84,7 @@ class CatalogItemDetailScreen extends ConsumerWidget {
       payloadJson: _catalogItemUpsertPayloadJson(
         item,
         designName: nextName,
-        notes: nextNotes.isEmpty ? null : nextNotes,
+        notes: item.notes,
         isSharedPublic: item.isSharedPublic,
         updatedAt: now,
       ),
@@ -105,8 +92,12 @@ class CatalogItemDetailScreen extends ConsumerWidget {
     ref.invalidate(catalogItemDetailProvider(item.internalId));
 
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(l10n.saved)));
+    showAppFeedback(
+      context,
+      ref,
+      kind: AppFeedbackKind.success,
+      message: l10n.saved,
+    );
   }
 
   Future<void> _delete(
@@ -116,9 +107,13 @@ class CatalogItemDetailScreen extends ConsumerWidget {
     CatalogItemDetail item,
   ) async {
     final license = ref.read(licenseNotifierProvider);
-    if (license.isExpired) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(l10n.licenseExpiredReadOnly)));
+    if (ref.read(licenseEditingBlockedProvider)) {
+      showAppFeedback(
+        context,
+        ref,
+        kind: AppFeedbackKind.error,
+        message: licenseWriteBlockedMessage(license, l10n),
+      );
       return;
     }
 
@@ -152,9 +147,13 @@ class CatalogItemDetailScreen extends ConsumerWidget {
     await repo.softDelete(item.internalId);
 
     if (!context.mounted) return;
+    showAppFeedback(
+      context,
+      ref,
+      kind: AppFeedbackKind.success,
+      message: l10n.deleted,
+    );
     context.pop();
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(l10n.deleted)));
   }
 
   @override
@@ -267,9 +266,15 @@ class CatalogItemDetailScreen extends ConsumerWidget {
                         onChanged: sharingEnabled
                             ? (v) async {
                                 final license = ref.read(licenseNotifierProvider);
-                                if (license.isExpired) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text(l10n.licenseExpiredReadOnly)),
+                                if (ref.read(licenseEditingBlockedProvider)) {
+                                  showAppFeedback(
+                                    context,
+                                    ref,
+                                    kind: AppFeedbackKind.error,
+                                    message: licenseWriteBlockedMessage(
+                                      license,
+                                      l10n,
+                                    ),
                                   );
                                   return;
                                 }
@@ -299,21 +304,7 @@ class CatalogItemDetailScreen extends ConsumerWidget {
                               }
                             : null,
                       ),
-                      const Divider(height: 1),
-                      ListTile(
-                        leading: const Icon(Icons.notes_outlined),
-                        title: Text(l10n.catalogNotesTitle),
-                        subtitle: Text(item.notes ?? l10n.catalogNotesEmpty),
-                      ),
                     ],
-                  ),
-                )
-              else
-                Card(
-                  child: ListTile(
-                    leading: const Icon(Icons.notes_outlined),
-                    title: Text(l10n.catalogNotesTitle),
-                    subtitle: Text(item.notes ?? l10n.catalogNotesEmpty),
                   ),
                 ),
             ],

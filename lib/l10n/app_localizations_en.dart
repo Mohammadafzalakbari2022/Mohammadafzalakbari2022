@@ -15,7 +15,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tabOrders => 'Orders';
 
   @override
-  String get tabCustomers => 'Customers';
+  String get tabCustomers => 'Customer list';
+
+  @override
+  String get tabOrdersList => 'Orders list';
 
   @override
   String get tabCatalog => 'Catalog';
@@ -207,7 +210,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashboardKpiValuePlaceholder => '—';
 
   @override
-  String get dashboardOpenMenuTooltip => 'Open menu';
+  String get dashboardOpenMenuTooltip => 'Open dashboard';
+
+  @override
+  String get dashboardOrdersPipelineTitle => 'Order pipeline';
+
+  @override
+  String get dashboardRecentIncomeTitle => 'Income — last 7 days';
+
+  @override
+  String get dashboardActivitySectionTitle => 'Sync & notifications';
 
   @override
   String get subscriptionTitle => 'Subscription';
@@ -273,6 +285,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String ordersTakenOn(String dateTime) {
+    return 'Taken: $dateTime';
+  }
+
+  @override
   String get ordersWebDataHint =>
       'Web preview uses in-memory sample data (Isar runs on Android/iOS/desktop).';
 
@@ -327,6 +344,41 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ordersFilteredEmpty => 'No orders match your search or filters.';
+
+  @override
+  String get ordersFilterSheetTitle => 'Filters';
+
+  @override
+  String get ordersFilterQuickSection => 'Quick filters';
+
+  @override
+  String get ordersFilterDeliverySection => 'Delivery date';
+
+  @override
+  String get ordersFilterStatusSection => 'Status';
+
+  @override
+  String get ordersFilterClearAll => 'Clear all';
+
+  @override
+  String get ordersFilterApply => 'Apply';
+
+  @override
+  String get listToolbarSearchTooltip => 'Search';
+
+  @override
+  String get listToolbarFilterTooltip => 'Filters';
+
+  @override
+  String get appShellTapTitleForMenu => 'Tap to open dashboard menu';
+
+  @override
+  String get ordersDetailFromNewBanner =>
+      'Tip: use the toolbar above to print the receipt or share the invoice.';
+
+  @override
+  String get ordersComposerPostSaveSubtitle =>
+      'Print, share, or open the full order.';
 
   @override
   String get ordersDetailNotFound => 'This order could not be found.';
@@ -484,7 +536,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paymentAmountLabel => 'Amount';
 
   @override
-  String get paymentAmountHint => 'Enter amount (no decimals)';
+  String get paymentAmountHint => 'Example: 300';
 
   @override
   String paymentAmount(String amount) {
@@ -532,6 +584,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get customerNoTodayOrders => 'No orders for today.';
+
+  @override
+  String get customerOrderHistoryTitle => 'Order history';
+
+  @override
+  String get customerNoOrders => 'No orders yet for this customer.';
 
   @override
   String get customerViewAllOrders => 'View all orders for this customer';
@@ -975,6 +1033,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get catalogAddDesignCta => 'Add design';
 
   @override
+  String get catalogViewDescription => 'Description';
+
+  @override
+  String get catalogDescriptionSheetTitle => 'Description';
+
+  @override
+  String get catalogNoDescription => 'No description for this design.';
+
+  @override
+  String get catalogViewerManageA11y => 'Manage design';
+
+  @override
   String get catalogAddDesignPlaceholder =>
       'Camera / Gallery add will be implemented on Android/iOS only (plan-14).';
 
@@ -1193,6 +1263,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get themeDark => 'Dark';
 
   @override
+  String get settingsUiSoundsTitle => 'UI sounds';
+
+  @override
+  String get settingsUiSoundsSubtitle =>
+      'Short sound when an action succeeds (for example, saving).';
+
+  @override
+  String get settingsUiHapticsTitle => 'Haptic feedback';
+
+  @override
+  String get settingsUiHapticsSubtitle =>
+      'Light vibration on successful actions.';
+
+  @override
   String get settingsLanguageTitle => 'Language';
 
   @override
@@ -1291,6 +1375,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resetCta => 'Reset';
 
   @override
+  String get licenseGraceReadOnlySnack =>
+      'Read-only until your license is verified online.';
+
+  @override
+  String get licenseClockTamperSnack =>
+      'Read-only: device clock looks inconsistent. Open Subscription while online to verify.';
+
+  @override
   String get licenseExpiredReadOnly => 'License expired — read-only mode.';
 
   @override
@@ -1330,18 +1422,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get ordersComposerStyleTitle => 'Style';
-
-  @override
-  String get ordersComposerStyleRequired => 'Select style (required)';
-
-  @override
-  String get ordersComposerStyleLabel => 'Design / style';
-
-  @override
-  String get ordersComposerStyleHint => 'Example: Karzai, collar, pockets…';
-
-  @override
   String get ordersComposerPaymentTitle => 'Payment';
 
   @override
@@ -1360,13 +1440,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ordersComposerTotalLabel => 'Total amount (AFN)';
 
   @override
-  String get ordersComposerTotalHint => 'Example: 150000';
+  String get ordersComposerTotalHint => 'Example: 1500';
 
   @override
   String get ordersComposerPaidLabel => 'Initial paid (AFN)';
 
   @override
-  String get ordersComposerPaidHint => 'Example: 50000';
+  String get ordersComposerPaidHint => 'Example: 500';
 
   @override
   String get ordersComposerDeliveryDateTitle => 'Delivery date';
@@ -1394,6 +1474,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Please select a customer before continuing.';
 
   @override
+  String get ordersComposerValidationTitle => 'Complete required steps';
+
+  @override
+  String get ordersComposerValidationBody =>
+      'Fill in the following before saving this order:';
+
+  @override
   String get ordersComposerRecentOrdersTitle => 'Recent orders';
 
   @override
@@ -1403,6 +1490,155 @@ class AppLocalizationsEn extends AppLocalizations {
   String ordersComposerRecentOrderRowSubtitle(String date, String remaining) {
     return '$date • $remaining remaining';
   }
+
+  @override
+  String get ordersComposerMeasurementsSheetTitle => 'Measurements';
+
+  @override
+  String get ordersComposerMeasurementsNoTypesBody =>
+      'Add measurement types in Settings → Measurement types first.';
+
+  @override
+  String ordersComposerMeasurementsProfileAutoLabel(String date) {
+    return 'Pattern #$date';
+  }
+
+  @override
+  String get ordersComposerSaveMeasurementsToProfile =>
+      'Save as customer profile';
+
+  @override
+  String get ordersComposerSaveMeasurementsToProfileSubtitle =>
+      'Updates saved measurements on the selected customer.';
+
+  @override
+  String get ordersComposerAddMeasurementsCta => 'Add measurements';
+
+  @override
+  String get ordersComposerStyleTitle => 'Style';
+
+  @override
+  String get ordersComposerStyleRequired => 'Add style (required)';
+
+  @override
+  String get ordersComposerStyleSummary => 'Style selected';
+
+  @override
+  String get ordersComposerStyleSheetTitle => 'Order style';
+
+  @override
+  String get ordersComposerStyleMainTitle => 'Main cloth style';
+
+  @override
+  String get ordersComposerStyleCustomLabel => 'Style name';
+
+  @override
+  String get ordersComposerStyleCustomHint => 'Select above or type custom';
+
+  @override
+  String get ordersComposerStyleFiguresTitle => 'Design figures';
+
+  @override
+  String get ordersComposerStyleNoFigures =>
+      'No design figures yet — add them in Settings → Order style.';
+
+  @override
+  String get ordersComposerStyleClearFigures => 'Clear all selections';
+
+  @override
+  String get settingsStyleHubTitle => 'Order style';
+
+  @override
+  String get settingsStyleTileTitle => 'Order style';
+
+  @override
+  String get settingsStyleTileSubtitle => 'Style names and design figures';
+
+  @override
+  String get settingsStyleNamesTitle => 'Cloth style names';
+
+  @override
+  String get settingsStyleNamesSubtitle =>
+      'Qasimi, Kandahari, and custom names';
+
+  @override
+  String get settingsStyleNamesEmpty => 'No style names yet.';
+
+  @override
+  String get settingsStyleNameAddCta => 'Add style name';
+
+  @override
+  String get settingsStyleNameFieldLabel => 'Name';
+
+  @override
+  String get settingsStyleNameRenameTitle => 'Rename style';
+
+  @override
+  String get settingsStyleNameDeleteTitle => 'Delete style?';
+
+  @override
+  String get settingsStyleNameDeleteBody =>
+      'This removes the name from the list. Existing orders are not changed.';
+
+  @override
+  String get settingsStylePartsTitle => 'Garment parts';
+
+  @override
+  String get settingsStylePartsSubtitle => 'Sleeve, collar, pocket, and more';
+
+  @override
+  String get settingsStylePartsEmpty => 'No parts yet.';
+
+  @override
+  String get settingsStylePartAddCta => 'Add part';
+
+  @override
+  String get settingsStylePartFieldLabel => 'Part name';
+
+  @override
+  String get settingsStylePartRenameTitle => 'Rename part';
+
+  @override
+  String get settingsStylePartDeleteTitle => 'Delete part?';
+
+  @override
+  String get settingsStylePartDeleteBody =>
+      'Figures for this part are also removed.';
+
+  @override
+  String get settingsStyleFiguresTitle => 'Design figures';
+
+  @override
+  String get settingsStyleFiguresSubtitle => 'All tailoring design images';
+
+  @override
+  String get settingsStyleFiguresEmpty => 'No design figures yet.';
+
+  @override
+  String get settingsStyleFigurePartLabel => 'Garment part';
+
+  @override
+  String get settingsStyleFigureAddCta => 'Add figure';
+
+  @override
+  String get settingsStyleFigureNameLabel => 'Figure name';
+
+  @override
+  String get settingsStyleFigureDeleteTitle => 'Delete figure?';
+
+  @override
+  String get settingsStyleFigureDeleteBody =>
+      'This removes the design from your catalog.';
+
+  @override
+  String get settingsStyleFigureWebOnlyBody =>
+      'Adding custom images is available on Android and iOS. Bundled figures still work on web.';
+
+  @override
+  String get settingsStyleActiveLabel => 'Active';
+
+  @override
+  String get settingsStyleInactiveLabel => 'Inactive';
 
   @override
   String get saveCta => 'Save';
@@ -1527,6 +1763,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your license is expired. Renew to edit again.';
 
   @override
+  String get dashboardLicenseGraceBanner =>
+      'You have been offline too long since the server verified your license. Open Subscription and refresh while online.';
+
+  @override
+  String get dashboardLicenseClockTamperBanner =>
+      'Device time may have been changed. Connect online and refresh your license on Subscription to keep editing.';
+
+  @override
   String get dashboardTodayDeliveriesTitle => 'Delivered today';
 
   @override
@@ -1616,6 +1860,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get subscriptionReadOnlyHint => 'View-only mode until you renew.';
+
+  @override
+  String get subscriptionGraceReadOnlyHint =>
+      'Read-only until the server can verify your license. Connect to the internet and tap Refresh status below.';
+
+  @override
+  String get subscriptionClockTamperHint =>
+      'Read-only until the server confirms your license after a device time check. Tap Refresh status while online.';
 
   @override
   String get subscriptionActivationTitle => 'Activation';
@@ -1887,7 +2139,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsBackupInvalidFile => 'Could not read this backup file.';
 
   @override
-  String get settingsNotificationsFiltersTitle => 'Filters (preview)';
+  String get settingsNotificationsFiltersTitle => 'Filters';
 
   @override
   String get settingsNotifFilterAll => 'All';
@@ -1907,6 +2159,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsNotificationsInboxEmptyHint =>
       'History will appear here for order, license, and backup events.';
+
+  @override
+  String get settingsNotificationsInboxFilterEmpty =>
+      'No notifications match this filter.';
 
   @override
   String get settingsSyncLastSyncTitle => 'Last successful sync';
@@ -1969,6 +2225,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsSyncRetryLicenseExpired =>
       'The server refused sync because the license is expired. Open Subscription.';
+
+  @override
+  String get settingsSyncRetryEditingBlocked =>
+      'Sync is paused in read-only mode. Open Subscription when you are online.';
 
   @override
   String settingsSyncRetrySuccess(int pushed, int pulled) {
@@ -2034,6 +2294,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get devPortalTabDiagnostics => 'Diagnostics';
 
   @override
+  String get devPortalTabAccount => 'My password';
+
+  @override
+  String get devPortalMyPasswordTitle => 'Change your password';
+
+  @override
+  String get devPortalMyPasswordSubtitle =>
+      'Username cannot be changed here. Use your current password, then choose a new one (at least 6 characters).';
+
+  @override
+  String get devPortalCurrentPasswordLabel => 'Current password';
+
+  @override
+  String get devPortalNewPasswordLabel => 'New password';
+
+  @override
+  String get devPortalConfirmPasswordLabel => 'Confirm new password';
+
+  @override
+  String get devPortalPasswordMismatch =>
+      'New password and confirmation do not match.';
+
+  @override
+  String get devPortalChangePasswordCta => 'Update password';
+
+  @override
+  String get devPortalChangePasswordOk =>
+      'Password updated. Use the new password next time you sign in.';
+
+  @override
+  String get devPortalChangePasswordFail => 'Could not update password.';
+
+  @override
   String get devPortalOnlineRequired =>
       'Developer tools require an online connection and a verified developer account.';
 
@@ -2069,6 +2362,51 @@ class AppLocalizationsEn extends AppLocalizations {
       one: '1 user',
     );
     return '$_temp0';
+  }
+
+  @override
+  String get devPortalShopDisabledLabel => 'Disabled';
+
+  @override
+  String get devPortalShopActionsTooltip => 'Shop actions';
+
+  @override
+  String get devPortalShopDisableCta => 'Disable shop';
+
+  @override
+  String get devPortalShopEnableCta => 'Enable shop';
+
+  @override
+  String get devPortalShopExtendCta => 'Extend license…';
+
+  @override
+  String get devPortalShopExtendTitle => 'Extend license';
+
+  @override
+  String get devPortalShopExtendHint =>
+      'Days to add from today or current expiry (whichever is later).';
+
+  @override
+  String get devPortalShopExtendDaysLabel => 'Days';
+
+  @override
+  String get devPortalShopActionOk => 'Done.';
+
+  @override
+  String get devPortalShopPushTestCta => 'Test push…';
+
+  @override
+  String get devPortalShopPushTitle => 'Test push notification';
+
+  @override
+  String get devPortalShopPushNotifTitleLabel => 'Notification title';
+
+  @override
+  String get devPortalShopPushBodyLabel => 'Message';
+
+  @override
+  String devPortalShopPushResult(int success, int failed, String reason) {
+    return 'Sent: $success, failed: $failed. Reason: $reason.';
   }
 
   @override
@@ -2185,13 +2523,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shopProfileIntro =>
-      'This shop name appears as the designer label on your catalog items. Contact fields are for your reference until invoicing is connected.';
+      'Name, logo, address, and thank-you message appear on printed receipts and shared invoices. Notes below are for your own reference only.';
 
   @override
   String get shopProfileNameLabel => 'Shop name';
 
   @override
-  String get shopProfileNameHint => 'Example: Pride Tailoring';
+  String get shopProfileNameHint => 'Example: Karzai Tailoring Shop';
 
   @override
   String get shopProfileNameRequired => 'Shop name is required.';
@@ -2203,13 +2541,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shopProfileShopPhoneLabel => 'Shop phone (optional)';
 
   @override
-  String get shopProfileShopPhoneHint => 'Example: 0700000000';
+  String get shopProfileShopPhoneHint => 'Example: 0701234567';
 
   @override
   String get shopProfileAddressLabel => 'Address (optional)';
 
   @override
-  String get shopProfileAddressHint => 'Street, area, city…';
+  String get shopProfileAddressHint => 'Example: Karte Char, Kabul';
+
+  @override
+  String get shopProfileReceiptThanksLabel =>
+      'Receipt thank-you message (optional)';
+
+  @override
+  String get shopProfileReceiptThanksHint =>
+      'Example: Thank you for your business!';
 
   @override
   String get shopProfileNotesLabel => 'Notes (optional)';
@@ -2400,5 +2746,71 @@ class AppLocalizationsEn extends AppLocalizations {
   String get receiptPaymentsHeader => 'Payments';
 
   @override
-  String get receiptFooterThanks => 'Thank you';
+  String get receiptShopPhoneLabel => 'Shop phone';
+
+  @override
+  String get receiptShopAddressLabel => 'Address';
+
+  @override
+  String get receiptShareDivider => '--------------------------------';
+
+  @override
+  String get receiptShareSectionRule => '================================';
+
+  @override
+  String get settingsPrinterRetryHint =>
+      'If the printer is busy, the app retries the connection a few times automatically.';
+
+  @override
+  String get shopProfileLogoSectionTitle => 'Invoice header logo';
+
+  @override
+  String get shopProfileLogoSubtitle =>
+      'Shown at the top of thermal receipts and shared invoice text (Android / iOS). Square images work best.';
+
+  @override
+  String get shopProfileLogoPickCta => 'Choose image';
+
+  @override
+  String get shopProfileLogoRemoveCta => 'Remove logo';
+
+  @override
+  String get shopProfileLogoSaved => 'Logo saved.';
+
+  @override
+  String get shopProfileLogoWebHint =>
+      'Logo upload is available in the Android and iOS apps.';
+
+  @override
+  String get shopProfileLogoStatusOnFile =>
+      'Logo saved on this device for receipts.';
+
+  @override
+  String get shopProfileLogoDefaultCaption =>
+      'Default logo on receipts until you upload your own.';
+
+  @override
+  String get defaultShopName => 'My tailoring shop';
+
+  @override
+  String get defaultShopAddress => 'Kabul, Afghanistan';
+
+  @override
+  String get defaultShopPhone => '0701234567';
+
+  @override
+  String get orderShareInvoiceTooltip => 'Share invoice';
+
+  @override
+  String orderShareInvoiceFail(String detail) {
+    return 'Share failed: $detail';
+  }
+
+  @override
+  String orderShareInvoiceSubject(String orderNo) {
+    return 'Order $orderNo';
+  }
+
+  @override
+  String get receiptFooterThanks => 'Thank you for your business!';
 }

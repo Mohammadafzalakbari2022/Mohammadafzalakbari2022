@@ -7,18 +7,32 @@ import 'package:intl/intl.dart';
 import 'package:pride_v3/core/calendar/app_calendar_format.dart';
 import 'package:pride_v3/core/calendar/app_date_picker.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
+import 'package:pride_v3/app/app_theme.dart';
+import 'package:pride_v3/core/feedback/app_feedback.dart';
+import 'package:pride_v3/core/widgets/pride_action_buttons.dart';
+import 'package:pride_v3/core/widgets/pride_alert_dialog.dart';
+import 'package:pride_v3/core/printing/thermal_print_order.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../auth/auth_providers.dart';
+import '../customers/new_customer_screen.dart';
 import '../../data/local/customer_summary.dart';
 import '../../data/local/dev_shop_constants.dart';
 import '../../data/local/order_measurement_snapshot_item_input.dart';
+import '../../data/local/order_summary.dart';
 import '../../data/local/measurement_profile_summary.dart';
+import '../../data/local/payment_summary.dart';
 import '../../data/local/sync_outbox_kinds.dart';
 import '../../data/providers/local_data_providers.dart';
 import '../../licensing/license_providers.dart';
 import '../../shell/shell_sync_providers.dart';
+import '../../data/local/style/style_order_selection.dart';
+import 'order_composer_customer_picker.dart';
+import 'order_composer_measurements_sheet.dart';
+import 'order_composer_style_sheet.dart';
+import 'order_invoice_share.dart';
+import 'order_status_label.dart';
 
 class OrderComposerScreen extends ConsumerStatefulWidget {
   const OrderComposerScreen({super.key});
@@ -26,6 +40,8 @@ class OrderComposerScreen extends ConsumerStatefulWidget {
   @override
   ConsumerState<OrderComposerScreen> createState() => _OrderComposerScreenState();
 }
+
+const _kComposerSectionGap = 14.0;
 
 class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
   String? _selectedCustomerId;
@@ -38,18 +54,20 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
   List<OrderMeasurementSnapshotItemInput> _measurementSnapshotItems = [];
 
   final _measurementsController = TextEditingController();
-  final _styleController = TextEditingController();
 
   final _totalController = TextEditingController();
   final _paidController = TextEditingController();
 
+  String _styleName = '';
+  String? _styleNameInternalId;
+  StyleOrderSelection _styleSelection = const StyleOrderSelection.empty();
+  String _styleSummary = '';
+
   DateTime? _deliveryDate;
-  int _expanded = 0;
 
   @override
   void dispose() {
     _measurementsController.dispose();
-    _styleController.dispose();
     _totalController.dispose();
     _paidController.dispose();
     super.dispose();
@@ -60,12 +78,60 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     final paid = int.tryParse(_paidController.text.trim()) ?? 0;
     if (_selectedCustomerId == null) return false;
     if (_measurementsController.text.trim().isEmpty) return false;
-    if (_styleController.text.trim().isEmpty) return false;
+    if (_styleName.trim().isEmpty) return false;
     if (_deliveryDate == null) return false;
     if (total == null || total <= 0) return false;
     if (paid < 0) return false;
     if (paid > total) return false;
     return true;
+  }
+
+  void _applyCustomer(CustomerSummary c) {
+    setState(() {
+      _selectedCustomerId = c.internalId;
+      _selectedCustomerName = c.name;
+      _selectedCustomerPhone = c.phone;
+      _selectedCustomerLabel =
+          c.phone == null ? c.name : '${c.name} • ${c.phone}';
+      _measurementSourceProfileId = null;
+      _measurementSourceProfileLabel = '';
+      _measurementSnapshotItems = [];
+      _measurementsController.clear();
+      _styleName = '';
+      _styleNameInternalId = null;
+      _styleSelection = const StyleOrderSelection.empty();
+      _styleSummary = '';
+    });
+  }
+
+  void _clearSelectedCustomer() {
+    setState(() {
+      _selectedCustomerId = null;
+      _selectedCustomerLabel = null;
+      _selectedCustomerName = null;
+      _selectedCustomerPhone = null;
+      _measurementSourceProfileId = null;
+      _measurementSourceProfileLabel = '';
+      _measurementSnapshotItems = [];
+      _measurementsController.clear();
+    });
+  }
+
+  Future<void> _openStyleSheet(BuildContext context) async {
+    final result = await showOrderComposerStyleSheet(
+      context: context,
+      ref: ref,
+      initialMainStyle: _styleName,
+      initialStyleNameInternalId: _styleNameInternalId,
+      initialSelection: _styleSelection,
+    );
+    if (!mounted || result == null) return;
+    setState(() {
+      _styleName = result.mainStyleName;
+      _styleNameInternalId = result.styleNameInternalId;
+      _styleSelection = result.selection;
+      _styleSummary = result.summary;
+    });
   }
 
   Future<void> _pickDeliveryDate(BuildContext context) async {
@@ -83,25 +149,23 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     );
     if (!mounted) return;
     if (picked == null) return;
-    setState(() => _deliveryDate = DateTime(picked.year, picked.month, picked.day));
+    setState(
+      () => _deliveryDate = DateTime(picked.year, picked.month, picked.day),
+    );
   }
 
   Future<void> _confirmReset(BuildContext context, AppLocalizations l10n) async {
-    final ok = await showDialog<bool>(
+    final ok = await showPrideAlertDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.ordersComposerResetTitle),
-        content: Text(l10n.ordersComposerResetBody),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(l10n.resetCta),
-          ),
-        ],
+      icon: Icons.restart_alt_outlined,
+      title: l10n.ordersComposerResetTitle,
+      content: Text(l10n.ordersComposerResetBody),
+      actions: prideDialogCancelSave(
+        context: context,
+        onCancel: () => Navigator.of(context).pop(false),
+        onConfirm: () => Navigator.of(context).pop(true),
+        saveLabel: l10n.resetCta,
+        confirmVariant: PrideButtonVariant.warning,
       ),
     );
     if (ok != true) return;
@@ -114,19 +178,253 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       _measurementSourceProfileLabel = '';
       _measurementSnapshotItems = [];
       _measurementsController.clear();
-      _styleController.clear();
       _totalController.clear();
       _paidController.clear();
       _deliveryDate = null;
-      _expanded = 0;
+      _styleName = '';
+      _styleNameInternalId = null;
+      _styleSelection = const StyleOrderSelection.empty();
+      _styleSummary = '';
     });
+  }
+
+  void _applyNewCustomerForOrder(NewCustomerForOrderResult created) {
+    final shopId =
+        effectiveShopIdFromAuth(ref.read(authSessionProvider).shopId);
+    _applyCustomer(
+      CustomerSummary(
+        shopId: shopId,
+        internalId: created.internalId,
+        name: created.name,
+        phone: created.phone,
+        createdAt: DateTime.now(),
+      ),
+    );
+  }
+
+  Future<void> _pickExistingCustomer(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) async {
+    var customers = ref.read(customersListStreamProvider).valueOrNull;
+    if (customers == null) {
+      await ref.read(customersListStreamProvider.future);
+      if (!context.mounted) return;
+      customers = ref.read(customersListStreamProvider).valueOrNull;
+    }
+    final list = customers ?? const <CustomerSummary>[];
+
+    final picked = await showOrderComposerCustomerPicker(
+      context: context,
+      customers: list,
+      l10n: l10n,
+      selectedId: _selectedCustomerId,
+    );
+    if (picked != null && mounted) _applyCustomer(picked);
+  }
+
+  Future<void> _openNewCustomerForm(BuildContext context) async {
+    final result = await context.push<Object?>(
+      '/app/customers/new?returnTo=orderComposer',
+    );
+    if (!mounted || result == null) return;
+    if (result is NewCustomerForOrderResult) {
+      _applyNewCustomerForOrder(result);
+      return;
+    }
+    // Legacy: id-only pop (stream lookup).
+    if (result is String) {
+      final list =
+          ref.read(customersListStreamProvider).valueOrNull ?? const [];
+      for (final c in list) {
+        if (c.internalId == result) {
+          _applyCustomer(c);
+          return;
+        }
+      }
+    }
+  }
+
+  Future<void> _openMeasurementsEditor(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) async {
+    if (_selectedCustomerId == null) {
+      await showPrideAlertDialog<void>(
+        context: context,
+        icon: Icons.person_outline,
+        iconColor: prideSettingsIconColor(0),
+        title: l10n.ordersComposerSelectCustomerFirstTitle,
+        content: Text(l10n.ordersComposerSelectCustomerFirstBody),
+        actions: [
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(MaterialLocalizations.of(context).okButtonLabel),
+          ),
+        ],
+      );
+      return;
+    }
+
+    final shopId =
+        effectiveShopIdFromAuth(ref.read(authSessionProvider).shopId);
+
+    // Wait for types to load — a null [AsyncValue] previously opened a freeform
+    // "notes" sheet on the first tap while the stream was still loading.
+    final typesState = ref.read(measurementTypesStreamProvider);
+    if (!typesState.hasValue && !typesState.hasError) {
+      await ref.read(measurementTypesStreamProvider.future);
+      if (!context.mounted) return;
+    }
+
+    final profiles = ref
+            .read(measurementProfilesForCustomerProvider(_selectedCustomerId!))
+            .valueOrNull ??
+        const <MeasurementProfileSummary>[];
+
+    if (!context.mounted) return;
+    final r = await showOrderMeasurementsEditorSheet(
+      context: context,
+      ref: ref,
+      l10n: l10n,
+      shopId: shopId,
+      customerId: _selectedCustomerId,
+      initialSnapshotText: _measurementsController.text,
+      initialItems: List<OrderMeasurementSnapshotItemInput>.of(
+        _measurementSnapshotItems,
+      ),
+      initialProfileId: _measurementSourceProfileId,
+      initialProfileLabel: _measurementSourceProfileLabel,
+      profiles: profiles,
+    );
+    if (r == null || !mounted) return;
+    setState(() {
+      _measurementsController.text = r.measurementsSnapshot;
+      _measurementSnapshotItems = r.measurementSnapshotItems;
+      _measurementSourceProfileId = r.sourceMeasurementProfileId;
+      _measurementSourceProfileLabel = r.sourceMeasurementProfileLabel;
+    });
+  }
+
+  OrderSummary? _orderFromStream(String orderId) {
+    final orders = ref.read(ordersListStreamProvider).valueOrNull;
+    if (orders == null) return null;
+    for (final o in orders) {
+      if (o.internalId == orderId) return o;
+    }
+    return null;
+  }
+
+  Future<OrderSummary?> _waitOrderSummary(String orderId) async {
+    for (var i = 0; i < 20; i++) {
+      final o = _orderFromStream(orderId);
+      if (o != null) return o;
+      await Future<void>.delayed(const Duration(milliseconds: 24));
+    }
+    return _orderFromStream(orderId);
+  }
+
+  Future<void> _showPostSaveSheet(
+    BuildContext context,
+    AppLocalizations l10n,
+    String orderId,
+  ) async {
+    final calendar = ref.read(dateCalendarSystemProvider);
+    final locale = Localizations.localeOf(context).toString();
+
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: Text(l10n.ordersComposerSaved),
+                subtitle: Text(l10n.ordersComposerPostSaveSubtitle),
+              ),
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.print_outlined),
+                title: Text(l10n.orderPrintReceiptTooltip),
+                onTap: () async {
+                  final o = await _waitOrderSummary(orderId);
+                  if (!ctx.mounted || o == null) return;
+                  final payments =
+                      ref.read(paymentsForOrderProvider(o.internalId)).valueOrNull ??
+                          const <PaymentSummary>[];
+                  await printThermalOrderReceipt(
+                    context: ctx,
+                    ref: ref,
+                    l10n: l10n,
+                    order: o,
+                    payments: payments,
+                    deliveryDateText: AppCalendarFormat.mediumDate(
+                      l10n,
+                      calendar,
+                      o.deliveryDate,
+                      locale,
+                    ),
+                    statusText: orderStatusLabel(o.status, l10n),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.share_outlined),
+                title: Text(l10n.orderShareInvoiceTooltip),
+                onTap: () async {
+                  final o = await _waitOrderSummary(orderId);
+                  if (!ctx.mounted || o == null) return;
+                  final payments =
+                      ref.read(paymentsForOrderProvider(o.internalId)).valueOrNull ??
+                          const <PaymentSummary>[];
+                  await shareOrderInvoiceText(
+                    context: ctx,
+                    ref: ref,
+                    l10n: l10n,
+                    order: o,
+                    payments: payments,
+                    deliveryDateText: AppCalendarFormat.mediumDate(
+                      l10n,
+                      calendar,
+                      o.deliveryDate,
+                      locale,
+                    ),
+                    statusText: orderStatusLabel(o.status, l10n),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.open_in_new),
+                title: Text(l10n.ordersDetailTitle),
+                onTap: () => Navigator.pop(ctx),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    child: Text(MaterialLocalizations.of(ctx).okButtonLabel),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _save(BuildContext context, AppLocalizations l10n) async {
     final license = ref.read(licenseNotifierProvider);
-    if (license.isExpired) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.licenseExpiredReadOnly)),
+    if (ref.read(licenseEditingBlockedProvider)) {
+      showAppFeedback(
+        context,
+        ref,
+        kind: AppFeedbackKind.error,
+        message: licenseWriteBlockedMessage(license, l10n),
       );
       return;
     }
@@ -148,13 +446,16 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       deliveryDate: deliveryDate,
       totalAmountMinor: totalMinor,
       measurementsSnapshot: _measurementsController.text.trim(),
-      styleNotes: _styleController.text.trim(),
       customerSnapshotName: _selectedCustomerName,
       customerSnapshotPhone: _selectedCustomerPhone,
       sourceMeasurementProfileId: _measurementSourceProfileId,
       sourceMeasurementProfileLabel: _measurementSourceProfileLabel,
       measurementSnapshotItems:
           _measurementSnapshotItems.isEmpty ? null : _measurementSnapshotItems,
+      styleName: _styleName.trim(),
+      styleNameInternalId: _styleNameInternalId,
+      styleSelectionJson: _styleSelection.toJsonString(),
+      styleSummary: _styleSummary,
     );
 
     recordSyncOutboxMutation(
@@ -168,15 +469,25 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
         'total_amount_minor': totalMinor,
         'initial_paid_minor': paidMinor,
         'measurements_snapshot': _measurementsController.text.trim(),
-        'style_notes': _styleController.text.trim(),
-        if (_selectedCustomerName != null && _selectedCustomerName!.trim().isNotEmpty)
+        if (_selectedCustomerName != null &&
+            _selectedCustomerName!.trim().isNotEmpty)
           'customer_snapshot_name': _selectedCustomerName!.trim(),
-        if (_selectedCustomerPhone != null && _selectedCustomerPhone!.trim().isNotEmpty)
+        if (_selectedCustomerPhone != null &&
+            _selectedCustomerPhone!.trim().isNotEmpty)
           'customer_snapshot_phone': _selectedCustomerPhone!.trim(),
         if (_measurementSourceProfileId != null &&
             _measurementSourceProfileId!.trim().isNotEmpty)
           'source_measurement_profile_id': _measurementSourceProfileId!.trim(),
-        'source_measurement_profile_label': _measurementSourceProfileLabel.trim(),
+        'source_measurement_profile_label':
+            _measurementSourceProfileLabel.trim(),
+        'style_name': _styleName.trim(),
+        if (_styleNameInternalId != null &&
+            _styleNameInternalId!.trim().isNotEmpty)
+          'style_name_internal_id': _styleNameInternalId!.trim(),
+        if (_styleSelection.selectedFigureIds.isNotEmpty)
+          'style_selection_json': _styleSelection.toJsonString(),
+        if (_styleSummary.trim().isNotEmpty)
+          'style_summary': _styleSummary.trim(),
       }),
     );
 
@@ -206,10 +517,16 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     }
 
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.ordersComposerSaved)),
+    showAppFeedback(
+      context,
+      ref,
+      kind: AppFeedbackKind.success,
+      message: l10n.ordersComposerSaved,
     );
-    context.go('/app/orders/$orderId');
+    await _showPostSaveSheet(context, l10n, orderId);
+    if (context.mounted) {
+      context.go('/app/orders/$orderId?fromNew=1');
+    }
   }
 
   String _money(AppLocalizations l10n, int minor) {
@@ -217,70 +534,124 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     return l10n.moneyAfn(fmt.format(minor));
   }
 
-  Widget _summaryRow(String label, String value) {
-    return Row(
-      children: [
-        Expanded(child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600))),
-        const SizedBox(width: 12),
-        Flexible(child: Text(value, textAlign: TextAlign.end)),
+  Future<void> _showValidationDialog(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) async {
+    final missing = <Widget>[];
+    if (_selectedCustomerId == null) {
+      missing.add(
+        PrideAlertDialogBullet(
+          icon: Icons.person_outline,
+          iconColor: prideSettingsIconColor(0),
+          label: l10n.ordersComposerCustomerRequired,
+        ),
+      );
+    }
+    if (_measurementsController.text.trim().isEmpty) {
+      missing.add(
+        PrideAlertDialogBullet(
+          icon: Icons.straighten,
+          iconColor: prideSettingsIconColor(1),
+          label: l10n.ordersComposerMeasurementsRequired,
+        ),
+      );
+    }
+    if (_styleName.trim().isEmpty) {
+      missing.add(
+        PrideAlertDialogBullet(
+          icon: Icons.checkroom_outlined,
+          iconColor: prideSettingsIconColor(2),
+          label: l10n.ordersComposerStyleRequired,
+        ),
+      );
+    }
+    if (_deliveryDate == null) {
+      missing.add(
+        PrideAlertDialogBullet(
+          icon: Icons.event_outlined,
+          iconColor: prideSettingsIconColor(3),
+          label: l10n.ordersComposerDeliveryDateUnset,
+        ),
+      );
+    }
+    final total = int.tryParse(_totalController.text.trim());
+    final paid = int.tryParse(_paidController.text.trim()) ?? 0;
+    if (total == null || total <= 0 || paid < 0 || paid > total) {
+      missing.add(
+        PrideAlertDialogBullet(
+          icon: Icons.payments_outlined,
+          iconColor: Theme.of(context).extension<PrideActionColors>()!.payment,
+          label: l10n.ordersComposerPaymentRequired,
+        ),
+      );
+    }
+
+    await showPrideAlertDialog<void>(
+      context: context,
+      icon: Icons.info_outline,
+      title: l10n.ordersComposerValidationTitle,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l10n.ordersComposerValidationBody),
+          const SizedBox(height: 12),
+          ...missing,
+        ],
+      ),
+      actions: [
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(MaterialLocalizations.of(context).okButtonLabel),
+        ),
       ],
     );
   }
 
-  Future<void> _pickMeasurementProfile(
-    BuildContext context,
-    AppLocalizations l10n,
-    List<MeasurementProfileSummary> profiles,
-  ) async {
-    final picked = await showModalBottomSheet<MeasurementProfileSummary>(
-      context: context,
-      showDragHandle: true,
-      builder: (ctx) {
-        return SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            children: [
-              ListTile(
-                title: Text(l10n.measurementProfilePickSheetTitle),
-              ),
-              const Divider(height: 1),
-              for (final p in profiles)
-                ListTile(
-                  title: Text(p.label),
-                  subtitle: Text(
-                    p.displayMeasurementsText,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  onTap: () => Navigator.pop(ctx, p),
-                ),
-            ],
-          ),
-        );
-      },
-    );
-    if (!mounted || picked == null) return;
-    var order = 0;
-    final items = <OrderMeasurementSnapshotItemInput>[];
-    for (final line in picked.lines) {
-      if (line.value.trim().isEmpty) continue;
-      order += 10;
-      items.add(
-        OrderMeasurementSnapshotItemInput(
-          measurementTypeInternalId: line.measurementTypeInternalId,
-          typeName: line.typeName,
-          value: line.value.trim(),
-          unitCode: line.unitCode,
-          sortOrder: order,
-        ),
-      );
+  void _onSavePressed(BuildContext context, AppLocalizations l10n) {
+    if (_canSave) {
+      _save(context, l10n);
+    } else {
+      _showValidationDialog(context, l10n);
     }
-    setState(() {
-      _measurementsController.text = picked.displayMeasurementsText;
-      _measurementSourceProfileId = picked.internalId;
-      _measurementSourceProfileLabel = picked.label;
-      _measurementSnapshotItems = items;
-    });
+  }
+
+  Widget _composerRequiredHint(String message) {
+    final scheme = Theme.of(context).colorScheme;
+    final warning = Theme.of(context).extension<PrideActionColors>()!.warning;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.info_outline, size: 18, color: warning),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              message,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w500,
+                  ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _summaryRow(String label, String value) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+        ),
+        const SizedBox(width: 12),
+        Flexible(child: Text(value, textAlign: TextAlign.end)),
+      ],
+    );
   }
 
   @override
@@ -288,11 +659,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).toString();
     final calendar = ref.watch(dateCalendarSystemProvider);
-    final customersAsync = ref.watch(customersListStreamProvider);
     final ordersAsync = ref.watch(ordersListStreamProvider);
-    final profilesAsync = _selectedCustomerId == null
-        ? null
-        : ref.watch(measurementProfilesForCustomerProvider(_selectedCustomerId!));
 
     final total = int.tryParse(_totalController.text.trim()) ?? 0;
     final paid = int.tryParse(_paidController.text.trim()) ?? 0;
@@ -302,12 +669,28 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
         ? l10n.ordersComposerDeliveryDateUnset
         : AppCalendarFormat.mediumDate(l10n, calendar, _deliveryDate!, locale);
 
+    final customerSubtitle =
+        _selectedCustomerLabel ?? l10n.ordersComposerCustomerRequired;
+    final measurementsSubtitle = _measurementsController.text.trim().isEmpty
+        ? l10n.ordersComposerMeasurementsRequired
+        : l10n.ordersComposerMeasurementsSummary;
+    final styleSubtitle = _styleName.trim().isEmpty
+        ? l10n.ordersComposerStyleRequired
+        : (_styleSummary.trim().isNotEmpty
+            ? _styleSummary.trim().split('\n').first
+            : _styleName.trim());
+    final paymentSubtitle = total <= 0
+        ? l10n.ordersComposerPaymentRequired
+        : l10n.ordersComposerPaymentSummary(
+            _money(l10n, total),
+            _money(l10n, paid),
+            _money(l10n, remaining),
+          );
+    final paymentOk = total > 0 && paid >= 0 && paid <= total;
+
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () => context.pop(),
-        ),
+        leading: BackButton(onPressed: () => context.pop()),
         title: Text(l10n.ordersNewTitle),
         actions: [
           TextButton(
@@ -319,263 +702,198 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
         children: [
-          ExpansionPanelList.radio(
-            initialOpenPanelValue: _expanded,
-            expandedHeaderPadding: EdgeInsets.zero,
-            children: [
-              ExpansionPanelRadio(
-                value: 0,
-                canTapOnHeader: true,
-                headerBuilder: (context, isExpanded) {
-                  final subtitle = _selectedCustomerLabel ?? l10n.ordersComposerCustomerRequired;
-                  return ListTile(
-                    title: Text(l10n.ordersComposerCustomerTitle),
-                    subtitle: Text(subtitle),
-                    trailing: _selectedCustomerId == null
-                        ? const Icon(Icons.warning_amber_outlined)
-                        : const Icon(Icons.check_circle_outline),
-                  );
-                },
-                body: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                  child: customersAsync.when(
-                    data: (customers) => _CustomerPicker(
-                      customers: customers,
-                      selectedId: _selectedCustomerId,
-                      onSelected: (c) {
-                        setState(() {
-                          _selectedCustomerId = c.internalId;
-                          _selectedCustomerName = c.name;
-                          _selectedCustomerPhone = c.phone;
-                          _selectedCustomerLabel = c.phone == null
-                              ? c.name
-                              : '${c.name} • ${c.phone}';
-                          _measurementSourceProfileId = null;
-                          _measurementSourceProfileLabel = '';
-                          _measurementSnapshotItems = [];
-                          _measurementsController.clear();
-                          _expanded = 1;
-                        });
-                      },
-                      onAddNew: () => context.push('/app/customers/new'),
-                      l10n: l10n,
-                    ),
-                    loading: () => const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8),
-                      child: LinearProgressIndicator(),
-                    ),
-                    error: (e, st) => Text(l10n.genericError),
+          Card(
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ListTile(
+                  title: Text(l10n.ordersComposerCustomerTitle),
+                  subtitle: Text(customerSubtitle),
+                  isThreeLine: customerSubtitle.length > 48,
+                  leading: PrideColoredLeading(
+                    icon: Icons.person_outline,
+                    color: prideSettingsIconColor(0),
                   ),
+                  trailing: _selectedCustomerId == null
+                      ? null
+                      : IconButton(
+                          icon: const Icon(Icons.close),
+                          tooltip: l10n.editCta,
+                          onPressed: _clearSelectedCustomer,
+                        ),
+                  onTap: _selectedCustomerId == null
+                      ? () => _pickExistingCustomer(context, l10n)
+                      : null,
                 ),
-              ),
-              ExpansionPanelRadio(
-                value: 1,
-                canTapOnHeader: true,
-                headerBuilder: (context, isExpanded) {
-                  final subtitle = _measurementsController.text.trim().isEmpty
-                      ? l10n.ordersComposerMeasurementsRequired
-                      : l10n.ordersComposerMeasurementsSummary;
-                  return ListTile(
-                    title: Text(l10n.ordersComposerMeasurementsTitle),
-                    subtitle: Text(subtitle),
-                    trailing: _measurementsController.text.trim().isEmpty
-                        ? const Icon(Icons.warning_amber_outlined)
-                        : const Icon(Icons.check_circle_outline),
-                    onTap: () {
-                      if (_selectedCustomerId == null) {
-                        showDialog<void>(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: Text(l10n.ordersComposerSelectCustomerFirstTitle),
-                            content: Text(l10n.ordersComposerSelectCustomerFirstBody),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.of(context).pop(),
-                                child: Text(MaterialLocalizations.of(context).okButtonLabel),
-                              ),
-                            ],
-                          ),
-                        );
-                      }
-                    },
-                  );
-                },
-                body: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                if (_selectedCustomerId == null)
+                  _composerRequiredHint(l10n.ordersComposerCustomerRequired),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                  child: Row(
                     children: [
-                      if (profilesAsync != null)
-                        profilesAsync.when(
-                          data: (profiles) {
-                            if (profiles.isEmpty) {
-                              return const SizedBox.shrink();
-                            }
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                OutlinedButton.icon(
-                                  onPressed: () => _pickMeasurementProfile(
-                                    context,
-                                    l10n,
-                                    profiles,
-                                  ),
-                                  icon: const Icon(Icons.folder_open_outlined),
-                                  label: Text(l10n.ordersComposerLoadProfileCta),
-                                ),
-                                if (_measurementSourceProfileLabel.isNotEmpty)
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 8),
-                                    child: Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: InputChip(
-                                        label: Text(
-                                          l10n.ordersComposerProfileLinked(
-                                            _measurementSourceProfileLabel,
-                                          ),
-                                        ),
-                                        deleteIcon: const Icon(Icons.close, size: 18),
-                                        onDeleted: () {
-                                          setState(() {
-                                            _measurementSourceProfileId = null;
-                                            _measurementSourceProfileLabel = '';
-                                            _measurementSnapshotItems = [];
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                                const SizedBox(height: 12),
-                              ],
-                            );
-                          },
-                          loading: () => const Padding(
-                            padding: EdgeInsets.only(bottom: 12),
-                            child: LinearProgressIndicator(),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () =>
+                              _pickExistingCustomer(context, l10n),
+                          icon: const Icon(Icons.search, size: 20),
+                          label: Text(l10n.customersSearchHint),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: FilledButton.icon(
+                          onPressed: () => _openNewCustomerForm(context),
+                          style: prideButtonStyle(
+                            context,
+                            PrideButtonVariant.add,
                           ),
-                          error: (_, _) => const SizedBox.shrink(),
+                          icon: const Icon(Icons.person_add_outlined, size: 20),
+                          label: Text(l10n.customersAddCta),
                         ),
-                      TextField(
-                        controller: _measurementsController,
-                        minLines: 2,
-                        maxLines: 6,
-                        decoration: InputDecoration(
-                          labelText: l10n.ordersComposerMeasurementsLabel,
-                          hintText: l10n.ordersComposerMeasurementsHint,
-                          border: const OutlineInputBorder(),
-                        ),
-                        onChanged: (_) => setState(() {}),
                       ),
                     ],
                   ),
                 ),
-              ),
-              ExpansionPanelRadio(
-                value: 2,
-                canTapOnHeader: true,
-                headerBuilder: (context, isExpanded) {
-                  final subtitle = _styleController.text.trim().isEmpty
-                      ? l10n.ordersComposerStyleRequired
-                      : _styleController.text.trim();
-                  return ListTile(
-                    title: Text(l10n.ordersComposerStyleTitle),
-                    subtitle: Text(subtitle),
-                    trailing: _styleController.text.trim().isEmpty
-                        ? const Icon(Icons.warning_amber_outlined)
-                        : const Icon(Icons.check_circle_outline),
-                  );
-                },
-                body: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                  child: TextField(
-                    controller: _styleController,
-                    decoration: InputDecoration(
-                      labelText: l10n.ordersComposerStyleLabel,
-                      hintText: l10n.ordersComposerStyleHint,
-                      border: const OutlineInputBorder(),
-                    ),
-                    onChanged: (_) => setState(() {}),
-                  ),
-                ),
-              ),
-              ExpansionPanelRadio(
-                value: 3,
-                canTapOnHeader: true,
-                headerBuilder: (context, isExpanded) {
-                  final subtitle = total <= 0
-                      ? l10n.ordersComposerPaymentRequired
-                      : l10n.ordersComposerPaymentSummary(
-                          _money(l10n, total),
-                          _money(l10n, paid),
-                          _money(l10n, remaining),
-                        );
-                  final ok = total > 0 && paid >= 0 && paid <= total;
-                  return ListTile(
-                    title: Text(l10n.ordersComposerPaymentTitle),
-                    subtitle: Text(subtitle),
-                    trailing: ok ? const Icon(Icons.check_circle_outline) : const Icon(Icons.warning_amber_outlined),
-                  );
-                },
-                body: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                  child: Column(
-                    children: [
-                      TextField(
-                        controller: _totalController,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          labelText: l10n.ordersComposerTotalLabel,
-                          hintText: l10n.ordersComposerTotalHint,
-                          border: const OutlineInputBorder(),
-                        ),
-                        onChanged: (_) => setState(() {}),
-                      ),
-                      const SizedBox(height: 12),
-                      TextField(
-                        controller: _paidController,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          labelText: l10n.ordersComposerPaidLabel,
-                          hintText: l10n.ordersComposerPaidHint,
-                          border: const OutlineInputBorder(),
-                        ),
-                        onChanged: (_) => setState(() {}),
-                      ),
-                      const SizedBox(height: 12),
-                      Card(
-                        clipBehavior: Clip.antiAlias,
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Column(
-                            children: [
-                              _summaryRow(l10n.paymentTotal, _money(l10n, total)),
-                              const SizedBox(height: 6),
-                              _summaryRow(l10n.paymentPaid, _money(l10n, paid)),
-                              const SizedBox(height: 6),
-                              _summaryRow(l10n.paymentRemaining, _money(l10n, remaining)),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: const Icon(Icons.event_outlined),
-                        title: Text(l10n.ordersComposerDeliveryDateTitle),
-                        subtitle: Text(deliveryLabel),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () => _pickDeliveryDate(context),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-            expansionCallback: (i, isExpanded) {
-              setState(() => _expanded = i);
-            },
+              ],
+            ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: _kComposerSectionGap),
+          Card(
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ListTile(
+                  title: Text(l10n.ordersComposerMeasurementsTitle),
+                  subtitle: Text(measurementsSubtitle),
+                  leading: PrideColoredLeading(
+                    icon: Icons.straighten,
+                    color: prideSettingsIconColor(1),
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => _openMeasurementsEditor(context, l10n),
+                ),
+                if (_measurementsController.text.trim().isEmpty)
+                  _composerRequiredHint(l10n.ordersComposerMeasurementsRequired),
+              ],
+            ),
+          ),
+          const SizedBox(height: _kComposerSectionGap),
+          Card(
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ListTile(
+                  title: Text(l10n.ordersComposerStyleTitle),
+                  subtitle: Text(styleSubtitle, maxLines: 3),
+                  isThreeLine: styleSubtitle.length > 48,
+                  leading: PrideColoredLeading(
+                    icon: Icons.checkroom_outlined,
+                    color: prideSettingsIconColor(2),
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => _openStyleSheet(context),
+                ),
+                if (_styleName.trim().isEmpty)
+                  _composerRequiredHint(l10n.ordersComposerStyleRequired),
+              ],
+            ),
+          ),
+          const SizedBox(height: _kComposerSectionGap),
+          Card(
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ListTile(
+                  leading: PrideColoredLeading(
+                    icon: Icons.event_outlined,
+                    color: prideSettingsIconColor(3),
+                  ),
+                  title: Text(l10n.ordersComposerDeliveryDateTitle),
+                  subtitle: Text(deliveryLabel),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => _pickDeliveryDate(context),
+                ),
+                if (_deliveryDate == null)
+                  _composerRequiredHint(l10n.ordersComposerDeliveryDateUnset),
+              ],
+            ),
+          ),
+          const SizedBox(height: _kComposerSectionGap),
+          Card(
+            clipBehavior: Clip.antiAlias,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ListTile(
+                    title: Text(l10n.ordersComposerPaymentTitle),
+                    subtitle: Text(paymentSubtitle),
+                    leading: PrideColoredLeading(
+                      icon: Icons.payments_outlined,
+                      color: Theme.of(context)
+                          .extension<PrideActionColors>()!
+                          .payment,
+                    ),
+                  ),
+                  if (!paymentOk)
+                    _composerRequiredHint(l10n.ordersComposerPaymentRequired),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Column(
+                      children: [
+                        TextField(
+                          controller: _totalController,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            labelText: l10n.ordersComposerTotalLabel,
+                            hintText: l10n.ordersComposerTotalHint,
+                            border: const OutlineInputBorder(),
+                          ),
+                          onChanged: (_) => setState(() {}),
+                        ),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: _paidController,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            labelText: l10n.ordersComposerPaidLabel,
+                            hintText: l10n.ordersComposerPaidHint,
+                            border: const OutlineInputBorder(),
+                          ),
+                          onChanged: (_) => setState(() {}),
+                        ),
+                        const SizedBox(height: 12),
+                        Card(
+                          clipBehavior: Clip.antiAlias,
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Column(
+                              children: [
+                                _summaryRow(l10n.paymentTotal, _money(l10n, total)),
+                                const SizedBox(height: 6),
+                                _summaryRow(l10n.paymentPaid, _money(l10n, paid)),
+                                const SizedBox(height: 6),
+                                _summaryRow(
+                                  l10n.paymentRemaining,
+                                  _money(l10n, remaining),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: _kComposerSectionGap),
           if (_selectedCustomerId != null)
             ordersAsync.when(
               data: (orders) {
@@ -624,86 +942,12 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       bottomNavigationBar: SafeArea(
         minimum: const EdgeInsets.all(16),
         child: FilledButton.icon(
-          onPressed: _canSave ? () => _save(context, l10n) : null,
+          onPressed: () => _onSavePressed(context, l10n),
+          style: prideButtonStyle(context, PrideButtonVariant.add),
           icon: const Icon(Icons.check),
           label: Text(l10n.ordersComposerSaveCta),
         ),
       ),
-    );
-  }
-}
-
-class _CustomerPicker extends StatefulWidget {
-  const _CustomerPicker({
-    required this.customers,
-    required this.selectedId,
-    required this.onSelected,
-    required this.onAddNew,
-    required this.l10n,
-  });
-
-  final List<CustomerSummary> customers;
-  final String? selectedId;
-  final ValueChanged<CustomerSummary> onSelected;
-  final VoidCallback onAddNew;
-  final AppLocalizations l10n;
-
-  @override
-  State<_CustomerPicker> createState() => _CustomerPickerState();
-}
-
-class _CustomerPickerState extends State<_CustomerPicker> {
-  final _search = TextEditingController();
-
-  @override
-  void dispose() {
-    _search.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final q = _search.text.trim().toLowerCase();
-    final list = widget.customers.where((c) {
-      if (q.isEmpty) return true;
-      final phone = (c.phone ?? '').toLowerCase();
-      return c.name.toLowerCase().contains(q) || phone.contains(q);
-    }).toList()
-      ..sort((a, b) => a.name.compareTo(b.name));
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        TextField(
-          controller: _search,
-          decoration: InputDecoration(
-            prefixIcon: const Icon(Icons.search),
-            hintText: widget.l10n.customersSearchHint,
-            border: const OutlineInputBorder(),
-          ),
-          onChanged: (_) => setState(() {}),
-        ),
-        const SizedBox(height: 12),
-        OutlinedButton.icon(
-          onPressed: widget.onAddNew,
-          icon: const Icon(Icons.person_add_alt_1),
-          label: Text(widget.l10n.customersAddCta),
-        ),
-        const SizedBox(height: 12),
-        if (list.isEmpty)
-          Text(widget.l10n.customersFilteredEmpty)
-        else
-          ...list.map(
-            (c) => ListTile(
-              leading: widget.selectedId == c.internalId
-                  ? const Icon(Icons.check_circle)
-                  : const Icon(Icons.radio_button_unchecked),
-              title: Text(c.name),
-              subtitle: Text(c.phone ?? widget.l10n.customersPhoneMissing),
-              onTap: () => widget.onSelected(c),
-            ),
-          ),
-      ],
     );
   }
 }

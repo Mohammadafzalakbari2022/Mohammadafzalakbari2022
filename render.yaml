@@ -16,7 +16,8 @@ services:
     # Install devDependencies too (@nestjs/cli); Render sets NODE_ENV=production
     # during build, which otherwise skips devDeps and breaks `nest build`.
     buildCommand: npm install --include=dev && npm run build
-    # Needs DATABASE_URL (Supabase direct URI recommended for Nest).
+    # Needs DATABASE_URL. On Render, prefer Supabase **Session pooler** URI (not
+    # db.<ref>.supabase.co direct) — direct often hits IPv4/IPv6 reachability (Prisma P1001).
     preDeployCommand: npx prisma migrate deploy
     startCommand: npm run start:prod
     healthCheckPath: /health

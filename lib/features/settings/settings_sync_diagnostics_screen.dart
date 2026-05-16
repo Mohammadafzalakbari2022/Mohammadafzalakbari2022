@@ -163,6 +163,12 @@ class _SettingsSyncDiagnosticsScreenState
       );
       return;
     }
+    if (ref.read(licenseEditingBlockedProvider)) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.settingsSyncRetryEditingBlocked)),
+      );
+      return;
+    }
     setState(() => _syncBusy = true);
     try {
       final repo = await ref.read(syncOutboxRepositoryProvider.future);
@@ -174,6 +180,8 @@ class _SettingsSyncDiagnosticsScreenState
       final measurementRepo =
           await ref.read(measurementProfileRepositoryProvider.future);
       final catalogRepo = await ref.read(catalogRepositoryProvider.future);
+      final styleCatalogRepo =
+          await ref.read(styleCatalogRepositoryProvider.future);
       final prefs = ref.read(sharedPreferencesProvider);
       final syncShopId = ref.read(effectiveShopIdProvider);
       final outcome = await runManualSyncWithOutbox(
@@ -188,6 +196,7 @@ class _SettingsSyncDiagnosticsScreenState
         orders: ordersRepo,
         measurementProfiles: measurementRepo,
         catalog: catalogRepo,
+        styleCatalog: styleCatalogRepo,
       );
       if (!mounted) return;
       switch (outcome) {

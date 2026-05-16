@@ -1,0 +1,14 @@
+{
+  "name": "pride-v3",
+  "private": true,
+  "description": "Afghan Pride — Flutter app + Nest API (`api/`). Use these scripts from the repo root; Prisma schema lives in `api/prisma/`.",
+  "scripts": {
+    "db:migrate": "npm run prisma:migrate --prefix api",
+    "db:migrate:dev": "npm run prisma:migrate:dev --prefix api",
+    "db:generate": "npm run prisma:generate --prefix api",
+    "api:install": "npm install --prefix api",
+    "api:build": "npm run build --prefix api",
+    "api:test": "npm test --prefix api",
+    "api:dev": "npm run start:dev --prefix api"
+  }
+}

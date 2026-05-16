@@ -3,13 +3,29 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pride_v3/core/feedback/app_feedback.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../auth/auth_providers.dart';
+import '../../data/local/customer_summary.dart';
 import '../../data/local/sync_outbox_kinds.dart';
 import '../../data/providers/local_data_providers.dart';
+import '../orders/order_composer_customer_picker.dart';
 import '../../licensing/license_providers.dart';
 import '../../shell/shell_sync_providers.dart';
+
+/// Popped back to [OrderComposerScreen] after save when `returnTo=orderComposer`.
+class NewCustomerForOrderResult {
+  const NewCustomerForOrderResult({
+    required this.internalId,
+    required this.name,
+    this.phone,
+  });
+
+  final String internalId;
+  final String name;
+  final String? phone;
+}
 
 class NewCustomerScreen extends ConsumerStatefulWidget {
   const NewCustomerScreen({super.key});
@@ -23,7 +39,6 @@ class _NewCustomerScreenState extends ConsumerState<NewCustomerScreen> {
   final _name = TextEditingController();
   final _phone = TextEditingController();
   final _address = TextEditingController();
-  final _notes = TextEditingController();
   bool _saving = false;
 
   @override
@@ -31,15 +46,44 @@ class _NewCustomerScreenState extends ConsumerState<NewCustomerScreen> {
     _name.dispose();
     _phone.dispose();
     _address.dispose();
-    _notes.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickExistingCustomer(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) async {
+    var customers = ref.read(customersListStreamProvider).valueOrNull;
+    if (customers == null) {
+      await ref.read(customersListStreamProvider.future);
+      if (!context.mounted) return;
+      customers = ref.read(customersListStreamProvider).valueOrNull;
+    }
+    final list = customers ?? const <CustomerSummary>[];
+
+    final picked = await showOrderComposerCustomerPicker(
+      context: context,
+      customers: list,
+      l10n: l10n,
+    );
+    if (!context.mounted || picked == null) return;
+    context.pop(
+      NewCustomerForOrderResult(
+        internalId: picked.internalId,
+        name: picked.name,
+        phone: picked.phone,
+      ),
+    );
   }
 
   Future<void> _save(BuildContext context, AppLocalizations l10n) async {
     final license = ref.read(licenseNotifierProvider);
-    if (license.isExpired) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.licenseExpiredReadOnly)),
+    if (ref.read(licenseEditingBlockedProvider)) {
+      showAppFeedback(
+        context,
+        ref,
+        kind: AppFeedbackKind.error,
+        message: licenseWriteBlockedMessage(license, l10n),
       );
       return;
     }
@@ -56,7 +100,7 @@ class _NewCustomerScreenState extends ConsumerState<NewCustomerScreen> {
         name: _name.text,
         phone: _phone.text,
         address: _address.text,
-        notes: _notes.text,
+        notes: '',
       );
       final createdAt = DateTime.now();
       recordSyncOutboxMutation(
@@ -68,15 +112,29 @@ class _NewCustomerScreenState extends ConsumerState<NewCustomerScreen> {
           'name': _name.text.trim(),
           if (_phone.text.trim().isNotEmpty) 'phone': _phone.text.trim(),
           if (_address.text.trim().isNotEmpty) 'address': _address.text.trim(),
-          if (_notes.text.trim().isNotEmpty) 'notes': _notes.text.trim(),
           'created_at': createdAt.toUtc().toIso8601String(),
         }),
       );
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.customersCreated)),
+      showAppFeedback(
+        context,
+        ref,
+        kind: AppFeedbackKind.success,
+        message: l10n.customersCreated,
       );
-      context.go('/app/customers/$id');
+      final returnTo =
+          GoRouterState.of(context).uri.queryParameters['returnTo'];
+      if (returnTo == 'orderComposer') {
+        context.pop(
+          NewCustomerForOrderResult(
+            internalId: id,
+            name: _name.text.trim(),
+            phone: _phone.text.trim().isEmpty ? null : _phone.text.trim(),
+          ),
+        );
+      } else {
+        context.go('/app/customers/$id');
+      }
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -85,14 +143,29 @@ class _NewCustomerScreenState extends ConsumerState<NewCustomerScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-
+    final returnTo =
+        GoRouterState.of(context).uri.queryParameters['returnTo'];
+    final fromOrderComposer = returnTo == 'orderComposer';
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: _saving ? null : () => context.pop(),
         ),
-        title: Text(l10n.customersAddCta),
+        title: Text(
+          fromOrderComposer
+              ? l10n.ordersComposerCustomerTitle
+              : l10n.customersAddCta,
+        ),
+        actions: [
+          if (fromOrderComposer)
+            IconButton(
+              icon: const Icon(Icons.search),
+              tooltip: l10n.customersSearchHint,
+              onPressed:
+                  _saving ? null : () => _pickExistingCustomer(context, l10n),
+            ),
+        ],
       ),
       body: Form(
         key: _formKey,
@@ -134,19 +207,6 @@ class _NewCustomerScreenState extends ConsumerState<NewCustomerScreen> {
               decoration: InputDecoration(
                 labelText: l10n.customerAddressLabel,
                 hintText: l10n.customerAddressHint,
-                border: const OutlineInputBorder(),
-                alignLabelWithHint: true,
-              ),
-              enabled: !_saving,
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _notes,
-              minLines: 2,
-              maxLines: 4,
-              decoration: InputDecoration(
-                labelText: l10n.customerNotesLabel,
-                hintText: l10n.customerNotesHint,
                 border: const OutlineInputBorder(),
                 alignLabelWithHint: true,
               ),

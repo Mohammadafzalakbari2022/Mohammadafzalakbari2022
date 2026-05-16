@@ -7,14 +7,92 @@ import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../auth/auth_providers.dart';
 import '../../data/providers/local_data_providers.dart';
+import 'app_notification_inbox_filter.dart';
 import 'settings_providers.dart';
 
 /// Notifications inbox (plan-15). Local store; tap marks read.
-class SettingsNotificationsScreen extends ConsumerWidget {
+class SettingsNotificationsScreen extends ConsumerStatefulWidget {
   const SettingsNotificationsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SettingsNotificationsScreen> createState() =>
+      _SettingsNotificationsScreenState();
+}
+
+class _SettingsNotificationsScreenState
+    extends ConsumerState<SettingsNotificationsScreen> {
+  AppNotificationInboxFilter _filter = AppNotificationInboxFilter.all;
+
+  void _openInboxFilterSheet(AppLocalizations l10n) {
+    var draft = _filter;
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (context, setModal) {
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      l10n.settingsNotificationsFiltersTitle,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 12),
+                    RadioGroup<AppNotificationInboxFilter>(
+                      groupValue: draft,
+                      onChanged: (v) => setModal(() => draft = v!),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          for (final f in AppNotificationInboxFilter.values)
+                            RadioListTile<AppNotificationInboxFilter>(
+                              title: Text(_inboxFilterLabel(l10n, f)),
+                              value: f,
+                            ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    FilledButton(
+                      onPressed: () {
+                        setState(() => _filter = draft);
+                        Navigator.of(sheetContext).pop();
+                      },
+                      child: Text(l10n.ordersFilterApply),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  String _inboxFilterLabel(
+    AppLocalizations l10n,
+    AppNotificationInboxFilter f,
+  ) {
+    switch (f) {
+      case AppNotificationInboxFilter.all:
+        return l10n.settingsNotifFilterAll;
+      case AppNotificationInboxFilter.orders:
+        return l10n.settingsNotifFilterOrders;
+      case AppNotificationInboxFilter.license:
+        return l10n.settingsNotifFilterLicense;
+      case AppNotificationInboxFilter.backup:
+        return l10n.settingsNotifFilterBackup;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).toString();
     final calendar = ref.watch(dateCalendarSystemProvider);
@@ -52,26 +130,23 @@ class SettingsNotificationsScreen extends ConsumerWidget {
             onChanged: (v) =>
                 ref.read(notificationsMutedProvider.notifier).state = v,
           ),
-          const SizedBox(height: 16),
-          Text(
-            l10n.settingsNotificationsFiltersTitle,
-            style: Theme.of(context).textTheme.titleSmall,
+          Align(
+            alignment: Alignment.centerRight,
+            child: IconButton(
+              tooltip: l10n.listToolbarFilterTooltip,
+              icon: Badge(
+                isLabelVisible: _filter != AppNotificationInboxFilter.all,
+                smallSize: 8,
+                child: Icon(
+                  _filter != AppNotificationInboxFilter.all
+                      ? Icons.filter_list
+                      : Icons.filter_list_outlined,
+                ),
+              ),
+              onPressed: () => _openInboxFilterSheet(l10n),
+            ),
           ),
           const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              Chip(
-                avatar: const Icon(Icons.filter_alt_outlined, size: 18),
-                label: Text(l10n.settingsNotifFilterAll),
-              ),
-              Chip(label: Text(l10n.settingsNotifFilterOrders)),
-              Chip(label: Text(l10n.settingsNotifFilterLicense)),
-              Chip(label: Text(l10n.settingsNotifFilterBackup)),
-            ],
-          ),
-          const SizedBox(height: 24),
           async.when(
             loading: () => const Center(
               child: Padding(
@@ -109,22 +184,37 @@ class SettingsNotificationsScreen extends ConsumerWidget {
                   ),
                 );
               }
+              final filtered = items
+                  .where((n) => n.matchesInboxFilter(_filter))
+                  .toList();
+              if (filtered.isEmpty) {
+                return Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Text(
+                      l10n.settingsNotificationsInboxFilterEmpty,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                  ),
+                );
+              }
               return Column(
                 children: [
-                  for (var i = 0; i < items.length; i++) ...[
+                  for (var i = 0; i < filtered.length; i++) ...[
                     if (i > 0) const Divider(height: 1),
                     ListTile(
                       title: Text(
-                        items[i].title,
-                        style: items[i].isRead
+                        filtered[i].title,
+                        style: filtered[i].isRead
                             ? Theme.of(context).textTheme.bodyLarge
                             : Theme.of(context).textTheme.titleSmall,
                       ),
                       subtitle: Text(
-                        '${AppCalendarFormat.dateTimeMedium(l10n, calendar, items[i].createdAt, locale)}\n${items[i].body}',
+                        '${AppCalendarFormat.dateTimeMedium(l10n, calendar, filtered[i].createdAt, locale)}\n${filtered[i].body}',
                       ),
                       isThreeLine: true,
-                      trailing: items[i].isRead
+                      trailing: filtered[i].isRead
                           ? null
                           : Icon(
                               Icons.circle,
@@ -135,9 +225,9 @@ class SettingsNotificationsScreen extends ConsumerWidget {
                         final repo = await ref.read(
                           appNotificationRepositoryProvider.future,
                         );
-                        await repo.markRead(items[i].internalId);
+                        await repo.markRead(filtered[i].internalId);
                         if (!context.mounted) return;
-                        final oid = items[i].relatedOrderInternalId;
+                        final oid = filtered[i].relatedOrderInternalId;
                         if (oid != null && oid.isNotEmpty) {
                           context.push('/app/orders/$oid');
                         }

@@ -78,6 +78,8 @@ export class ShopRegistryService {
     }
     const row = active[0];
     if (!row || !safeEqualPassword(password, row.passwordHash)) return null;
+    const shop = await this.prisma.shop.findUnique({ where: { id: row.shopId } });
+    if (!shop || shop.disabledAt) return null;
     return toUserRow(row);
   }
 
@@ -165,6 +167,19 @@ export class ShopRegistryService {
       },
     });
     return toUserRow(user);
+  }
+
+  /** Verifies the current password for a shop user (e.g. self-service change). */
+  async verifyUserPassword(
+    shopId: string,
+    userId: string,
+    plainPassword: string,
+  ): Promise<boolean> {
+    const row = await this.prisma.shopUser.findFirst({
+      where: { id: userId, shopId, deletedAt: null },
+    });
+    if (!row) return false;
+    return safeEqualPassword(plainPassword, row.passwordHash);
   }
 
   async getUser(shopId: string, userId: string): Promise<UserRow | undefined> {

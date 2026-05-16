@@ -36,7 +36,38 @@ final class PrideApiLoginFailure extends PrideApiLoginResult {
   final int? statusCode;
 }
 
+/// `POST /auth/login` — shop_id optional (`plan-04`).
 Future<PrideApiLoginResult> postPrideApiLogin({
+  required String username,
+  required String password,
+  String? shopId,
+  Duration timeout = const Duration(seconds: 25),
+}) =>
+    _postPrideApiAuthSession(
+      path: 'auth/login',
+      username: username,
+      password: password,
+      shopId: shopId,
+      timeout: timeout,
+    );
+
+/// `POST /shop/join` — same body/response as login; use when joining a known shop (`plan-04`).
+Future<PrideApiLoginResult> postPrideApiShopJoin({
+  required String username,
+  required String password,
+  required String shopId,
+  Duration timeout = const Duration(seconds: 25),
+}) =>
+    _postPrideApiAuthSession(
+      path: 'shop/join',
+      username: username,
+      password: password,
+      shopId: shopId,
+      timeout: timeout,
+    );
+
+Future<PrideApiLoginResult> _postPrideApiAuthSession({
+  required String path,
   required String username,
   required String password,
   String? shopId,
@@ -47,7 +78,7 @@ Future<PrideApiLoginResult> postPrideApiLogin({
     return const PrideApiLoginFailure('API_BASE_URL not set');
   }
 
-  final uri = Uri.parse('$base/auth/login');
+  final uri = Uri.parse('$base/$path');
   final body = <String, dynamic>{
     'username': username,
     'password': password,

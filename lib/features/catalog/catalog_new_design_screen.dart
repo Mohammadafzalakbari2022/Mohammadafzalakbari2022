@@ -26,7 +26,6 @@ class CatalogNewDesignScreen extends ConsumerStatefulWidget {
 
 class _CatalogNewDesignScreenState extends ConsumerState<CatalogNewDesignScreen> {
   final _designName = TextEditingController();
-  final _notes = TextEditingController();
   bool _saving = false;
 
   Uint8List? _previewBytes;
@@ -34,7 +33,6 @@ class _CatalogNewDesignScreenState extends ConsumerState<CatalogNewDesignScreen>
   @override
   void dispose() {
     _designName.dispose();
-    _notes.dispose();
     super.dispose();
   }
 
@@ -57,9 +55,9 @@ class _CatalogNewDesignScreenState extends ConsumerState<CatalogNewDesignScreen>
 
   Future<void> _save(BuildContext context, AppLocalizations l10n) async {
     final license = ref.read(licenseNotifierProvider);
-    if (license.isExpired) {
+    if (ref.read(licenseEditingBlockedProvider)) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(l10n.licenseExpiredReadOnly)));
+          .showSnackBar(SnackBar(content: Text(licenseWriteBlockedMessage(license, l10n))));
       return;
     }
 
@@ -98,7 +96,6 @@ class _CatalogNewDesignScreenState extends ConsumerState<CatalogNewDesignScreen>
         shopId: shopId,
         designName: name,
         designerShopName: designerName,
-        notes: _notes.text.trim().isEmpty ? null : _notes.text.trim(),
         imagePath: stored.imagePath,
         thumbnailPath: stored.thumbnailPath,
       );
@@ -111,7 +108,6 @@ class _CatalogNewDesignScreenState extends ConsumerState<CatalogNewDesignScreen>
         payloadJson: jsonEncode({
           'design_name': name,
           'designer_shop_name': designerName,
-          'notes': _notes.text.trim().isEmpty ? null : _notes.text.trim(),
           'is_shared_public': false,
           'created_at': now.toUtc().toIso8601String(),
           'updated_at': now.toUtc().toIso8601String(),
@@ -204,18 +200,6 @@ class _CatalogNewDesignScreenState extends ConsumerState<CatalogNewDesignScreen>
             ),
             enabled: !_saving,
             onChanged: (_) => setState(() {}),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _notes,
-            minLines: 2,
-            maxLines: 6,
-            decoration: InputDecoration(
-              labelText: l10n.catalogNotesLabel,
-              hintText: l10n.catalogNotesHint,
-              border: const OutlineInputBorder(),
-            ),
-            enabled: !_saving,
           ),
           const SizedBox(height: 16),
           FilledButton.icon(

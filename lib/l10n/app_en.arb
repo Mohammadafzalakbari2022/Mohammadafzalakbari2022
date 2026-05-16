@@ -2,7 +2,8 @@
   "@@locale": "en",
   "appTitle": "Pride",
   "tabOrders": "Orders",
-  "tabCustomers": "Customers",
+  "tabCustomers": "Customer list",
+  "tabOrdersList": "Orders list",
   "tabCatalog": "Catalog",
   "tabReports": "Reports",
   "tabSettings": "Settings",
@@ -102,7 +103,10 @@
   "dashboardKpiReady": "Ready",
   "dashboardKpiUnpaid": "Unpaid balance",
   "dashboardKpiValuePlaceholder": "—",
-  "dashboardOpenMenuTooltip": "Open menu",
+  "dashboardOpenMenuTooltip": "Open dashboard",
+  "dashboardOrdersPipelineTitle": "Order pipeline",
+  "dashboardRecentIncomeTitle": "Income — last 7 days",
+  "dashboardActivitySectionTitle": "Sync & notifications",
   "subscriptionTitle": "Subscription",
   "subscriptionBody": "Renew or enter an activation code when billing is connected (plan-06). While expired, editing is limited; viewing lists and details stays available.",
   "subscriptionListTileSubtitle": "License, trial, and activation",
@@ -132,6 +136,14 @@
   "@ordersDeliveryOn": {
     "placeholders": {
       "date": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersTakenOn": "Taken: {dateTime}",
+  "@ordersTakenOn": {
+    "placeholders": {
+      "dateTime": {
         "type": "String"
       }
     }
@@ -171,6 +183,17 @@
     }
   },
   "ordersFilteredEmpty": "No orders match your search or filters.",
+  "ordersFilterSheetTitle": "Filters",
+  "ordersFilterQuickSection": "Quick filters",
+  "ordersFilterDeliverySection": "Delivery date",
+  "ordersFilterStatusSection": "Status",
+  "ordersFilterClearAll": "Clear all",
+  "ordersFilterApply": "Apply",
+  "listToolbarSearchTooltip": "Search",
+  "listToolbarFilterTooltip": "Filters",
+  "appShellTapTitleForMenu": "Tap to open dashboard menu",
+  "ordersDetailFromNewBanner": "Tip: use the toolbar above to print the receipt or share the invoice.",
+  "ordersComposerPostSaveSubtitle": "Print, share, or open the full order.",
   "ordersDetailNotFound": "This order could not be found.",
   "ordersDetailChangeStatus": "Change status",
   "ordersDetailChangeStatusSubtitle": "Ready / Delivered / Cancel",
@@ -243,7 +266,7 @@
   "paymentAdded": "Payment added",
   "paymentsEmpty": "No payments yet.",
   "paymentAmountLabel": "Amount",
-  "paymentAmountHint": "Enter amount (no decimals)",
+  "paymentAmountHint": "Example: 300",
   "paymentAmount": "Amount: {amount}",
   "@paymentAmount": {
     "placeholders": {
@@ -266,6 +289,8 @@
   "customerMeasurementProfilesSection": "Measurement profiles",
   "customerTodayOrdersTitle": "Today’s orders",
   "customerNoTodayOrders": "No orders for today.",
+  "customerOrderHistoryTitle": "Order history",
+  "customerNoOrders": "No orders yet for this customer.",
   "customerViewAllOrders": "View all orders for this customer",
   "customerViewAllOrdersSoon": "This will open Orders with a customer filter (plan-13).",
   "customerSectionPlaceholder": "Details will appear here as the module is built.",
@@ -455,6 +480,10 @@
   "catalogSharedPlaceholder": "Shared designs directory will appear here when online (plan-14).",
   "catalogEmptyMyDesigns": "No designs yet.",
   "catalogAddDesignCta": "Add design",
+  "catalogViewDescription": "Description",
+  "catalogDescriptionSheetTitle": "Description",
+  "catalogNoDescription": "No description for this design.",
+  "catalogViewerManageA11y": "Manage design",
   "catalogAddDesignPlaceholder": "Camera / Gallery add will be implemented on Android/iOS only (plan-14).",
   "catalogDetailTitle": "Catalog item",
   "catalogDetailPlaceholder": "Catalog item {id} — detail screen coming soon.",
@@ -539,6 +568,10 @@
   "themeSystem": "System",
   "themeLight": "Light",
   "themeDark": "Dark",
+  "settingsUiSoundsTitle": "UI sounds",
+  "settingsUiSoundsSubtitle": "Short sound when an action succeeds (for example, saving).",
+  "settingsUiHapticsTitle": "Haptic feedback",
+  "settingsUiHapticsSubtitle": "Light vibration on successful actions.",
   "settingsLanguageTitle": "Language",
   "languageSystem": "System",
   "languageEnglish": "English",
@@ -571,6 +604,8 @@
   "loading": "Loading…",
   "genericError": "Something went wrong.",
   "resetCta": "Reset",
+  "licenseGraceReadOnlySnack": "Read-only until your license is verified online.",
+  "licenseClockTamperSnack": "Read-only: device clock looks inconsistent. Open Subscription while online to verify.",
   "licenseExpiredReadOnly": "License expired — read-only mode.",
   "moneyAfn": "{amount} AFN",
   "@moneyAfn": {
@@ -592,10 +627,6 @@
       "name": { "type": "String" }
     }
   },
-  "ordersComposerStyleTitle": "Style",
-  "ordersComposerStyleRequired": "Select style (required)",
-  "ordersComposerStyleLabel": "Design / style",
-  "ordersComposerStyleHint": "Example: Karzai, collar, pockets…",
   "ordersComposerPaymentTitle": "Payment",
   "ordersComposerPaymentRequired": "Enter totals (required)",
   "ordersComposerPaymentSummary": "Total {total} • Paid {paid} • Remaining {remaining}",
@@ -607,9 +638,9 @@
     }
   },
   "ordersComposerTotalLabel": "Total amount (AFN)",
-  "ordersComposerTotalHint": "Example: 150000",
+  "ordersComposerTotalHint": "Example: 1500",
   "ordersComposerPaidLabel": "Initial paid (AFN)",
-  "ordersComposerPaidHint": "Example: 50000",
+  "ordersComposerPaidHint": "Example: 500",
   "ordersComposerDeliveryDateTitle": "Delivery date",
   "ordersComposerDeliveryDateUnset": "Select delivery date",
   "ordersComposerSaveCta": "Save order",
@@ -618,6 +649,8 @@
   "ordersComposerResetBody": "This will clear all entered fields.",
   "ordersComposerSelectCustomerFirstTitle": "Select customer first",
   "ordersComposerSelectCustomerFirstBody": "Please select a customer before continuing.",
+  "ordersComposerValidationTitle": "Complete required steps",
+  "ordersComposerValidationBody": "Fill in the following before saving this order:",
   "ordersComposerRecentOrdersTitle": "Recent orders",
   "ordersComposerRecentOrdersSubtitle": "For this customer",
   "ordersComposerRecentOrderRowSubtitle": "{date} • {remaining} remaining",
@@ -627,6 +660,57 @@
       "remaining": { "type": "String" }
     }
   },
+  "ordersComposerMeasurementsSheetTitle": "Measurements",
+  "ordersComposerMeasurementsNoTypesBody": "Add measurement types in Settings → Measurement types first.",
+  "ordersComposerMeasurementsProfileAutoLabel": "Pattern #{date}",
+  "@ordersComposerMeasurementsProfileAutoLabel": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "ordersComposerSaveMeasurementsToProfile": "Save as customer profile",
+  "ordersComposerSaveMeasurementsToProfileSubtitle": "Updates saved measurements on the selected customer.",
+  "ordersComposerAddMeasurementsCta": "Add measurements",
+  "ordersComposerStyleTitle": "Style",
+  "ordersComposerStyleRequired": "Add style (required)",
+  "ordersComposerStyleSummary": "Style selected",
+  "ordersComposerStyleSheetTitle": "Order style",
+  "ordersComposerStyleMainTitle": "Main cloth style",
+  "ordersComposerStyleCustomLabel": "Style name",
+  "ordersComposerStyleCustomHint": "Select above or type custom",
+  "ordersComposerStyleFiguresTitle": "Design figures",
+  "ordersComposerStyleNoFigures": "No design figures yet — add them in Settings → Order style.",
+  "ordersComposerStyleClearFigures": "Clear all selections",
+  "settingsStyleHubTitle": "Order style",
+  "settingsStyleTileTitle": "Order style",
+  "settingsStyleTileSubtitle": "Style names and design figures",
+  "settingsStyleNamesTitle": "Cloth style names",
+  "settingsStyleNamesSubtitle": "Qasimi, Kandahari, and custom names",
+  "settingsStyleNamesEmpty": "No style names yet.",
+  "settingsStyleNameAddCta": "Add style name",
+  "settingsStyleNameFieldLabel": "Name",
+  "settingsStyleNameRenameTitle": "Rename style",
+  "settingsStyleNameDeleteTitle": "Delete style?",
+  "settingsStyleNameDeleteBody": "This removes the name from the list. Existing orders are not changed.",
+  "settingsStylePartsTitle": "Garment parts",
+  "settingsStylePartsSubtitle": "Sleeve, collar, pocket, and more",
+  "settingsStylePartsEmpty": "No parts yet.",
+  "settingsStylePartAddCta": "Add part",
+  "settingsStylePartFieldLabel": "Part name",
+  "settingsStylePartRenameTitle": "Rename part",
+  "settingsStylePartDeleteTitle": "Delete part?",
+  "settingsStylePartDeleteBody": "Figures for this part are also removed.",
+  "settingsStyleFiguresTitle": "Design figures",
+  "settingsStyleFiguresSubtitle": "All tailoring design images",
+  "settingsStyleFiguresEmpty": "No design figures yet.",
+  "settingsStyleFigurePartLabel": "Garment part",
+  "settingsStyleFigureAddCta": "Add figure",
+  "settingsStyleFigureNameLabel": "Figure name",
+  "settingsStyleFigureDeleteTitle": "Delete figure?",
+  "settingsStyleFigureDeleteBody": "This removes the design from your catalog.",
+  "settingsStyleFigureWebOnlyBody": "Adding custom images is available on Android and iOS. Bundled figures still work on web.",
+  "settingsStyleActiveLabel": "Active",
+  "settingsStyleInactiveLabel": "Inactive",
   "saveCta": "Save",
   "customersCreated": "Customer created.",
   "customerNameLabel": "Name",
@@ -676,6 +760,8 @@
   "dashboardQuickLinksTitle": "Quick links",
   "dashboardThisMonthIncomeTitle": "This month income",
   "dashboardLicenseExpiredBanner": "Your license is expired. Renew to edit again.",
+  "dashboardLicenseGraceBanner": "You have been offline too long since the server verified your license. Open Subscription and refresh while online.",
+  "dashboardLicenseClockTamperBanner": "Device time may have been changed. Connect online and refresh your license on Subscription to keep editing.",
   "dashboardTodayDeliveriesTitle": "Delivered today",
   "dashboardTodayDeliveriesEmpty": "No orders delivered today.",
   "dashboardSearchOrdersHint": "Search order #, customer, phone",
@@ -724,6 +810,8 @@
   "settingsNotifMarkAllRead": "Mark all read",
   "subscriptionCurrentStatusTitle": "Current status",
   "subscriptionReadOnlyHint": "View-only mode until you renew.",
+  "subscriptionGraceReadOnlyHint": "Read-only until the server can verify your license. Connect to the internet and tap Refresh status below.",
+  "subscriptionClockTamperHint": "Read-only until the server confirms your license after a device time check. Tap Refresh status while online.",
   "subscriptionActivationTitle": "Activation",
   "subscriptionActivationCodeLabel": "Activation code",
   "subscriptionActivationCodeHint": "Enter code when billing is connected",
@@ -872,13 +960,14 @@
     }
   },
   "settingsBackupInvalidFile": "Could not read this backup file.",
-  "settingsNotificationsFiltersTitle": "Filters (preview)",
+  "settingsNotificationsFiltersTitle": "Filters",
   "settingsNotifFilterAll": "All",
   "settingsNotifFilterOrders": "Orders",
   "settingsNotifFilterLicense": "License",
   "settingsNotifFilterBackup": "Backup",
   "settingsNotificationsInboxEmpty": "No notifications yet",
   "settingsNotificationsInboxEmptyHint": "History will appear here for order, license, and backup events.",
+  "settingsNotificationsInboxFilterEmpty": "No notifications match this filter.",
   "settingsSyncLastSyncTitle": "Last successful sync",
   "settingsSyncLastSyncNever": "Not synced yet (offline-first; API pending)",
   "settingsSyncQueuedTitle": "Queued local changes",
@@ -904,6 +993,7 @@
   "settingsSyncRetryConfigureApi": "Set API_BASE_URL at build time, then open Settings → API connection.",
   "settingsSyncRetrySignIn": "Sign in with your online server account first.",
   "settingsSyncRetryLicenseExpired": "The server refused sync because the license is expired. Open Subscription.",
+  "settingsSyncRetryEditingBlocked": "Sync is paused in read-only mode. Open Subscription when you are online.",
   "settingsSyncRetrySuccess": "Sync OK: pushed {pushed} mutation(s); received {pulled} server change(s).",
   "@settingsSyncRetrySuccess": {
     "placeholders": {
@@ -940,6 +1030,16 @@
   "devPortalTabShops": "Shops",
   "devPortalTabResets": "Resets",
   "devPortalTabDiagnostics": "Diagnostics",
+  "devPortalTabAccount": "My password",
+  "devPortalMyPasswordTitle": "Change your password",
+  "devPortalMyPasswordSubtitle": "Username cannot be changed here. Use your current password, then choose a new one (at least 6 characters).",
+  "devPortalCurrentPasswordLabel": "Current password",
+  "devPortalNewPasswordLabel": "New password",
+  "devPortalConfirmPasswordLabel": "Confirm new password",
+  "devPortalPasswordMismatch": "New password and confirmation do not match.",
+  "devPortalChangePasswordCta": "Update password",
+  "devPortalChangePasswordOk": "Password updated. Use the new password next time you sign in.",
+  "devPortalChangePasswordFail": "Could not update password.",
   "devPortalOnlineRequired": "Developer tools require an online connection and a verified developer account.",
   "devPortalRetryCta": "Retry",
   "devPortalStubAction": "API not connected in this build.",
@@ -953,6 +1053,33 @@
     "placeholders": {
       "count": {
         "type": "int"
+      }
+    }
+  },
+  "devPortalShopDisabledLabel": "Disabled",
+  "devPortalShopActionsTooltip": "Shop actions",
+  "devPortalShopDisableCta": "Disable shop",
+  "devPortalShopEnableCta": "Enable shop",
+  "devPortalShopExtendCta": "Extend license…",
+  "devPortalShopExtendTitle": "Extend license",
+  "devPortalShopExtendHint": "Days to add from today or current expiry (whichever is later).",
+  "devPortalShopExtendDaysLabel": "Days",
+  "devPortalShopActionOk": "Done.",
+  "devPortalShopPushTestCta": "Test push…",
+  "devPortalShopPushTitle": "Test push notification",
+  "devPortalShopPushNotifTitleLabel": "Notification title",
+  "devPortalShopPushBodyLabel": "Message",
+  "devPortalShopPushResult": "Sent: {success}, failed: {failed}. Reason: {reason}.",
+  "@devPortalShopPushResult": {
+    "placeholders": {
+      "success": {
+        "type": "int"
+      },
+      "failed": {
+        "type": "int"
+      },
+      "reason": {
+        "type": "String"
       }
     }
   },
@@ -1019,15 +1146,17 @@
     }
   },
   "settingsShopProfileTitle": "Shop profile",
-  "shopProfileIntro": "This shop name appears as the designer label on your catalog items. Contact fields are for your reference until invoicing is connected.",
+  "shopProfileIntro": "Name, logo, address, and thank-you message appear on printed receipts and shared invoices. Notes below are for your own reference only.",
   "shopProfileNameLabel": "Shop name",
-  "shopProfileNameHint": "Example: Pride Tailoring",
+  "shopProfileNameHint": "Example: Karzai Tailoring Shop",
   "shopProfileNameRequired": "Shop name is required.",
   "shopProfileNameTooShort": "Shop name is too short.",
   "shopProfileShopPhoneLabel": "Shop phone (optional)",
-  "shopProfileShopPhoneHint": "Example: 0700000000",
+  "shopProfileShopPhoneHint": "Example: 0701234567",
   "shopProfileAddressLabel": "Address (optional)",
-  "shopProfileAddressHint": "Street, area, city…",
+  "shopProfileAddressHint": "Example: Karte Char, Kabul",
+  "shopProfileReceiptThanksLabel": "Receipt thank-you message (optional)",
+  "shopProfileReceiptThanksHint": "Example: Thank you for your business!",
   "shopProfileNotesLabel": "Notes (optional)",
   "shopProfileNotesHint": "Hours, landmarks, tax ID…",
   "shopProfileSaved": "Shop profile saved.",
@@ -1105,5 +1234,38 @@
   "receiptPaidLabel": "Paid",
   "receiptBalanceLabel": "Balance",
   "receiptPaymentsHeader": "Payments",
-  "receiptFooterThanks": "Thank you"
+  "receiptShopPhoneLabel": "Shop phone",
+  "receiptShopAddressLabel": "Address",
+  "receiptShareDivider": "--------------------------------",
+  "receiptShareSectionRule": "================================",
+  "settingsPrinterRetryHint": "If the printer is busy, the app retries the connection a few times automatically.",
+  "shopProfileLogoSectionTitle": "Invoice header logo",
+  "shopProfileLogoSubtitle": "Shown at the top of thermal receipts and shared invoice text (Android / iOS). Square images work best.",
+  "shopProfileLogoPickCta": "Choose image",
+  "shopProfileLogoRemoveCta": "Remove logo",
+  "shopProfileLogoSaved": "Logo saved.",
+  "shopProfileLogoWebHint": "Logo upload is available in the Android and iOS apps.",
+  "shopProfileLogoStatusOnFile": "Logo saved on this device for receipts.",
+  "shopProfileLogoDefaultCaption": "Default logo on receipts until you upload your own.",
+  "defaultShopName": "My tailoring shop",
+  "defaultShopAddress": "Kabul, Afghanistan",
+  "defaultShopPhone": "0701234567",
+  "orderShareInvoiceTooltip": "Share invoice",
+  "orderShareInvoiceFail": "Share failed: {detail}",
+  "@orderShareInvoiceFail": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "orderShareInvoiceSubject": "Order {orderNo}",
+  "@orderShareInvoiceSubject": {
+    "placeholders": {
+      "orderNo": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptFooterThanks": "Thank you for your business!"
 }

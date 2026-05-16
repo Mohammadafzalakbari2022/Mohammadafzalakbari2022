@@ -104,6 +104,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final license = ref.watch(licenseNotifierProvider);
+    final editingBlocked = ref.watch(licenseEditingBlockedProvider);
     final apiOn = PrideApiConfig.isConfigured;
 
     return ListView(
@@ -131,6 +132,16 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                     if (license.isExpired)
                       Text(
                         l10n.subscriptionReadOnlyHint,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      )
+                    else if (license.suspectedTimeTamper)
+                      Text(
+                        l10n.subscriptionClockTamperHint,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      )
+                    else if (editingBlocked)
+                      Text(
+                        l10n.subscriptionGraceReadOnlyHint,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                   ],

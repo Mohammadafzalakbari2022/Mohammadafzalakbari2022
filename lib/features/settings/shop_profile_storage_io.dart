@@ -22,6 +22,8 @@ Future<ShopProfile> loadShopProfile() async {
       address: map['address'] as String?,
       phone: map['phone'] as String?,
       notes: map['notes'] as String?,
+      receiptThankYouMessage: map['receiptThankYouMessage'] as String?,
+      logoRelativePath: map['logoRelativePath'] as String?,
     );
   } on Object {
     return const ShopProfile(name: '');
@@ -35,6 +37,8 @@ Future<void> saveShopProfile(ShopProfile profile) async {
     'address': profile.address,
     'phone': profile.phone,
     'notes': profile.notes,
+    'receiptThankYouMessage': profile.receiptThankYouMessage,
+    'logoRelativePath': profile.logoRelativePath,
   };
   await f.writeAsString(jsonEncode(map));
 }

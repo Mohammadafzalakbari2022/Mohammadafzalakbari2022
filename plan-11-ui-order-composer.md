@@ -1,131 +1,72 @@
-# Afghan Pride — Frontend UI Plan: Order Composer (Single Screen)
+# Afghan Pride — Frontend UI Plan: Order Composer (Hub + modals)
 
-This document defines the **Order Create** experience as one screen with **collapsible sections**:
-Customer → Measurements → Style → Payment → Save.
+This document defines the **Order Create** experience as one **hub** screen with **summary cards** for Customer, Measurements, and Style; **Payment** stays inline on the hub. Tapping a card or **Edit** opens a **modal bottom sheet**; **Save** on that sheet applies data and closes it. **Structured style** and the **style catalog** are configured under **Settings → Order style (designs & parts)**.
 
 ## Selected behavior (important)
-- **No drafts**: nothing is saved until the user completes Payment (or final step) and taps **Save Order**.
-- Each section opens a full-screen “frame” for data entry, then returns to the composer with a minimal summary.
+
+- **No drafts**: nothing is saved as an order until the user completes required fields and taps **Save Order**.
+- **Add new customer** from the composer uses `returnTo=orderComposer`: **notes are hidden** on that flow; after save the app **pops back** to the composer with the new customer **selected** (Customers tab “new customer” still navigates to the customer profile).
+- **Post-save**: after a successful save, a sheet offers **Print receipt**, **Share invoice**, and **View order**; the user is then taken to order detail with `fromNew=1` for a one-time hint banner about print/share.
 
 Permissions (selected)
-- Customer/Measurements/Style/Payment entry in the composer is available to **all users** (not owner-only).
+
+- Customer / Measurements / Style / Payment entry in the composer is available to **all users** (not owner-only).
 
 ## Screen: Create Order (Composer)
 
 ### Layout
-- Top app bar:
-  - Back
-  - Title: “New Order”
-  - Optional action: “Reset form” (owner password confirmation not required; just confirm dialog)
-- Body: collapsible section list (accordion)
-- Bottom sticky bar:
-  - Primary CTA: **Save Order**
-  - Disabled until required sections are complete
 
-### Sections (accordion)
+- Top app bar: Back, title “New Order”, **Reset form** (confirm dialog).
+- Body: **hub cards** (Customer, Measurements, Style) + **Payment** card (inline fields + delivery date).
+- Bottom sticky bar: **Save Order** (disabled until valid).
+
+### Hub cards
 
 #### 1) Customer (required)
-Collapsed summary (minimal):
-- Customer name (and phone optional)
 
-Expanded content:
-- Button: “Select customer”
-- Button: “Add new customer”
-
-Full-screen frame behaviors:
-- **Add new customer** opens Customer Create screen (modal route):
-  - fields: name, phone, address/notes optional
-  - Save returns to composer and auto-selects this customer
-- **Select customer** opens searchable list:
-  - search by name/phone
-  - selecting returns to composer
+Card summary: customer name (and phone when present). **Edit** opens a sheet with search, list, **Add new customer** (composer return path), and **Save** to confirm selection.
 
 #### 2) Measurements (required)
-Collapsed summary (minimal):
-- Measurement profile label (or “New profile”)
 
-Expanded content:
-- Button: “Select measurement profile”
-- Button: “Create/Update profile”
-
-Full-screen frame:
-- Measurement Profile screen:
-  - choose: edit in place OR save as new version (per data model plan)
-  - record measurement values (dynamic fields)
-  - Save returns to composer and selects that profile
-
-Rule:
-- The currently selected customer is pre-filled for this step.
+Card summary: “Measurements captured” or required hint. **Edit** opens the **full measurements editor** driven by **Settings → Measurement fields** (one field per type). Optional: **Load from saved profile** for the selected customer. Optional footer: **Also save to customer measurement library** (creates a new profile + sync outbox). **Save** writes the text snapshot and structured `measurementSnapshotItems` for the order.
 
 #### 3) Style (required)
-Collapsed summary (minimal):
-- Design name + count of selected style figures (e.g., “Karzai • 3 figures”)
 
-Expanded content:
-- Button: “Select design”
-- Button: “Select style figures”
-- Optional notes field
-
-Full-screen frames:
-- Design picker (simple list)
-- Style figures picker (visual grid by category)
+Card summary: style text. **Edit** opens the style sheet: if the **style catalog** has designs/parts, user picks **design name** (preset or custom) and a **figure per garment part**; optional extra notes. If the catalog is empty, a single free-text field is used (legacy). Structured selection is stored in **`styleSelectionJson`** on the order entity; a human-readable summary is mirrored in **`style_notes`** for receipts and sync.
 
 #### 4) Payment (required)
-Collapsed summary (minimal):
-- Total amount • Paid • Remaining
 
-Expanded content:
-- total amount
-- paid amount (initial payment)
-- remaining auto-calculated
-- delivery date
+Remains on the hub: total, initial paid, summary card, delivery date picker.
 
-Rule:
-- Payment entries are append-only later; in composer you record only the initial amounts.
+Rule: payment entries are append-only later; in the composer you record only the initial amounts.
 
 ### Save behavior
-- Save validates required sections:
-  - customer selected
-  - measurement profile selected
-  - style selected
-  - payment totals valid
-- On success:
-  - show global action feedback bar (success)
-  - navigate to Order Details screen (or clear composer and keep customer selected if desired later)
+
+- Validates: customer, non-empty measurements snapshot, non-empty style, valid payment, delivery date.
+- On success: enqueue sync, optional initial payment, snackbar, **post-save sheet**, then navigate to **`/app/orders/{id}?fromNew=1`**.
 
 ## “Recent Orders” table (within composer screen)
+
 Purpose: reduce user confusion and give immediate context.
 
-Placement:
-- After Payment section OR at the bottom of the page.
-
-Selected scope:
-- Show **recent orders for the selected customer** (e.g., last 5–10).
-
-Row shows:
-- order number
-- date
-- status
-- remaining balance
-
-Row tap:
-- opens Order Details (read-only view if license expired)
+- Placement: after Payment / bottom of the page.
+- Show **recent orders for the selected customer** (e.g. last 5–10).
+- Row tap: opens Order Details (read-only if license expired).
 
 ## Separate tab: All Orders
-- A dedicated “Orders” module/tab contains the full orders table:
-  - filters (status, date, unpaid)
-  - search (order number, customer, phone)
-  - create new order opens this composer
+
+- Full orders table: filters, search, **New order** opens this composer.
 
 ## Confusion-prevention rules (key UX)
+
 - Only one visible primary action: **Save Order**.
-- Collapsed sections show **only** the selected minimal summary (name/label/amount), nothing more.
-- If a user tries to open Measurements/Style/Payment before selecting Customer:
-  - show a dialog: “Select customer first.”
+- Hub cards show minimal summary; **Edit** reopens the modal.
+- Opening Measurements without a customer: dialog “Select customer first.”
 
 ## Definition of Done
-- User can complete an order with minimal steps and no confusion
-- No data is written locally until Save Order
-- Accordion summaries are minimal and RTL/LTR safe
-- Recent orders list updates immediately after save
 
+- User can complete an order with minimal steps and no confusion.
+- No order row is written locally until **Save Order**.
+- Hub + modals are RTL/LTR safe.
+- Recent orders list updates immediately after save.
+- New customer from composer returns with selection; Customers-tab new customer still opens profile after save.

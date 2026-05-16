@@ -9,6 +9,10 @@ import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
 import 'package:pride_v3/core/calendar/date_calendar_system.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
+import 'package:pride_v3/app/app_theme.dart';
+import 'package:pride_v3/core/widgets/pride_action_buttons.dart';
+import 'package:pride_v3/core/feedback/app_feedback.dart';
+
 import 'package:uuid/uuid.dart';
 
 import '../../auth/auth_providers.dart';
@@ -23,7 +27,10 @@ import '../../licensing/license_providers.dart';
 import '../../core/printing/thermal_print_order.dart';
 import '../../security/owner_password_verify.dart';
 import '../../shell/shell_sync_providers.dart';
+import 'order_invoice_share.dart';
+import 'order_payment_amount_sheet.dart';
 import 'order_status_label.dart';
+import 'order_style_figures_panel.dart';
 
 /// Order details with collapsible sections (plan-12); data from local stream.
 class OrderDetailScreen extends ConsumerWidget {
@@ -52,16 +59,13 @@ class OrderDetailScreen extends ConsumerWidget {
       builder: (context) => AlertDialog(
         title: Text(title),
         content: Text(body),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(confirmText),
-          ),
-        ],
+        actions: prideDialogCancelSave(
+          context: context,
+          onCancel: () => Navigator.of(context).pop(false),
+          onConfirm: () => Navigator.of(context).pop(true),
+          saveLabel: confirmText,
+          confirmVariant: PrideButtonVariant.warning,
+        ),
       ),
     );
     return result ?? false;
@@ -80,103 +84,17 @@ class OrderDetailScreen extends ConsumerWidget {
             labelText: AppLocalizations.of(context)!.ownerPasswordLabel,
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(MaterialLocalizations.of(context).okButtonLabel),
-          ),
-        ],
+        actions: prideDialogCancelSave(
+          context: context,
+          onCancel: () => Navigator.of(context).pop(false),
+          onConfirm: () => Navigator.of(context).pop(true),
+          saveLabel: MaterialLocalizations.of(context).okButtonLabel,
+        ),
       ),
     );
     if (ok != true) return null;
     final value = controller.text.trim();
     if (value.isEmpty) return null;
-    return value;
-  }
-
-  Future<int?> _promptAmount(BuildContext context, AppLocalizations l10n) async {
-    final controller = TextEditingController();
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.addPaymentCta),
-        content: TextField(
-          controller: controller,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            labelText: l10n.paymentAmountLabel,
-            hintText: l10n.paymentAmountHint,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(MaterialLocalizations.of(context).okButtonLabel),
-          ),
-        ],
-      ),
-    );
-    if (ok != true) return null;
-    final raw = controller.text.trim();
-    final value = int.tryParse(raw);
-    if (value == null || value <= 0) return null;
-    return value;
-  }
-
-  Future<int?> _promptSignedAmount(
-    BuildContext context,
-    AppLocalizations l10n, {
-    required String title,
-    required String hint,
-  }) async {
-    final controller = TextEditingController();
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(hint, style: Theme.of(context).textTheme.bodySmall),
-            const SizedBox(height: 12),
-            TextField(
-              controller: controller,
-              keyboardType: const TextInputType.numberWithOptions(
-                signed: true,
-                decimal: false,
-              ),
-              decoration: InputDecoration(
-                labelText: l10n.paymentAmountLabel,
-                hintText: l10n.paymentAmountHint,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(MaterialLocalizations.of(context).okButtonLabel),
-          ),
-        ],
-      ),
-    );
-    if (ok != true) return null;
-    final raw = controller.text.trim();
-    final value = int.tryParse(raw);
-    if (value == null || value == 0) return null;
     return value;
   }
 
@@ -186,6 +104,18 @@ class OrderDetailScreen extends ConsumerWidget {
     AppLocalizations l10n,
     OrderSummary o,
   ) async {
+    if (ref.read(licenseEditingBlockedProvider)) {
+      showAppFeedback(
+        context,
+        ref,
+        kind: AppFeedbackKind.error,
+        message: licenseWriteBlockedMessage(
+          ref.read(licenseNotifierProvider),
+          l10n,
+        ),
+      );
+      return;
+    }
     final controller = TextEditingController(text: o.internalNotes);
     final ok = await showDialog<bool>(
       context: context,
@@ -200,16 +130,12 @@ class OrderDetailScreen extends ConsumerWidget {
             hintText: l10n.ordersInternalNotesHint,
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(MaterialLocalizations.of(ctx).cancelButtonLabel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(l10n.saveCta),
-          ),
-        ],
+        actions: prideDialogCancelSave(
+          context: ctx,
+          onCancel: () => Navigator.of(ctx).pop(false),
+          onConfirm: () => Navigator.of(ctx).pop(true),
+          saveLabel: l10n.saveCta,
+        ),
       ),
     );
     if (ok != true || !context.mounted) return;
@@ -231,8 +157,11 @@ class OrderDetailScreen extends ConsumerWidget {
       }),
     );
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.ordersInternalNotesSaved)),
+    showAppFeedback(
+      context,
+      ref,
+      kind: AppFeedbackKind.success,
+      message: l10n.ordersInternalNotesSaved,
     );
   }
 
@@ -277,7 +206,6 @@ class OrderDetailScreen extends ConsumerWidget {
     final locale = Localizations.localeOf(context).toString();
     final calendar = ref.watch(dateCalendarSystemProvider);
     final asyncOrders = ref.watch(ordersListStreamProvider);
-    final license = ref.watch(licenseNotifierProvider);
 
     return asyncOrders.when(
       data: (orders) {
@@ -312,7 +240,7 @@ class OrderDetailScreen extends ConsumerWidget {
         final snapshotAsync =
             ref.watch(orderMeasurementSnapshotProvider(orderId));
         final statusLocked = _isTerminal(o.status);
-        final editBlockedByLicense = license.isExpired;
+        final editBlockedByLicense = ref.watch(licenseEditingBlockedProvider);
         final changeStatusEnabled = !statusLocked && !editBlockedByLicense;
         final asyncPayments = ref.watch(paymentsForOrderProvider(o.internalId));
         return Scaffold(
@@ -323,6 +251,24 @@ class OrderDetailScreen extends ConsumerWidget {
             ),
             title: Text(l10n.ordersNumberPrefix(o.displayOrderNo)),
             actions: [
+              IconButton(
+                icon: const Icon(Icons.share_outlined),
+                tooltip: l10n.orderShareInvoiceTooltip,
+                onPressed: () => shareOrderInvoiceText(
+                  context: context,
+                  ref: ref,
+                  l10n: l10n,
+                  order: o,
+                  payments: asyncPayments.asData?.value ?? const [],
+                  deliveryDateText: AppCalendarFormat.mediumDate(
+                    l10n,
+                    calendar,
+                    o.deliveryDate,
+                    locale,
+                  ),
+                  statusText: orderStatusLabel(o.status, l10n),
+                ),
+              ),
               IconButton(
                 icon: const Icon(Icons.print_outlined),
                 tooltip: l10n.orderPrintReceiptTooltip,
@@ -355,6 +301,12 @@ class OrderDetailScreen extends ConsumerWidget {
           body: ListView(
             padding: const EdgeInsets.symmetric(vertical: 8),
             children: [
+              if (GoRouterState.of(context).uri.queryParameters['fromNew'] ==
+                  '1')
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: _FromNewBanner(orderId: o.internalId),
+                ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Text(
@@ -371,7 +323,8 @@ class OrderDetailScreen extends ConsumerWidget {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: FilledButton.tonal(
+                child: FilledButton(
+                  style: prideButtonStyle(context, PrideButtonVariant.warning),
                   onPressed: changeStatusEnabled
                       ? () async {
                           final picked =
@@ -395,10 +348,11 @@ class OrderDetailScreen extends ConsumerWidget {
                             if (!context.mounted) return;
                             if (pw == null) return;
                             if (!verifyOwnerPasswordForLocalActions(pw)) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(l10n.ownerPasswordMismatch),
-                                ),
+                              showAppFeedback(
+                                context,
+                                ref,
+                                kind: AppFeedbackKind.error,
+                                message: l10n.ownerPasswordMismatch,
                               );
                               return;
                             }
@@ -459,13 +413,12 @@ class OrderDetailScreen extends ConsumerWidget {
                             }),
                           );
                           if (!context.mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                l10n.ordersDetailStatusUpdated(
-                                  orderStatusLabel(picked, l10n),
-                                ),
-                              ),
+                          showAppFeedback(
+                            context,
+                            ref,
+                            kind: AppFeedbackKind.success,
+                            message: l10n.ordersDetailStatusUpdated(
+                              orderStatusLabel(picked, l10n),
                             ),
                           );
                         }
@@ -574,22 +527,6 @@ class OrderDetailScreen extends ConsumerWidget {
                                         .titleMedium,
                                   ),
                                 ),
-                              if (o.measurementsSnapshot.trim().isNotEmpty) ...[
-                                const Divider(height: 24),
-                                Text(
-                                  l10n.ordersDetailMeasurementsNotes,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .labelLarge
-                                      ?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onSurfaceVariant,
-                                      ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(o.measurementsSnapshot),
-                              ],
                             ],
                           );
                         }
@@ -605,19 +542,18 @@ class OrderDetailScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-              ExpansionTile(
-                title: Text(l10n.ordersDetailSectionStyle),
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                    child: Text(
-                      o.styleNotes.trim().isEmpty
-                          ? l10n.ordersDetailSnapshotEmpty
-                          : o.styleNotes,
+              if (o.styleName.trim().isNotEmpty ||
+                  o.styleSummary.trim().isNotEmpty ||
+                  o.styleSelectionJson.trim().isNotEmpty)
+                ExpansionTile(
+                  title: Text(l10n.ordersDetailSectionStyle),
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                      child: OrderStyleFiguresPanel(order: o),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
               ExpansionTile(
                 title: Text(l10n.ordersDetailSectionInternalNotes),
                 subtitle: Text(
@@ -642,7 +578,11 @@ class OrderDetailScreen extends ConsumerWidget {
                           const SizedBox(height: 12),
                           Align(
                             alignment: AlignmentDirectional.centerStart,
-                            child: FilledButton.tonal(
+                            child: FilledButton(
+                              style: prideButtonStyle(
+                                context,
+                                PrideButtonVariant.edit,
+                              ),
                               onPressed: () => _editInternalNotes(
                                 context,
                                 ref,
@@ -675,12 +615,18 @@ class OrderDetailScreen extends ConsumerWidget {
                       spacing: 8,
                       runSpacing: 8,
                       children: [
-                        FilledButton.tonal(
+                        FilledButton.icon(
+                          style: prideLedgerTonalButtonStyle(context),
                           onPressed: editBlockedByLicense
                               ? null
                               : () async {
                                   final amount =
-                                      await _promptAmount(context, l10n);
+                                      await showOrderPaymentAmountSheet(
+                                    context,
+                                    l10n,
+                                    title: l10n.addPaymentCta,
+                                    signed: false,
+                                  );
                                   if (!context.mounted) return;
                                   if (amount == null) return;
                                   final paymentId = const Uuid().v4();
@@ -711,23 +657,31 @@ class OrderDetailScreen extends ConsumerWidget {
                                     }),
                                   );
                                   if (!context.mounted) return;
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content: Text(l10n.paymentAdded)),
+                                  showAppFeedback(
+                                    context,
+                                    ref,
+                                    kind: AppFeedbackKind.success,
+                                    message: l10n.paymentAdded,
                                   );
                                 },
-                          child: Text(l10n.addPaymentCta),
+                          icon: const Icon(Icons.add_card_outlined),
+                          label: Text(l10n.addPaymentCta),
                         ),
-                        FilledButton.tonal(
+                        FilledButton.icon(
+                          style: prideButtonStyle(
+                            context,
+                            PrideButtonVariant.warning,
+                          ),
                           onPressed: editBlockedByLicense
                               ? null
                               : () async {
                                   final amount =
-                                      await _promptSignedAmount(
+                                      await showOrderPaymentAmountSheet(
                                     context,
                                     l10n,
                                     title: l10n.addAdjustmentCta,
                                     hint: l10n.paymentAdjustmentHint,
+                                    signed: true,
                                   );
                                   if (!context.mounted) return;
                                   if (amount == null) return;
@@ -759,15 +713,15 @@ class OrderDetailScreen extends ConsumerWidget {
                                     }),
                                   );
                                   if (!context.mounted) return;
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        l10n.paymentAdjustmentAdded,
-                                      ),
-                                    ),
+                                  showAppFeedback(
+                                    context,
+                                    ref,
+                                    kind: AppFeedbackKind.success,
+                                    message: l10n.paymentAdjustmentAdded,
                                   );
                                 },
-                          child: Text(l10n.addAdjustmentCta),
+                          icon: const Icon(Icons.tune_outlined),
+                          label: Text(l10n.addAdjustmentCta),
                         ),
                       ],
                     ),
@@ -775,9 +729,31 @@ class OrderDetailScreen extends ConsumerWidget {
                   asyncPayments.when(
                     data: (payments) {
                       if (payments.isEmpty) {
+                        final scheme = Theme.of(context).colorScheme;
                         return Padding(
                           padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                          child: Text(l10n.paymentsEmpty),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(
+                                Icons.payments_outlined,
+                                color: scheme.secondary,
+                                size: 22,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  l10n.paymentsEmpty,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                    color: scheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         );
                       }
                       return Column(
@@ -872,7 +848,7 @@ class OrderDetailScreen extends ConsumerWidget {
   }
 }
 
-class _OrderAuditSection extends StatelessWidget {
+class _OrderAuditSection extends ConsumerWidget {
   const _OrderAuditSection({
     required this.o,
     required this.payments,
@@ -888,7 +864,7 @@ class _OrderAuditSection extends StatelessWidget {
   final String locale;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
     final sorted = [...payments]
       ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
@@ -936,8 +912,11 @@ class _OrderAuditSection extends StatelessWidget {
               onPressed: () async {
                 await Clipboard.setData(ClipboardData(text: o.internalId));
                 if (!context.mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l10n.ordersAuditCopiedId)),
+                showAppFeedback(
+                  context,
+                  ref,
+                  kind: AppFeedbackKind.info,
+                  message: l10n.ordersAuditCopiedId,
                 );
               },
             ),
@@ -1041,6 +1020,50 @@ class _TotalsCard extends StatelessWidget {
         const SizedBox(height: 4),
         Text(v, style: Theme.of(context).textTheme.titleMedium),
       ],
+    );
+  }
+}
+
+class _FromNewBanner extends StatefulWidget {
+  const _FromNewBanner({required this.orderId});
+
+  final String orderId;
+
+  @override
+  State<_FromNewBanner> createState() => _FromNewBannerState();
+}
+
+class _FromNewBannerState extends State<_FromNewBanner> {
+  bool _visible = true;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_visible) return const SizedBox.shrink();
+    final l10n = AppLocalizations.of(context)!;
+    return Material(
+      elevation: 1,
+      borderRadius: BorderRadius.circular(12),
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: Row(
+          children: [
+            Icon(
+              Icons.info_outline,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(width: 12),
+            Expanded(child: Text(l10n.ordersDetailFromNewBanner)),
+            IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () {
+                setState(() => _visible = false);
+                GoRouter.of(context).go('/app/orders/${widget.orderId}');
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

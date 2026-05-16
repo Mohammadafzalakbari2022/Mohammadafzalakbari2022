@@ -2,7 +2,8 @@
   "@@locale": "fa",
   "appTitle": "افغان پراید",
   "tabOrders": "سفارش‌ها",
-  "tabCustomers": "مشتریان",
+  "tabCustomers": "لیست مشتریان",
+  "tabOrdersList": "لیست سفارش‌ها",
   "tabCatalog": "کاتالوگ",
   "tabReports": "گزارش‌ها",
   "tabSettings": "تنظیمات",
@@ -63,6 +64,33 @@
     "placeholders": {
       "count": {
         "type": "int"
+      }
+    }
+  },
+  "devPortalShopDisabledLabel": "غیرفعال",
+  "devPortalShopActionsTooltip": "اقدامات فروشگاه",
+  "devPortalShopDisableCta": "غیرفعال‌سازی فروشگاه",
+  "devPortalShopEnableCta": "فعال‌سازی فروشگاه",
+  "devPortalShopExtendCta": "تمدید مجوز…",
+  "devPortalShopExtendTitle": "تمدید مجوز",
+  "devPortalShopExtendHint": "روزهای افزوده از امروز یا از تاریخ انقضای فعلی (هرکدام دیرتر باشد).",
+  "devPortalShopExtendDaysLabel": "روز",
+  "devPortalShopActionOk": "انجام شد.",
+  "devPortalShopPushTestCta": "آزمایش اعلان…",
+  "devPortalShopPushTitle": "اعلان آزمایشی",
+  "devPortalShopPushNotifTitleLabel": "عنوان اعلان",
+  "devPortalShopPushBodyLabel": "پیام",
+  "devPortalShopPushResult": "ارسال‌شده: {success}، ناموفق: {failed}. دلیل: {reason}.",
+  "@devPortalShopPushResult": {
+    "placeholders": {
+      "success": {
+        "type": "int"
+      },
+      "failed": {
+        "type": "int"
+      },
+      "reason": {
+        "type": "String"
       }
     }
   },
@@ -145,7 +173,10 @@
   "dashboardKpiReady": "آماده",
   "dashboardKpiUnpaid": "مانده پرداخت‌نشده",
   "dashboardKpiValuePlaceholder": "—",
-  "dashboardOpenMenuTooltip": "باز کردن منو",
+  "dashboardOpenMenuTooltip": "باز کردن داشبورد",
+  "dashboardOrdersPipelineTitle": "خط سفارش‌ها",
+  "dashboardRecentIncomeTitle": "درآمد — ۷ روز اخیر",
+  "dashboardActivitySectionTitle": "همگام‌سازی و اعلان‌ها",
   "subscriptionTitle": "اشتراک",
   "subscriptionBody": "تمدید یا کد فعال‌سازی هنگام اتصال صورتحساب (plan-06). پس از انقضا ویرایش محدود است؛ مشاهده فهرست و جزئیات ممکن است.",
   "subscriptionListTileSubtitle": "مجوز، آزمایش و فعال‌سازی",
@@ -175,6 +206,14 @@
   "@ordersDeliveryOn": {
     "placeholders": {
       "date": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersTakenOn": "ثبت سفارش: {dateTime}",
+  "@ordersTakenOn": {
+    "placeholders": {
+      "dateTime": {
         "type": "String"
       }
     }
@@ -216,6 +255,17 @@
     }
   },
   "ordersFilteredEmpty": "هیچ سفارشی با جستجو یا فیلتر مطابقت ندارد.",
+  "ordersFilterSheetTitle": "فیلترها",
+  "ordersFilterQuickSection": "فیلترهای سریع",
+  "ordersFilterDeliverySection": "تاریخ تحویل",
+  "ordersFilterStatusSection": "وضعیت",
+  "ordersFilterClearAll": "پاک کردن همه",
+  "ordersFilterApply": "اعمال",
+  "listToolbarSearchTooltip": "جستجو",
+  "listToolbarFilterTooltip": "فیلترها",
+  "appShellTapTitleForMenu": "برای باز کردن داشبورد ضربه بزنید",
+  "ordersDetailFromNewBanner": "برای چاپ رسید یا اشتراک‌گذاری فاکتور از نوار ابزار بالا استفاده کنید.",
+  "ordersComposerPostSaveSubtitle": "چاپ، اشتراک‌گذاری، یا باز کردن جزئیات کامل سفارش.",
   "ordersDetailNotFound": "این سفارش یافت نشد.",
   "ordersDetailChangeStatus": "تغییر وضعیت",
   "ordersDetailChangeStatusSubtitle": "آماده / تحویل‌شده / لغو",
@@ -257,9 +307,15 @@
   "ordersAuditPaymentsLine": "{count} ردیف پرداخت · قدیمی‌ترین {first} · جدیدترین {last}",
   "@ordersAuditPaymentsLine": {
     "placeholders": {
-      "count": { "type": "int" },
-      "first": { "type": "String" },
-      "last": { "type": "String" }
+      "count": {
+        "type": "int"
+      },
+      "first": {
+        "type": "String"
+      },
+      "last": {
+        "type": "String"
+      }
     }
   },
   "ordersDetailSnapshotEmpty": "چیزی ثبت نشده.",
@@ -290,7 +346,7 @@
   "paymentAdded": "پرداخت افزوده شد",
   "paymentsEmpty": "هنوز پرداختی نیست.",
   "paymentAmountLabel": "مبلغ",
-  "paymentAmountHint": "مبلغ را وارد کنید (بدون اعشار)",
+  "paymentAmountHint": "مثال: 300",
   "paymentAmount": "مبلغ: {amount}",
   "@paymentAmount": {
     "placeholders": {
@@ -313,6 +369,8 @@
   "customerMeasurementProfilesSection": "پروفایل‌های اندازه",
   "customerTodayOrdersTitle": "سفارش‌های امروز",
   "customerNoTodayOrders": "برای امروز سفارشی نیست.",
+  "customerOrderHistoryTitle": "تاریخچه سفارش‌ها",
+  "customerNoOrders": "هنوز سفارشی برای این مشتری نیست.",
   "customerViewAllOrders": "همه سفارش‌های این مشتری",
   "customerViewAllOrdersSoon": "با فیلتر مشتری تب سفارش‌ها باز می‌شود (plan-13).",
   "customerSectionPlaceholder": "جزئیات هنگام تکمیل ماژول اینجا نمایش داده می‌شود.",
@@ -350,9 +408,21 @@
   "tasksDueDateSet": "تنظیم",
   "tasksDueDateClear": "پاک کردن تاریخ سررسید",
   "tasksDueDateShort": "سررسید: {date}",
-  "@tasksDueDateShort": { "placeholders": { "date": { "type": "String" } } },
+  "@tasksDueDateShort": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "tasksDueDateValue": "تاریخ سررسید: {date}",
-  "@tasksDueDateValue": { "placeholders": { "date": { "type": "String" } } },
+  "@tasksDueDateValue": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "tasksSave": "ذخیره",
   "tasksDeleteAction": "حذف",
   "tasksDeleteTitle": "کار حذف شود؟",
@@ -407,8 +477,12 @@
   "reportsPaymentsRangeValue": "{from} → {to}",
   "@reportsPaymentsRangeValue": {
     "placeholders": {
-      "from": { "type": "String" },
-      "to": { "type": "String" }
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
     }
   },
   "reportsPaymentsTotalLabel": "جمع",
@@ -456,23 +530,23 @@
   "reportsNextMonth": "ماه بعد",
   "reportsUnpaidTotalLabel": "کل مانده",
   "reportsUnpaidEmpty": "سفارش پرداخت‌نشده‌ای نیست.",
-  "reportsUnpaidFilteredEmpty": "No unpaid orders match this filter.",
-  "reportsUnpaidFilterSection": "Delivery window",
-  "reportsUnpaidFilterAll": "All",
-  "reportsUnpaidFilterOverdue": "Overdue",
-  "reportsUnpaidFilterDueSoon": "Due in 7 days",
+  "reportsUnpaidFilteredEmpty": "هیچ سفارش پرداخت‌نشده‌ای با این فیلتر مطابقت ندارد.",
+  "reportsUnpaidFilterSection": "پنجره تحویل",
+  "reportsUnpaidFilterAll": "همه",
+  "reportsUnpaidFilterOverdue": "معوق",
+  "reportsUnpaidFilterDueSoon": "سررسید در ۷ روز",
   "reportsUnpaidAmountSection": "مانده سفارش",
   "reportsUnpaidAmountAny": "هر مبلغ",
   "reportsUnpaidAmountUnder5000": "زیر ۵٬۰۰۰",
   "reportsUnpaidAmount5000to20000": "۵٬۰۰۰ – ۲۰٬۰۰۰",
   "reportsUnpaidAmountOver20000": "بالای ۲۰٬۰۰۰",
-  "reportsUnpaidSortSection": "Sort",
-  "reportsUnpaidSortAmount": "Amount",
-  "reportsUnpaidSortDueDate": "Due date",
-  "reportsMonthlyCompareToggle": "Compare to previous month",
-  "reportsMonthlyPreviousPaymentsLabel": "Previous month (payments)",
-  "reportsMonthlyDeltaLabel": "Change from previous month",
-  "reportsMonthlyDeltaSame": "No change",
+  "reportsUnpaidSortSection": "مرتب‌سازی",
+  "reportsUnpaidSortAmount": "مبلغ",
+  "reportsUnpaidSortDueDate": "تاریخ سررسید",
+  "reportsMonthlyCompareToggle": "مقایسه با ماه قبل",
+  "reportsMonthlyPreviousPaymentsLabel": "ماه قبل (پرداخت‌ها)",
+  "reportsMonthlyDeltaLabel": "تغییر نسبت به ماه قبل",
+  "reportsMonthlyDeltaSame": "بدون تغییر",
   "reportsRemainingChip": "{amount} مانده",
   "@reportsRemainingChip": {
     "placeholders": {
@@ -502,6 +576,10 @@
   "catalogSharedPlaceholder": "فهرست طرح‌های اشتراکی هنگام اتصال آنلاین اینجا نمایش داده می‌شود (plan-14).",
   "catalogEmptyMyDesigns": "هنوز طرحی نیست.",
   "catalogAddDesignCta": "افزودن طرح",
+  "catalogViewDescription": "توضیحات",
+  "catalogDescriptionSheetTitle": "توضیحات",
+  "catalogNoDescription": "توضیحی برای این طرح ثبت نشده است.",
+  "catalogViewerManageA11y": "مدیریت طرح",
   "catalogAddDesignPlaceholder": "افزودن از دوربین / گالری فقط روی اندروید و iOS (plan-14).",
   "catalogDetailTitle": "قلم کاتالوگ",
   "catalogDetailPlaceholder": "قلم کاتالوگ {id} — صفحه جزئیات به‌زودی.",
@@ -588,6 +666,10 @@
   "themeSystem": "سیستم",
   "themeLight": "روشن",
   "themeDark": "تیره",
+  "settingsUiSoundsTitle": "صداهای رابط",
+  "settingsUiSoundsSubtitle": "صدای کوتاه هنگام موفقیت عملیات (مثلاً ذخیره).",
+  "settingsUiHapticsTitle": "لرزش لمسی",
+  "settingsUiHapticsSubtitle": "لرزش سبک برای عملیات موفق.",
   "settingsLanguageTitle": "زبان",
   "languageSystem": "سیستم",
   "languageEnglish": "انگلیسی",
@@ -620,6 +702,8 @@
   "loading": "در حال بارگذاری…",
   "genericError": "خطایی رخ داد.",
   "resetCta": "بازنشانی",
+  "licenseGraceReadOnlySnack": "فقط‌خواندنی تا تأیید مجوز آنلاین.",
+  "licenseClockTamperSnack": "فقط‌خواندنی: زمان دستگاه نامعتبر به‌نظر می‌رسد. آنلاین اشتراک را باز کنید و تأیید کنید.",
   "licenseExpiredReadOnly": "مجوز منقضی — حالت فقط‌خواندنی.",
   "moneyAfn": "{amount} افغانی",
   "@moneyAfn": {
@@ -645,10 +729,6 @@
       }
     }
   },
-  "ordersComposerStyleTitle": "استایل",
-  "ordersComposerStyleRequired": "استایل را انتخاب کنید (الزامی)",
-  "ordersComposerStyleLabel": "طرح / استایل",
-  "ordersComposerStyleHint": "مثال: کرزی، یقه، جیب…",
   "ordersComposerPaymentTitle": "پرداخت",
   "ordersComposerPaymentRequired": "جمع‌ها را وارد کنید (الزامی)",
   "ordersComposerPaymentSummary": "جمع {total} • پرداخت {paid} • مانده {remaining}",
@@ -666,9 +746,9 @@
     }
   },
   "ordersComposerTotalLabel": "مبلغ کل (افغانی)",
-  "ordersComposerTotalHint": "مثال: 150000",
+  "ordersComposerTotalHint": "مثال: 1500",
   "ordersComposerPaidLabel": "پرداخت اولیه (افغانی)",
-  "ordersComposerPaidHint": "مثال: 50000",
+  "ordersComposerPaidHint": "مثال: 500",
   "ordersComposerDeliveryDateTitle": "تاریخ تحویل",
   "ordersComposerDeliveryDateUnset": "تاریخ تحویل را انتخاب کنید",
   "ordersComposerSaveCta": "ذخیره سفارش",
@@ -677,6 +757,8 @@
   "ordersComposerResetBody": "همه فیلدهای واردشده پاک می‌شود.",
   "ordersComposerSelectCustomerFirstTitle": "ابتدا مشتری را انتخاب کنید",
   "ordersComposerSelectCustomerFirstBody": "لطفاً پیش از ادامه مشتری را انتخاب کنید.",
+  "ordersComposerValidationTitle": "مراحل الزامی را تکمیل کنید",
+  "ordersComposerValidationBody": "قبل از ذخیرهٔ این سفارش موارد زیر را پر کنید:",
   "ordersComposerRecentOrdersTitle": "سفارش‌های اخیر",
   "ordersComposerRecentOrdersSubtitle": "برای این مشتری",
   "ordersComposerRecentOrderRowSubtitle": "{date} • مانده {remaining}",
@@ -690,6 +772,59 @@
       }
     }
   },
+  "ordersComposerMeasurementsSheetTitle": "اندازه‌ها",
+  "ordersComposerMeasurementsNoTypesBody": "ابتدا انواع اندازه را در تنظیمات ← انواع اندازه اضافه کنید.",
+  "ordersComposerMeasurementsProfileAutoLabel": "الگو #{date}",
+  "@ordersComposerMeasurementsProfileAutoLabel": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersComposerSaveMeasurementsToProfile": "ذخیره به‌عنوان پروفایل مشتری",
+  "ordersComposerSaveMeasurementsToProfileSubtitle": "اندازه‌های ذخیره‌شدهٔ مشتری انتخاب‌شده به‌روز می‌شود.",
+  "ordersComposerAddMeasurementsCta": "افزودن اندازه‌ها",
+  "ordersComposerStyleTitle": "استایل",
+  "ordersComposerStyleRequired": "استایل را اضافه کنید (الزامی)",
+  "ordersComposerStyleSummary": "استایل انتخاب شد",
+  "ordersComposerStyleSheetTitle": "استایل سفارش",
+  "ordersComposerStyleMainTitle": "نام استایل لباس",
+  "ordersComposerStyleCustomLabel": "نام استایل",
+  "ordersComposerStyleCustomHint": "از بالا انتخاب کنید یا بنویسید",
+  "ordersComposerStyleFiguresTitle": "شکل‌های طرح",
+  "ordersComposerStyleNoFigures": "هنوز شکل طرح نیست — در تنظیمات → استایل سفارش اضافه کنید.",
+  "ordersComposerStyleClearFigures": "پاک کردن همه انتخاب‌ها",
+  "settingsStyleHubTitle": "استایل سفارش",
+  "settingsStyleTileTitle": "استایل سفارش",
+  "settingsStyleTileSubtitle": "نام‌های استایل و شکل‌های طرح",
+  "settingsStyleNamesTitle": "نام‌های استایل لباس",
+  "settingsStyleNamesSubtitle": "قاسمی، کندهاری و نام‌های دیگر",
+  "settingsStyleNamesEmpty": "هنوز نامی نیست.",
+  "settingsStyleNameAddCta": "افزودن نام",
+  "settingsStyleNameFieldLabel": "نام",
+  "settingsStyleNameRenameTitle": "تغییر نام",
+  "settingsStyleNameDeleteTitle": "حذف نام؟",
+  "settingsStyleNameDeleteBody": "از فهرست حذف می‌شود. سفارش‌های قبلی تغییر نمی‌کنند.",
+  "settingsStylePartsTitle": "قسمت‌های لباس",
+  "settingsStylePartsSubtitle": "آستین، یقه، جیب و غیره",
+  "settingsStylePartsEmpty": "هنوز قسمتی نیست.",
+  "settingsStylePartAddCta": "افزودن قسمت",
+  "settingsStylePartFieldLabel": "نام قسمت",
+  "settingsStylePartRenameTitle": "تغییر نام قسمت",
+  "settingsStylePartDeleteTitle": "حذف قسمت؟",
+  "settingsStylePartDeleteBody": "شکل‌های این قسمت هم حذف می‌شوند.",
+  "settingsStyleFiguresTitle": "شکل‌های طرح",
+  "settingsStyleFiguresSubtitle": "همه تصاویر طرح دوزی",
+  "settingsStyleFiguresEmpty": "هنوز شکل طرح نیست.",
+  "settingsStyleFigurePartLabel": "قسمت لباس",
+  "settingsStyleFigureAddCta": "افزودن شکل",
+  "settingsStyleFigureNameLabel": "نام شکل",
+  "settingsStyleFigureDeleteTitle": "حذف شکل؟",
+  "settingsStyleFigureDeleteBody": "از فهرست طرح‌ها حذف می‌شود.",
+  "settingsStyleFigureWebOnlyBody": "افزودن تصویر سفارشی روی اندروید و iOS است. شکل‌های پیش‌فرض در وب کار می‌کنند.",
+  "settingsStyleActiveLabel": "فعال",
+  "settingsStyleInactiveLabel": "غیرفعال",
   "saveCta": "ذخیره",
   "customersCreated": "مشتری ایجاد شد.",
   "customerNameLabel": "نام",
@@ -745,6 +880,8 @@
   "dashboardQuickLinksTitle": "میانبرها",
   "dashboardThisMonthIncomeTitle": "درآمد این ماه",
   "dashboardLicenseExpiredBanner": "مجوز شما منقضی شده است. برای ویرایش مجدد تمدید کنید.",
+  "dashboardLicenseGraceBanner": "از آخرین تأیید مجوز توسط سرور مدت زیادی آفلاین بوده‌اید. اشتراک را باز کنید و آنلاین تازه‌سازی کنید.",
+  "dashboardLicenseClockTamperBanner": "زمان دستگاه ممکن است دستکاری شده باشد. آنلاین شوید و در اشتراک، مجوز را تازه‌سازی کنید تا ویرایش ادامه یابد.",
   "dashboardTodayDeliveriesTitle": "تحویل امروز",
   "dashboardTodayDeliveriesEmpty": "امروز سفارش تحویل‌شده‌ای نیست.",
   "dashboardSearchOrdersHint": "جستجوی شماره سفارش، مشتری، تلفن",
@@ -793,6 +930,8 @@
   "settingsNotifMarkAllRead": "علامت همه به‌عنوان خوانده‌شده",
   "subscriptionCurrentStatusTitle": "وضعیت جاری",
   "subscriptionReadOnlyHint": "فقط مشاهده تا تمدید.",
+  "subscriptionGraceReadOnlyHint": "فقط‌خواندنی تا زمانی که سرور مجوز را تأیید کند. به اینترنت وصل شوید و پایین، «تازه‌سازی وضعیت مجوز» را بزنید.",
+  "subscriptionClockTamperHint": "فقط‌خواندنی تا پس از بررسی زمان دستگاه، سرور مجوز را تأیید کند. آنلاین «تازه‌سازی وضعیت» را بزنید.",
   "subscriptionActivationTitle": "فعال‌سازی",
   "subscriptionActivationCodeLabel": "کد فعال‌سازی",
   "subscriptionActivationCodeHint": "هنگام اتصال صورتحساب کد را وارد کنید",
@@ -967,13 +1106,14 @@
     }
   },
   "settingsBackupInvalidFile": "خواندن این فایل پشتیبان ممکن نیست.",
-  "settingsNotificationsFiltersTitle": "فیلترها (پیش‌نمایش)",
+  "settingsNotificationsFiltersTitle": "فیلترها",
   "settingsNotifFilterAll": "همه",
   "settingsNotifFilterOrders": "سفارش‌ها",
   "settingsNotifFilterLicense": "مجوز",
   "settingsNotifFilterBackup": "پشتیبان",
   "settingsNotificationsInboxEmpty": "هنوز اعلانی نیست",
   "settingsNotificationsInboxEmptyHint": "تاریخچه برای سفارش، مجوز و پشتیبان اینجا نمایش داده می‌شود.",
+  "settingsNotificationsInboxFilterEmpty": "اعلانی با این فیلتر نیست.",
   "settingsSyncLastSyncTitle": "آخرین همگام‌سازی موفق",
   "settingsSyncLastSyncNever": "هنوز همگام نشده (آفلاین‌محور؛ API در انتظار)",
   "settingsSyncQueuedTitle": "تغییرات محلی در صف",
@@ -999,17 +1139,24 @@
   "settingsSyncRetryConfigureApi": "ابتدا API_BASE_URL را در زمان بیلد تنظیم کنید، سپس تنظیمات → اتصال API را باز کنید.",
   "settingsSyncRetrySignIn": "ابتدا با حساب آنلاین سرور وارد شوید.",
   "settingsSyncRetryLicenseExpired": "سرور همگام‌سازی را رد کرد چون مجوز منقضی شده است. اشتراک را باز کنید.",
+  "settingsSyncRetryEditingBlocked": "همگام‌سازی در حالت فقط‌خواندنی متوقف است. آنلاین که شدید اشتراک را باز کنید.",
   "settingsSyncRetrySuccess": "همگام‌سازی انجام شد: {pushed} تغییر ارسال شد؛ {pulled} تغییر از سرور دریافت شد.",
   "@settingsSyncRetrySuccess": {
     "placeholders": {
-      "pushed": { "type": "int" },
-      "pulled": { "type": "int" }
+      "pushed": {
+        "type": "int"
+      },
+      "pulled": {
+        "type": "int"
+      }
     }
   },
   "settingsSyncRetryFailed": "همگام‌سازی ناموفق: {detail}",
   "@settingsSyncRetryFailed": {
     "placeholders": {
-      "detail": { "type": "String" }
+      "detail": {
+        "type": "String"
+      }
     }
   },
   "settingsSyncOutboxTitle": "صندوق خروج",
@@ -1035,6 +1182,16 @@
   "devPortalTabShops": "فروشگاه‌ها",
   "devPortalTabResets": "بازنشانی‌ها",
   "devPortalTabDiagnostics": "تشخیص",
+  "devPortalTabAccount": "رمز عبور من",
+  "devPortalMyPasswordTitle": "تغییر رمز عبور",
+  "devPortalMyPasswordSubtitle": "نام کاربری اینجا تغییر نمی‌کند. رمز فعلی را وارد کنید، سپس رمز جدید (حداقل ۶ نویسه).",
+  "devPortalCurrentPasswordLabel": "رمز فعلی",
+  "devPortalNewPasswordLabel": "رمز جدید",
+  "devPortalConfirmPasswordLabel": "تکرار رمز جدید",
+  "devPortalPasswordMismatch": "رمز جدید و تکرار آن یکسان نیستند.",
+  "devPortalChangePasswordCta": "به‌روزرسانی رمز",
+  "devPortalChangePasswordOk": "رمز به‌روز شد. دفعه بعد با رمز جدید وارد شوید.",
+  "devPortalChangePasswordFail": "به‌روزرسانی رمز ناموفق بود.",
   "devPortalOnlineRequired": "ابزارهای توسعه‌دهنده به اتصال آنلاین و حساب تأییدشده نیاز دارند.",
   "devPortalRetryCta": "تلاش مجدد",
   "devPortalStubAction": "API در این نسخه متصل نیست.",
@@ -1071,15 +1228,17 @@
     }
   },
   "settingsShopProfileTitle": "پروفایل فروشگاه",
-  "shopProfileIntro": "این نام فروشگاه به‌عنوان برچسب طراح روی اقلام کاتالوگ نمایش داده می‌شود. تماس تا اتصال فاکتور برای مرجع شماست.",
+  "shopProfileIntro": "نام، لوگو، آدرس و پیام تشکر در رسید چاپی و فاکتور اشتراکی نمایش داده می‌شود. یادداشت پایین فقط برای خودتان است.",
   "shopProfileNameLabel": "نام فروشگاه",
-  "shopProfileNameHint": "مثال: خیاطی پراید",
+  "shopProfileNameHint": "مثال: خیاطی کرزی",
   "shopProfileNameRequired": "نام فروشگاه الزامی است.",
   "shopProfileNameTooShort": "نام فروشگاه بسیار کوتاه است.",
   "shopProfileShopPhoneLabel": "تلفن فروشگاه (اختیاری)",
-  "shopProfileShopPhoneHint": "مثال: 0700000000",
+  "shopProfileShopPhoneHint": "مثال: 0701234567",
   "shopProfileAddressLabel": "آدرس (اختیاری)",
-  "shopProfileAddressHint": "خیابان، منطقه، شهر…",
+  "shopProfileAddressHint": "مثال: کارته چهار، کابل",
+  "shopProfileReceiptThanksLabel": "پیام تشکر رسید (اختیاری)",
+  "shopProfileReceiptThanksHint": "مثال: از همکاری شما سپاسگزاریم!",
   "shopProfileNotesLabel": "یادداشت (اختیاری)",
   "shopProfileNotesHint": "ساعات، نشانه، شناسه مالیاتی…",
   "shopProfileSaved": "پروفایل فروشگاه ذخیره شد.",
@@ -1159,5 +1318,38 @@
   "receiptPaidLabel": "پرداخت‌شده",
   "receiptBalanceLabel": "مانده",
   "receiptPaymentsHeader": "پرداخت‌ها",
-  "receiptFooterThanks": "متشکریم"
+  "receiptShopPhoneLabel": "تلفن فروشگاه",
+  "receiptShopAddressLabel": "آدرس",
+  "receiptShareDivider": "--------------------------------",
+  "receiptShareSectionRule": "================================",
+  "settingsPrinterRetryHint": "اگر چاپگر مشغول باشد، برنامه چند بار به‌صورت خودکار دوباره اتصال را امتحان می‌کند.",
+  "shopProfileLogoSectionTitle": "لوگوی سربرگ فاکتور",
+  "shopProfileLogoSubtitle": "در بالای رسید حرارتی و متن فاکتور اشتراکی (اندروید / iOS) نمایش داده می‌شود. تصویر مربعی بهتر است.",
+  "shopProfileLogoPickCta": "انتخاب تصویر",
+  "shopProfileLogoRemoveCta": "حذف لوگو",
+  "shopProfileLogoSaved": "لوگو ذخیره شد.",
+  "shopProfileLogoWebHint": "بارگذاری لوگو در برنامه‌های اندروید و iOS در دسترس است.",
+  "shopProfileLogoStatusOnFile": "لوگو برای رسید روی این دستگاه ذخیره شده است.",
+  "shopProfileLogoDefaultCaption": "تا بارگذاری لوگوی خودتان، لوگوی پیش‌فرض روی رسید چاپ می‌شود.",
+  "defaultShopName": "خیاطی من",
+  "defaultShopAddress": "کابل، افغانستان",
+  "defaultShopPhone": "0701234567",
+  "orderShareInvoiceTooltip": "اشتراک فاکتور",
+  "orderShareInvoiceFail": "اشتراک ناموفق: {detail}",
+  "@orderShareInvoiceFail": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "orderShareInvoiceSubject": "سفارش {orderNo}",
+  "@orderShareInvoiceSubject": {
+    "placeholders": {
+      "orderNo": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptFooterThanks": "از همکاری شما سپاسگزاریم!"
 }

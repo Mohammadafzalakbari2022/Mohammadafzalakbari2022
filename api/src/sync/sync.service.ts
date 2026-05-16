@@ -3,11 +3,13 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 
 import { LicenseService } from '../license/license.service';
+import { PushDispatchService } from '../push/push-dispatch.service';
 import { PrismaService } from '../prisma/prisma.service';
 import type {
   SyncChangeRow,
@@ -22,12 +24,28 @@ const MAX_PULL_ROWS = 500;
 
 @Injectable()
 export class SyncService {
+  private readonly logger = new Logger(SyncService.name);
+
   constructor(
     private readonly license: LicenseService,
     private readonly prisma: PrismaService,
+    private readonly pushDispatch: PushDispatchService,
   ) {}
 
   async assertLicenseAllowsSync(shopId: string): Promise<void> {
+    const shop = await this.prisma.shop.findUnique({ where: { id: shopId } });
+    if (!shop) {
+      throw new NotFoundException('shop not found');
+    }
+    if (shop.disabledAt) {
+      throw new HttpException(
+        {
+          error: 'shop_disabled',
+          message: 'Sync is disabled for this shop.',
+        },
+        HttpStatus.FORBIDDEN,
+      );
+    }
     const st = (await this.license.getStatusForShop(shopId)).status;
     if (st === 'expired') {
       throw new HttpException(
@@ -109,11 +127,51 @@ export class SyncService {
     return out;
   }
 
+  private extractOrderPushHint(data: Record<string, unknown> | undefined): string | undefined {
+    if (!data) return undefined;
+    const name = String(data['customer_snapshot_name'] ?? '').trim();
+    if (name.length > 0) return name;
+    const ord = String(data['display_order_no'] ?? data['displayOrderNo'] ?? '').trim();
+    if (ord.length > 0) return `#${ord}`;
+    return undefined;
+  }
+
+  private fireNewOrderPushesFireAndForget(
+    shopId: string,
+    newOrders: { internalId: string; hint?: string }[],
+  ): void {
+    if (newOrders.length === 0) return;
+    void (async () => {
+      try {
+        const shop = await this.prisma.shop.findUnique({
+          where: { id: shopId },
+          select: { name: true },
+        });
+        const label = (shop?.name ?? '').trim() || shopId;
+        for (const o of newOrders) {
+          const title = 'New order';
+          const hint = o.hint?.trim();
+          const body =
+            hint != null && hint.length > 0
+              ? `${label}: new order for ${hint}.`
+              : `${label}: new order synced.`;
+          await this.pushDispatch.sendToShop(shopId, title, body, {
+            type: 'new_order',
+            shop_id: shopId,
+            order_internal_id: o.internalId,
+          });
+        }
+      } catch (e) {
+        this.logger.warn(`new order push failed: ${e}`);
+      }
+    })();
+  }
+
   async push(shopId: string, mutations: SyncMutationInput[]): Promise<SyncPushResponseBody> {
     await this.assertLicenseAllowsSync(shopId);
     const server_now = new Date().toISOString();
 
-    const nextRev = await this.prisma.$transaction(async (tx) => {
+    const txResult = await this.prisma.$transaction(async (tx) => {
       const shop = await tx.shop.findUnique({
         where: { id: shopId },
         select: { lastMutationRevision: true },
@@ -122,10 +180,18 @@ export class SyncService {
         throw new NotFoundException('shop not found');
       }
       if (mutations.length === 0) {
-        return shop.lastMutationRevision;
+        return { nextRev: shop.lastMutationRevision, newOrders: [] as { internalId: string; hint?: string }[] };
       }
       let cursor = shop.lastMutationRevision;
+      const newOrders: { internalId: string; hint?: string }[] = [];
       for (const x of mutations) {
+        let isNewOrder = false;
+        if (x.entity_type === 'order' && x.operation === 'upsert') {
+          const prev = await tx.shopSyncMutation.count({
+            where: { shopId, internalId: x.internal_id, entityType: 'order' },
+          });
+          isNewOrder = prev === 0;
+        }
         cursor += 1;
         await tx.shopSyncMutation.create({
           data: {
@@ -141,12 +207,18 @@ export class SyncService {
                 : Prisma.DbNull,
           },
         });
+        if (isNewOrder) {
+          newOrders.push({
+            internalId: x.internal_id,
+            hint: this.extractOrderPushHint(x.data),
+          });
+        }
       }
       await tx.shop.update({
         where: { id: shopId },
         data: { lastMutationRevision: cursor },
       });
-      return cursor;
+      return { nextRev: cursor, newOrders };
     });
 
     const results = mutations.map((x) => ({
@@ -155,10 +227,12 @@ export class SyncService {
       message: null as string | null,
     }));
 
+    this.fireNewOrderPushesFireAndForget(shopId, txResult.newOrders);
+
     return {
       server_now,
       results,
-      next_cursor: String(nextRev),
+      next_cursor: String(txResult.nextRev),
     };
   }
 
