@@ -1,22 +1,27 @@
 #!/usr/bin/env bash
-# Release IPA with production API (Render). macOS + Xcode required.
+# Release IPA with stacked dart-define-from-file. macOS + Xcode required.
 # Usage:
 #   ./scripts/build-ios-release.sh
-#   ./scripts/build-ios-release.sh config/dart_defines_prod.json
+#   ./scripts/build-ios-release.sh staging
 
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-DEFINES_FILE="${1:-config/dart_defines_prod.json}"
-DEFINES_PATH="$ROOT/$DEFINES_FILE"
+ENV="${1:-prod}"
+BASE="$ROOT/config/dart_defines_base.json"
+ENV_FILE="$ROOT/config/dart_defines_${ENV}.json"
 
-if [[ ! -f "$DEFINES_PATH" ]]; then
-  echo "Defines file not found: $DEFINES_PATH" >&2
-  exit 1
-fi
+for f in "$BASE" "$ENV_FILE"; do
+  if [[ ! -f "$f" ]]; then
+    echo "Defines file not found: $f" >&2
+    exit 1
+  fi
+done
 
 cd "$ROOT"
 flutter pub get
 flutter gen-l10n
-echo "Building release IPA with $DEFINES_FILE ..."
-flutter build ipa --release --dart-define-from-file="$DEFINES_FILE"
+echo "Building release IPA (base + $ENV) ..."
+flutter build ipa --release \
+  --dart-define-from-file="$BASE" \
+  --dart-define-from-file="$ENV_FILE"
 echo "Done. IPA under build/ios/ipa/"

@@ -5,8 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:pride_v3/app/app_theme.dart';
 import 'package:pride_v3/core/api/pride_api_config.dart';
 import 'package:pride_v3/core/feedback/notification_sound_bridge.dart';
-import 'package:pride_v3/core/widgets/pride_action_buttons.dart';
-import 'package:pride_v3/core/widgets/pride_alert_dialog.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../auth/admin_me_provider.dart';
@@ -18,26 +16,6 @@ import '../catalog/catalog_sharing_provider.dart';
 import 'settings_providers.dart';
 import 'settings_sound_feedback_tiles.dart';
 import 'shop_profile_provider.dart';
-
-Future<void> _showSignOutDialog(BuildContext context, WidgetRef ref) async {
-  final l10n = AppLocalizations.of(context)!;
-  final confirmed = await showPrideAlertDialog<bool>(
-    context: context,
-    icon: Icons.logout,
-    iconColor: Theme.of(context).extension<PrideActionColors>()!.delete,
-    title: l10n.settingsSignOutDialogTitle,
-    content: Text(l10n.settingsSignOutDialogBody),
-    actions: prideDialogCancelDelete(
-      context: context,
-      onCancel: () => Navigator.pop(context, false),
-      onConfirm: () => Navigator.pop(context, true),
-      deleteLabel: l10n.settingsSignOutConfirm,
-    ),
-  );
-  if (confirmed == true && context.mounted) {
-    await performSignOut(ref: ref, context: context);
-  }
-}
 
 class _SettingsSection extends StatelessWidget {
   const _SettingsSection({required this.title, required this.children});
@@ -231,7 +209,7 @@ class SettingsTabScreen extends ConsumerWidget {
               ),
               title: Text(l10n.settingsSignOutTitle),
               subtitle: Text(l10n.settingsSignOutSubtitle),
-              onTap: () => _showSignOutDialog(context, ref),
+              onTap: () => showSignOutConfirmation(context, ref),
             ),
           ],
         ),

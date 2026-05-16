@@ -270,14 +270,16 @@ Output: `build/app/outputs/flutter-apk/app-release.apk`.
 Full steps: **[`api/DEPLOY.md`](api/DEPLOY.md)** (Blueprint, migrations, first shop / `PRIDE_AUTH_SEED`).
 
 1. Deploy the API and note the base URL (no trailing slash). Production example: `https://pride-v3.onrender.com`.
-2. Run the app with that base URL baked in (uses [`config/dart_defines_prod.json`](config/dart_defines_prod.json)):
+2. Run the app with that base URL baked in (stacked **`config/dart_defines_base.json`** + **`config/dart_defines_prod.json`** — no `.env`):
 
    ```powershell
    cd C:\Users\Moh.Akbari\Desktop\Pride-v3
-   flutter run -d chrome --dart-define-from-file=config/dart_defines_prod.json
+   flutter run -d chrome `
+     --dart-define-from-file=config/dart_defines_base.json `
+     --dart-define-from-file=config/dart_defines_prod.json
    ```
 
-   Or build a phone APK: `.\scripts\build-apk-release.ps1`
+   Or build a phone APK: `.\scripts\build-apk-release.ps1` (same stacked defines).
 
 3. From a shell, confirm health:
 

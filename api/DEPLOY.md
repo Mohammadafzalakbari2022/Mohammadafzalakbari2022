@@ -69,7 +69,11 @@ by hand. Do **not** commit secrets to git.
 
 Use your deployed origin (no trailing slash):
 
-`flutter run --dart-define-from-file=config/dart_defines_prod.json`  
+```text
+flutter run \
+  --dart-define-from-file=config/dart_defines_base.json \
+  --dart-define-from-file=config/dart_defines_prod.json
+```
 (production URL in repo: `https://pride-v3.onrender.com`)
 
 **Settings → Sync & diagnostics → Test connection** should report OK against `GET /health`.

@@ -1,6 +1,6 @@
-# Deploy Flutter Web to Cloudflare Pages (plan-07 / plan-21).
-# One-time setup: create a Pages project (or let the first deploy create it) and add
-# GitHub repo secrets — see web/DEPLOY.md.
+# Recommended stack (plan-07): GitHub Actions builds Flutter; Cloudflare Pages hosts static files.
+# Free tier on both; Cloudflare CDN = fast global delivery. No .env on GitHub or Cloudflare —
+# compile-time config uses stacked config/dart_defines_*.json only.
 name: Deploy Web
 
 on:
@@ -12,6 +12,7 @@ on:
       - "pubspec.yaml"
       - "pubspec.lock"
       - "l10n.yaml"
+      - "config/dart_defines_base.json"
       - "config/dart_defines_prod.json"
       - ".github/workflows/deploy_web.yml"
   workflow_dispatch:
@@ -38,7 +39,12 @@ jobs:
 
       - run: flutter pub get
       - run: flutter gen-l10n
-      - run: flutter build web --release --dart-define-from-file=config/dart_defines_prod.json
+
+      - name: Build web (stacked dart-define-from-file)
+        run: |
+          flutter build web --release \
+            --dart-define-from-file=config/dart_defines_base.json \
+            --dart-define-from-file=config/dart_defines_prod.json
 
       - name: Publish to Cloudflare Pages
         uses: cloudflare/pages-action@v1
@@ -48,3 +54,8 @@ jobs:
           projectName: pride-v3-web
           directory: build/web
           branch: ${{ github.ref_name }}
+
+      - name: Deploy summary
+        run: |
+          echo "Web deploy finished. Open your Cloudflare Pages URL (*.pages.dev) for project pride-v3-web."
+          echo "API (from dart_defines_prod.json): https://pride-v3.onrender.com"

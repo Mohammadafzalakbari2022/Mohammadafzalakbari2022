@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pride_v3/core/branding/app_branding.dart';
 import 'package:pride_v3/core/defaults/effective_shop_profile.dart';
 
 /// Shop logo from upload or bundled default thumbnail.
@@ -70,14 +71,23 @@ class ShopLogoImage extends StatelessWidget {
   }
 
   Widget _placeholder(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(borderRadius),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(borderRadius),
+      child: Image.asset(
+        kAppBrandIconAsset,
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(borderRadius),
+          ),
+          child: Icon(Icons.store, size: size * 0.5),
+        ),
       ),
-      child: Icon(Icons.store, size: size * 0.5),
     );
   }
 

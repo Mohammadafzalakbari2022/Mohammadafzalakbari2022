@@ -1,8 +1,9 @@
 import '../../features/settings/shop_profile.dart';
 import '../../l10n/app_localizations.dart';
+import '../branding/app_branding.dart';
 
-/// Bundled logo used on receipts until the shop uploads its own.
-const kDefaultShopLogoAsset = 'assets/branding/default_shop_logo.png';
+/// Bundled logo until the shop uploads its own (same mark as login / app icon).
+const kDefaultShopLogoAsset = kAppBrandIconAsset;
 
 /// Fills missing shop fields with localized placeholders for print/share only.
 ShopProfile effectiveShopProfile(ShopProfile? shop, AppLocalizations l10n) {

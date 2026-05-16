@@ -1,46 +1,71 @@
-# Deploy Pride Web (Cloudflare Pages)
+# Deploy Pride Web (GitHub Actions → Cloudflare Pages)
 
-Matches **`plan-07-hosting-devops.md`** (static `build/web/`) and **`plan-21-launch-deployment.md`**.
+## Why this stack (free + reliable)
 
-## Build locally
+| Piece | Role |
+|--------|------|
+| **GitHub Actions** | Builds Flutter on every push (free for public repos). Flutter web builds are awkward on Cloudflare’s default “connect repo” builders. |
+| **Cloudflare Pages** | Hosts static `build/web/` on a **global CDN** — fast, generous free tier, HTTPS included. |
+
+We do **not** use GitHub Secrets or Cloudflare environment variables for app config. All compile-time values use **stacked** `--dart-define-from-file` JSON in [`config/`](../config/) (no `.env`).
+
+**Stack order** (later files override earlier keys):
+
+1. [`config/dart_defines_base.json`](../config/dart_defines_base.json) — shared defaults (e.g. Sentry off)
+2. [`config/dart_defines_prod.json`](../config/dart_defines_prod.json) — `ENV`, `API_BASE_URL`
+
+## One-time setup (about 5 minutes)
+
+1. **Cloudflare** → **Workers & Pages** → **Create** → **Pages** → project name **`pride-v3-web`** (Direct Upload is fine; CI will push builds).
+2. **Cloudflare** → profile → **API Tokens** → **Create** → template **Edit Cloudflare Workers** (includes Pages) or custom with **Account → Cloudflare Pages → Edit**.
+3. Copy your **Account ID** (dashboard home, right column).
+4. **GitHub** → this repo → **Settings → Secrets and variables → Actions → New repository secret**:
+   - `CLOUDFLARE_API_TOKEN` — token from step 2
+   - `CLOUDFLARE_ACCOUNT_ID` — account id from step 3
+5. Commit and push to **`main`**, or **Actions → Deploy Web → Run workflow**.
+
+First successful run uploads `build/web/` to Pages. Open the **`*.pages.dev`** URL from the Cloudflare project overview (optional custom domain later).
+
+**Do not** add Flutter `API_BASE_URL` to Cloudflare “Environment variables” — those are for Workers, not your static Flutter bundle.
+
+## Build locally (same defines as CI)
 
 ```powershell
 flutter pub get
 flutter gen-l10n
-flutter build web --release --dart-define-from-file=config/dart_defines_prod.json
+.\scripts\build-flutter-with-defines.ps1 build web --release
 ```
 
-Output: **`build/web/`**. Production API URL is in [`config/dart_defines_prod.json`](../config/dart_defines_prod.json) (`API_BASE_URL`).
-
-## CI deploy (recommended)
-
-Workflow: [`.github/workflows/deploy_web.yml`](../.github/workflows/deploy_web.yml)
-
-### One-time GitHub + Cloudflare setup
-
-1. **Cloudflare** → **Workers & Pages** → create project **pride-v3-web** (or any name).
-2. **Cloudflare** → profile → **API Tokens** → create token with **Cloudflare Pages — Edit**.
-3. Copy **Account ID** from the Cloudflare dashboard URL or overview page.
-4. **GitHub** repo → **Settings → Secrets and variables → Actions**:
-   - `CLOUDFLARE_API_TOKEN` — token from step 2
-   - `CLOUDFLARE_ACCOUNT_ID` — account id
-5. Optional **variable** `CLOUDFLARE_PAGES_PROJECT` if the Pages project name is not `pride-v3-web`.
-6. Push to **`main`** (or run **Actions → Deploy Web → Run workflow**).
-
-After deploy, open the `*.pages.dev` URL (or attach a custom domain in Cloudflare).
-
-### Verify
-
-- App loads over **HTTPS**.
-- **Settings → Sync & diagnostics → Test connection** succeeds (API: `https://pride-v3.onrender.com/health`).
-- Deep link refresh works (e.g. `/app/orders`) — requires [`_redirects`](_redirects) in the build output.
-
-## Manual upload
-
-Upload the contents of **`build/web/`** to any static host (Cloudflare Pages drag-and-drop, Netlify, Vercel, S3+CDN).
-
-If the site is not at domain root:
+Or explicitly:
 
 ```powershell
-flutter build web --release --base-href=/your-path/ --dart-define-from-file=config/dart_defines_prod.json
+flutter build web --release `
+  --dart-define-from-file=config/dart_defines_base.json `
+  --dart-define-from-file=config/dart_defines_prod.json
+```
+
+Output: **`build/web/`**.
+
+## Staging (optional)
+
+Copy [`config/dart_defines_staging.json.example`](../config/dart_defines_staging.json.example) to `config/dart_defines_staging.json`, set staging `API_BASE_URL`, then:
+
+```powershell
+.\scripts\build-flutter-with-defines.ps1 staging build web --release
+```
+
+## Verify after deploy
+
+- App loads over **HTTPS**.
+- **Settings → Sync & diagnostics → Test connection** → OK (`GET /health` on prod API).
+- Refresh a deep link (e.g. `/app/orders`) — needs [`_redirects`](_redirects) in the build output.
+
+## Manual upload (no GitHub)
+
+Upload **`build/web/`** via Cloudflare Pages **Direct Upload** if you prefer not to use Actions.
+
+If not at domain root:
+
+```powershell
+.\scripts\build-flutter-with-defines.ps1 build web --release --base-href=/your-path/
 ```

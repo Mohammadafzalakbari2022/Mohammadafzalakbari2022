@@ -9,6 +9,7 @@ import 'package:pride_v3/core/widgets/pride_nav_card_tile.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../auth/auth_providers.dart';
+import '../auth/sign_out.dart';
 import '../data/local/app_notification_summary.dart';
 import '../data/local/entities/order_status.dart';
 import '../data/local/order_summary.dart';
@@ -512,6 +513,23 @@ class _DashboardDrawerState extends ConsumerState<DashboardDrawer> {
                       error: (e, st) => const SizedBox.shrink(),
                     );
                   },
+                ),
+                const SizedBox(height: 16),
+                DashboardSection(
+                  title: l10n.settingsSignOutTitle,
+                  icon: Icons.logout,
+                  colorIndex: 6,
+                  child: Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: FilledButton.tonalIcon(
+                      onPressed: () => showSignOutConfirmation(context, ref),
+                      icon: Icon(
+                        Icons.logout,
+                        color: actions.delete,
+                      ),
+                      label: Text(l10n.settingsSignOutTitle),
+                    ),
+                  ),
                 ),
               ],
             ),

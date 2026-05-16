@@ -48,7 +48,8 @@ import '../shell/app_shell.dart';
 import '../shell/shell_sync_providers.dart';
 import 'license_paths.dart';
 
-final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
+/// Root navigator for [MaterialApp.router] and explicit post-logout navigation.
+final appRootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
 /// Notifies [GoRouter] on auth, license, or connectivity changes (plan-06 grace).
 ///
@@ -83,7 +84,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
   ref.onDispose(refresh.dispose);
 
   return GoRouter(
-    navigatorKey: _rootNavigatorKey,
+    navigatorKey: appRootNavigatorKey,
     initialLocation: '/auth/login',
     refreshListenable: refresh,
     redirect: (context, state) {
@@ -132,13 +133,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                 routes: [
                   GoRoute(
                     path: 'new',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: appRootNavigatorKey,
                     builder: (context, state) =>
                         const OrderComposerScreen(),
                   ),
                   GoRoute(
                     path: ':orderId',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: appRootNavigatorKey,
                     builder: (context, state) {
                       final id = state.pathParameters['orderId']!;
                       return OrderDetailScreen(orderId: id);
@@ -156,13 +157,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                 routes: [
                   GoRoute(
                     path: 'new',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: appRootNavigatorKey,
                     builder: (context, state) =>
                         const NewCustomerScreen(),
                   ),
                   GoRoute(
                     path: ':customerId',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: appRootNavigatorKey,
                     builder: (context, state) {
                       final id = state.pathParameters['customerId']!;
                       return CustomerProfileScreen(customerId: id);
@@ -180,13 +181,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                 routes: [
                   GoRoute(
                     path: 'new',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: appRootNavigatorKey,
                     builder: (context, state) =>
                         const CatalogNewDesignScreen(),
                   ),
                   GoRoute(
                     path: ':catalogItemId',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: appRootNavigatorKey,
                     builder: (context, state) {
                       final id = state.pathParameters['catalogItemId']!;
                       return CatalogItemDetailScreen(itemId: id);
@@ -204,48 +205,48 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                 routes: [
                   GoRoute(
                     path: 'this-month-income',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: appRootNavigatorKey,
                     builder: (context, state) =>
                         const ThisMonthIncomeReportScreen(),
                   ),
                   GoRoute(
                     path: 'open-unpaid',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: appRootNavigatorKey,
                     builder: (context, state) =>
                         const OpenUnpaidReportScreen(),
                   ),
                   GoRoute(
                     path: 'orders-by-status',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: appRootNavigatorKey,
                     builder: (context, state) =>
                         const OrdersByStatusReportScreen(),
                   ),
                   GoRoute(
                     path: 'unpaid',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: appRootNavigatorKey,
                     builder: (context, state) => const UnpaidReportScreen(),
                   ),
                   GoRoute(
                     path: 'monthly-income',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: appRootNavigatorKey,
                     builder: (context, state) =>
                         const MonthlyIncomeReportScreen(),
                   ),
                   GoRoute(
                     path: 'delivered',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: appRootNavigatorKey,
                     builder: (context, state) =>
                         const DeliveredReportScreen(),
                   ),
                   GoRoute(
                     path: 'payments',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: appRootNavigatorKey,
                     builder: (context, state) =>
                         const PaymentsLedgerReportScreen(),
                   ),
                   GoRoute(
                     path: 'shop-finance',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: appRootNavigatorKey,
                     builder: (context, state) =>
                         const ShopFinanceHubScreen(),
                   ),
@@ -266,19 +267,19 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                   ),
                   GoRoute(
                     path: 'shop',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: appRootNavigatorKey,
                     builder: (context, state) =>
                         const SettingsShopProfileScreen(),
                   ),
                   GoRoute(
                     path: 'measurement-types',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: appRootNavigatorKey,
                     builder: (context, state) =>
                         const SettingsMeasurementTypesScreen(),
                   ),
                   GoRoute(
                     path: 'style',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: appRootNavigatorKey,
                     builder: (context, state) => const SettingsStyleScreen(),
                     routes: [
                       GoRoute(
@@ -300,53 +301,53 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                   ),
                   GoRoute(
                     path: 'tasks',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: appRootNavigatorKey,
                     builder: (context, state) => const SettingsTasksScreen(),
                   ),
                   GoRoute(
                     path: 'users',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: appRootNavigatorKey,
                     builder: (context, state) =>
                         const SettingsUsersScreen(),
                   ),
                   GoRoute(
                     path: 'backup-restore',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: appRootNavigatorKey,
                     builder: (context, state) =>
                         const SettingsBackupRestoreScreen(),
                   ),
                   GoRoute(
                     path: 'notifications',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: appRootNavigatorKey,
                     builder: (context, state) =>
                         const SettingsNotificationsScreen(),
                   ),
                   GoRoute(
                     path: 'printer',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: appRootNavigatorKey,
                     builder: (context, state) =>
                         const SettingsPrinterScreen(),
                   ),
                   GoRoute(
                     path: 'sync-diagnostics',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: appRootNavigatorKey,
                     builder: (context, state) =>
                         const SettingsSyncDiagnosticsScreen(),
                   ),
                   GoRoute(
                     path: 'appearance-language',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: appRootNavigatorKey,
                     builder: (context, state) =>
                         const SettingsAppearanceLanguageScreen(),
                   ),
                   GoRoute(
                     path: 'about',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: appRootNavigatorKey,
                     builder: (context, state) => const SettingsAboutScreen(),
                   ),
                   GoRoute(
                     path: 'developer-portal',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: appRootNavigatorKey,
                     builder: (context, state) =>
                         const DeveloperPortalScreen(),
                   ),

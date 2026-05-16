@@ -6,6 +6,7 @@
       "request": "launch",
       "type": "dart",
       "toolArgs": [
+        "--dart-define-from-file=config/dart_defines_base.json",
         "--dart-define-from-file=config/dart_defines_prod.json"
       ]
     },
@@ -15,6 +16,7 @@
       "type": "dart",
       "deviceId": "chrome",
       "toolArgs": [
+        "--dart-define-from-file=config/dart_defines_base.json",
         "--dart-define-from-file=config/dart_defines_prod.json"
       ]
     }

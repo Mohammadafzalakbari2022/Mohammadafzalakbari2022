@@ -15,7 +15,7 @@ cd C:\Users\Moh.Akbari\Desktop\Pride-v3
 cd ~/Desktop/Pride-v3
 ```
 
-**Production API URL** (baked into release builds): `https://pride-v3.onrender.com` — see [`config/dart_defines_prod.json`](config/dart_defines_prod.json).
+**Production API URL** (baked into release builds): `https://pride-v3.onrender.com` — stacked [`config/dart_defines_base.json`](config/dart_defines_base.json) + [`config/dart_defines_prod.json`](config/dart_defines_prod.json) (no `.env`).
 
 ---
 
@@ -133,7 +133,7 @@ flutter run -d chrome --web-port=8080
 | Flag | What it does |
 |------|----------------|
 | `--dart-define=API_BASE_URL=http://localhost:3000` | Talks to local Nest API. |
-| `--dart-define-from-file=config/dart_defines_prod.json` | Uses production API URL from JSON file. |
+| Stacked `--dart-define-from-file=config/dart_defines_base.json` + `config/dart_defines_prod.json` | Production API URL (recommended). |
 
 ### Android — full Isar + device features
 
@@ -169,14 +169,14 @@ flutter run --dart-define=ENV=dev --dart-define=API_BASE_URL=https://...
 
 ## 4. Build — QA and release
 
-Production defines file: [`config/dart_defines_prod.json`](config/dart_defines_prod.json) (`API_BASE_URL`).
+Production defines: stack [`config/dart_defines_base.json`](config/dart_defines_base.json) then [`config/dart_defines_prod.json`](config/dart_defines_prod.json). Helper: `.\scripts\build-flutter-with-defines.ps1 build web --release`.
 
 ### Web
 
 | Command | What it does | Output |
 |---------|----------------|--------|
 | `flutter build web` | Release web build (default API from compile-time defines if passed). | `build/web/` |
-| `flutter build web --release --dart-define-from-file=config/dart_defines_prod.json` | Production web with hosted API URL. | `build/web/` |
+| `.\scripts\build-flutter-with-defines.ps1 build web --release` | Production web (stacked defines). | `build/web/` |
 | `flutter build web --base-href=/your-path/` | Use when not hosted at domain root. | `build/web/` |
 
 ### Android
@@ -273,12 +273,12 @@ Full checklist: [`ios/DEPLOY.md`](ios/DEPLOY.md).
 ```powershell
 flutter pub get
 flutter gen-l10n
-flutter build web --release --dart-define-from-file=config/dart_defines_prod.json
+.\scripts\build-flutter-with-defines.ps1 build web --release
 ```
 
-Upload contents of **`build/web/`** to static hosting.
+### CI (recommended: GitHub Actions → Cloudflare Pages)
 
-### CI (GitHub Actions → Cloudflare Pages)
+Build uses the same stacked defines as local; **only** Cloudflare API credentials go in GitHub Secrets (not Flutter config).
 
 1. Set secrets: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`.
 2. Push to `main` or run workflow **Deploy Web** manually.
