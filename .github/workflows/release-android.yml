@@ -50,6 +50,14 @@ jobs:
           flutter build apk --release \
             --dart-define-from-file=config/dart_defines_base.json \
             --dart-define-from-file=config/dart_defines_prod.json
+        env:
+          GRADLE_OPTS: -Dorg.gradle.jvmargs=-Xmx4g
+
+      - name: Show Gradle errors if build failed
+        if: failure()
+        run: |
+          find android -name "*.log" -print -exec tail -n 80 {} \; 2>/dev/null || true
+          ls -la build/app/outputs/flutter-apk/ 2>/dev/null || true
 
       - name: Rename APK for stable download URL
         run: cp build/app/outputs/flutter-apk/app-release.apk Pride-android.apk
