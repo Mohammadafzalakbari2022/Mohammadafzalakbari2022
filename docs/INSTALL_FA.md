@@ -8,7 +8,7 @@
 
 | پلتفرم | لینک | توضیح |
 |--------|------|--------|
-| **اندروید (Samsung, Xiaomi, …)** | [دانلود Pride-android.apk](https://github.com/Mohammadafzalakbari2022/Mohammadafzalakbari2022/releases/latest/download/Pride-android.apk) | فایل نصب مستقیم |
+| **اندروید (Samsung, Xiaomi, …)** | [دانلود Pride-android.apk](https://github.com/Mohammadafzalakbari2022/Mohammadafzalakbari2022/releases/latest/download/Pride-android.apk) | فایل نصب مستقیم — اگر **404** دیدید، [راهنمای آپلود دستی](UPLOAD_APK_MANUAL_FA.md) |
 | **همهٔ نسخه‌ها** | [صفحهٔ Releases در گیت‌هاب](https://github.com/Mohammadafzalakbari2022/Mohammadafzalakbari2022/releases) | اگر لینک مستقیم کار نکرد |
 | **وب (مرورگر)** | [pride-v3-web.pages.dev](https://pride-v3-web.pages.dev) | بدون نصب؛ در Chrome یا Safari باز کنید |
 | **آیفون (iOS)** | زیر بخش «آیفون» را بخوانید | از گیت‌هاب APK نصب **نمی‌شود** |
