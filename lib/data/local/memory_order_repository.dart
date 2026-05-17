@@ -8,6 +8,7 @@ import 'measurement_unit_codes.dart';
 import 'order_list_repository.dart';
 import 'order_measurement_snapshot_item_input.dart';
 import 'order_measurement_snapshot_view.dart';
+import 'order_style_snapshot_view.dart';
 import 'order_summary.dart';
 import 'seed_data.dart';
 import 'sync_pull_payload.dart';
@@ -102,6 +103,14 @@ class MemoryOrderRepository implements OrderListRepository {
     await for (final _ in _snapshotController.stream) {
       yield _measurementSnapshotsByOrder[orderInternalId];
     }
+  }
+
+  @override
+  Stream<OrderStyleSnapshotView?> watchOrderStyleSnapshot(
+    String orderInternalId,
+  ) async* {
+    await seedIfEmpty();
+    yield null;
   }
 
   @override

@@ -502,6 +502,7 @@ npm run test:e2e
 | `PRIDE_SENTRY_DSN` | Sentry DSN (empty = disabled) |
 | `PRIDE_SENTRY_ENV` | Sentry environment label |
 | `PRIDE_SENTRY_TRACES_SAMPLE_RATE` | `0.0`–`1.0` |
+| `PRIDE_DEVELOPER_USERS` | Comma-separated `shop_id\|username` for in-app Developer Portal (client gate; server must match) |
 | `PRIDE_OWNER_PASSWORD_SHA256` | SHA-256 hex of owner password for destructive actions |
 | `ENV` | Optional: `dev` / `staging` / `prod` |
 
@@ -559,9 +560,26 @@ flutter run -d chrome --dart-define=API_BASE_URL=http://localhost:3000
 
 ```powershell
 cd C:\Users\Moh.Akbari\Desktop\Pride-v3
-flutter pub get; flutter gen-l10n; flutter analyze; flutter test
-cd api; npm test; npm run test:e2e
+flutter pub get
+flutter gen-l10n
+flutter analyze
+flutter test
+npm run db:migrate
+cd api; npm test; npm run test:e2e; cd ..
+.\scripts\build-flutter-with-defines.ps1 build web --release
+.\scripts\build-apk-release.ps1
 ```
+
+**macOS (iOS release, after the Flutter steps above):**
+
+```bash
+./scripts/build-ios-release.sh
+```
+
+### Error log & cache (support)
+
+- **Background errors:** stored locally (last 40) in `SharedPreferences`; included in **Settings → Sync & diagnostics → Export diagnostics**. When `PRIDE_SENTRY_DSN` is set, the same errors are also sent to Sentry.
+- **Cache:** temp invoice PDFs are trimmed on startup (3+ days old) and cleared on sign-out; image memory cache is cleared on sign-out.
 
 ### Production Android install (Windows)
 

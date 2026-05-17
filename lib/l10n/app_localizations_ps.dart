@@ -138,8 +138,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get loginDevContinue => 'پرته له حساب دوام (پراختیا)';
 
   @override
-  String get loginApiHint =>
-      'API_BASE_URL ټاکل شوی. سرور د هټۍ پېژند، کارن نوم او پاسورډ تاییدوي.';
+  String get loginApiHint => 'د هټۍ پېژند، کارن نوم او پاسورډ سره ننوځئ.';
 
   @override
   String get loginSigningIn => 'ننوتل روان دي…';
@@ -153,11 +152,11 @@ class AppLocalizationsPs extends AppLocalizations {
   }
 
   @override
-  String get loginShopCreateSectionTitle => 'نوې هټۍ (API)';
+  String get loginShopCreateSectionTitle => 'نوې هټۍ جوړول';
 
   @override
   String get loginShopCreateSubtitle =>
-      'په سرور هټۍ جوړه کړئ او د مالک په توګه ننوځئ.';
+      'خپله خیاطي هټۍ ثبت کړئ او د مالک په توګه ننوځئ.';
 
   @override
   String get loginShopCreateNameLabel => 'د هټۍ نوم';
@@ -2990,4 +2989,55 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get shopFinanceChartsExpensesByCategory => 'لګښتونه په کټګورۍ';
+
+  @override
+  String get appGuideCloseTooltip => 'لارښود بندول';
+
+  @override
+  String get appGuideSkipAll => 'ټول لارښودونه پریږدئ';
+
+  @override
+  String get appGuideGotIt => 'پوه شوم';
+
+  @override
+  String get appGuideOrdersTitle => 'سفارشونه';
+
+  @override
+  String get appGuideOrdersBody =>
+      'د خیاطۍ سفارشونه جوړ او تعقیب کړئ. د حالت، تادیې او د تحویلې نیټې لپاره سفارش پرانیزئ.';
+
+  @override
+  String get appGuideCustomersTitle => 'پیرودونکي';
+
+  @override
+  String get appGuideCustomersBody =>
+      'نوم، تلیفون او اندازه‌ګیري خوندي کړئ تر څو نوی سفارش ګړندی شي.';
+
+  @override
+  String get appGuideCatalogTitle => 'کټلاګ';
+
+  @override
+  String get appGuideCatalogBody =>
+      'د ډیزاین عکسونه له پیرودونکو سره د خپلې هټۍ کټلاګ له لارې شریک کړئ.';
+
+  @override
+  String get appGuideReportsTitle => 'راپورونه';
+
+  @override
+  String get appGuideReportsBody =>
+      'عاید، ناپرده سفارشونه او د تحویلې راپور وګورئ.';
+
+  @override
+  String get appGuideSettingsTitle => 'تنظیمات';
+
+  @override
+  String get appGuideSettingsBody =>
+      'د هټۍ پروفایل، چاپګر، سټایل کتابتون او ګډون دلته تنظیم کړئ.';
+
+  @override
+  String get appGuideDashboardTitle => 'ډشبورډ';
+
+  @override
+  String get appGuideDashboardBody =>
+      'له کیڼ اړخ څخه کش کړئ (یا د مینو آیکن) د لټون، همغږي او لنډو لارو لپاره.';
 }

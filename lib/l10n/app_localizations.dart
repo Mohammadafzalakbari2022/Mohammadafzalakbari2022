@@ -337,7 +337,7 @@ abstract class AppLocalizations {
   /// No description provided for @loginApiHint.
   ///
   /// In en, this message translates to:
-  /// **'API_BASE_URL is set. The server verifies shop ID, username, and password (POST /auth/login).'**
+  /// **'Sign in with your shop ID, username, and password.'**
   String get loginApiHint;
 
   /// No description provided for @loginSigningIn.
@@ -361,13 +361,13 @@ abstract class AppLocalizations {
   /// No description provided for @loginShopCreateSectionTitle.
   ///
   /// In en, this message translates to:
-  /// **'New shop (API)'**
+  /// **'Create a new shop'**
   String get loginShopCreateSectionTitle;
 
   /// No description provided for @loginShopCreateSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Create a shop on the server and sign in as owner.'**
+  /// **'Register your tailoring shop and sign in as the owner.'**
   String get loginShopCreateSubtitle;
 
   /// No description provided for @loginShopCreateNameLabel.
@@ -5489,6 +5489,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Expenses by category'**
   String get shopFinanceChartsExpensesByCategory;
+
+  /// No description provided for @appGuideCloseTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Close tip'**
+  String get appGuideCloseTooltip;
+
+  /// No description provided for @appGuideSkipAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip all tips'**
+  String get appGuideSkipAll;
+
+  /// No description provided for @appGuideGotIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get appGuideGotIt;
+
+  /// No description provided for @appGuideOrdersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get appGuideOrdersTitle;
+
+  /// No description provided for @appGuideOrdersBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Create and track tailoring orders. Open an order to change status, payments, and delivery date.'**
+  String get appGuideOrdersBody;
+
+  /// No description provided for @appGuideCustomersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers'**
+  String get appGuideCustomersTitle;
+
+  /// No description provided for @appGuideCustomersBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Save customer names, phone numbers, and measurement profiles for faster new orders.'**
+  String get appGuideCustomersBody;
+
+  /// No description provided for @appGuideCatalogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Catalog'**
+  String get appGuideCatalogTitle;
+
+  /// No description provided for @appGuideCatalogBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Share design photos with customers using your shop catalog.'**
+  String get appGuideCatalogBody;
+
+  /// No description provided for @appGuideReportsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports'**
+  String get appGuideReportsTitle;
+
+  /// No description provided for @appGuideReportsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'See income, unpaid orders, and delivery reports for your shop.'**
+  String get appGuideReportsBody;
+
+  /// No description provided for @appGuideSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get appGuideSettingsTitle;
+
+  /// No description provided for @appGuideSettingsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Set shop profile, printers, style library, and subscription here.'**
+  String get appGuideSettingsBody;
+
+  /// No description provided for @appGuideDashboardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard'**
+  String get appGuideDashboardTitle;
+
+  /// No description provided for @appGuideDashboardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe from the left edge (or tap the menu icon) for search, sync, and shortcuts.'**
+  String get appGuideDashboardBody;
 }
 
 class _AppLocalizationsDelegate

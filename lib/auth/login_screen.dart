@@ -88,6 +88,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       licenseExpiresAtIso: expStr,
       licenseLastSuccessfulCheckAtIso: lastStr,
     );
+    if (PrideApiConfig.isDeveloperLogin(
+      shopId: ok.shopId,
+      username: ok.username,
+    )) {
+      await AuthSessionStorage.markDeveloperPortalUnlocked(prefs);
+    }
     ref.invalidate(adminMeProvider);
   }
 

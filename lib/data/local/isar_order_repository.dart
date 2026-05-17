@@ -12,7 +12,10 @@ import 'entities/payment_entity.dart';
 import 'measurement_unit_codes.dart';
 import 'order_list_repository.dart';
 import 'order_measurement_snapshot_item_input.dart';
+import 'entities/order_style_snapshot_entity.dart';
+import 'entities/order_style_snapshot_figure_entity.dart';
 import 'order_measurement_snapshot_view.dart';
+import 'order_style_snapshot_view.dart';
 import 'order_summary.dart';
 import 'seed_data.dart';
 import 'sync_pull_payload.dart';
@@ -222,6 +225,47 @@ class IsarOrderRepository implements OrderListRepository {
         .orderInternalIdEqualTo(orderInternalId)
         .watch(fireImmediately: true)
         .asyncMap(_hydrateSnapshot);
+  }
+
+  Future<OrderStyleSnapshotView?> _hydrateStyleSnapshot(
+    List<OrderStyleSnapshotEntity> headers,
+  ) async {
+    if (headers.isEmpty) return null;
+    final s = headers.first;
+    final figureRows = await _isar.orderStyleSnapshotFigureEntitys
+        .filter()
+        .snapshotInternalIdEqualTo(s.internalId)
+        .sortBySortOrder()
+        .findAll();
+    final figures = figureRows
+        .map(
+          (e) => OrderStyleSnapshotFigureView(
+            styleFigureInternalId: e.styleFigureInternalId,
+            figureNameSnapshot: e.figureNameSnapshot,
+            imageRefSnapshot: e.imageRefSnapshot,
+            sortOrder: e.sortOrder,
+          ),
+        )
+        .toList();
+    return OrderStyleSnapshotView(
+      orderInternalId: s.orderInternalId,
+      snapshotInternalId: s.internalId,
+      styleNameSnapshot: s.styleNameSnapshot,
+      styleNameInternalIdSnapshot: s.styleNameInternalIdSnapshot,
+      createdAt: s.createdAt,
+      figures: figures,
+    );
+  }
+
+  @override
+  Stream<OrderStyleSnapshotView?> watchOrderStyleSnapshot(
+    String orderInternalId,
+  ) {
+    return _isar.orderStyleSnapshotEntitys
+        .filter()
+        .orderInternalIdEqualTo(orderInternalId)
+        .watch(fireImmediately: true)
+        .asyncMap(_hydrateStyleSnapshot);
   }
 
   @override

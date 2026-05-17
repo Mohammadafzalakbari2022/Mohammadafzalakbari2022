@@ -130,7 +130,7 @@
   "devPortalCodesRevokeCta": "لغو",
   "loginFieldRequired": "الزامی",
   "loginDevContinue": "ادامه بدون حساب (توسعه)",
-  "loginApiHint": "API_BASE_URL تنظیم شده است. سرور شناسه فروشگاه، نام کاربری و رمز را تأیید می‌کند (POST /auth/login).",
+  "loginApiHint": "با شناسه فروشگاه، نام کاربری و رمز وارد شوید.",
   "loginSigningIn": "در حال ورود…",
   "loginApiUnauthorized": "شناسه فروشگاه، نام کاربری یا رمز نادرست است.",
   "loginApiError": "ورود ناموفق: {error}",
@@ -141,8 +141,8 @@
       }
     }
   },
-  "loginShopCreateSectionTitle": "فروشگاه جدید (API)",
-  "loginShopCreateSubtitle": "فروشگاه را روی سرور بسازید و به‌عنوان مالک وارد شوید.",
+  "loginShopCreateSectionTitle": "ایجاد فروشگاه جدید",
+  "loginShopCreateSubtitle": "فروشگاه خیاطی خود را ثبت کنید و به‌عنوان مالک وارد شوید.",
   "loginShopCreateNameLabel": "نام فروشگاه",
   "loginShopCreateOwnerUsernameLabel": "نام کاربری مالک",
   "loginShopCreateOwnerPasswordLabel": "رمز مالک",
@@ -1447,5 +1447,20 @@
   "shopFinanceEmptyRent": "هنوز کرایه ثبت نشده. کرایه ماهانه را تنظیم کنید.",
   "shopFinanceEmptyExpenses": "هنوز مصرفی ثبت نشده.",
   "shopFinanceSave": "ذخیره",
-  "shopFinanceChartsExpensesByCategory": "مصارف بر اساس دسته"
+  "shopFinanceChartsExpensesByCategory": "مصارف بر اساس دسته",
+  "appGuideCloseTooltip": "بستن راهنما",
+  "appGuideSkipAll": "رد کردن همه راهنماها",
+  "appGuideGotIt": "متوجه شدم",
+  "appGuideOrdersTitle": "سفارش‌ها",
+  "appGuideOrdersBody": "سفارش‌های خیاطی را بسازید و پیگیری کنید. برای وضعیت، پرداخت و تاریخ تحویل، سفارش را باز کنید.",
+  "appGuideCustomersTitle": "مشتریان",
+  "appGuideCustomersBody": "نام، تلفن و پروفایل اندازه مشتریان را ذخیره کنید تا سفارش جدید سریع‌تر شود.",
+  "appGuideCatalogTitle": "کاتالوگ",
+  "appGuideCatalogBody": "عکس طرح‌ها را با مشتریان از طریق کاتالوگ فروشگاه به اشتراک بگذارید.",
+  "appGuideReportsTitle": "گزارش‌ها",
+  "appGuideReportsBody": "درآمد، سفارش‌های پرداخت‌نشده و گزارش تحویل را ببینید.",
+  "appGuideSettingsTitle": "تنظیمات",
+  "appGuideSettingsBody": "پروفایل فروشگاه، چاپگر، کتابخانه استایل و اشتراک را اینجا تنظیم کنید.",
+  "appGuideDashboardTitle": "داشبورد",
+  "appGuideDashboardBody": "از لبه چپ بکشید (یا آیکن منو) برای جستجو، همگام‌سازی و میانبرها."
 }

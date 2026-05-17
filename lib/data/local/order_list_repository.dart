@@ -2,6 +2,7 @@ import 'dev_shop_constants.dart';
 import 'entities/order_status.dart';
 import 'order_measurement_snapshot_item_input.dart';
 import 'order_measurement_snapshot_view.dart';
+import 'order_style_snapshot_view.dart';
 import 'order_summary.dart';
 
 abstract class OrderListRepository {
@@ -9,6 +10,11 @@ abstract class OrderListRepository {
 
   /// Structured measurements captured at order creation (plan-02).
   Stream<OrderMeasurementSnapshotView?> watchOrderMeasurementSnapshot(
+    String orderInternalId,
+  );
+
+  /// Frozen style on an order (figures + name); null when not persisted yet.
+  Stream<OrderStyleSnapshotView?> watchOrderStyleSnapshot(
     String orderInternalId,
   );
 

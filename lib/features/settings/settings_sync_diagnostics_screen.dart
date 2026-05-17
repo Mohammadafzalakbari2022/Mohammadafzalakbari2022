@@ -8,6 +8,7 @@ import 'package:pride_v3/core/api/pride_api_config.dart';
 import 'package:pride_v3/core/api/pride_api_devices.dart';
 import 'package:pride_v3/core/calendar/app_calendar_format.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
+import 'package:pride_v3/core/crash/pride_error_collector.dart';
 import 'package:pride_v3/core/diagnostics/diagnostics_export_payload.dart';
 import 'package:pride_v3/core/diagnostics/diagnostics_share.dart';
 import 'package:pride_v3/core/sync/manual_sync_ui.dart';
@@ -112,6 +113,7 @@ class _SettingsSyncDiagnosticsScreenState
         countNotifications:
             _listCount(ref.read(appNotificationsStreamProvider)),
         countUnreadNotifications: ref.read(unreadAppNotificationCountProvider),
+        recentErrors: PrideErrorCollector.snapshot(),
       );
 
       final json = const JsonEncoder.withIndent('  ')

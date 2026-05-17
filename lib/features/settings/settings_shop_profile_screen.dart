@@ -4,7 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
-import '../../core/defaults/effective_shop_profile.dart';
+import '../../core/validation/afghan_phone_input.dart';
+import '../../core/widgets/shop_logo_image.dart';
 import '../../licensing/license_providers.dart';
 import 'shop_profile.dart';
 import 'shop_profile_logo_actions.dart';
@@ -70,7 +71,9 @@ class _SettingsShopProfileScreenState
     final next = ShopProfile(
       name: _name.text,
       address: _address.text.trim().isEmpty ? null : _address.text.trim(),
-      phone: _phone.text.trim().isEmpty ? null : _phone.text.trim(),
+      phone: _phone.text.trim().isEmpty
+          ? null
+          : normalizeAfghanPhoneDigits(_phone.text.trim()),
       notes: _notes.text.trim().isEmpty ? null : _notes.text.trim(),
       receiptThankYouMessage: _receiptThanks.text.trim().isEmpty
           ? null
@@ -83,6 +86,7 @@ class _SettingsShopProfileScreenState
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(l10n.shopProfileSaved)),
     );
+    if (context.canPop()) context.pop();
   }
 
   String _resolvedShopNameForSave() {
@@ -112,7 +116,9 @@ class _SettingsShopProfileScreenState
     final next = ShopProfile(
       name: name,
       address: _address.text.trim().isEmpty ? null : _address.text.trim(),
-      phone: _phone.text.trim().isEmpty ? null : _phone.text.trim(),
+      phone: _phone.text.trim().isEmpty
+          ? null
+          : normalizeAfghanPhoneDigits(_phone.text.trim()),
       notes: _notes.text.trim().isEmpty ? null : _notes.text.trim(),
       receiptThankYouMessage: _receiptThanks.text.trim().isEmpty
           ? null
@@ -140,7 +146,9 @@ class _SettingsShopProfileScreenState
     final next = ShopProfile(
       name: name,
       address: _address.text.trim().isEmpty ? null : _address.text.trim(),
-      phone: _phone.text.trim().isEmpty ? null : _phone.text.trim(),
+      phone: _phone.text.trim().isEmpty
+          ? null
+          : normalizeAfghanPhoneDigits(_phone.text.trim()),
       notes: _notes.text.trim().isEmpty ? null : _notes.text.trim(),
       receiptThankYouMessage: _receiptThanks.text.trim().isEmpty
           ? null
@@ -222,6 +230,7 @@ class _SettingsShopProfileScreenState
                   controller: _phone,
                   readOnly: readOnly,
                   keyboardType: TextInputType.phone,
+                  inputFormatters: const [AfghanPhoneInputFormatter()],
                   decoration: InputDecoration(
                     labelText: l10n.shopProfileShopPhoneLabel,
                     hintText: l10n.shopProfileShopPhoneHint,
@@ -281,16 +290,10 @@ class _SettingsShopProfileScreenState
                     style: Theme.of(context).textTheme.bodySmall,
                   )
                 else ...[
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.asset(
-                      kDefaultShopLogoAsset,
-                      height: 72,
-                      width: 72,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                          const SizedBox.shrink(),
-                    ),
+                  ShopLogoImage(
+                    logoRelativePath: shop.logoRelativePath,
+                    size: 72,
+                    borderRadius: 8,
                   ),
                   const SizedBox(height: 8),
                   Text(

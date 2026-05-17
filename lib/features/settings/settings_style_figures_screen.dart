@@ -76,6 +76,13 @@ class SettingsStyleFiguresScreen extends ConsumerWidget {
         ),
         title: Text(l10n.settingsStyleFiguresTitle),
       ),
+      floatingActionButton: canEdit && !kIsWeb
+          ? FloatingActionButton.extended(
+              onPressed: () => _addFigure(context, ref),
+              icon: const Icon(Icons.add_photo_alternate_outlined),
+              label: Text(l10n.settingsStyleFigureAddCta),
+            )
+          : null,
       body: figuresAsync.when(
         data: (figures) {
           final active =
@@ -83,10 +90,8 @@ class SettingsStyleFiguresScreen extends ConsumerWidget {
           if (active.isEmpty) {
             return Center(child: Text(l10n.settingsStyleFiguresEmpty));
           }
-          return Stack(
-            children: [
-              GridView.builder(
-                padding: const EdgeInsets.fromLTRB(4, 4, 4, 72),
+          return GridView.builder(
+                padding: const EdgeInsets.fromLTRB(4, 4, 4, 88),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: _crossAxisCount(width),
                   mainAxisSpacing: 4,
@@ -101,20 +106,7 @@ class SettingsStyleFiguresScreen extends ConsumerWidget {
                     l10n: l10n,
                   );
                 },
-              ),
-              if (canEdit && !kIsWeb)
-                Positioned(
-                  right: 12,
-                  bottom: 12,
-                  child: FloatingActionButton.small(
-                    heroTag: 'style_figure_add',
-                    tooltip: l10n.settingsStyleFigureAddCta,
-                    onPressed: () => _addFigure(context, ref),
-                    child: const Icon(Icons.add_photo_alternate_outlined),
-                  ),
-                ),
-            ],
-          );
+              );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('$e')),

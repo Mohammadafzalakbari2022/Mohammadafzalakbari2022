@@ -4,6 +4,7 @@ import '../core/api/pride_api_config.dart';
 import '../licensing/license_clock_guard.dart';
 import '../licensing/license_notifier.dart';
 import 'auth_session.dart';
+import 'developer_portal_gate.dart';
 
 /// Persists API login fields for cold start (`IMPLEMENTATION_TODO.md` P0).
 abstract final class AuthSessionStorage {
@@ -69,6 +70,11 @@ abstract final class AuthSessionStorage {
     await prefs.remove(_licenseLastCheckAt);
     await prefs.remove(_mockUsername);
     await prefs.remove(_mockShopId);
+    await prefs.remove(pridePersistedDeveloperFlagKey);
+  }
+
+  static Future<void> markDeveloperPortalUnlocked(SharedPreferences prefs) async {
+    await prefs.setBool(pridePersistedDeveloperFlagKey, true);
   }
 
   /// Saves local-only sign-in for builds without `API_BASE_URL`.

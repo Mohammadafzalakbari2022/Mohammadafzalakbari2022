@@ -9,12 +9,12 @@ import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../auth/admin_me_provider.dart';
 import '../../auth/auth_providers.dart';
+import '../../auth/developer_portal_gate.dart';
 import '../../auth/sign_out.dart';
 import '../../licensing/license_notifier.dart';
 import '../../licensing/license_providers.dart';
 import '../catalog/catalog_sharing_provider.dart';
 import 'settings_providers.dart';
-import 'settings_sound_feedback_tiles.dart';
 import 'shop_profile_provider.dart';
 
 class _SettingsSection extends StatelessWidget {
@@ -106,8 +106,13 @@ class SettingsTabScreen extends ConsumerWidget {
     final apiOn = PrideApiConfig.isConfigured;
     final adminAsync = ref.watch(adminMeProvider);
     final adminCheck = adminAsync.valueOrNull;
-    final serverDeveloper = adminCheck?.isDeveloper == true;
-    final showDeveloperPortalEntry = devSimulated || serverDeveloper;
+    final persistedDev = ref.watch(persistedDeveloperPortalProvider);
+    final showDeveloperPortalEntry = showDeveloperPortalInSettings(
+      auth: auth,
+      adminCheck: adminCheck,
+      devSimulated: devSimulated,
+      persistedDeveloperFlag: persistedDev,
+    );
     final showAdminCheckFailed = apiOn &&
         auth.hasApiSession &&
         !devSimulated &&
@@ -292,13 +297,6 @@ class SettingsTabScreen extends ConsumerWidget {
               enabled: effectiveOwner,
               onTap: () => context.push('/app/settings/backup-restore'),
             ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        _SettingsSection(
-          title: l10n.settingsSectionSoundFeedback,
-          children: const [
-            SettingsSoundFeedbackTiles(),
           ],
         ),
         const SizedBox(height: 16),

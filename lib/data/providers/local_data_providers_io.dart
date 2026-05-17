@@ -39,7 +39,10 @@ import '../local/isar_task_repository.dart';
 import '../local/customer_list_repository.dart';
 import '../local/order_list_repository.dart';
 import '../local/customer_summary.dart';
+import '../local/entities/order_style_snapshot_entity.dart';
+import '../local/entities/order_style_snapshot_figure_entity.dart';
 import '../local/order_measurement_snapshot_view.dart';
+import '../local/order_style_snapshot_view.dart';
 import '../local/order_summary.dart';
 import '../local/payment_repository.dart';
 import '../local/payment_summary.dart';
@@ -72,6 +75,8 @@ final isarProvider = FutureProvider<Isar>((ref) async {
       MeasurementProfileItemEntitySchema,
       OrderMeasurementSnapshotEntitySchema,
       OrderMeasurementSnapshotItemEntitySchema,
+      OrderStyleSnapshotEntitySchema,
+      OrderStyleSnapshotFigureEntitySchema,
       AppNotificationEntitySchema,
       SyncOutboxEntitySchema,
       TaskEntitySchema,
@@ -213,6 +218,12 @@ final orderMeasurementSnapshotProvider = StreamProvider.family<
     OrderMeasurementSnapshotView?, String>((ref, orderInternalId) async* {
   final repo = await ref.watch(orderListRepositoryProvider.future);
   yield* repo.watchOrderMeasurementSnapshot(orderInternalId);
+});
+
+final orderStyleSnapshotProvider = StreamProvider.family<
+    OrderStyleSnapshotView?, String>((ref, orderInternalId) async* {
+  final repo = await ref.watch(orderListRepositoryProvider.future);
+  yield* repo.watchOrderStyleSnapshot(orderInternalId);
 });
 
 final appNotificationRepositoryProvider =

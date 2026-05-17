@@ -2,7 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/api/pride_api_admin.dart';
 import '../core/api/pride_api_config.dart';
+import '../core/persistence/shared_preferences_provider.dart';
 import 'auth_providers.dart';
+import 'auth_session_storage.dart';
 
 /// Result of `GET /admin/me` when API session is active (`plan-18`).
 class AdminMeCheckResult {
@@ -40,9 +42,15 @@ final adminMeProvider = FutureProvider<AdminMeCheckResult>((ref) async {
   final token = auth.accessToken;
   if (token == null) return const AdminMeCheckResult.unavailable();
   final result = await getPrideApiAdminMe(accessToken: token);
-  return switch (result) {
-    PrideApiAdminMeOk(:final isDeveloper) =>
-      AdminMeCheckResult.ok(isDeveloper: isDeveloper),
-    PrideApiAdminMeFailure(:final message) => AdminMeCheckResult.failed(message),
-  };
+  switch (result) {
+    case PrideApiAdminMeOk(:final isDeveloper):
+      if (isDeveloper) {
+        await AuthSessionStorage.markDeveloperPortalUnlocked(
+          ref.read(sharedPreferencesProvider),
+        );
+      }
+      return AdminMeCheckResult.ok(isDeveloper: isDeveloper);
+    case PrideApiAdminMeFailure(:final message):
+      return AdminMeCheckResult.failed(message);
+  }
 });

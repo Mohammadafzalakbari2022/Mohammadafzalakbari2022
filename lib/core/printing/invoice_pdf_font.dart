@@ -9,10 +9,14 @@ class InvoicePdfFonts {
 
   static Future<pw.Font> regular() async {
     if (_regular != null) return _regular!;
-    final data = await rootBundle.load(
-      'assets/fonts/NotoNaskhArabic-Regular.ttf',
-    );
-    _regular = pw.Font.ttf(data);
-    return _regular!;
+    try {
+      final data = await rootBundle.load(
+        'assets/fonts/NotoNaskhArabic-Regular.ttf',
+      );
+      _regular = pw.Font.ttf(data);
+      return _regular!;
+    } on Object {
+      return pw.Font.helvetica();
+    }
   }
 }

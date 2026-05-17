@@ -23,6 +23,7 @@ import '../local/measurement_profile_repository.dart';
 import '../local/measurement_profile_summary.dart';
 import '../local/measurement_type_summary.dart';
 import '../local/order_measurement_snapshot_view.dart';
+import '../local/order_style_snapshot_view.dart';
 import '../local/sync_outbox_pending_view.dart';
 import '../local/sync_outbox_repository.dart';
 import '../local/app_notification_repository.dart';
@@ -157,6 +158,12 @@ final orderMeasurementSnapshotProvider = StreamProvider.family<
     OrderMeasurementSnapshotView?, String>((ref, orderInternalId) async* {
   final repo = await ref.watch(orderListRepositoryProvider.future);
   yield* repo.watchOrderMeasurementSnapshot(orderInternalId);
+});
+
+final orderStyleSnapshotProvider = StreamProvider.family<
+    OrderStyleSnapshotView?, String>((ref, orderInternalId) async* {
+  final repo = await ref.watch(orderListRepositoryProvider.future);
+  yield* repo.watchOrderStyleSnapshot(orderInternalId);
 });
 
 final appNotificationRepositoryProvider =

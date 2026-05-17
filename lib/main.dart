@@ -6,7 +6,8 @@ import 'app/afghan_pride_app.dart';
 import 'auth/auth_providers.dart';
 import 'auth/auth_session.dart';
 import 'auth/auth_session_storage.dart';
-import 'core/crash/sentry_bootstrap.dart';
+import 'core/crash/pride_app_bootstrap.dart';
+import 'core/guide/app_guide_storage.dart';
 import 'core/feedback/notification_sound_bridge.dart';
 import 'core/persistence/shared_preferences_provider.dart';
 import 'core/persistence/sync_diagnostics_storage.dart';
@@ -17,9 +18,9 @@ import 'licensing/license_notifier.dart';
 import 'licensing/license_providers.dart';
 
 Future<void> main() async {
-  await runWithOptionalSentry(() async {
-    WidgetsFlutterBinding.ensureInitialized();
+  await bootstrapPrideApp(() async {
     final prefs = await SharedPreferences.getInstance();
+    await ensureGuideFirstLaunchRecorded(prefs);
     await ensureDefaultLocalePrefs(prefs);
     final initialLocale = localeFromPrefs(prefs);
     final initialUiSounds = uiSoundsFromPrefs(prefs);

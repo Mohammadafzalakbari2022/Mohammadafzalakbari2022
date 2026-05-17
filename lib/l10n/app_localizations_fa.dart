@@ -138,8 +138,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get loginDevContinue => 'ادامه بدون حساب (توسعه)';
 
   @override
-  String get loginApiHint =>
-      'API_BASE_URL تنظیم شده است. سرور شناسه فروشگاه، نام کاربری و رمز را تأیید می‌کند (POST /auth/login).';
+  String get loginApiHint => 'با شناسه فروشگاه، نام کاربری و رمز وارد شوید.';
 
   @override
   String get loginSigningIn => 'در حال ورود…';
@@ -154,11 +153,11 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
-  String get loginShopCreateSectionTitle => 'فروشگاه جدید (API)';
+  String get loginShopCreateSectionTitle => 'ایجاد فروشگاه جدید';
 
   @override
   String get loginShopCreateSubtitle =>
-      'فروشگاه را روی سرور بسازید و به‌عنوان مالک وارد شوید.';
+      'فروشگاه خیاطی خود را ثبت کنید و به‌عنوان مالک وارد شوید.';
 
   @override
   String get loginShopCreateNameLabel => 'نام فروشگاه';
@@ -2997,4 +2996,55 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get shopFinanceChartsExpensesByCategory => 'مصارف بر اساس دسته';
+
+  @override
+  String get appGuideCloseTooltip => 'بستن راهنما';
+
+  @override
+  String get appGuideSkipAll => 'رد کردن همه راهنماها';
+
+  @override
+  String get appGuideGotIt => 'متوجه شدم';
+
+  @override
+  String get appGuideOrdersTitle => 'سفارش‌ها';
+
+  @override
+  String get appGuideOrdersBody =>
+      'سفارش‌های خیاطی را بسازید و پیگیری کنید. برای وضعیت، پرداخت و تاریخ تحویل، سفارش را باز کنید.';
+
+  @override
+  String get appGuideCustomersTitle => 'مشتریان';
+
+  @override
+  String get appGuideCustomersBody =>
+      'نام، تلفن و پروفایل اندازه مشتریان را ذخیره کنید تا سفارش جدید سریع‌تر شود.';
+
+  @override
+  String get appGuideCatalogTitle => 'کاتالوگ';
+
+  @override
+  String get appGuideCatalogBody =>
+      'عکس طرح‌ها را با مشتریان از طریق کاتالوگ فروشگاه به اشتراک بگذارید.';
+
+  @override
+  String get appGuideReportsTitle => 'گزارش‌ها';
+
+  @override
+  String get appGuideReportsBody =>
+      'درآمد، سفارش‌های پرداخت‌نشده و گزارش تحویل را ببینید.';
+
+  @override
+  String get appGuideSettingsTitle => 'تنظیمات';
+
+  @override
+  String get appGuideSettingsBody =>
+      'پروفایل فروشگاه، چاپگر، کتابخانه استایل و اشتراک را اینجا تنظیم کنید.';
+
+  @override
+  String get appGuideDashboardTitle => 'داشبورد';
+
+  @override
+  String get appGuideDashboardBody =>
+      'از لبه چپ بکشید (یا آیکن منو) برای جستجو، همگام‌سازی و میانبرها.';
 }

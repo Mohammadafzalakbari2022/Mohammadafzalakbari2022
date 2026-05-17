@@ -139,7 +139,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loginApiHint =>
-      'API_BASE_URL is set. The server verifies shop ID, username, and password (POST /auth/login).';
+      'Sign in with your shop ID, username, and password.';
 
   @override
   String get loginSigningIn => 'Signing in…';
@@ -153,11 +153,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get loginShopCreateSectionTitle => 'New shop (API)';
+  String get loginShopCreateSectionTitle => 'Create a new shop';
 
   @override
   String get loginShopCreateSubtitle =>
-      'Create a shop on the server and sign in as owner.';
+      'Register your tailoring shop and sign in as the owner.';
 
   @override
   String get loginShopCreateNameLabel => 'Shop name';
@@ -3010,4 +3010,55 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shopFinanceChartsExpensesByCategory => 'Expenses by category';
+
+  @override
+  String get appGuideCloseTooltip => 'Close tip';
+
+  @override
+  String get appGuideSkipAll => 'Skip all tips';
+
+  @override
+  String get appGuideGotIt => 'Got it';
+
+  @override
+  String get appGuideOrdersTitle => 'Orders';
+
+  @override
+  String get appGuideOrdersBody =>
+      'Create and track tailoring orders. Open an order to change status, payments, and delivery date.';
+
+  @override
+  String get appGuideCustomersTitle => 'Customers';
+
+  @override
+  String get appGuideCustomersBody =>
+      'Save customer names, phone numbers, and measurement profiles for faster new orders.';
+
+  @override
+  String get appGuideCatalogTitle => 'Catalog';
+
+  @override
+  String get appGuideCatalogBody =>
+      'Share design photos with customers using your shop catalog.';
+
+  @override
+  String get appGuideReportsTitle => 'Reports';
+
+  @override
+  String get appGuideReportsBody =>
+      'See income, unpaid orders, and delivery reports for your shop.';
+
+  @override
+  String get appGuideSettingsTitle => 'Settings';
+
+  @override
+  String get appGuideSettingsBody =>
+      'Set shop profile, printers, style library, and subscription here.';
+
+  @override
+  String get appGuideDashboardTitle => 'Dashboard';
+
+  @override
+  String get appGuideDashboardBody =>
+      'Swipe from the left edge (or tap the menu icon) for search, sync, and shortcuts.';
 }

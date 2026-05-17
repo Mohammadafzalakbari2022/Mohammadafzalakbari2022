@@ -85,12 +85,7 @@ OrderReceiptStyleContent resolveOrderReceiptStyleContent({
     for (final f in snapFigures) {
       final label = f.figureNameSnapshot.trim();
       if (label.isNotEmpty) buf.writeln(label);
-      receiptFigures.add(
-        ReceiptStyleFigure(
-          imageRef: f.imageRefSnapshot,
-          name: label,
-        ),
-      );
+      receiptFigures.add(ReceiptStyleFigure(name: label));
     }
   } else {
     final selected = resolveOrderStyleFigures(
@@ -100,12 +95,7 @@ OrderReceiptStyleContent resolveOrderReceiptStyleContent({
     for (final f in selected) {
       final label = f.name.trim();
       if (label.isNotEmpty) buf.writeln(label);
-      receiptFigures.add(
-        ReceiptStyleFigure(
-          imageRef: f.imageRef,
-          name: label,
-        ),
-      );
+      receiptFigures.add(ReceiptStyleFigure(name: label));
     }
     if (receiptFigures.isEmpty && order.styleSummary.trim().isNotEmpty) {
       buf.write(order.styleSummary.trim());

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:pride_v3/core/validation/afghan_phone_input.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -73,6 +74,7 @@ class CustomerProfileScreen extends ConsumerWidget {
               TextField(
                 controller: phoneCtrl,
                 keyboardType: TextInputType.phone,
+                inputFormatters: const [AfghanPhoneInputFormatter()],
                 decoration: InputDecoration(
                   labelText: l10n.customerPhoneLabel,
                   border: const OutlineInputBorder(),
@@ -115,7 +117,9 @@ class CustomerProfileScreen extends ConsumerWidget {
       return;
     }
 
-    final phoneText = phoneCtrl.text;
+    final phoneRaw = phoneCtrl.text.trim();
+    final phoneText =
+        phoneRaw.isEmpty ? '' : normalizeAfghanPhoneDigits(phoneRaw);
     final addressText = addressCtrl.text;
     nameCtrl.dispose();
     phoneCtrl.dispose();

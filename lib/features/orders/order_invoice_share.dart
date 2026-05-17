@@ -117,47 +117,34 @@ Future<void> shareOrderInvoice({
     var contactPermissionDenied = false;
 
     if (!kIsWeb && phone != null && phone.isNotEmpty) {
-
-      if (await FlutterContacts.requestPermission()) {
-
-        contactSaved = await saveCustomerContactForInvoiceShare(
-
-          name: order.customerName,
-
-          phone: phone,
-
-          skipPermissionRequest: true,
-
-        );
-
-      } else {
-
-        contactPermissionDenied = true;
-
+      try {
+        if (await FlutterContacts.requestPermission()) {
+          contactSaved = await saveCustomerContactForInvoiceShare(
+            name: order.customerName,
+            phone: phone,
+            skipPermissionRequest: true,
+          );
+        } else {
+          contactPermissionDenied = true;
+        }
+      } on Object {
+        // Contact save is optional; do not block PDF share.
       }
-
     }
 
 
 
     final filename = 'invoice_${order.displayOrderNo}.pdf';
 
-    final dir = await getTemporaryDirectory();
-
-    final path = '${dir.path}/$filename';
-
-    if (!kIsWeb) {
-
-      await File(path).writeAsBytes(pdfBytes, flush: true);
-
+    if (context.mounted) {
+      Navigator.of(context, rootNavigator: true).pop();
     }
 
-
-
-    if (context.mounted) {
-
-      Navigator.of(context, rootNavigator: true).pop();
-
+    var path = '';
+    if (!kIsWeb) {
+      final dir = await getTemporaryDirectory();
+      path = '${dir.path}/$filename';
+      await File(path).writeAsBytes(pdfBytes, flush: true);
     }
 
 

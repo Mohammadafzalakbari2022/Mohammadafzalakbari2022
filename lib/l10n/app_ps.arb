@@ -130,7 +130,7 @@
   "devPortalCodesRevokeCta": "لغوه",
   "loginFieldRequired": "اړین",
   "loginDevContinue": "پرته له حساب دوام (پراختیا)",
-  "loginApiHint": "API_BASE_URL ټاکل شوی. سرور د هټۍ پېژند، کارن نوم او پاسورډ تاییدوي.",
+  "loginApiHint": "د هټۍ پېژند، کارن نوم او پاسورډ سره ننوځئ.",
   "loginSigningIn": "ننوتل روان دي…",
   "loginApiUnauthorized": "ناسم هټۍ، کارن نوم یا پاسورډ.",
   "loginApiError": "ننوتل ناکام: {error}",
@@ -141,8 +141,8 @@
       }
     }
   },
-  "loginShopCreateSectionTitle": "نوې هټۍ (API)",
-  "loginShopCreateSubtitle": "په سرور هټۍ جوړه کړئ او د مالک په توګه ننوځئ.",
+  "loginShopCreateSectionTitle": "نوې هټۍ جوړول",
+  "loginShopCreateSubtitle": "خپله خیاطي هټۍ ثبت کړئ او د مالک په توګه ننوځئ.",
   "loginShopCreateNameLabel": "د هټۍ نوم",
   "loginShopCreateOwnerUsernameLabel": "د مالک کارن نوم",
   "loginShopCreateOwnerPasswordLabel": "د مالک پاسورډ",
@@ -1447,5 +1447,20 @@
   "shopFinanceEmptyRent": "تر اوسه کرایه نشته. میاشتنی کرایه ټاکئ.",
   "shopFinanceEmptyExpenses": "تر اوسه لګښت نشته.",
   "shopFinanceSave": "خوندي کول",
-  "shopFinanceChartsExpensesByCategory": "لګښتونه په کټګورۍ"
+  "shopFinanceChartsExpensesByCategory": "لګښتونه په کټګورۍ",
+  "appGuideCloseTooltip": "لارښود بندول",
+  "appGuideSkipAll": "ټول لارښودونه پریږدئ",
+  "appGuideGotIt": "پوه شوم",
+  "appGuideOrdersTitle": "سفارشونه",
+  "appGuideOrdersBody": "د خیاطۍ سفارشونه جوړ او تعقیب کړئ. د حالت، تادیې او د تحویلې نیټې لپاره سفارش پرانیزئ.",
+  "appGuideCustomersTitle": "پیرودونکي",
+  "appGuideCustomersBody": "نوم، تلیفون او اندازه‌ګیري خوندي کړئ تر څو نوی سفارش ګړندی شي.",
+  "appGuideCatalogTitle": "کټلاګ",
+  "appGuideCatalogBody": "د ډیزاین عکسونه له پیرودونکو سره د خپلې هټۍ کټلاګ له لارې شریک کړئ.",
+  "appGuideReportsTitle": "راپورونه",
+  "appGuideReportsBody": "عاید، ناپرده سفارشونه او د تحویلې راپور وګورئ.",
+  "appGuideSettingsTitle": "تنظیمات",
+  "appGuideSettingsBody": "د هټۍ پروفایل، چاپګر، سټایل کتابتون او ګډون دلته تنظیم کړئ.",
+  "appGuideDashboardTitle": "ډشبورډ",
+  "appGuideDashboardBody": "له کیڼ اړخ څخه کش کړئ (یا د مینو آیکن) د لټون، همغږي او لنډو لارو لپاره."
 }

@@ -23,6 +23,7 @@ class DiagnosticsExportSnapshot {
     required this.countTasks,
     required this.countNotifications,
     required this.countUnreadNotifications,
+    this.recentErrors = const [],
   });
 
   final String appName;
@@ -47,6 +48,7 @@ class DiagnosticsExportSnapshot {
   final int countTasks;
   final int countNotifications;
   final int countUnreadNotifications;
+  final List<Map<String, dynamic>> recentErrors;
 }
 
 Map<String, dynamic> buildDiagnosticsExportMap(DiagnosticsExportSnapshot s) {
@@ -91,5 +93,7 @@ Map<String, dynamic> buildDiagnosticsExportMap(DiagnosticsExportSnapshot s) {
       'notifications': s.countNotifications,
       'unreadNotifications': s.countUnreadNotifications,
     },
+    if (s.recentErrors.isNotEmpty)
+      'recentErrors': s.recentErrors,
   };
 }
