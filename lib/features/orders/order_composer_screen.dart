@@ -227,7 +227,6 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       customers: list,
       l10n: l10n,
       selectedId: _selectedCustomerId,
-      onAddCustomer: () => _openNewCustomerForm(context),
     );
     if (picked != null && mounted) _applyCustomer(picked);
   }
@@ -772,7 +771,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
                           tooltip: l10n.editCta,
                           onPressed: _clearSelectedCustomer,
                         ),
-                  onTap: () => _pickExistingCustomer(context, l10n),
+                  onTap: () => _openNewCustomerForm(context),
                 ),
                 if (_selectedCustomerId == null)
                   _composerRequiredHint(l10n.ordersComposerCustomerRequired),

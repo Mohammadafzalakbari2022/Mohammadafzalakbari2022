@@ -284,16 +284,19 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                     routes: [
                       GoRoute(
                         path: 'names',
+                        parentNavigatorKey: appRootNavigatorKey,
                         builder: (context, state) =>
                             const SettingsStyleNamesScreen(),
                       ),
                       GoRoute(
                         path: 'parts',
+                        parentNavigatorKey: appRootNavigatorKey,
                         builder: (context, state) =>
                             const SettingsStylePartsScreen(),
                       ),
                       GoRoute(
                         path: 'figures',
+                        parentNavigatorKey: appRootNavigatorKey,
                         builder: (context, state) =>
                             const SettingsStyleFiguresScreen(),
                       ),
