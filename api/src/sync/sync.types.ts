@@ -11,6 +11,8 @@ export const SYNC_ENTITY_TYPES = [
   'style_name',
   'style_part',
   'style_figure',
+  'fabric_name',
+  'fabric_color',
   'shop_rent',
   'shop_rent_payment',
   'shop_expense',

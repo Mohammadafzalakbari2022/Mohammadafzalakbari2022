@@ -653,6 +653,13 @@ class AppLocalizationsPs extends AppLocalizations {
       'د پیرودونکي پروفایل او امرونو لپاره لیبلونه';
 
   @override
+  String get settingsMeasurementUnitTitle => 'د اندازې تلو واحد';
+
+  @override
+  String get settingsMeasurementUnitSubtitle =>
+      'په نوي امر کې د جامو اندازې ثبتولو لپاره';
+
+  @override
   String get tasksTitle => 'دندې';
 
   @override
@@ -1300,6 +1307,9 @@ class AppLocalizationsPs extends AppLocalizations {
   String get ordersComposerProgressStyle => 'سټایل';
 
   @override
+  String get ordersComposerProgressFabric => 'کپړه';
+
+  @override
   String get ordersComposerProgressDelivery => 'سپارل';
 
   @override
@@ -1545,6 +1555,51 @@ class AppLocalizationsPs extends AppLocalizations {
   String get ordersComposerStyleTitle => 'سټایل';
 
   @override
+  String get ordersComposerFabricTitle => 'د پیرودونکي کپړه';
+
+  @override
+  String get ordersComposerFabricOptional =>
+      'اختیاري — کپړه چې پیرودونکی راوړي';
+
+  @override
+  String ordersComposerFabricSummary(String name, String color, String id) {
+    return '$name • $color • پېژند $id';
+  }
+
+  @override
+  String ordersComposerFabricPartialSummary(String name, String color) {
+    return '$name • $color';
+  }
+
+  @override
+  String get ordersComposerFabricUnset => 'کپړه ثبت شوې نه ده';
+
+  @override
+  String get ordersComposerFabricSheetTitle => 'د پیرودونکي کپړه';
+
+  @override
+  String get ordersComposerFabricNameLabel => 'د کپړې نوم';
+
+  @override
+  String get ordersComposerFabricNameHint => 'غوره کړئ یا ولیکئ';
+
+  @override
+  String get ordersComposerFabricColorLabel => 'د کپړې رنګ';
+
+  @override
+  String get ordersComposerFabricColorHint => 'غوره کړئ یا ولیکئ';
+
+  @override
+  String get ordersComposerFabricIdLabel => 'د کپړې پېژند';
+
+  @override
+  String get ordersComposerFabricIdHint =>
+      'په خوندي کولو سره په اوتومات ډول ورکړیږي';
+
+  @override
+  String get ordersComposerFabricClearCta => 'کپړه پاک کړئ';
+
+  @override
   String get ordersComposerStyleRequired => 'سټایل اضافه کړئ (اړین)';
 
   @override
@@ -1573,6 +1628,40 @@ class AppLocalizationsPs extends AppLocalizations {
   String get ordersComposerStyleClearFigures => 'ټول انتخابونه پاک کړئ';
 
   @override
+  String get ordersComposerCatalogDesignTitle => 'بشپړ ډیزاین له کتلاګ';
+
+  @override
+  String get ordersComposerCatalogDesignNone => 'کتلاګ ډیزاین نه دی ټاکل شوی';
+
+  @override
+  String get ordersComposerCatalogChooseCta => 'له کتلاګ وټاکئ';
+
+  @override
+  String get ordersComposerCatalogClearCta => 'ډیزاین پاک کړئ';
+
+  @override
+  String get ordersComposerCatalogPickerTitle => 'زما ډیزاینونه';
+
+  @override
+  String get ordersComposerCatalogPickerEmpty =>
+      'ستاسو کتلاګ کې لا ډیزاین نشته. په کتلاګ ټب کې ډیزاین اضافه کړئ.';
+
+  @override
+  String get customerLastCatalogDesignLabel => 'وروستی کتلاګ ډیزاین';
+
+  @override
+  String get orderDetailCatalogDesignTitle => 'بشپړ ډیزاین';
+
+  @override
+  String get receiptCatalogDesignLabel => 'ډیزاین';
+
+  @override
+  String get invoiceCatalogDesignLabel => 'کتلاګ ډیزاین';
+
+  @override
+  String get invoiceCatalogDesignerLabel => 'ډیزاینر';
+
+  @override
   String get settingsStyleHubTitle => 'د امر سټایل';
 
   @override
@@ -1580,6 +1669,68 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get settingsStyleTileSubtitle => 'د سټایل نومونه او د ډیزاین شکلونه';
+
+  @override
+  String get settingsFabricHubTitle => 'د پیرودونکي کپړه';
+
+  @override
+  String get settingsFabricHubSubtitle => 'د امرونو لپاره نومونه او رنګونه';
+
+  @override
+  String get settingsFabricNamesTitle => 'د کپړو نومونه';
+
+  @override
+  String get settingsFabricNamesSubtitle => 'پنبه، وړۍ او نور ډولونه';
+
+  @override
+  String get settingsFabricNamesEmpty => 'لا نوم نشته.';
+
+  @override
+  String get settingsFabricNameAddCta => 'نوم زیات کړئ';
+
+  @override
+  String get settingsFabricNameFieldLabel => 'نوم';
+
+  @override
+  String get settingsFabricNameRenameTitle => 'نوم بدل کړئ';
+
+  @override
+  String get settingsFabricNameDeleteTitle => 'د کپړې نوم ړنګ کړئ؟';
+
+  @override
+  String get settingsFabricNameDeleteBody =>
+      'له لیست څخه لرې کېږي. پخواني امرونه بدل نه کېږي.';
+
+  @override
+  String get settingsFabricColorsTitle => 'د کپړو رنګونه';
+
+  @override
+  String get settingsFabricColorsSubtitle => 'تور نیلي، کرېم او نور';
+
+  @override
+  String get settingsFabricColorsEmpty => 'لا رنګ نشته.';
+
+  @override
+  String get settingsFabricColorAddCta => 'رنګ زیات کړئ';
+
+  @override
+  String get settingsFabricColorFieldLabel => 'رنګ';
+
+  @override
+  String get settingsFabricColorRenameTitle => 'رنګ بدل کړئ';
+
+  @override
+  String get settingsFabricColorDeleteTitle => 'رنګ ړنګ کړئ؟';
+
+  @override
+  String get settingsFabricColorDeleteBody =>
+      'له لیست څخه لرې کېږي. پخواني امرونه بدل نه کېږي.';
+
+  @override
+  String get settingsFabricActiveLabel => 'فعال';
+
+  @override
+  String get settingsFabricInactiveLabel => 'پټ';
 
   @override
   String get settingsStyleNamesTitle => 'د جامې سټایل نومونه';
@@ -2500,6 +2651,26 @@ class AppLocalizationsPs extends AppLocalizations {
   String get devPortalCodesRevokeCta => 'لغوه';
 
   @override
+  String get devPortalCodesDetailTitle => 'د فعالولو کوډ';
+
+  @override
+  String get devPortalCodesCopyCta => 'کوډ کاپي';
+
+  @override
+  String get devPortalCodesShareCta => 'کوډ شریکول';
+
+  @override
+  String get devPortalCodesCopied => 'کوډ په کلیپ‌بورډ کې کاپي شو.';
+
+  @override
+  String get devPortalCodesShareSubject => 'د افغان پرایډ فعالولو کوډ';
+
+  @override
+  String devPortalCodesShareMessage(String code, int days) {
+    return 'افغان پرایډ — د ګډون فعالول\n\nکوډ: $code\nورځې پیسې وروسته له فعالولو: $days\n\nپه اپ کې: تنظیمات → ګډون → دا کوډ ولیکئ.';
+  }
+
+  @override
   String get devPortalApiHealthPrompt =>
       'د تازه کولو لپاره ښکته کش کړئ او GET /health ووهئ.';
 
@@ -2771,6 +2942,21 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get receiptStyleLabel => 'د سټایل یادښتونه';
+
+  @override
+  String get receiptFabricLabel => 'د پیرودونکي کپړه';
+
+  @override
+  String get receiptFabricNameLabel => 'کپړه';
+
+  @override
+  String get receiptFabricColorLabel => 'رنګ';
+
+  @override
+  String get receiptFabricIdLabel => 'د کپړې پېژند';
+
+  @override
+  String get orderDetailFabricTitle => 'د پیرودونکي کپړه';
 
   @override
   String get receiptInternalNotesHeader => 'داخلي یادښتونه';

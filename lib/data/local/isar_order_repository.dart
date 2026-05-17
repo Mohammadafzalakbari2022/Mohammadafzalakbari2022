@@ -18,6 +18,7 @@ import 'order_measurement_snapshot_view.dart';
 import 'order_style_snapshot_view.dart';
 import 'order_summary.dart';
 import 'seed_data.dart';
+import 'catalog/catalog_order_snapshot.dart';
 import 'sync_pull_payload.dart';
 
 class IsarOrderRepository implements OrderListRepository {
@@ -307,6 +308,16 @@ class IsarOrderRepository implements OrderListRepository {
           styleNameInternalId: o.styleNameInternalId,
           styleSelectionJson: o.styleSelectionJson,
           styleSummary: o.styleSummary,
+          catalogItemInternalId: o.catalogItemInternalId,
+          catalogDesignNameSnapshot: o.catalogDesignNameSnapshot,
+          catalogDesignerShopNameSnapshot: o.catalogDesignerShopNameSnapshot,
+          catalogImagePathSnapshot: o.catalogImagePathSnapshot,
+          catalogThumbnailPathSnapshot: o.catalogThumbnailPathSnapshot,
+          fabricNameSnapshot: o.fabricNameSnapshot,
+          fabricColorSnapshot: o.fabricColorSnapshot,
+          fabricIdSnapshot: o.fabricIdSnapshot,
+          fabricNamePresetInternalId: o.fabricNamePresetInternalId,
+          fabricColorPresetInternalId: o.fabricColorPresetInternalId,
           status: orderStatusFromCode(o.statusIndex),
           deliveryDate: o.deliveryDate,
           createdAt: o.createdAt ?? o.updatedAt,
@@ -369,9 +380,36 @@ class IsarOrderRepository implements OrderListRepository {
     String? styleNameInternalId,
     String styleSelectionJson = '',
     String styleSummary = '',
+    String? catalogItemInternalId,
+    String catalogDesignNameSnapshot = '',
+    String catalogDesignerShopNameSnapshot = '',
+    String? catalogImagePathSnapshot,
+    String? catalogThumbnailPathSnapshot,
+    String? catalogSourceImagePath,
+    String? catalogSourceThumbnailPath,
+    String fabricNameSnapshot = '',
+    String fabricColorSnapshot = '',
+    String fabricIdSnapshot = '',
+    String? fabricNamePresetInternalId,
+    String? fabricColorPresetInternalId,
   }) async {
     final now = DateTime.now();
     final internalId = _uuid.v4();
+
+    String? resolvedImagePath = catalogImagePathSnapshot;
+    String? resolvedThumbPath = catalogThumbnailPathSnapshot;
+    if (catalogDesignNameSnapshot.trim().isNotEmpty &&
+        (catalogSourceImagePath != null && catalogSourceImagePath.isNotEmpty)) {
+      final copied = await copyCatalogPathsToOrderSnapshot(
+        orderInternalId: internalId,
+        imagePath: catalogSourceImagePath,
+        thumbnailPath: catalogSourceThumbnailPath,
+      );
+      if (copied != null) {
+        resolvedImagePath = copied.imagePath;
+        resolvedThumbPath = copied.thumbnailPath;
+      }
+    }
 
     final count = await _isar.orderEntitys
         .filter()
@@ -397,7 +435,17 @@ class IsarOrderRepository implements OrderListRepository {
       ..styleName = styleName.trim()
       ..styleNameInternalId = styleNameInternalId
       ..styleSelectionJson = styleSelectionJson
-      ..styleSummary = styleSummary;
+      ..styleSummary = styleSummary
+      ..catalogItemInternalId = catalogItemInternalId
+      ..catalogDesignNameSnapshot = catalogDesignNameSnapshot.trim()
+      ..catalogDesignerShopNameSnapshot = catalogDesignerShopNameSnapshot.trim()
+      ..catalogImagePathSnapshot = resolvedImagePath
+      ..catalogThumbnailPathSnapshot = resolvedThumbPath
+      ..fabricNameSnapshot = fabricNameSnapshot.trim()
+      ..fabricColorSnapshot = fabricColorSnapshot.trim()
+      ..fabricIdSnapshot = fabricIdSnapshot.trim()
+      ..fabricNamePresetInternalId = fabricNamePresetInternalId
+      ..fabricColorPresetInternalId = fabricColorPresetInternalId;
 
     final snap = measurementSnapshotItems;
     await _isar.writeTxn(() async {
@@ -542,6 +590,73 @@ class IsarOrderRepository implements OrderListRepository {
         existing?.styleSummary ??
         '';
 
+    final catalogItemInternalId = syncPullString(
+      m,
+      const ['catalog_item_internal_id', 'catalogItemInternalId'],
+    );
+    final catalogDesignNameSnapshot = syncPullString(
+          m,
+          const [
+            'catalog_design_name_snapshot',
+            'catalogDesignNameSnapshot',
+          ],
+        ) ??
+        existing?.catalogDesignNameSnapshot ??
+        '';
+    final catalogDesignerShopNameSnapshot = syncPullString(
+          m,
+          const [
+            'catalog_designer_shop_name_snapshot',
+            'catalogDesignerShopNameSnapshot',
+          ],
+        ) ??
+        existing?.catalogDesignerShopNameSnapshot ??
+        '';
+    final catalogImagePathSnapshot = syncPullString(
+      m,
+      const ['catalog_image_path_snapshot', 'catalogImagePathSnapshot'],
+    );
+    final catalogThumbnailPathSnapshot = syncPullString(
+      m,
+      const [
+        'catalog_thumbnail_path_snapshot',
+        'catalogThumbnailPathSnapshot',
+      ],
+    );
+
+    final fabricNameSnapshot = syncPullString(
+          m,
+          const ['fabric_name', 'fabricName', 'fabric_name_snapshot'],
+        ) ??
+        existing?.fabricNameSnapshot ??
+        '';
+    final fabricColorSnapshot = syncPullString(
+          m,
+          const ['fabric_color', 'fabricColor', 'fabric_color_snapshot'],
+        ) ??
+        existing?.fabricColorSnapshot ??
+        '';
+    final fabricIdSnapshot = syncPullString(
+          m,
+          const ['fabric_id', 'fabricId', 'fabric_id_snapshot'],
+        ) ??
+        existing?.fabricIdSnapshot ??
+        '';
+    final fabricNamePresetInternalId = syncPullString(
+      m,
+      const [
+        'fabric_name_preset_internal_id',
+        'fabricNamePresetInternalId',
+      ],
+    );
+    final fabricColorPresetInternalId = syncPullString(
+      m,
+      const [
+        'fabric_color_preset_internal_id',
+        'fabricColorPresetInternalId',
+      ],
+    );
+
     final displayNo = syncPullString(
           m,
           const ['display_order_no', 'displayOrderNo'],
@@ -585,6 +700,16 @@ class IsarOrderRepository implements OrderListRepository {
           ..styleNameInternalId = styleNameInternalId
           ..styleSelectionJson = styleSelectionJson
           ..styleSummary = styleSummary
+          ..catalogItemInternalId = catalogItemInternalId
+          ..catalogDesignNameSnapshot = catalogDesignNameSnapshot
+          ..catalogDesignerShopNameSnapshot = catalogDesignerShopNameSnapshot
+          ..catalogImagePathSnapshot = catalogImagePathSnapshot
+          ..catalogThumbnailPathSnapshot = catalogThumbnailPathSnapshot
+          ..fabricNameSnapshot = fabricNameSnapshot
+          ..fabricColorSnapshot = fabricColorSnapshot
+          ..fabricIdSnapshot = fabricIdSnapshot
+          ..fabricNamePresetInternalId = fabricNamePresetInternalId
+          ..fabricColorPresetInternalId = fabricColorPresetInternalId
           ..deletedAt = null;
       } else {
         final row = await _isar.orderEntitys.getByInternalId(internalId);
@@ -611,6 +736,31 @@ class IsarOrderRepository implements OrderListRepository {
               : e.styleSelectionJson
           ..styleSummary =
               styleSummary.isNotEmpty ? styleSummary : e.styleSummary
+          ..catalogItemInternalId =
+              catalogItemInternalId ?? e.catalogItemInternalId
+          ..catalogDesignNameSnapshot = catalogDesignNameSnapshot.isNotEmpty
+              ? catalogDesignNameSnapshot
+              : e.catalogDesignNameSnapshot
+          ..catalogDesignerShopNameSnapshot =
+              catalogDesignerShopNameSnapshot.isNotEmpty
+                  ? catalogDesignerShopNameSnapshot
+                  : e.catalogDesignerShopNameSnapshot
+          ..catalogImagePathSnapshot =
+              catalogImagePathSnapshot ?? e.catalogImagePathSnapshot
+          ..catalogThumbnailPathSnapshot =
+              catalogThumbnailPathSnapshot ?? e.catalogThumbnailPathSnapshot
+          ..fabricNameSnapshot = fabricNameSnapshot.isNotEmpty
+              ? fabricNameSnapshot
+              : e.fabricNameSnapshot
+          ..fabricColorSnapshot = fabricColorSnapshot.isNotEmpty
+              ? fabricColorSnapshot
+              : e.fabricColorSnapshot
+          ..fabricIdSnapshot =
+              fabricIdSnapshot.isNotEmpty ? fabricIdSnapshot : e.fabricIdSnapshot
+          ..fabricNamePresetInternalId =
+              fabricNamePresetInternalId ?? e.fabricNamePresetInternalId
+          ..fabricColorPresetInternalId =
+              fabricColorPresetInternalId ?? e.fabricColorPresetInternalId
           ..deletedAt = null;
         e.createdAt ??= createdAt;
       }

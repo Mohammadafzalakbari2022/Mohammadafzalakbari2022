@@ -48,6 +48,14 @@ const int kSyncPushOutboxBatchLimit = 100;
       return (entityType: 'style_figure', operation: 'upsert');
     case SyncOutboxKinds.styleFigureDelete:
       return (entityType: 'style_figure', operation: 'delete');
+    case SyncOutboxKinds.fabricNameUpsert:
+      return (entityType: 'fabric_name', operation: 'upsert');
+    case SyncOutboxKinds.fabricNameDelete:
+      return (entityType: 'fabric_name', operation: 'delete');
+    case SyncOutboxKinds.fabricColorUpsert:
+      return (entityType: 'fabric_color', operation: 'upsert');
+    case SyncOutboxKinds.fabricColorDelete:
+      return (entityType: 'fabric_color', operation: 'delete');
     case SyncOutboxKinds.shopRentUpsert:
       return (entityType: 'shop_rent', operation: 'upsert');
     case SyncOutboxKinds.shopRentPaymentAppend:

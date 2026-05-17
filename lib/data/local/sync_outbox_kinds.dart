@@ -21,6 +21,10 @@ abstract final class SyncOutboxKinds {
   static const stylePartDelete = 'style_part_delete';
   static const styleFigureUpsert = 'style_figure_upsert';
   static const styleFigureDelete = 'style_figure_delete';
+  static const fabricNameUpsert = 'fabric_name_upsert';
+  static const fabricNameDelete = 'fabric_name_delete';
+  static const fabricColorUpsert = 'fabric_color_upsert';
+  static const fabricColorDelete = 'fabric_color_delete';
   static const shopRentUpsert = 'shop_rent_upsert';
   static const shopRentPaymentAppend = 'shop_rent_payment_append';
   static const shopExpenseUpsert = 'shop_expense_upsert';

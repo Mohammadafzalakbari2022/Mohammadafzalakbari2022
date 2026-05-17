@@ -50,6 +50,8 @@ class _PrideMoneyFieldState extends State<PrideMoneyField> {
     if (!_focusNode.hasFocus) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || !_focusNode.hasFocus) return;
+      final scrollable = Scrollable.maybeOf(context);
+      if (scrollable == null) return;
       Scrollable.ensureVisible(
         context,
         alignment: 0.35,

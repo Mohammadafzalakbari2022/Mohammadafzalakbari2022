@@ -22,6 +22,15 @@ abstract class CustomerListRepository {
     String? notes,
   });
 
+  /// Updates denormalized last catalog design after order save.
+  Future<void> updateCustomerLastCatalogDesign({
+    required String internalId,
+    required String designName,
+    String? designerShopName,
+    String? catalogItemInternalId,
+    String? thumbnailPath,
+  });
+
   /// Soft-delete (plan-13); hidden from [watchCustomers] results.
   Future<void> softDeleteCustomer(String internalId);
 

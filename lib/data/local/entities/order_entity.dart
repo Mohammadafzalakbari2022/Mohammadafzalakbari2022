@@ -60,5 +60,28 @@ class OrderEntity {
   /// Human-readable style lines for lists, receipts, and sync.
   String styleSummary = '';
 
+  /// Optional photo-catalog complete design (frozen at order creation).
+  String? catalogItemInternalId;
+
+  String catalogDesignNameSnapshot = '';
+
+  String catalogDesignerShopNameSnapshot = '';
+
+  String? catalogImagePathSnapshot;
+
+  String? catalogThumbnailPathSnapshot;
+
+  /// Customer-supplied fabric frozen at order creation.
+  String fabricNameSnapshot = '';
+
+  String fabricColorSnapshot = '';
+
+  /// Six-digit ID (e.g. 042817).
+  String fabricIdSnapshot = '';
+
+  String? fabricNamePresetInternalId;
+
+  String? fabricColorPresetInternalId;
+
   DateTime? deletedAt;
 }

@@ -28,6 +28,7 @@ import '../../licensing/license_providers.dart';
 import '../../core/printing/thermal_print_order.dart';
 import '../../security/owner_password_verify.dart';
 import '../../shell/shell_sync_providers.dart';
+import '../catalog/catalog_item_image.dart';
 import 'order_detail_hero_card.dart';
 import 'order_detail_share_actions.dart';
 import 'order_invoice_share.dart';
@@ -548,6 +549,53 @@ class OrderDetailScreen extends ConsumerWidget {
                   ),
                 ],
               ),
+              if (o.catalogDesignNameSnapshot.trim().isNotEmpty)
+                ExpansionTile(
+                  title: Text(l10n.orderDetailCatalogDesignTitle),
+                  subtitle: Text(
+                    o.catalogDesignNameSnapshot.trim(),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          CatalogItemImage(
+                            imagePath: o.catalogImagePathSnapshot ??
+                                o.catalogThumbnailPathSnapshot,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            o.catalogDesignNameSnapshot.trim(),
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          if (o.catalogDesignerShopNameSnapshot
+                              .trim()
+                              .isNotEmpty)
+                            Text(
+                              o.catalogDesignerShopNameSnapshot.trim(),
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                          if (o.catalogItemInternalId != null) ...[
+                            const SizedBox(height: 8),
+                            Align(
+                              alignment: AlignmentDirectional.centerStart,
+                              child: TextButton(
+                                onPressed: () => context.push(
+                                  '/app/catalog/${o.catalogItemInternalId}',
+                                ),
+                                child: Text(l10n.catalogDetailTitle),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               if (o.styleName.trim().isNotEmpty ||
                   o.styleSummary.trim().isNotEmpty ||
                   o.styleSelectionJson.trim().isNotEmpty)
@@ -557,6 +605,37 @@ class OrderDetailScreen extends ConsumerWidget {
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                       child: OrderStyleFiguresPanel(order: o),
+                    ),
+                  ],
+                ),
+              if (o.hasCustomerFabric)
+                ExpansionTile(
+                  title: Text(l10n.orderDetailFabricTitle),
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (o.fabricNameSnapshot.trim().isNotEmpty)
+                            Text(
+                              '${l10n.receiptFabricNameLabel}: ${o.fabricNameSnapshot.trim()}',
+                            ),
+                          if (o.fabricColorSnapshot.trim().isNotEmpty) ...[
+                            if (o.fabricNameSnapshot.trim().isNotEmpty)
+                              const SizedBox(height: 6),
+                            Text(
+                              '${l10n.receiptFabricColorLabel}: ${o.fabricColorSnapshot.trim()}',
+                            ),
+                          ],
+                          if (o.fabricIdSnapshot.trim().isNotEmpty) ...[
+                            const SizedBox(height: 6),
+                            Text(
+                              '${l10n.receiptFabricIdLabel}: ${o.fabricIdSnapshot.trim()}',
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
                   ],
                 ),

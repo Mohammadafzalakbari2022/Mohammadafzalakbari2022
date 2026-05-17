@@ -4,6 +4,7 @@ import 'package:pride_v3/core/calendar/date_calendar_system.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../data/local/customer_summary.dart';
+import '../catalog/catalog_tile_image.dart';
 
 /// Visual summary at the top of customer profile (matches [OrderDetailHeroCard]).
 class CustomerProfileHeroCard extends StatelessWidget {
@@ -124,6 +125,51 @@ class CustomerProfileHeroCard extends StatelessWidget {
                       child: Text(
                         address,
                         style: theme.textTheme.bodyMedium,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+              if (customer.hasLastCatalogDesign) ...[
+                const SizedBox(height: 12),
+                Text(
+                  l10n.customerLastCatalogDesignLabel,
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CatalogTileImage(
+                      thumbnailPath: customer.lastCatalogThumbnailPath,
+                      imagePath: customer.lastCatalogThumbnailPath,
+                      dimension: 56,
+                      borderRadius: 10,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            customer.lastCatalogDesignName,
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          if (customer.lastCatalogDesignerShopName
+                              .trim()
+                              .isNotEmpty)
+                            Text(
+                              customer.lastCatalogDesignerShopName,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: scheme.onSurfaceVariant,
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                   ],

@@ -47,6 +47,10 @@ class IsarCustomerRepository implements CustomerListRepository {
               phone: c.phone,
               address: c.address,
               notes: c.notes,
+              lastCatalogDesignName: c.lastCatalogDesignName,
+              lastCatalogThumbnailPath: c.lastCatalogThumbnailPath,
+              lastCatalogItemInternalId: c.lastCatalogItemInternalId,
+              lastCatalogDesignerShopName: c.lastCatalogDesignerShopName,
               createdAt: c.createdAt,
             ),
           )
@@ -103,6 +107,26 @@ class IsarCustomerRepository implements CustomerListRepository {
   }
 
   @override
+  Future<void> updateCustomerLastCatalogDesign({
+    required String internalId,
+    required String designName,
+    String? designerShopName,
+    String? catalogItemInternalId,
+    String? thumbnailPath,
+  }) async {
+    await _isar.writeTxn(() async {
+      final existing = await _isar.customerEntitys.getByInternalId(internalId);
+      if (existing == null || existing.deletedAt != null) return;
+      existing
+        ..lastCatalogDesignName = designName.trim()
+        ..lastCatalogDesignerShopName = designerShopName?.trim() ?? ''
+        ..lastCatalogItemInternalId = catalogItemInternalId
+        ..lastCatalogThumbnailPath = thumbnailPath;
+      await _isar.customerEntitys.putByInternalId(existing);
+    });
+  }
+
+  @override
   Future<void> softDeleteCustomer(String internalId) async {
     await _isar.writeTxn(() async {
       final existing = await _isar.customerEntitys.getByInternalId(internalId);
@@ -128,6 +152,27 @@ class IsarCustomerRepository implements CustomerListRepository {
     if (name == null || name.trim().isEmpty) return;
     final createdAt =
         syncPullDateTime(m, const ['created_at', 'createdAt']) ?? DateTime.now();
+    final lastCatalogDesignName = syncPullString(
+          m,
+          const ['last_catalog_design_name', 'lastCatalogDesignName'],
+        ) ??
+        '';
+    final lastCatalogDesignerShopName = syncPullString(
+          m,
+          const [
+            'last_catalog_designer_shop_name',
+            'lastCatalogDesignerShopName',
+          ],
+        ) ??
+        '';
+    final lastCatalogItemInternalId = syncPullString(
+      m,
+      const ['last_catalog_item_internal_id', 'lastCatalogItemInternalId'],
+    );
+    final lastCatalogThumbnailPath = syncPullString(
+      m,
+      const ['last_catalog_thumbnail_path', 'lastCatalogThumbnailPath'],
+    );
     await _isar.writeTxn(() async {
       final existing = await _isar.customerEntitys.getByInternalId(internalId);
       if (existing == null) {
@@ -138,6 +183,10 @@ class IsarCustomerRepository implements CustomerListRepository {
           ..phone = _opt(syncPullString(m, const ['phone']))
           ..address = _opt(syncPullString(m, const ['address']))
           ..notes = _opt(syncPullString(m, const ['notes']))
+          ..lastCatalogDesignName = lastCatalogDesignName
+          ..lastCatalogDesignerShopName = lastCatalogDesignerShopName
+          ..lastCatalogItemInternalId = lastCatalogItemInternalId
+          ..lastCatalogThumbnailPath = lastCatalogThumbnailPath
           ..createdAt = createdAt
           ..deletedAt = null;
         await _isar.customerEntitys.putByInternalId(e);
@@ -149,6 +198,17 @@ class IsarCustomerRepository implements CustomerListRepository {
         ..phone = _opt(syncPullString(m, const ['phone']))
         ..address = _opt(syncPullString(m, const ['address']))
         ..notes = _opt(syncPullString(m, const ['notes']))
+        ..lastCatalogDesignName = lastCatalogDesignName.isNotEmpty
+            ? lastCatalogDesignName
+            : existing.lastCatalogDesignName
+        ..lastCatalogDesignerShopName =
+            lastCatalogDesignerShopName.isNotEmpty
+                ? lastCatalogDesignerShopName
+                : existing.lastCatalogDesignerShopName
+        ..lastCatalogItemInternalId =
+            lastCatalogItemInternalId ?? existing.lastCatalogItemInternalId
+        ..lastCatalogThumbnailPath =
+            lastCatalogThumbnailPath ?? existing.lastCatalogThumbnailPath
         ..deletedAt = null;
       await _isar.customerEntitys.putByInternalId(existing);
     });

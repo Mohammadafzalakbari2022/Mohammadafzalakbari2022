@@ -197,7 +197,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: prideFormScrollPadding(context, baseBottom: 24).copyWith(
+          padding: prideFormScrollPadding(
+            context,
+            baseBottom: 24,
+            reserveKeyboardInset: true,
+          ).copyWith(
             left: 24,
             right: 24,
             top: 24,

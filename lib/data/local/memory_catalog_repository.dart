@@ -4,6 +4,7 @@ import 'catalog_item_summary.dart';
 import 'catalog_item_detail.dart';
 import 'catalog_repository.dart';
 import 'dev_shop_constants.dart';
+import 'catalog_bundle_seed.dart';
 import 'sync_pull_payload.dart';
 import 'package:uuid/uuid.dart';
 
@@ -43,6 +44,31 @@ class MemoryCatalogRepository implements CatalogRepository {
       _items.addAll(seed.map(_toSummary));
     }
     _ensureCommunity();
+    _ensureBundleDesigns();
+  }
+
+  void _ensureBundleDesigns() {
+    final now = DateTime.now();
+    var added = false;
+    for (final row in catalogBundleMemorySeedRows()) {
+      if (_details.any((x) => x.internalId == row.internalId)) continue;
+      final detail = CatalogItemDetail(
+        internalId: row.internalId,
+        shopId: kDevShopId,
+        designName: row.designName,
+        designerShopName: row.designerShopName,
+        createdAt: now,
+        updatedAt: now,
+        isSharedPublic: false,
+        imagePath: row.imagePath,
+        thumbnailPath: row.thumbnailPath,
+        notes: null,
+      );
+      _details.add(detail);
+      _items.add(_toSummary(detail));
+      added = true;
+    }
+    if (added) _emit();
   }
 
   void _ensureCommunity() {

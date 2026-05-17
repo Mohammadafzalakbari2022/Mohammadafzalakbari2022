@@ -74,6 +74,14 @@ Future<void> shareOrderInvoice({
 
   );
 
+  var loadingDialogOpen = true;
+
+  void closeLoadingDialog() {
+    if (!loadingDialogOpen || !context.mounted) return;
+    loadingDialogOpen = false;
+    Navigator.of(context, rootNavigator: true).pop();
+  }
+
 
 
   try {
@@ -136,9 +144,7 @@ Future<void> shareOrderInvoice({
 
     final filename = 'invoice_${order.displayOrderNo}.pdf';
 
-    if (context.mounted) {
-      Navigator.of(context, rootNavigator: true).pop();
-    }
+    closeLoadingDialog();
 
     var path = '';
     if (!kIsWeb) {
@@ -207,7 +213,13 @@ Future<void> shareOrderInvoice({
 
         await Share.shareXFiles(
 
-          [XFile(path, mimeType: 'application/pdf', name: filename)],
+          [
+            XFile.fromData(
+              pdfBytes,
+              mimeType: 'application/pdf',
+              name: filename,
+            ),
+          ],
 
           subject: subject,
 
@@ -289,11 +301,7 @@ Future<void> shareOrderInvoice({
 
   } catch (e) {
 
-    if (context.mounted) {
-
-      Navigator.of(context, rootNavigator: true).pop();
-
-    }
+    closeLoadingDialog();
 
     if (context.mounted) {
 

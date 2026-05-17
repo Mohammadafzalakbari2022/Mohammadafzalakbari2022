@@ -154,6 +154,58 @@ String buildOrderInvoiceShareText({
 
   }
 
+  if (order.hasCustomerFabric) {
+
+    buf.writeln(l10n.receiptFabricLabel);
+
+    if (order.fabricNameSnapshot.trim().isNotEmpty) {
+
+      buf.writeln(
+
+        '${l10n.receiptFabricNameLabel}: ${order.fabricNameSnapshot.trim()}',
+
+      );
+
+    }
+
+    if (order.fabricColorSnapshot.trim().isNotEmpty) {
+
+      buf.writeln(
+
+        '${l10n.receiptFabricColorLabel}: ${order.fabricColorSnapshot.trim()}',
+
+      );
+
+    }
+
+    if (order.fabricIdSnapshot.trim().isNotEmpty) {
+
+      buf.writeln(
+
+        '${l10n.receiptFabricIdLabel}: ${order.fabricIdSnapshot.trim()}',
+
+      );
+
+    }
+
+  }
+
+  final catalogDesign = order.catalogDesignNameSnapshot.trim();
+
+  if (catalogDesign.isNotEmpty) {
+
+    buf.writeln('${l10n.receiptCatalogDesignLabel}: $catalogDesign');
+
+    final designer = order.catalogDesignerShopNameSnapshot.trim();
+
+    if (designer.isNotEmpty) {
+
+      buf.writeln('${l10n.invoiceCatalogDesignerLabel}: $designer');
+
+    }
+
+  }
+
   final internal = order.internalNotes.trim();
 
   if (internal.isNotEmpty) {

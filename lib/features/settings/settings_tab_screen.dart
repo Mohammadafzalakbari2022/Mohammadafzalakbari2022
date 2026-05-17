@@ -195,6 +195,15 @@ class SettingsTabScreen extends ConsumerWidget {
               onTap: () => context.push('/app/settings/style'),
             ),
             const Divider(height: 1),
+            _LockedTile(
+              leading: Icons.texture_outlined,
+              iconColor: prideSettingsIconColor(2),
+              title: l10n.settingsFabricHubTitle,
+              subtitle: l10n.settingsFabricHubSubtitle,
+              enabled: true,
+              onTap: () => context.push('/app/settings/fabric'),
+            ),
+            const Divider(height: 1),
             SwitchListTile(
               secondary: PrideColoredLeading(
                 icon: Icons.share_outlined,

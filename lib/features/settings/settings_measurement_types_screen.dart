@@ -7,11 +7,14 @@ import 'package:pride_v3/core/feedback/app_feedback.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../auth/auth_providers.dart';
+import '../../core/persistence/shared_preferences_provider.dart';
 import '../../data/local/measurement_type_summary.dart';
+import '../../data/local/measurement_unit_codes.dart';
 import '../../data/local/sync_outbox_kinds.dart';
 import '../../data/providers/local_data_providers.dart';
 import '../../licensing/license_providers.dart';
 import '../../shell/shell_sync_providers.dart';
+import 'settings_providers.dart';
 
 void _enqueueMeasurementTypeUpsert(
   WidgetRef ref, {
@@ -112,6 +115,62 @@ Future<void> _showNameDialog({
   if (ok == true && text.isNotEmpty) onSubmit(text);
 }
 
+class _MeasurementUnitPreferenceCard extends ConsumerWidget {
+  const _MeasurementUnitPreferenceCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final unit = ref.watch(defaultMeasurementUnitProvider);
+    final theme = Theme.of(context);
+
+    return Card(
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              l10n.settingsMeasurementUnitTitle,
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              l10n.settingsMeasurementUnitSubtitle,
+              style: theme.textTheme.bodySmall,
+            ),
+            const SizedBox(height: 12),
+            SegmentedButton<int>(
+              segments: [
+                ButtonSegment(
+                  value: MeasurementUnitCodes.cm,
+                  label: Text(l10n.measurementUnitCm),
+                ),
+                ButtonSegment(
+                  value: MeasurementUnitCodes.inch,
+                  label: Text(l10n.measurementUnitInch),
+                ),
+              ],
+              selected: {unit},
+              onSelectionChanged: (selection) async {
+                final code = selection.first;
+                ref.read(defaultMeasurementUnitProvider.notifier).state = code;
+                await persistMeasurementUnit(
+                  ref.read(sharedPreferencesProvider),
+                  code,
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// Shop-scoped measurement type labels (plan-02) — list, reorder, activate, rename, soft-delete.
 class SettingsMeasurementTypesScreen extends ConsumerWidget {
   const SettingsMeasurementTypesScreen({super.key});
@@ -168,19 +227,24 @@ class SettingsMeasurementTypesScreen extends ConsumerWidget {
       body: typesAsync.when(
         data: (types) {
           if (types.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Text(
-                  l10n.measurementTypesEmpty,
-                  textAlign: TextAlign.center,
+            return ListView(
+              padding: const EdgeInsets.only(bottom: 88),
+              children: [
+                const _MeasurementUnitPreferenceCard(),
+                Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Text(
+                    l10n.measurementTypesEmpty,
+                    textAlign: TextAlign.center,
+                  ),
                 ),
-              ),
+              ],
             );
           }
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              const _MeasurementUnitPreferenceCard(),
               if (canEdit)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),

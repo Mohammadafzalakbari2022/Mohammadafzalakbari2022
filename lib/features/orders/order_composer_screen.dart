@@ -35,6 +35,7 @@ import '../../data/local/style/style_order_selection.dart';
 import 'order_composer_customer_picker.dart';
 import 'order_composer_measurements_sheet.dart';
 import 'order_composer_progress_header.dart';
+import 'order_composer_fabric_sheet.dart';
 import 'order_composer_style_sheet.dart';
 import 'order_invoice_share.dart';
 import 'order_status_label.dart';
@@ -70,7 +71,34 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
   StyleOrderSelection _styleSelection = const StyleOrderSelection.empty();
   String _styleSummary = '';
 
+  String? _catalogItemInternalId;
+  String _catalogDesignName = '';
+  String _catalogDesignerShopName = '';
+  String? _catalogImagePath;
+  String? _catalogThumbnailPath;
+
+  String _fabricName = '';
+  String _fabricColor = '';
+  String _fabricId = '';
+  String? _fabricNamePresetInternalId;
+  String? _fabricColorPresetInternalId;
+
   DateTime? _deliveryDate;
+
+  bool get _hasFabric =>
+      _fabricName.trim().isNotEmpty ||
+      _fabricColor.trim().isNotEmpty ||
+      _fabricId.trim().isNotEmpty;
+
+  @override
+  void initState() {
+    super.initState();
+    void onPaymentFieldsChanged() {
+      if (mounted) setState(() {});
+    }
+    _totalController.addListener(onPaymentFieldsChanged);
+    _paidController.addListener(onPaymentFieldsChanged);
+  }
 
   @override
   void dispose() {
@@ -109,6 +137,16 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       _styleNameInternalId = null;
       _styleSelection = const StyleOrderSelection.empty();
       _styleSummary = '';
+      _catalogItemInternalId = null;
+      _catalogDesignName = '';
+      _catalogDesignerShopName = '';
+      _catalogImagePath = null;
+      _catalogThumbnailPath = null;
+      _fabricName = '';
+      _fabricColor = '';
+      _fabricId = '';
+      _fabricNamePresetInternalId = null;
+      _fabricColorPresetInternalId = null;
     });
   }
 
@@ -132,6 +170,11 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       initialMainStyle: _styleName,
       initialStyleNameInternalId: _styleNameInternalId,
       initialSelection: _styleSelection,
+      initialCatalogItemInternalId: _catalogItemInternalId,
+      initialCatalogDesignName: _catalogDesignName,
+      initialCatalogDesignerShopName: _catalogDesignerShopName,
+      initialCatalogImagePath: _catalogImagePath,
+      initialCatalogThumbnailPath: _catalogThumbnailPath,
     );
     if (!mounted || result == null) return;
     setState(() {
@@ -139,6 +182,38 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       _styleNameInternalId = result.styleNameInternalId;
       _styleSelection = result.selection;
       _styleSummary = result.summary;
+      _catalogItemInternalId = result.catalogItemInternalId;
+      _catalogDesignName = result.catalogDesignName;
+      _catalogDesignerShopName = result.catalogDesignerShopName;
+      _catalogImagePath = result.catalogImagePath;
+      _catalogThumbnailPath = result.catalogThumbnailPath;
+    });
+  }
+
+  Future<void> _openFabricSheet(BuildContext context) async {
+    final result = await showOrderComposerFabricSheet(
+      context: context,
+      initialName: _fabricName,
+      initialColor: _fabricColor,
+      initialFabricId: _fabricId,
+      initialNamePresetId: _fabricNamePresetInternalId,
+      initialColorPresetId: _fabricColorPresetInternalId,
+    );
+    if (!mounted) return;
+    setState(() {
+      if (result == null || result.isEmpty) {
+        _fabricName = '';
+        _fabricColor = '';
+        _fabricId = '';
+        _fabricNamePresetInternalId = null;
+        _fabricColorPresetInternalId = null;
+      } else {
+        _fabricName = result.fabricName;
+        _fabricColor = result.fabricColor;
+        _fabricId = result.fabricId;
+        _fabricNamePresetInternalId = result.fabricNamePresetInternalId;
+        _fabricColorPresetInternalId = result.fabricColorPresetInternalId;
+      }
     });
   }
 
@@ -193,6 +268,16 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       _styleNameInternalId = null;
       _styleSelection = const StyleOrderSelection.empty();
       _styleSummary = '';
+      _catalogItemInternalId = null;
+      _catalogDesignName = '';
+      _catalogDesignerShopName = '';
+      _catalogImagePath = null;
+      _catalogThumbnailPath = null;
+      _fabricName = '';
+      _fabricColor = '';
+      _fabricId = '';
+      _fabricNamePresetInternalId = null;
+      _fabricColorPresetInternalId = null;
     });
   }
 
@@ -466,7 +551,66 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       styleNameInternalId: _styleNameInternalId,
       styleSelectionJson: _styleSelection.toJsonString(),
       styleSummary: _styleSummary,
+      catalogItemInternalId: _catalogItemInternalId,
+      catalogDesignNameSnapshot: _catalogDesignName,
+      catalogDesignerShopNameSnapshot: _catalogDesignerShopName,
+      catalogSourceImagePath: _catalogImagePath,
+      catalogSourceThumbnailPath: _catalogThumbnailPath,
+      fabricNameSnapshot: _fabricName,
+      fabricColorSnapshot: _fabricColor,
+      fabricIdSnapshot: _fabricId,
+      fabricNamePresetInternalId: _fabricNamePresetInternalId,
+      fabricColorPresetInternalId: _fabricColorPresetInternalId,
     );
+
+    if (_catalogDesignName.trim().isNotEmpty) {
+      final customersRepo =
+          await ref.read(customerListRepositoryProvider.future);
+      await customersRepo.updateCustomerLastCatalogDesign(
+        internalId: customerId,
+        designName: _catalogDesignName.trim(),
+        designerShopName: _catalogDesignerShopName.trim(),
+        catalogItemInternalId: _catalogItemInternalId,
+        thumbnailPath: _catalogThumbnailPath,
+      );
+      final customers =
+          ref.read(customersListStreamProvider).valueOrNull ?? [];
+      CustomerSummary? customerRow;
+      for (final c in customers) {
+        if (c.internalId == customerId) {
+          customerRow = c;
+          break;
+        }
+      }
+      if (customerRow != null) {
+        recordSyncOutboxMutation(
+          ref,
+          kind: SyncOutboxKinds.customerUpsert,
+          entityRef: customerId,
+          shopId: shopId,
+          payloadJson: jsonEncode({
+            'name': customerRow.name,
+            if (customerRow.phone != null && customerRow.phone!.trim().isNotEmpty)
+              'phone': customerRow.phone!.trim(),
+            if (customerRow.address != null &&
+                customerRow.address!.trim().isNotEmpty)
+              'address': customerRow.address!.trim(),
+            if (customerRow.notes != null && customerRow.notes!.trim().isNotEmpty)
+              'notes': customerRow.notes!.trim(),
+            'created_at': customerRow.createdAt.toUtc().toIso8601String(),
+            'last_catalog_design_name': _catalogDesignName.trim(),
+            if (_catalogDesignerShopName.trim().isNotEmpty)
+              'last_catalog_designer_shop_name':
+                  _catalogDesignerShopName.trim(),
+            if (_catalogItemInternalId != null)
+              'last_catalog_item_internal_id': _catalogItemInternalId,
+            if (_catalogThumbnailPath != null &&
+                _catalogThumbnailPath!.trim().isNotEmpty)
+              'last_catalog_thumbnail_path': _catalogThumbnailPath!.trim(),
+          }),
+        );
+      }
+    }
 
     recordSyncOutboxMutation(
       ref,
@@ -498,6 +642,28 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
           'style_selection_json': _styleSelection.toJsonString(),
         if (_styleSummary.trim().isNotEmpty)
           'style_summary': _styleSummary.trim(),
+        if (_catalogItemInternalId != null)
+          'catalog_item_internal_id': _catalogItemInternalId,
+        if (_catalogDesignName.trim().isNotEmpty)
+          'catalog_design_name_snapshot': _catalogDesignName.trim(),
+        if (_catalogDesignerShopName.trim().isNotEmpty)
+          'catalog_designer_shop_name_snapshot':
+              _catalogDesignerShopName.trim(),
+        if (_hasFabric) ...{
+          if (_fabricName.trim().isNotEmpty)
+            'fabric_name': _fabricName.trim(),
+          if (_fabricColor.trim().isNotEmpty)
+            'fabric_color': _fabricColor.trim(),
+          if (_fabricId.trim().isNotEmpty) 'fabric_id': _fabricId.trim(),
+          if (_fabricNamePresetInternalId != null &&
+              _fabricNamePresetInternalId!.trim().isNotEmpty)
+            'fabric_name_preset_internal_id':
+                _fabricNamePresetInternalId!.trim(),
+          if (_fabricColorPresetInternalId != null &&
+              _fabricColorPresetInternalId!.trim().isNotEmpty)
+            'fabric_color_preset_internal_id':
+                _fabricColorPresetInternalId!.trim(),
+        },
       }),
     );
 
@@ -684,9 +850,25 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
         : l10n.ordersComposerMeasurementsSummary;
     final styleSubtitle = _styleName.trim().isEmpty
         ? l10n.ordersComposerStyleRequired
-        : (_styleSummary.trim().isNotEmpty
-            ? _styleSummary.trim().split('\n').first
-            : _styleName.trim());
+        : (_catalogDesignName.trim().isNotEmpty
+            ? '${_styleSummary.trim().isNotEmpty ? _styleSummary.trim().split('\n').first : _styleName.trim()} · ${_catalogDesignName.trim()}'
+            : (_styleSummary.trim().isNotEmpty
+                ? _styleSummary.trim().split('\n').first
+                : _styleName.trim()));
+    final fabricSubtitle = !_hasFabric
+        ? l10n.ordersComposerFabricUnset
+        : (_fabricId.trim().isNotEmpty &&
+                _fabricName.trim().isNotEmpty &&
+                _fabricColor.trim().isNotEmpty
+            ? l10n.ordersComposerFabricSummary(
+                _fabricName.trim(),
+                _fabricColor.trim(),
+                _fabricId.trim(),
+              )
+            : l10n.ordersComposerFabricPartialSummary(
+                _fabricName.trim().isEmpty ? '—' : _fabricName.trim(),
+                _fabricColor.trim().isEmpty ? '—' : _fabricColor.trim(),
+              ));
     final paymentSubtitle = total <= 0
         ? l10n.ordersComposerPaymentRequired
         : l10n.ordersComposerPaymentSummary(
@@ -715,6 +897,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
             customerDone: _selectedCustomerId != null,
             measurementsDone: _measurementsController.text.trim().isNotEmpty,
             styleDone: _styleName.trim().isNotEmpty,
+            fabricDone: _hasFabric,
             deliveryDone: _deliveryDate != null,
             paymentDone: paymentOk,
           ),
@@ -828,9 +1011,38 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 ListTile(
+                  title: Text(l10n.ordersComposerFabricTitle),
+                  subtitle: Text(fabricSubtitle, maxLines: 2),
+                  isThreeLine: fabricSubtitle.length > 48,
+                  leading: PrideColoredLeading(
+                    icon: Icons.texture_outlined,
+                    color: prideSettingsIconColor(3),
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => _openFabricSheet(context),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                  child: Text(
+                    l10n.ordersComposerFabricOptional,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: _kComposerSectionGap),
+          Card(
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ListTile(
                   leading: PrideColoredLeading(
                     icon: Icons.event_outlined,
-                    color: prideSettingsIconColor(3),
+                    color: prideSettingsIconColor(4),
                   ),
                   title: Text(l10n.ordersComposerDeliveryDateTitle),
                   subtitle: Text(deliveryLabel),
@@ -871,14 +1083,12 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
                           labelText: l10n.ordersComposerTotalLabel,
                           hintText: l10n.ordersComposerTotalHint,
                           textInputAction: TextInputAction.next,
-                          onChanged: (_) => setState(() {}),
                         ),
                         const SizedBox(height: 12),
                         PrideMoneyField(
                           controller: _paidController,
                           labelText: l10n.ordersComposerPaidLabel,
                           hintText: l10n.ordersComposerPaidHint,
-                          onChanged: (_) => setState(() {}),
                         ),
                         const SizedBox(height: 12),
                         Card(

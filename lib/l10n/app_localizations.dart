@@ -1270,6 +1270,18 @@ abstract class AppLocalizations {
   /// **'Labels for customer profiles and orders'**
   String get settingsMeasurementTypesSubtitle;
 
+  /// No description provided for @settingsMeasurementUnitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Default measurement unit'**
+  String get settingsMeasurementUnitTitle;
+
+  /// No description provided for @settingsMeasurementUnitSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Used when entering cloth measurements on new orders'**
+  String get settingsMeasurementUnitSubtitle;
+
   /// No description provided for @tasksTitle.
   ///
   /// In en, this message translates to:
@@ -2470,6 +2482,12 @@ abstract class AppLocalizations {
   /// **'Style'**
   String get ordersComposerProgressStyle;
 
+  /// No description provided for @ordersComposerProgressFabric.
+  ///
+  /// In en, this message translates to:
+  /// **'Fabric'**
+  String get ordersComposerProgressFabric;
+
   /// No description provided for @ordersComposerProgressDelivery.
   ///
   /// In en, this message translates to:
@@ -2918,6 +2936,84 @@ abstract class AppLocalizations {
   /// **'Style'**
   String get ordersComposerStyleTitle;
 
+  /// No description provided for @ordersComposerFabricTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer fabric'**
+  String get ordersComposerFabricTitle;
+
+  /// No description provided for @ordersComposerFabricOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional — cloth the customer brings'**
+  String get ordersComposerFabricOptional;
+
+  /// No description provided for @ordersComposerFabricSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} • {color} • ID {id}'**
+  String ordersComposerFabricSummary(String name, String color, String id);
+
+  /// No description provided for @ordersComposerFabricPartialSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} • {color}'**
+  String ordersComposerFabricPartialSummary(String name, String color);
+
+  /// No description provided for @ordersComposerFabricUnset.
+  ///
+  /// In en, this message translates to:
+  /// **'No fabric recorded'**
+  String get ordersComposerFabricUnset;
+
+  /// No description provided for @ordersComposerFabricSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer fabric'**
+  String get ordersComposerFabricSheetTitle;
+
+  /// No description provided for @ordersComposerFabricNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fabric name'**
+  String get ordersComposerFabricNameLabel;
+
+  /// No description provided for @ordersComposerFabricNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select or type'**
+  String get ordersComposerFabricNameHint;
+
+  /// No description provided for @ordersComposerFabricColorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fabric color'**
+  String get ordersComposerFabricColorLabel;
+
+  /// No description provided for @ordersComposerFabricColorHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select or type'**
+  String get ordersComposerFabricColorHint;
+
+  /// No description provided for @ordersComposerFabricIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fabric ID'**
+  String get ordersComposerFabricIdLabel;
+
+  /// No description provided for @ordersComposerFabricIdHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Assigned automatically when you save'**
+  String get ordersComposerFabricIdHint;
+
+  /// No description provided for @ordersComposerFabricClearCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear fabric'**
+  String get ordersComposerFabricClearCta;
+
   /// No description provided for @ordersComposerStyleRequired.
   ///
   /// In en, this message translates to:
@@ -2972,6 +3068,72 @@ abstract class AppLocalizations {
   /// **'Clear all selections'**
   String get ordersComposerStyleClearFigures;
 
+  /// No description provided for @ordersComposerCatalogDesignTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete design from catalog'**
+  String get ordersComposerCatalogDesignTitle;
+
+  /// No description provided for @ordersComposerCatalogDesignNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No catalog design selected'**
+  String get ordersComposerCatalogDesignNone;
+
+  /// No description provided for @ordersComposerCatalogChooseCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from catalog'**
+  String get ordersComposerCatalogChooseCta;
+
+  /// No description provided for @ordersComposerCatalogClearCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear design'**
+  String get ordersComposerCatalogClearCta;
+
+  /// No description provided for @ordersComposerCatalogPickerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My designs'**
+  String get ordersComposerCatalogPickerTitle;
+
+  /// No description provided for @ordersComposerCatalogPickerEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No designs in your catalog yet. Add designs in the Catalog tab.'**
+  String get ordersComposerCatalogPickerEmpty;
+
+  /// No description provided for @customerLastCatalogDesignLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Last catalog design'**
+  String get customerLastCatalogDesignLabel;
+
+  /// No description provided for @orderDetailCatalogDesignTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete design'**
+  String get orderDetailCatalogDesignTitle;
+
+  /// No description provided for @receiptCatalogDesignLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Design'**
+  String get receiptCatalogDesignLabel;
+
+  /// No description provided for @invoiceCatalogDesignLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Catalog design'**
+  String get invoiceCatalogDesignLabel;
+
+  /// No description provided for @invoiceCatalogDesignerLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Designer'**
+  String get invoiceCatalogDesignerLabel;
+
   /// No description provided for @settingsStyleHubTitle.
   ///
   /// In en, this message translates to:
@@ -2989,6 +3151,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Style names and design figures'**
   String get settingsStyleTileSubtitle;
+
+  /// No description provided for @settingsFabricHubTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer fabric'**
+  String get settingsFabricHubTitle;
+
+  /// No description provided for @settingsFabricHubSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Preset names and colors for orders'**
+  String get settingsFabricHubSubtitle;
+
+  /// No description provided for @settingsFabricNamesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fabric names'**
+  String get settingsFabricNamesTitle;
+
+  /// No description provided for @settingsFabricNamesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cotton, wool, and other cloth types'**
+  String get settingsFabricNamesSubtitle;
+
+  /// No description provided for @settingsFabricNamesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No fabric names yet.'**
+  String get settingsFabricNamesEmpty;
+
+  /// No description provided for @settingsFabricNameAddCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Add fabric name'**
+  String get settingsFabricNameAddCta;
+
+  /// No description provided for @settingsFabricNameFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get settingsFabricNameFieldLabel;
+
+  /// No description provided for @settingsFabricNameRenameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename fabric'**
+  String get settingsFabricNameRenameTitle;
+
+  /// No description provided for @settingsFabricNameDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete fabric name?'**
+  String get settingsFabricNameDeleteTitle;
+
+  /// No description provided for @settingsFabricNameDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This removes the name from the list. Existing orders are not changed.'**
+  String get settingsFabricNameDeleteBody;
+
+  /// No description provided for @settingsFabricColorsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fabric colors'**
+  String get settingsFabricColorsTitle;
+
+  /// No description provided for @settingsFabricColorsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Navy, cream, and other colors'**
+  String get settingsFabricColorsSubtitle;
+
+  /// No description provided for @settingsFabricColorsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No fabric colors yet.'**
+  String get settingsFabricColorsEmpty;
+
+  /// No description provided for @settingsFabricColorAddCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Add fabric color'**
+  String get settingsFabricColorAddCta;
+
+  /// No description provided for @settingsFabricColorFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Color'**
+  String get settingsFabricColorFieldLabel;
+
+  /// No description provided for @settingsFabricColorRenameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename color'**
+  String get settingsFabricColorRenameTitle;
+
+  /// No description provided for @settingsFabricColorDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete fabric color?'**
+  String get settingsFabricColorDeleteTitle;
+
+  /// No description provided for @settingsFabricColorDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This removes the color from the list. Existing orders are not changed.'**
+  String get settingsFabricColorDeleteBody;
+
+  /// No description provided for @settingsFabricActiveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'In use'**
+  String get settingsFabricActiveLabel;
+
+  /// No description provided for @settingsFabricInactiveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden'**
+  String get settingsFabricInactiveLabel;
 
   /// No description provided for @settingsStyleNamesTitle.
   ///
@@ -4596,6 +4878,42 @@ abstract class AppLocalizations {
   /// **'Revoke'**
   String get devPortalCodesRevokeCta;
 
+  /// No description provided for @devPortalCodesDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Activation code'**
+  String get devPortalCodesDetailTitle;
+
+  /// No description provided for @devPortalCodesCopyCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy code'**
+  String get devPortalCodesCopyCta;
+
+  /// No description provided for @devPortalCodesShareCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Share code'**
+  String get devPortalCodesShareCta;
+
+  /// No description provided for @devPortalCodesCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Code copied to clipboard.'**
+  String get devPortalCodesCopied;
+
+  /// No description provided for @devPortalCodesShareSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Afghan Pride activation code'**
+  String get devPortalCodesShareSubject;
+
+  /// No description provided for @devPortalCodesShareMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Afghan Pride — subscription activation\n\nCode: {code}\nPaid days when redeemed: {days}\n\nIn the shop app: Settings → Subscription → enter this code.\nSingle-use unless noted otherwise.'**
+  String devPortalCodesShareMessage(String code, int days);
+
   /// No description provided for @devPortalApiHealthPrompt.
   ///
   /// In en, this message translates to:
@@ -5093,6 +5411,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Style notes'**
   String get receiptStyleLabel;
+
+  /// No description provided for @receiptFabricLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer fabric'**
+  String get receiptFabricLabel;
+
+  /// No description provided for @receiptFabricNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fabric'**
+  String get receiptFabricNameLabel;
+
+  /// No description provided for @receiptFabricColorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Color'**
+  String get receiptFabricColorLabel;
+
+  /// No description provided for @receiptFabricIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fabric ID'**
+  String get receiptFabricIdLabel;
+
+  /// No description provided for @orderDetailFabricTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer fabric'**
+  String get orderDetailFabricTitle;
 
   /// No description provided for @receiptInternalNotesHeader.
   ///

@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import '../../data/local/catalog/catalog_image_ref.dart';
+
 Widget buildCatalogTileImage(
   BuildContext context, {
   required String? thumbnailPath,
@@ -28,6 +30,37 @@ Widget buildCatalogTileImage(
       return SizedBox(width: dimension, height: dimension, child: inner);
     }
     return SizedBox.expand(child: inner);
+  }
+
+  if (isCatalogAssetImageRef(path)) {
+    final assetPath = catalogBundleAssetPath(path);
+    if (assetPath != null) {
+      Widget image = Image.asset(
+        'assets/catalog_seed/$assetPath',
+        fit: BoxFit.cover,
+        width: dimension,
+        height: dimension,
+        errorBuilder: (context, error, stackTrace) {
+          return ColoredBox(
+            color: bg,
+            child: Center(
+              child: Icon(
+                Icons.broken_image_outlined,
+                color: Theme.of(context).colorScheme.outline,
+              ),
+            ),
+          );
+        },
+      );
+      image = ClipRRect(
+        borderRadius: BorderRadius.circular(borderRadius),
+        child: image,
+      );
+      if (dimension == null) {
+        return SizedBox.expand(child: image);
+      }
+      return SizedBox(width: dimension, height: dimension, child: image);
+    }
   }
 
   final file = File(path);

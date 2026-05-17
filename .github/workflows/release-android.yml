@@ -10,7 +10,7 @@ on:
       version:
         description: "Release tag (e.g. v1.0.3)"
         required: true
-        default: "v1.0.3"
+        default: "v3.5.3.2"
 
 permissions:
   contents: write
@@ -52,7 +52,10 @@ jobs:
           GRADLE_OPTS: -Dorg.gradle.jvmargs=-Xmx4g
 
       - name: Rename APK
-        run: cp build/app/outputs/flutter-apk/app-release.apk Pride-android.apk
+        run: |
+          SRC=build/app/outputs/flutter-apk/Pride.apk
+          if [ ! -f "$SRC" ]; then SRC=build/app/outputs/flutter-apk/app-release.apk; fi
+          cp "$SRC" Pride.apk
 
       - name: Resolve release tag
         id: tag
@@ -71,7 +74,7 @@ jobs:
           make_latest: true
           overwrite_files: true
           generate_release_notes: true
-          files: Pride-android.apk
+          files: Pride.apk
           body_path: docs/RELEASE_NOTES_TEMPLATE.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

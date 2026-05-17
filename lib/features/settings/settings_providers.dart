@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pride_v3/data/local/measurement_unit_codes.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 const prideLocaleLanguageCodeKey = 'pride_locale_language_code';
 const prideUiSoundsKey = 'pride_ui_sounds_enabled';
 const prideUiHapticsKey = 'pride_ui_haptics_enabled';
+const prideMeasurementUnitKey = 'pride_measurement_unit_code';
 
 /// Reads saved app language (`en` / `fa` / `ps`). Defaults to Dari on first launch.
 Locale localeFromPrefs(SharedPreferences prefs) {
@@ -45,6 +47,16 @@ Future<void> persistUiHaptics(SharedPreferences prefs, bool value) async {
   await prefs.setBool(prideUiHapticsKey, value);
 }
 
+int measurementUnitFromPrefs(SharedPreferences prefs) {
+  final code = prefs.getInt(prideMeasurementUnitKey);
+  if (code == MeasurementUnitCodes.inch) return MeasurementUnitCodes.inch;
+  return MeasurementUnitCodes.cm;
+}
+
+Future<void> persistMeasurementUnit(SharedPreferences prefs, int unitCode) async {
+  await prefs.setInt(prideMeasurementUnitKey, unitCode);
+}
+
 /// Short success sounds (SystemSound); persisted locally.
 final uiSoundsEnabledProvider = StateProvider<bool>((ref) => true);
 
@@ -59,6 +71,10 @@ final localeOverrideProvider = StateProvider<Locale>((ref) => const Locale('fa')
 
 /// Mute notifications toggle (local-only for now; plan-15).
 final notificationsMutedProvider = StateProvider<bool>((ref) => false);
+
+/// Default unit for new order measurements and profiles (inch or cm).
+final defaultMeasurementUnitProvider =
+    StateProvider<int>((ref) => MeasurementUnitCodes.cm);
 
 /// Dev stub: current user role. In production, this comes from auth/session.
 final isOwnerProvider = StateProvider<bool>((ref) => true);

@@ -11,6 +11,7 @@ import 'order_measurement_snapshot_view.dart';
 import 'order_style_snapshot_view.dart';
 import 'order_summary.dart';
 import 'seed_data.dart';
+import 'catalog/catalog_order_snapshot.dart';
 import 'sync_pull_payload.dart';
 
 /// Web / non-native: in-memory list (Isar does not run on Flutter Web).
@@ -24,6 +25,64 @@ class MemoryOrderRepository implements OrderListRepository {
 
   void _emitOrders() {
     _controller.add(const []);
+  }
+
+  OrderSummary _copyOrder(
+    OrderSummary o, {
+    OrderLocalStatus? status,
+    String? internalNotes,
+    int? paidAmountMinor,
+    DateTime? updatedAt,
+    String? catalogItemInternalId,
+    String? catalogDesignNameSnapshot,
+    String? catalogDesignerShopNameSnapshot,
+    String? catalogImagePathSnapshot,
+    String? catalogThumbnailPathSnapshot,
+    String? fabricNameSnapshot,
+    String? fabricColorSnapshot,
+    String? fabricIdSnapshot,
+    String? fabricNamePresetInternalId,
+    String? fabricColorPresetInternalId,
+  }) {
+    return OrderSummary(
+      shopId: o.shopId,
+      internalId: o.internalId,
+      displayOrderNo: o.displayOrderNo,
+      customerInternalId: o.customerInternalId,
+      customerName: o.customerName,
+      customerPhone: o.customerPhone,
+      measurementsSnapshot: o.measurementsSnapshot,
+      internalNotes: internalNotes ?? o.internalNotes,
+      sourceMeasurementProfileId: o.sourceMeasurementProfileId,
+      sourceMeasurementProfileLabel: o.sourceMeasurementProfileLabel,
+      styleName: o.styleName,
+      styleNameInternalId: o.styleNameInternalId,
+      styleSelectionJson: o.styleSelectionJson,
+      styleSummary: o.styleSummary,
+      catalogItemInternalId:
+          catalogItemInternalId ?? o.catalogItemInternalId,
+      catalogDesignNameSnapshot:
+          catalogDesignNameSnapshot ?? o.catalogDesignNameSnapshot,
+      catalogDesignerShopNameSnapshot: catalogDesignerShopNameSnapshot ??
+          o.catalogDesignerShopNameSnapshot,
+      catalogImagePathSnapshot:
+          catalogImagePathSnapshot ?? o.catalogImagePathSnapshot,
+      catalogThumbnailPathSnapshot:
+          catalogThumbnailPathSnapshot ?? o.catalogThumbnailPathSnapshot,
+      fabricNameSnapshot: fabricNameSnapshot ?? o.fabricNameSnapshot,
+      fabricColorSnapshot: fabricColorSnapshot ?? o.fabricColorSnapshot,
+      fabricIdSnapshot: fabricIdSnapshot ?? o.fabricIdSnapshot,
+      fabricNamePresetInternalId:
+          fabricNamePresetInternalId ?? o.fabricNamePresetInternalId,
+      fabricColorPresetInternalId:
+          fabricColorPresetInternalId ?? o.fabricColorPresetInternalId,
+      status: status ?? o.status,
+      deliveryDate: o.deliveryDate,
+      createdAt: o.createdAt,
+      updatedAt: updatedAt ?? o.updatedAt,
+      totalAmountMinor: o.totalAmountMinor,
+      paidAmountMinor: paidAmountMinor ?? o.paidAmountMinor,
+    );
   }
 
   void _emitSnapshots() {
@@ -130,26 +189,9 @@ class MemoryOrderRepository implements OrderListRepository {
     for (var i = 0; i < _orders.length; i++) {
       final o = _orders[i];
       if (o.internalId == orderInternalId) {
-        _orders[i] = OrderSummary(
-          shopId: o.shopId,
-          internalId: o.internalId,
-          displayOrderNo: o.displayOrderNo,
-          customerInternalId: o.customerInternalId,
-          customerName: o.customerName,
-          customerPhone: o.customerPhone,
-          measurementsSnapshot: o.measurementsSnapshot,
-          internalNotes: o.internalNotes,
-          sourceMeasurementProfileId: o.sourceMeasurementProfileId,
-          sourceMeasurementProfileLabel: o.sourceMeasurementProfileLabel,
-          styleName: o.styleName,
-          styleNameInternalId: o.styleNameInternalId,
-          styleSelectionJson: o.styleSelectionJson,
-          styleSummary: o.styleSummary,
-          status: o.status,
-          deliveryDate: o.deliveryDate,
-          createdAt: o.createdAt,
+        _orders[i] = _copyOrder(
+          o,
           updatedAt: DateTime.now(),
-          totalAmountMinor: o.totalAmountMinor,
           paidAmountMinor: o.paidAmountMinor + deltaMinor,
         );
         _emitOrders();
@@ -174,11 +216,40 @@ class MemoryOrderRepository implements OrderListRepository {
     String? styleNameInternalId,
     String styleSelectionJson = '',
     String styleSummary = '',
+    String? catalogItemInternalId,
+    String catalogDesignNameSnapshot = '',
+    String catalogDesignerShopNameSnapshot = '',
+    String? catalogImagePathSnapshot,
+    String? catalogThumbnailPathSnapshot,
+    String? catalogSourceImagePath,
+    String? catalogSourceThumbnailPath,
+    String fabricNameSnapshot = '',
+    String fabricColorSnapshot = '',
+    String fabricIdSnapshot = '',
+    String? fabricNamePresetInternalId,
+    String? fabricColorPresetInternalId,
   }) async {
     await seedIfEmpty();
     final nextNo = _nextOrderNo();
     final internalId = _uuid.v4();
     final now = DateTime.now();
+
+    String? resolvedImagePath = catalogImagePathSnapshot;
+    String? resolvedThumbPath = catalogThumbnailPathSnapshot;
+    if (catalogDesignNameSnapshot.trim().isNotEmpty &&
+        catalogSourceImagePath != null &&
+        catalogSourceImagePath.isNotEmpty) {
+      final copied = await copyCatalogPathsToOrderSnapshot(
+        orderInternalId: internalId,
+        imagePath: catalogSourceImagePath,
+        thumbnailPath: catalogSourceThumbnailPath,
+      );
+      if (copied != null) {
+        resolvedImagePath = copied.imagePath;
+        resolvedThumbPath = copied.thumbnailPath;
+      }
+    }
+
     _orders.add(
       OrderSummary(
         shopId: shopId,
@@ -196,6 +267,17 @@ class MemoryOrderRepository implements OrderListRepository {
         styleNameInternalId: styleNameInternalId,
         styleSelectionJson: styleSelectionJson,
         styleSummary: styleSummary,
+        catalogItemInternalId: catalogItemInternalId,
+        catalogDesignNameSnapshot: catalogDesignNameSnapshot.trim(),
+        catalogDesignerShopNameSnapshot:
+            catalogDesignerShopNameSnapshot.trim(),
+        catalogImagePathSnapshot: resolvedImagePath,
+        catalogThumbnailPathSnapshot: resolvedThumbPath,
+        fabricNameSnapshot: fabricNameSnapshot.trim(),
+        fabricColorSnapshot: fabricColorSnapshot.trim(),
+        fabricIdSnapshot: fabricIdSnapshot.trim(),
+        fabricNamePresetInternalId: fabricNamePresetInternalId,
+        fabricColorPresetInternalId: fabricColorPresetInternalId,
         status: OrderLocalStatus.newOrder,
         deliveryDate: deliveryDate,
         createdAt: now,
@@ -275,28 +357,7 @@ class MemoryOrderRepository implements OrderListRepository {
     for (var i = 0; i < _orders.length; i++) {
       final o = _orders[i];
       if (o.internalId == orderInternalId) {
-        _orders[i] = OrderSummary(
-          shopId: o.shopId,
-          internalId: o.internalId,
-          displayOrderNo: o.displayOrderNo,
-          customerInternalId: o.customerInternalId,
-          customerName: o.customerName,
-          customerPhone: o.customerPhone,
-          measurementsSnapshot: o.measurementsSnapshot,
-          internalNotes: o.internalNotes,
-          sourceMeasurementProfileId: o.sourceMeasurementProfileId,
-          sourceMeasurementProfileLabel: o.sourceMeasurementProfileLabel,
-          styleName: o.styleName,
-          styleNameInternalId: o.styleNameInternalId,
-          styleSelectionJson: o.styleSelectionJson,
-          styleSummary: o.styleSummary,
-          status: newStatus,
-          deliveryDate: o.deliveryDate,
-          createdAt: o.createdAt,
-          updatedAt: DateTime.now(),
-          totalAmountMinor: o.totalAmountMinor,
-          paidAmountMinor: o.paidAmountMinor,
-        );
+        _orders[i] = _copyOrder(o, status: newStatus, updatedAt: DateTime.now());
         _emitOrders();
         return;
       }
@@ -311,27 +372,10 @@ class MemoryOrderRepository implements OrderListRepository {
     for (var i = 0; i < _orders.length; i++) {
       final o = _orders[i];
       if (o.internalId == orderInternalId) {
-        _orders[i] = OrderSummary(
-          shopId: o.shopId,
-          internalId: o.internalId,
-          displayOrderNo: o.displayOrderNo,
-          customerInternalId: o.customerInternalId,
-          customerName: o.customerName,
-          customerPhone: o.customerPhone,
-          measurementsSnapshot: o.measurementsSnapshot,
+        _orders[i] = _copyOrder(
+          o,
           internalNotes: internalNotes,
-          sourceMeasurementProfileId: o.sourceMeasurementProfileId,
-          sourceMeasurementProfileLabel: o.sourceMeasurementProfileLabel,
-          styleName: o.styleName,
-          styleNameInternalId: o.styleNameInternalId,
-          styleSelectionJson: o.styleSelectionJson,
-          styleSummary: o.styleSummary,
-          status: o.status,
-          deliveryDate: o.deliveryDate,
-          createdAt: o.createdAt,
           updatedAt: DateTime.now(),
-          totalAmountMinor: o.totalAmountMinor,
-          paidAmountMinor: o.paidAmountMinor,
         );
         _emitOrders();
         return;
@@ -433,6 +477,73 @@ class MemoryOrderRepository implements OrderListRepository {
         existing?.styleSummary ??
         '';
 
+    final catalogItemInternalId = syncPullString(
+      m,
+      const ['catalog_item_internal_id', 'catalogItemInternalId'],
+    );
+    final catalogDesignNameSnapshot = syncPullString(
+          m,
+          const [
+            'catalog_design_name_snapshot',
+            'catalogDesignNameSnapshot',
+          ],
+        ) ??
+        existing?.catalogDesignNameSnapshot ??
+        '';
+    final catalogDesignerShopNameSnapshot = syncPullString(
+          m,
+          const [
+            'catalog_designer_shop_name_snapshot',
+            'catalogDesignerShopNameSnapshot',
+          ],
+        ) ??
+        existing?.catalogDesignerShopNameSnapshot ??
+        '';
+    final catalogImagePathSnapshot = syncPullString(
+      m,
+      const ['catalog_image_path_snapshot', 'catalogImagePathSnapshot'],
+    );
+    final catalogThumbnailPathSnapshot = syncPullString(
+      m,
+      const [
+        'catalog_thumbnail_path_snapshot',
+        'catalogThumbnailPathSnapshot',
+      ],
+    );
+
+    final fabricNameSnapshot = syncPullString(
+          m,
+          const ['fabric_name', 'fabricName', 'fabric_name_snapshot'],
+        ) ??
+        existing?.fabricNameSnapshot ??
+        '';
+    final fabricColorSnapshot = syncPullString(
+          m,
+          const ['fabric_color', 'fabricColor', 'fabric_color_snapshot'],
+        ) ??
+        existing?.fabricColorSnapshot ??
+        '';
+    final fabricIdSnapshot = syncPullString(
+          m,
+          const ['fabric_id', 'fabricId', 'fabric_id_snapshot'],
+        ) ??
+        existing?.fabricIdSnapshot ??
+        '';
+    final fabricNamePresetInternalId = syncPullString(
+      m,
+      const [
+        'fabric_name_preset_internal_id',
+        'fabricNamePresetInternalId',
+      ],
+    );
+    final fabricColorPresetInternalId = syncPullString(
+      m,
+      const [
+        'fabric_color_preset_internal_id',
+        'fabricColorPresetInternalId',
+      ],
+    );
+
     final displayNo = syncPullString(
           m,
           const ['display_order_no', 'displayOrderNo'],
@@ -466,6 +577,27 @@ class MemoryOrderRepository implements OrderListRepository {
       styleNameInternalId: styleNameInternalId ?? existing?.styleNameInternalId,
       styleSelectionJson: styleSelectionJson,
       styleSummary: styleSummary,
+      catalogItemInternalId:
+          catalogItemInternalId ?? existing?.catalogItemInternalId,
+      catalogDesignNameSnapshot: catalogDesignNameSnapshot,
+      catalogDesignerShopNameSnapshot: catalogDesignerShopNameSnapshot,
+      catalogImagePathSnapshot:
+          catalogImagePathSnapshot ?? existing?.catalogImagePathSnapshot,
+      catalogThumbnailPathSnapshot: catalogThumbnailPathSnapshot ??
+          existing?.catalogThumbnailPathSnapshot,
+      fabricNameSnapshot: fabricNameSnapshot.isNotEmpty
+          ? fabricNameSnapshot
+          : (existing?.fabricNameSnapshot ?? ''),
+      fabricColorSnapshot: fabricColorSnapshot.isNotEmpty
+          ? fabricColorSnapshot
+          : (existing?.fabricColorSnapshot ?? ''),
+      fabricIdSnapshot: fabricIdSnapshot.isNotEmpty
+          ? fabricIdSnapshot
+          : (existing?.fabricIdSnapshot ?? ''),
+      fabricNamePresetInternalId: fabricNamePresetInternalId ??
+          existing?.fabricNamePresetInternalId,
+      fabricColorPresetInternalId: fabricColorPresetInternalId ??
+          existing?.fabricColorPresetInternalId,
       status: status,
       deliveryDate: delivery,
       createdAt: createdAt,

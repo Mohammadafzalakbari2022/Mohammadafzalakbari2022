@@ -5,7 +5,9 @@ import 'package:pride_v3/l10n/app_localizations.dart';
 import '../../data/local/style/style_order_selection.dart';
 import '../../data/local/style_name_summary.dart';
 import '../../data/providers/local_data_providers.dart';
+import '../catalog/catalog_tile_image.dart';
 import '../style/style_figure_image_grid.dart';
+import 'order_composer_catalog_picker.dart';
 
 class OrderComposerStyleResult {
   const OrderComposerStyleResult({
@@ -13,12 +15,24 @@ class OrderComposerStyleResult {
     this.styleNameInternalId,
     required this.selection,
     required this.summary,
+    this.catalogItemInternalId,
+    this.catalogDesignName = '',
+    this.catalogDesignerShopName = '',
+    this.catalogImagePath,
+    this.catalogThumbnailPath,
   });
 
   final String mainStyleName;
   final String? styleNameInternalId;
   final StyleOrderSelection selection;
   final String summary;
+  final String? catalogItemInternalId;
+  final String catalogDesignName;
+  final String catalogDesignerShopName;
+  final String? catalogImagePath;
+  final String? catalogThumbnailPath;
+
+  bool get hasCatalogDesign => catalogDesignName.trim().isNotEmpty;
 }
 
 Future<OrderComposerStyleResult?> showOrderComposerStyleSheet({
@@ -27,6 +41,11 @@ Future<OrderComposerStyleResult?> showOrderComposerStyleSheet({
   String initialMainStyle = '',
   String? initialStyleNameInternalId,
   StyleOrderSelection initialSelection = const StyleOrderSelection.empty(),
+  String? initialCatalogItemInternalId,
+  String initialCatalogDesignName = '',
+  String initialCatalogDesignerShopName = '',
+  String? initialCatalogImagePath,
+  String? initialCatalogThumbnailPath,
 }) {
   return showModalBottomSheet<OrderComposerStyleResult>(
     context: context,
@@ -36,6 +55,11 @@ Future<OrderComposerStyleResult?> showOrderComposerStyleSheet({
       initialMainStyle: initialMainStyle,
       initialStyleNameInternalId: initialStyleNameInternalId,
       initialSelection: initialSelection,
+      initialCatalogItemInternalId: initialCatalogItemInternalId,
+      initialCatalogDesignName: initialCatalogDesignName,
+      initialCatalogDesignerShopName: initialCatalogDesignerShopName,
+      initialCatalogImagePath: initialCatalogImagePath,
+      initialCatalogThumbnailPath: initialCatalogThumbnailPath,
     ),
   );
 }
@@ -45,11 +69,21 @@ class _OrderComposerStyleSheet extends ConsumerStatefulWidget {
     required this.initialMainStyle,
     this.initialStyleNameInternalId,
     required this.initialSelection,
+    this.initialCatalogItemInternalId,
+    this.initialCatalogDesignName = '',
+    this.initialCatalogDesignerShopName = '',
+    this.initialCatalogImagePath,
+    this.initialCatalogThumbnailPath,
   });
 
   final String initialMainStyle;
   final String? initialStyleNameInternalId;
   final StyleOrderSelection initialSelection;
+  final String? initialCatalogItemInternalId;
+  final String initialCatalogDesignName;
+  final String initialCatalogDesignerShopName;
+  final String? initialCatalogImagePath;
+  final String? initialCatalogThumbnailPath;
 
   @override
   ConsumerState<_OrderComposerStyleSheet> createState() =>
@@ -61,6 +95,11 @@ class _OrderComposerStyleSheetState
   late final TextEditingController _customStyleCtrl;
   late Set<String> _selectedFigureIds;
   String? _selectedStyleNameId;
+  String? _catalogItemInternalId;
+  String _catalogDesignName = '';
+  String _catalogDesignerShopName = '';
+  String? _catalogImagePath;
+  String? _catalogThumbnailPath;
 
   @override
   void initState() {
@@ -69,6 +108,11 @@ class _OrderComposerStyleSheetState
     _selectedFigureIds =
         Set<String>.from(widget.initialSelection.selectedFigureIds);
     _selectedStyleNameId = widget.initialStyleNameInternalId;
+    _catalogItemInternalId = widget.initialCatalogItemInternalId;
+    _catalogDesignName = widget.initialCatalogDesignName;
+    _catalogDesignerShopName = widget.initialCatalogDesignerShopName;
+    _catalogImagePath = widget.initialCatalogImagePath;
+    _catalogThumbnailPath = widget.initialCatalogThumbnailPath;
     _customStyleCtrl.addListener(_onCustomStyleEdited);
   }
 
@@ -121,8 +165,39 @@ class _OrderComposerStyleSheetState
         styleNameInternalId: _selectedStyleNameId,
         selection: selection,
         summary: summary,
+        catalogItemInternalId: _catalogItemInternalId,
+        catalogDesignName: _catalogDesignName,
+        catalogDesignerShopName: _catalogDesignerShopName,
+        catalogImagePath: _catalogImagePath,
+        catalogThumbnailPath: _catalogThumbnailPath,
       ),
     );
+  }
+
+  Future<void> _openCatalogPicker() async {
+    final picked = await showOrderComposerCatalogPicker(
+      context: context,
+      ref: ref,
+      selectedId: _catalogItemInternalId,
+    );
+    if (!mounted || picked == null) return;
+    setState(() {
+      _catalogItemInternalId = picked.internalId;
+      _catalogDesignName = picked.designName;
+      _catalogDesignerShopName = picked.designerShopName;
+      _catalogImagePath = picked.imagePath;
+      _catalogThumbnailPath = picked.thumbnailPath;
+    });
+  }
+
+  void _clearCatalogDesign() {
+    setState(() {
+      _catalogItemInternalId = null;
+      _catalogDesignName = '';
+      _catalogDesignerShopName = '';
+      _catalogImagePath = null;
+      _catalogThumbnailPath = null;
+    });
   }
 
   int _crossAxisCount(double width) {
@@ -211,6 +286,71 @@ class _OrderComposerStyleSheetState
                         border: const OutlineInputBorder(),
                         isDense: true,
                       ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      l10n.ordersComposerCatalogDesignTitle,
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                    const SizedBox(height: 8),
+                    if (_catalogDesignName.trim().isEmpty)
+                      Text(
+                        l10n.ordersComposerCatalogDesignNone,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.outline,
+                            ),
+                      )
+                    else
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CatalogTileImage(
+                            thumbnailPath: _catalogThumbnailPath,
+                            imagePath: _catalogImagePath,
+                            dimension: 72,
+                            borderRadius: 10,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _catalogDesignName,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleSmall
+                                      ?.copyWith(fontWeight: FontWeight.w600),
+                                ),
+                                if (_catalogDesignerShopName
+                                    .trim()
+                                    .isNotEmpty)
+                                  Text(
+                                    _catalogDesignerShopName,
+                                    style:
+                                        Theme.of(context).textTheme.bodySmall,
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      children: [
+                        FilledButton.tonalIcon(
+                          onPressed: _openCatalogPicker,
+                          icon: const Icon(Icons.collections_outlined),
+                          label: Text(l10n.ordersComposerCatalogChooseCta),
+                        ),
+                        if (_catalogDesignName.trim().isNotEmpty)
+                          TextButton(
+                            onPressed: _clearCatalogDesign,
+                            child: Text(l10n.ordersComposerCatalogClearCta),
+                          ),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     Text(

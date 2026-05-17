@@ -112,6 +112,41 @@ class MemoryCustomerRepository implements CustomerListRepository {
         phone: _opt(phone),
         address: _opt(address),
         notes: _opt(notes),
+        lastCatalogDesignName: prev.lastCatalogDesignName,
+        lastCatalogThumbnailPath: prev.lastCatalogThumbnailPath,
+        lastCatalogItemInternalId: prev.lastCatalogItemInternalId,
+        lastCatalogDesignerShopName: prev.lastCatalogDesignerShopName,
+        createdAt: prev.createdAt,
+      );
+      _emit();
+      return;
+    }
+  }
+
+  @override
+  Future<void> updateCustomerLastCatalogDesign({
+    required String internalId,
+    required String designName,
+    String? designerShopName,
+    String? catalogItemInternalId,
+    String? thumbnailPath,
+  }) async {
+    await seedIfEmpty();
+    if (_softDeletedIds.contains(internalId)) return;
+    for (var i = 0; i < _customers.length; i++) {
+      if (_customers[i].internalId != internalId) continue;
+      final prev = _customers[i];
+      _customers[i] = CustomerSummary(
+        shopId: prev.shopId,
+        internalId: internalId,
+        name: prev.name,
+        phone: prev.phone,
+        address: prev.address,
+        notes: prev.notes,
+        lastCatalogDesignName: designName.trim(),
+        lastCatalogThumbnailPath: thumbnailPath,
+        lastCatalogItemInternalId: catalogItemInternalId,
+        lastCatalogDesignerShopName: designerShopName?.trim() ?? '',
         createdAt: prev.createdAt,
       );
       _emit();
@@ -154,6 +189,35 @@ class MemoryCustomerRepository implements CustomerListRepository {
         phone: _opt(syncPullString(m, const ['phone'])),
         address: _opt(syncPullString(m, const ['address'])),
         notes: _opt(syncPullString(m, const ['notes'])),
+        lastCatalogDesignName: syncPullString(
+              m,
+              const ['last_catalog_design_name', 'lastCatalogDesignName'],
+            ) ??
+            prev.lastCatalogDesignName,
+        lastCatalogThumbnailPath: syncPullString(
+              m,
+              const [
+                'last_catalog_thumbnail_path',
+                'lastCatalogThumbnailPath',
+              ],
+            ) ??
+            prev.lastCatalogThumbnailPath,
+        lastCatalogItemInternalId: syncPullString(
+              m,
+              const [
+                'last_catalog_item_internal_id',
+                'lastCatalogItemInternalId',
+              ],
+            ) ??
+            prev.lastCatalogItemInternalId,
+        lastCatalogDesignerShopName: syncPullString(
+              m,
+              const [
+                'last_catalog_designer_shop_name',
+                'lastCatalogDesignerShopName',
+              ],
+            ) ??
+            prev.lastCatalogDesignerShopName,
         createdAt: prev.createdAt,
       );
       _emit();

@@ -45,7 +45,7 @@ android {
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
-        versionName = flutter.versionName
+        versionName = "3.5.3.2"
     }
 
     buildTypes {
@@ -62,4 +62,16 @@ android {
 
 flutter {
     source = "../.."
+}
+
+// Customer-facing APK name (not app-release.apk).
+android.applicationVariants.configureEach {
+    outputs.configureEach {
+        val output = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
+        val variantName = name
+        output.outputFileName = when {
+            variantName.contains("release", ignoreCase = true) -> "Pride.apk"
+            else -> "Pride-$variantName.apk"
+        }
+    }
 }

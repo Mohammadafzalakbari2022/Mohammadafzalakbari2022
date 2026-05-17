@@ -22,8 +22,11 @@ Future<Uint8List> buildOrderInvoicePdf({
   required String deliveryDateText,
   required String statusText,
   required pw.TextDirection textDirection,
+  bool forceHelvetica = false,
 }) async {
-  final font = await InvoicePdfFonts.regular();
+  final font = forceHelvetica
+      ? InvoicePdfFonts.helvetica()
+      : await InvoicePdfFonts.primary();
   final branding = ReceiptBranding.fromShop(
     shop: shop,
     l10n: l10n,
@@ -73,7 +76,9 @@ Future<Uint8List> buildOrderInvoicePdf({
       );
 
   final doc = pw.Document(
-    theme: pw.ThemeData.withFont(base: font, bold: font),
+    theme: forceHelvetica
+        ? pw.ThemeData.withFont(base: font, bold: font)
+        : InvoicePdfFonts.themeFor(font),
   );
 
   doc.addPage(
@@ -114,8 +119,9 @@ Future<Uint8List> buildOrderInvoicePdf({
               ),
               pw.SizedBox(height: 8),
               bodyLine('${l10n.receiptCustomerLabel}: ${order.customerName}'),
-              if (order.customerPhone?.trim().isNotEmpty ?? false)
-                bodyLine('${l10n.receiptPhoneLabel}: ${order.customerPhone!.trim()}'),
+              if (_invoicePhoneLine(order.customerPhone)
+                  case final phoneLine?)
+                bodyLine('${l10n.receiptPhoneLabel}: $phoneLine'),
               bodyLine('${l10n.receiptDeliveryLabel}: $deliveryDateText'),
               bodyLine('${l10n.receiptStatusLabel}: $statusText'),
               if (order.measurementsSnapshot.trim().isNotEmpty) ...[
@@ -125,6 +131,29 @@ Future<Uint8List> buildOrderInvoicePdf({
               if (styleText.isNotEmpty) ...[
                 sectionTitle(l10n.receiptStyleLabel),
                 bodyLine(styleText),
+              ],
+              if (order.hasCustomerFabric) ...[
+                sectionTitle(l10n.receiptFabricLabel),
+                if (order.fabricNameSnapshot.trim().isNotEmpty)
+                  bodyLine(
+                    '${l10n.receiptFabricNameLabel}: ${order.fabricNameSnapshot.trim()}',
+                  ),
+                if (order.fabricColorSnapshot.trim().isNotEmpty)
+                  bodyLine(
+                    '${l10n.receiptFabricColorLabel}: ${order.fabricColorSnapshot.trim()}',
+                  ),
+                if (order.fabricIdSnapshot.trim().isNotEmpty)
+                  bodyLine(
+                    '${l10n.receiptFabricIdLabel}: ${order.fabricIdSnapshot.trim()}',
+                  ),
+              ],
+              if (order.catalogDesignNameSnapshot.trim().isNotEmpty) ...[
+                sectionTitle(l10n.invoiceCatalogDesignLabel),
+                bodyLine(order.catalogDesignNameSnapshot.trim()),
+                if (order.catalogDesignerShopNameSnapshot.trim().isNotEmpty)
+                  bodyLine(
+                    '${l10n.invoiceCatalogDesignerLabel}: ${order.catalogDesignerShopNameSnapshot.trim()}',
+                  ),
               ],
               if (order.internalNotes.trim().isNotEmpty) ...[
                 sectionTitle(l10n.receiptInternalNotesHeader),
@@ -148,5 +177,25 @@ Future<Uint8List> buildOrderInvoicePdf({
     ),
   );
 
-  return doc.save();
+  try {
+    return await doc.save();
+  } on Object {
+    if (forceHelvetica) rethrow;
+    return buildOrderInvoicePdf(
+      l10n: l10n,
+      shop: shop,
+      order: order,
+      payments: payments,
+      deliveryDateText: deliveryDateText,
+      statusText: statusText,
+      textDirection: textDirection,
+      forceHelvetica: true,
+    );
+  }
+}
+
+String? _invoicePhoneLine(String? raw) {
+  final phone = raw?.trim();
+  if (phone == null || phone.isEmpty) return null;
+  return phone;
 }

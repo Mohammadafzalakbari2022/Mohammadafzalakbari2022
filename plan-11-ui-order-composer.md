@@ -32,7 +32,9 @@ Card summary: “Measurements captured” or required hint. **Edit** opens the *
 
 #### 3) Style (required)
 
-Card summary: style text. **Edit** opens the style sheet: if the **style catalog** has designs/parts, user picks **design name** (preset or custom) and a **figure per garment part**; optional extra notes. If the catalog is empty, a single free-text field is used (legacy). Structured selection is stored in **`styleSelectionJson`** on the order entity; a human-readable summary is mirrored in **`style_notes`** for receipts and sync.
+Card summary: style text. **Edit** opens the style sheet: if the **style catalog** has designs/parts, user picks **design name** (preset or custom) and a **figure per garment part**; optional extra notes. If the catalog is empty, a single free-text field is used (legacy). Structured selection is stored in **`styleSelectionJson`** on the order entity; a human-readable summary is mirrored in **`styleSummary`** for receipts and sync.
+
+**Optional complete design (photo catalog):** Inside the style sheet, **Choose from catalog** opens **My designs** only. Selection is optional. On save, the order stores frozen **`catalog_*_snapshot`** fields; the customer’s **`last_catalog_*`** fields update when a design was chosen. Thermal receipt prints design name only; PDF/text share may include designer shop name for traceability.
 
 #### 4) Payment (required)
 

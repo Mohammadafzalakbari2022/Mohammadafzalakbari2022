@@ -20,6 +20,15 @@ class CustomerEntity {
 
   String? notes;
 
+  /// Last catalog design chosen on a saved order (denormalized for profile).
+  String lastCatalogDesignName = '';
+
+  String? lastCatalogThumbnailPath;
+
+  String? lastCatalogItemInternalId;
+
+  String lastCatalogDesignerShopName = '';
+
   @Index()
   late DateTime createdAt;
 

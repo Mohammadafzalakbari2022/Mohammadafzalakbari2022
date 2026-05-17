@@ -30,7 +30,10 @@ import '../local/app_notification_repository.dart';
 import '../local/app_notification_summary.dart';
 import '../local/memory_app_notification_repository.dart';
 import '../local/memory_sync_outbox_repository.dart';
+import '../local/memory_fabric_preset_repository.dart';
 import '../local/memory_style_catalog_repository.dart';
+import '../local/fabric_preset_repository.dart';
+import '../local/fabric_preset_summary.dart';
 import '../local/style_catalog_repository.dart';
 import '../local/style_name_summary.dart';
 import '../local/style_part_summary.dart';
@@ -238,6 +241,25 @@ final styleAllFiguresStreamProvider =
   final repo = await ref.watch(styleCatalogRepositoryProvider.future);
   final shopId = ref.watch(effectiveShopIdProvider);
   yield* repo.watchAllFigures(shopId);
+});
+
+final fabricPresetRepositoryProvider =
+    FutureProvider<FabricPresetRepository>((ref) async {
+  return MemoryFabricPresetRepository();
+});
+
+final fabricNamesStreamProvider =
+    StreamProvider<List<FabricPresetSummary>>((ref) async* {
+  final repo = await ref.watch(fabricPresetRepositoryProvider.future);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchFabricNames(shopId);
+});
+
+final fabricColorsStreamProvider =
+    StreamProvider<List<FabricPresetSummary>>((ref) async* {
+  final repo = await ref.watch(fabricPresetRepositoryProvider.future);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchFabricColors(shopId);
 });
 
 final shopFinanceRepositoryProvider =

@@ -224,6 +224,18 @@ Future<void> printThermalOrderReceipt({
 
           : '${l10n.receiptStyleLabel}:\n${order.styleSummary.trim()}',
 
+      catalogDesignLine: order.catalogDesignNameSnapshot.trim().isEmpty
+
+          ? null
+
+          : '${l10n.receiptCatalogDesignLabel}: ${order.catalogDesignNameSnapshot.trim()}',
+
+      fabricLine: order.hasCustomerFabric
+
+          ? _thermalFabricLine(l10n, order)
+
+          : null,
+
       styleFigures: receiptFigures,
 
       internalNotesLine: order.internalNotes.trim().isEmpty
@@ -290,6 +302,23 @@ Future<void> printThermalOrderReceipt({
 
   }
 
+}
+
+String _thermalFabricLine(AppLocalizations l10n, OrderSummary order) {
+  final parts = <String>[];
+  final name = order.fabricNameSnapshot.trim();
+  final color = order.fabricColorSnapshot.trim();
+  final id = order.fabricIdSnapshot.trim();
+  if (name.isNotEmpty) {
+    parts.add('${l10n.receiptFabricNameLabel}: $name');
+  }
+  if (color.isNotEmpty) {
+    parts.add('${l10n.receiptFabricColorLabel}: $color');
+  }
+  if (id.isNotEmpty) {
+    parts.add('${l10n.receiptFabricIdLabel}: $id');
+  }
+  return '${l10n.receiptFabricLabel}:\n${parts.join('\n')}';
 }
 
 

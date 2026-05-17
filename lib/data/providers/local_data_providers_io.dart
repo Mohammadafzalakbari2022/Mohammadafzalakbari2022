@@ -16,7 +16,12 @@ import '../local/entities/catalog_item_entity.dart';
 import '../local/entities/app_notification_entity.dart';
 import '../local/entities/sync_outbox_entity.dart';
 import '../local/entities/task_entity.dart';
+import '../local/entities/fabric_color_preset_entity.dart';
+import '../local/entities/fabric_name_preset_entity.dart';
 import '../local/entities/style_name_entity.dart';
+import '../local/fabric_preset_repository.dart';
+import '../local/fabric_preset_summary.dart';
+import '../local/isar_fabric_preset_repository.dart';
 import '../local/entities/style_part_entity.dart';
 import '../local/entities/shop_expense_entity.dart';
 import '../local/entities/shop_rent_entity.dart';
@@ -83,6 +88,8 @@ final isarProvider = FutureProvider<Isar>((ref) async {
       StyleNameEntitySchema,
       StylePartEntitySchema,
       StyleFigureEntitySchema,
+      FabricNamePresetEntitySchema,
+      FabricColorPresetEntitySchema,
       ShopRentEntitySchema,
       ShopRentPaymentEntitySchema,
       ShopExpenseEntitySchema,
@@ -301,6 +308,26 @@ final styleAllFiguresStreamProvider =
   final repo = await ref.watch(styleCatalogRepositoryProvider.future);
   final shopId = ref.watch(effectiveShopIdProvider);
   yield* repo.watchAllFigures(shopId);
+});
+
+final fabricPresetRepositoryProvider =
+    FutureProvider<FabricPresetRepository>((ref) async {
+  final isar = await ref.watch(isarProvider.future);
+  return IsarFabricPresetRepository(isar);
+});
+
+final fabricNamesStreamProvider =
+    StreamProvider<List<FabricPresetSummary>>((ref) async* {
+  final repo = await ref.watch(fabricPresetRepositoryProvider.future);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchFabricNames(shopId);
+});
+
+final fabricColorsStreamProvider =
+    StreamProvider<List<FabricPresetSummary>>((ref) async* {
+  final repo = await ref.watch(fabricPresetRepositoryProvider.future);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchFabricColors(shopId);
 });
 
 final shopFinanceRepositoryProvider =

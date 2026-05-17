@@ -655,6 +655,13 @@ class AppLocalizationsFa extends AppLocalizations {
       'برچسب‌ها برای پروفایل مشتری و سفارش‌ها';
 
   @override
+  String get settingsMeasurementUnitTitle => 'واحد پیش‌فرض اندازه';
+
+  @override
+  String get settingsMeasurementUnitSubtitle =>
+      'هنگام ثبت اندازه‌های لباس در سفارش جدید';
+
+  @override
   String get tasksTitle => 'کارها';
 
   @override
@@ -1305,6 +1312,9 @@ class AppLocalizationsFa extends AppLocalizations {
   String get ordersComposerProgressStyle => 'استایل';
 
   @override
+  String get ordersComposerProgressFabric => 'پارچه';
+
+  @override
   String get ordersComposerProgressDelivery => 'تحویل';
 
   @override
@@ -1551,6 +1561,50 @@ class AppLocalizationsFa extends AppLocalizations {
   String get ordersComposerStyleTitle => 'استایل';
 
   @override
+  String get ordersComposerFabricTitle => 'پارچه مشتری';
+
+  @override
+  String get ordersComposerFabricOptional =>
+      'اختیاری — پارچه‌ای که مشتری می‌آورد';
+
+  @override
+  String ordersComposerFabricSummary(String name, String color, String id) {
+    return '$name • $color • شناسه $id';
+  }
+
+  @override
+  String ordersComposerFabricPartialSummary(String name, String color) {
+    return '$name • $color';
+  }
+
+  @override
+  String get ordersComposerFabricUnset => 'پارچه ثبت نشده';
+
+  @override
+  String get ordersComposerFabricSheetTitle => 'پارچه مشتری';
+
+  @override
+  String get ordersComposerFabricNameLabel => 'نام پارچه';
+
+  @override
+  String get ordersComposerFabricNameHint => 'انتخاب یا تایپ';
+
+  @override
+  String get ordersComposerFabricColorLabel => 'رنگ پارچه';
+
+  @override
+  String get ordersComposerFabricColorHint => 'انتخاب یا تایپ';
+
+  @override
+  String get ordersComposerFabricIdLabel => 'شناسه پارچه';
+
+  @override
+  String get ordersComposerFabricIdHint => 'با ذخیره به‌طور خودکار داده می‌شود';
+
+  @override
+  String get ordersComposerFabricClearCta => 'پاک کردن پارچه';
+
+  @override
   String get ordersComposerStyleRequired => 'استایل را اضافه کنید (الزامی)';
 
   @override
@@ -1579,6 +1633,40 @@ class AppLocalizationsFa extends AppLocalizations {
   String get ordersComposerStyleClearFigures => 'پاک کردن همه انتخاب‌ها';
 
   @override
+  String get ordersComposerCatalogDesignTitle => 'طرح کامل از کاتالوگ';
+
+  @override
+  String get ordersComposerCatalogDesignNone => 'طرح کاتالوگ انتخاب نشده';
+
+  @override
+  String get ordersComposerCatalogChooseCta => 'انتخاب از کاتالوگ';
+
+  @override
+  String get ordersComposerCatalogClearCta => 'پاک کردن طرح';
+
+  @override
+  String get ordersComposerCatalogPickerTitle => 'طرح‌های من';
+
+  @override
+  String get ordersComposerCatalogPickerEmpty =>
+      'هنوز طرحی در کاتالوگ شما نیست. در تب کاتالوگ طرح اضافه کنید.';
+
+  @override
+  String get customerLastCatalogDesignLabel => 'آخرین طرح کاتالوگ';
+
+  @override
+  String get orderDetailCatalogDesignTitle => 'طرح کامل';
+
+  @override
+  String get receiptCatalogDesignLabel => 'طرح';
+
+  @override
+  String get invoiceCatalogDesignLabel => 'طرح کاتالوگ';
+
+  @override
+  String get invoiceCatalogDesignerLabel => 'طراح';
+
+  @override
   String get settingsStyleHubTitle => 'استایل سفارش';
 
   @override
@@ -1586,6 +1674,69 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get settingsStyleTileSubtitle => 'نام‌های استایل و شکل‌های طرح';
+
+  @override
+  String get settingsFabricHubTitle => 'پارچه مشتری';
+
+  @override
+  String get settingsFabricHubSubtitle =>
+      'نام و رنگ از پیش‌تعریف برای سفارش‌ها';
+
+  @override
+  String get settingsFabricNamesTitle => 'نام پارچه‌ها';
+
+  @override
+  String get settingsFabricNamesSubtitle => 'پنبه، پشم و انواع دیگر';
+
+  @override
+  String get settingsFabricNamesEmpty => 'هنوز نامی نیست.';
+
+  @override
+  String get settingsFabricNameAddCta => 'افزودن نام پارچه';
+
+  @override
+  String get settingsFabricNameFieldLabel => 'نام';
+
+  @override
+  String get settingsFabricNameRenameTitle => 'تغییر نام';
+
+  @override
+  String get settingsFabricNameDeleteTitle => 'نام پارچه حذف شود؟';
+
+  @override
+  String get settingsFabricNameDeleteBody =>
+      'از فهرست حذف می‌شود. سفارش‌های قبلی تغییر نمی‌کنند.';
+
+  @override
+  String get settingsFabricColorsTitle => 'رنگ پارچه‌ها';
+
+  @override
+  String get settingsFabricColorsSubtitle => 'سرمه‌ای، کرم و رنگ‌های دیگر';
+
+  @override
+  String get settingsFabricColorsEmpty => 'هنوز رنگی نیست.';
+
+  @override
+  String get settingsFabricColorAddCta => 'افزودن رنگ';
+
+  @override
+  String get settingsFabricColorFieldLabel => 'رنگ';
+
+  @override
+  String get settingsFabricColorRenameTitle => 'تغییر رنگ';
+
+  @override
+  String get settingsFabricColorDeleteTitle => 'رنگ حذف شود؟';
+
+  @override
+  String get settingsFabricColorDeleteBody =>
+      'از فهرست حذف می‌شود. سفارش‌های قبلی تغییر نمی‌کنند.';
+
+  @override
+  String get settingsFabricActiveLabel => 'فعال';
+
+  @override
+  String get settingsFabricInactiveLabel => 'مخفی';
 
   @override
   String get settingsStyleNamesTitle => 'نام‌های استایل لباس';
@@ -2504,6 +2655,26 @@ class AppLocalizationsFa extends AppLocalizations {
   String get devPortalCodesRevokeCta => 'لغو';
 
   @override
+  String get devPortalCodesDetailTitle => 'کد فعال‌سازی';
+
+  @override
+  String get devPortalCodesCopyCta => 'کپی کد';
+
+  @override
+  String get devPortalCodesShareCta => 'اشتراک کد';
+
+  @override
+  String get devPortalCodesCopied => 'کد در کلیپ‌بورد کپی شد.';
+
+  @override
+  String get devPortalCodesShareSubject => 'کد فعال‌سازی افغان پراید';
+
+  @override
+  String devPortalCodesShareMessage(String code, int days) {
+    return 'افغان پراید — فعال‌سازی اشتراک\n\nکد: $code\nروزهای پولی پس از فعال‌سازی: $days\n\nدر برنامه: تنظیمات → اشتراک → این کد را وارد کنید.';
+  }
+
+  @override
   String get devPortalApiHealthPrompt =>
       'برای تازه‌سازی و فراخوانی GET /health، صفحه را به پایین بکشید.';
 
@@ -2776,6 +2947,21 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get receiptStyleLabel => 'یادداشت استایل';
+
+  @override
+  String get receiptFabricLabel => 'پارچه مشتری';
+
+  @override
+  String get receiptFabricNameLabel => 'پارچه';
+
+  @override
+  String get receiptFabricColorLabel => 'رنگ';
+
+  @override
+  String get receiptFabricIdLabel => 'شناسه پارچه';
+
+  @override
+  String get orderDetailFabricTitle => 'پارچه مشتری';
 
   @override
   String get receiptInternalNotesHeader => 'یادداشت داخلی';

@@ -6,6 +6,7 @@ import 'catalog_item_summary.dart';
 import 'catalog_repository.dart';
 import 'dev_shop_constants.dart';
 import 'entities/catalog_item_entity.dart';
+import 'catalog_bundle_seed.dart';
 import 'sync_pull_payload.dart';
 
 class IsarCatalogRepository implements CatalogRepository {
@@ -41,6 +42,7 @@ class IsarCatalogRepository implements CatalogRepository {
       });
     }
     await _ensureCommunityCatalog();
+    await seedCatalogBundleIfMissing(_isar, kDevShopId);
   }
 
   Future<void> _ensureCommunityCatalog() async {

@@ -56,6 +56,8 @@ Future<ManualSyncUiOutcome> runManualSyncFromRef(WidgetRef ref) async {
     final catalogRepo = await ref.read(catalogRepositoryProvider.future);
     final styleCatalogRepo =
         await ref.read(styleCatalogRepositoryProvider.future);
+    final fabricPresetsRepo =
+        await ref.read(fabricPresetRepositoryProvider.future);
     final shopFinanceRepo =
         await ref.read(shopFinanceRepositoryProvider.future);
     final prefs = ref.read(sharedPreferencesProvider);
@@ -74,6 +76,7 @@ Future<ManualSyncUiOutcome> runManualSyncFromRef(WidgetRef ref) async {
       measurementProfiles: measurementRepo,
       catalog: catalogRepo,
       styleCatalog: styleCatalogRepo,
+      fabricPresets: fabricPresetsRepo,
       shopFinance: shopFinanceRepo,
     );
 

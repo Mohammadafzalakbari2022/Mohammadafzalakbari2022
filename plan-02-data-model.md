@@ -54,6 +54,7 @@ Rule (selected)
 - shop_id (FK)
 - name, phone (+93 normalization), address?, notes?
 - created_at, updated_at, deleted_at?
+- `last_catalog_design_name`, `last_catalog_designer_shop_name`, `last_catalog_item_internal_id`, `last_catalog_thumbnail_path` (denormalized from last order with a catalog design)
 
 ### orders
 - internal_id
@@ -64,6 +65,7 @@ Rule (selected)
 - delivery_date
 - notes?
 - created_at, updated_at, deleted_at?
+- Optional photo-catalog complete design (frozen at create): `catalog_item_internal_id`, `catalog_design_name_snapshot`, `catalog_designer_shop_name_snapshot`, `catalog_image_path_snapshot`, `catalog_thumbnail_path_snapshot`
 
 ### measurement_types (dynamic fields)
 - internal_id

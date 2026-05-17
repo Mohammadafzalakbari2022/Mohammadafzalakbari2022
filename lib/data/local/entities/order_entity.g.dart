@@ -17,93 +17,143 @@ const OrderEntitySchema = CollectionSchema(
   name: r'OrderEntity',
   id: 4301709931984059335,
   properties: {
-    r'createdAt': PropertySchema(
+    r'catalogDesignNameSnapshot': PropertySchema(
       id: 0,
+      name: r'catalogDesignNameSnapshot',
+      type: IsarType.string,
+    ),
+    r'catalogDesignerShopNameSnapshot': PropertySchema(
+      id: 1,
+      name: r'catalogDesignerShopNameSnapshot',
+      type: IsarType.string,
+    ),
+    r'catalogImagePathSnapshot': PropertySchema(
+      id: 2,
+      name: r'catalogImagePathSnapshot',
+      type: IsarType.string,
+    ),
+    r'catalogItemInternalId': PropertySchema(
+      id: 3,
+      name: r'catalogItemInternalId',
+      type: IsarType.string,
+    ),
+    r'catalogThumbnailPathSnapshot': PropertySchema(
+      id: 4,
+      name: r'catalogThumbnailPathSnapshot',
+      type: IsarType.string,
+    ),
+    r'createdAt': PropertySchema(
+      id: 5,
       name: r'createdAt',
       type: IsarType.dateTime,
     ),
     r'customerInternalId': PropertySchema(
-      id: 1,
+      id: 6,
       name: r'customerInternalId',
       type: IsarType.string,
     ),
     r'deletedAt': PropertySchema(
-      id: 2,
+      id: 7,
       name: r'deletedAt',
       type: IsarType.dateTime,
     ),
     r'deliveryDate': PropertySchema(
-      id: 3,
+      id: 8,
       name: r'deliveryDate',
       type: IsarType.dateTime,
     ),
     r'displayOrderNo': PropertySchema(
-      id: 4,
+      id: 9,
       name: r'displayOrderNo',
       type: IsarType.string,
     ),
+    r'fabricColorPresetInternalId': PropertySchema(
+      id: 10,
+      name: r'fabricColorPresetInternalId',
+      type: IsarType.string,
+    ),
+    r'fabricColorSnapshot': PropertySchema(
+      id: 11,
+      name: r'fabricColorSnapshot',
+      type: IsarType.string,
+    ),
+    r'fabricIdSnapshot': PropertySchema(
+      id: 12,
+      name: r'fabricIdSnapshot',
+      type: IsarType.string,
+    ),
+    r'fabricNamePresetInternalId': PropertySchema(
+      id: 13,
+      name: r'fabricNamePresetInternalId',
+      type: IsarType.string,
+    ),
+    r'fabricNameSnapshot': PropertySchema(
+      id: 14,
+      name: r'fabricNameSnapshot',
+      type: IsarType.string,
+    ),
     r'internalId': PropertySchema(
-      id: 5,
+      id: 15,
       name: r'internalId',
       type: IsarType.string,
     ),
     r'internalNotes': PropertySchema(
-      id: 6,
+      id: 16,
       name: r'internalNotes',
       type: IsarType.string,
     ),
     r'measurementsSnapshot': PropertySchema(
-      id: 7,
+      id: 17,
       name: r'measurementsSnapshot',
       type: IsarType.string,
     ),
     r'shopId': PropertySchema(
-      id: 8,
+      id: 18,
       name: r'shopId',
       type: IsarType.string,
     ),
     r'sourceMeasurementProfileId': PropertySchema(
-      id: 9,
+      id: 19,
       name: r'sourceMeasurementProfileId',
       type: IsarType.string,
     ),
     r'sourceMeasurementProfileLabel': PropertySchema(
-      id: 10,
+      id: 20,
       name: r'sourceMeasurementProfileLabel',
       type: IsarType.string,
     ),
     r'statusIndex': PropertySchema(
-      id: 11,
+      id: 21,
       name: r'statusIndex',
       type: IsarType.long,
     ),
     r'styleName': PropertySchema(
-      id: 12,
+      id: 22,
       name: r'styleName',
       type: IsarType.string,
     ),
     r'styleNameInternalId': PropertySchema(
-      id: 13,
+      id: 23,
       name: r'styleNameInternalId',
       type: IsarType.string,
     ),
     r'styleSelectionJson': PropertySchema(
-      id: 14,
+      id: 24,
       name: r'styleSelectionJson',
       type: IsarType.string,
     ),
     r'styleSummary': PropertySchema(
-      id: 15,
+      id: 25,
       name: r'styleSummary',
       type: IsarType.string,
     ),
     r'totalAmountMinor': PropertySchema(
-      id: 16,
+      id: 26,
       name: r'totalAmountMinor',
       type: IsarType.long,
     ),
     r'updatedAt': PropertySchema(
-      id: 17,
+      id: 27,
       name: r'updatedAt',
       type: IsarType.dateTime,
     )
@@ -233,8 +283,43 @@ int _orderEntityEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.catalogDesignNameSnapshot.length * 3;
+  bytesCount += 3 + object.catalogDesignerShopNameSnapshot.length * 3;
+  {
+    final value = object.catalogImagePathSnapshot;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.catalogItemInternalId;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.catalogThumbnailPathSnapshot;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   bytesCount += 3 + object.customerInternalId.length * 3;
   bytesCount += 3 + object.displayOrderNo.length * 3;
+  {
+    final value = object.fabricColorPresetInternalId;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  bytesCount += 3 + object.fabricColorSnapshot.length * 3;
+  bytesCount += 3 + object.fabricIdSnapshot.length * 3;
+  {
+    final value = object.fabricNamePresetInternalId;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  bytesCount += 3 + object.fabricNameSnapshot.length * 3;
   bytesCount += 3 + object.internalId.length * 3;
   bytesCount += 3 + object.internalNotes.length * 3;
   bytesCount += 3 + object.measurementsSnapshot.length * 3;
@@ -264,24 +349,34 @@ void _orderEntitySerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeDateTime(offsets[0], object.createdAt);
-  writer.writeString(offsets[1], object.customerInternalId);
-  writer.writeDateTime(offsets[2], object.deletedAt);
-  writer.writeDateTime(offsets[3], object.deliveryDate);
-  writer.writeString(offsets[4], object.displayOrderNo);
-  writer.writeString(offsets[5], object.internalId);
-  writer.writeString(offsets[6], object.internalNotes);
-  writer.writeString(offsets[7], object.measurementsSnapshot);
-  writer.writeString(offsets[8], object.shopId);
-  writer.writeString(offsets[9], object.sourceMeasurementProfileId);
-  writer.writeString(offsets[10], object.sourceMeasurementProfileLabel);
-  writer.writeLong(offsets[11], object.statusIndex);
-  writer.writeString(offsets[12], object.styleName);
-  writer.writeString(offsets[13], object.styleNameInternalId);
-  writer.writeString(offsets[14], object.styleSelectionJson);
-  writer.writeString(offsets[15], object.styleSummary);
-  writer.writeLong(offsets[16], object.totalAmountMinor);
-  writer.writeDateTime(offsets[17], object.updatedAt);
+  writer.writeString(offsets[0], object.catalogDesignNameSnapshot);
+  writer.writeString(offsets[1], object.catalogDesignerShopNameSnapshot);
+  writer.writeString(offsets[2], object.catalogImagePathSnapshot);
+  writer.writeString(offsets[3], object.catalogItemInternalId);
+  writer.writeString(offsets[4], object.catalogThumbnailPathSnapshot);
+  writer.writeDateTime(offsets[5], object.createdAt);
+  writer.writeString(offsets[6], object.customerInternalId);
+  writer.writeDateTime(offsets[7], object.deletedAt);
+  writer.writeDateTime(offsets[8], object.deliveryDate);
+  writer.writeString(offsets[9], object.displayOrderNo);
+  writer.writeString(offsets[10], object.fabricColorPresetInternalId);
+  writer.writeString(offsets[11], object.fabricColorSnapshot);
+  writer.writeString(offsets[12], object.fabricIdSnapshot);
+  writer.writeString(offsets[13], object.fabricNamePresetInternalId);
+  writer.writeString(offsets[14], object.fabricNameSnapshot);
+  writer.writeString(offsets[15], object.internalId);
+  writer.writeString(offsets[16], object.internalNotes);
+  writer.writeString(offsets[17], object.measurementsSnapshot);
+  writer.writeString(offsets[18], object.shopId);
+  writer.writeString(offsets[19], object.sourceMeasurementProfileId);
+  writer.writeString(offsets[20], object.sourceMeasurementProfileLabel);
+  writer.writeLong(offsets[21], object.statusIndex);
+  writer.writeString(offsets[22], object.styleName);
+  writer.writeString(offsets[23], object.styleNameInternalId);
+  writer.writeString(offsets[24], object.styleSelectionJson);
+  writer.writeString(offsets[25], object.styleSummary);
+  writer.writeLong(offsets[26], object.totalAmountMinor);
+  writer.writeDateTime(offsets[27], object.updatedAt);
 }
 
 OrderEntity _orderEntityDeserialize(
@@ -291,25 +386,35 @@ OrderEntity _orderEntityDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = OrderEntity();
-  object.createdAt = reader.readDateTimeOrNull(offsets[0]);
-  object.customerInternalId = reader.readString(offsets[1]);
-  object.deletedAt = reader.readDateTimeOrNull(offsets[2]);
-  object.deliveryDate = reader.readDateTime(offsets[3]);
-  object.displayOrderNo = reader.readString(offsets[4]);
+  object.catalogDesignNameSnapshot = reader.readString(offsets[0]);
+  object.catalogDesignerShopNameSnapshot = reader.readString(offsets[1]);
+  object.catalogImagePathSnapshot = reader.readStringOrNull(offsets[2]);
+  object.catalogItemInternalId = reader.readStringOrNull(offsets[3]);
+  object.catalogThumbnailPathSnapshot = reader.readStringOrNull(offsets[4]);
+  object.createdAt = reader.readDateTimeOrNull(offsets[5]);
+  object.customerInternalId = reader.readString(offsets[6]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[7]);
+  object.deliveryDate = reader.readDateTime(offsets[8]);
+  object.displayOrderNo = reader.readString(offsets[9]);
+  object.fabricColorPresetInternalId = reader.readStringOrNull(offsets[10]);
+  object.fabricColorSnapshot = reader.readString(offsets[11]);
+  object.fabricIdSnapshot = reader.readString(offsets[12]);
+  object.fabricNamePresetInternalId = reader.readStringOrNull(offsets[13]);
+  object.fabricNameSnapshot = reader.readString(offsets[14]);
   object.id = id;
-  object.internalId = reader.readString(offsets[5]);
-  object.internalNotes = reader.readString(offsets[6]);
-  object.measurementsSnapshot = reader.readString(offsets[7]);
-  object.shopId = reader.readString(offsets[8]);
-  object.sourceMeasurementProfileId = reader.readStringOrNull(offsets[9]);
-  object.sourceMeasurementProfileLabel = reader.readString(offsets[10]);
-  object.statusIndex = reader.readLong(offsets[11]);
-  object.styleName = reader.readString(offsets[12]);
-  object.styleNameInternalId = reader.readStringOrNull(offsets[13]);
-  object.styleSelectionJson = reader.readString(offsets[14]);
-  object.styleSummary = reader.readString(offsets[15]);
-  object.totalAmountMinor = reader.readLong(offsets[16]);
-  object.updatedAt = reader.readDateTime(offsets[17]);
+  object.internalId = reader.readString(offsets[15]);
+  object.internalNotes = reader.readString(offsets[16]);
+  object.measurementsSnapshot = reader.readString(offsets[17]);
+  object.shopId = reader.readString(offsets[18]);
+  object.sourceMeasurementProfileId = reader.readStringOrNull(offsets[19]);
+  object.sourceMeasurementProfileLabel = reader.readString(offsets[20]);
+  object.statusIndex = reader.readLong(offsets[21]);
+  object.styleName = reader.readString(offsets[22]);
+  object.styleNameInternalId = reader.readStringOrNull(offsets[23]);
+  object.styleSelectionJson = reader.readString(offsets[24]);
+  object.styleSummary = reader.readString(offsets[25]);
+  object.totalAmountMinor = reader.readLong(offsets[26]);
+  object.updatedAt = reader.readDateTime(offsets[27]);
   return object;
 }
 
@@ -321,29 +426,29 @@ P _orderEntityDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 1:
       return (reader.readString(offset)) as P;
     case 2:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 3:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 4:
-      return (reader.readString(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 5:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 6:
       return (reader.readString(offset)) as P;
     case 7:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 8:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTime(offset)) as P;
     case 9:
-      return (reader.readStringOrNull(offset)) as P;
-    case 10:
       return (reader.readString(offset)) as P;
+    case 10:
+      return (reader.readStringOrNull(offset)) as P;
     case 11:
-      return (reader.readLong(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 12:
       return (reader.readString(offset)) as P;
     case 13:
@@ -353,8 +458,28 @@ P _orderEntityDeserializeProp<P>(
     case 15:
       return (reader.readString(offset)) as P;
     case 16:
-      return (reader.readLong(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 17:
+      return (reader.readString(offset)) as P;
+    case 18:
+      return (reader.readString(offset)) as P;
+    case 19:
+      return (reader.readStringOrNull(offset)) as P;
+    case 20:
+      return (reader.readString(offset)) as P;
+    case 21:
+      return (reader.readLong(offset)) as P;
+    case 22:
+      return (reader.readString(offset)) as P;
+    case 23:
+      return (reader.readStringOrNull(offset)) as P;
+    case 24:
+      return (reader.readString(offset)) as P;
+    case 25:
+      return (reader.readString(offset)) as P;
+    case 26:
+      return (reader.readLong(offset)) as P;
+    case 27:
       return (reader.readDateTime(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1089,6 +1214,749 @@ extension OrderEntityQueryWhere
 extension OrderEntityQueryFilter
     on QueryBuilder<OrderEntity, OrderEntity, QFilterCondition> {
   QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogDesignNameSnapshotEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'catalogDesignNameSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogDesignNameSnapshotGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'catalogDesignNameSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogDesignNameSnapshotLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'catalogDesignNameSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogDesignNameSnapshotBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'catalogDesignNameSnapshot',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogDesignNameSnapshotStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'catalogDesignNameSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogDesignNameSnapshotEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'catalogDesignNameSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogDesignNameSnapshotContains(String value,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'catalogDesignNameSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogDesignNameSnapshotMatches(String pattern,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'catalogDesignNameSnapshot',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogDesignNameSnapshotIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'catalogDesignNameSnapshot',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogDesignNameSnapshotIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'catalogDesignNameSnapshot',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogDesignerShopNameSnapshotEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'catalogDesignerShopNameSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogDesignerShopNameSnapshotGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'catalogDesignerShopNameSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogDesignerShopNameSnapshotLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'catalogDesignerShopNameSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogDesignerShopNameSnapshotBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'catalogDesignerShopNameSnapshot',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogDesignerShopNameSnapshotStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'catalogDesignerShopNameSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogDesignerShopNameSnapshotEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'catalogDesignerShopNameSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogDesignerShopNameSnapshotContains(String value,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'catalogDesignerShopNameSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogDesignerShopNameSnapshotMatches(String pattern,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'catalogDesignerShopNameSnapshot',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogDesignerShopNameSnapshotIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'catalogDesignerShopNameSnapshot',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogDesignerShopNameSnapshotIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'catalogDesignerShopNameSnapshot',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogImagePathSnapshotIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'catalogImagePathSnapshot',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogImagePathSnapshotIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'catalogImagePathSnapshot',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogImagePathSnapshotEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'catalogImagePathSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogImagePathSnapshotGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'catalogImagePathSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogImagePathSnapshotLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'catalogImagePathSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogImagePathSnapshotBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'catalogImagePathSnapshot',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogImagePathSnapshotStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'catalogImagePathSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogImagePathSnapshotEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'catalogImagePathSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogImagePathSnapshotContains(String value,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'catalogImagePathSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogImagePathSnapshotMatches(String pattern,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'catalogImagePathSnapshot',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogImagePathSnapshotIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'catalogImagePathSnapshot',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogImagePathSnapshotIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'catalogImagePathSnapshot',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogItemInternalIdIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'catalogItemInternalId',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogItemInternalIdIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'catalogItemInternalId',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogItemInternalIdEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'catalogItemInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogItemInternalIdGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'catalogItemInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogItemInternalIdLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'catalogItemInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogItemInternalIdBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'catalogItemInternalId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogItemInternalIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'catalogItemInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogItemInternalIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'catalogItemInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogItemInternalIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'catalogItemInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogItemInternalIdMatches(String pattern,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'catalogItemInternalId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogItemInternalIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'catalogItemInternalId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogItemInternalIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'catalogItemInternalId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogThumbnailPathSnapshotIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'catalogThumbnailPathSnapshot',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogThumbnailPathSnapshotIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'catalogThumbnailPathSnapshot',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogThumbnailPathSnapshotEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'catalogThumbnailPathSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogThumbnailPathSnapshotGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'catalogThumbnailPathSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogThumbnailPathSnapshotLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'catalogThumbnailPathSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogThumbnailPathSnapshotBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'catalogThumbnailPathSnapshot',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogThumbnailPathSnapshotStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'catalogThumbnailPathSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogThumbnailPathSnapshotEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'catalogThumbnailPathSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogThumbnailPathSnapshotContains(String value,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'catalogThumbnailPathSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogThumbnailPathSnapshotMatches(String pattern,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'catalogThumbnailPathSnapshot',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogThumbnailPathSnapshotIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'catalogThumbnailPathSnapshot',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      catalogThumbnailPathSnapshotIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'catalogThumbnailPathSnapshot',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
       createdAtIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -1559,6 +2427,726 @@ extension OrderEntityQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'displayOrderNo',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricColorPresetInternalIdIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'fabricColorPresetInternalId',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricColorPresetInternalIdIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'fabricColorPresetInternalId',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricColorPresetInternalIdEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'fabricColorPresetInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricColorPresetInternalIdGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'fabricColorPresetInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricColorPresetInternalIdLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'fabricColorPresetInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricColorPresetInternalIdBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'fabricColorPresetInternalId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricColorPresetInternalIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'fabricColorPresetInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricColorPresetInternalIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'fabricColorPresetInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricColorPresetInternalIdContains(String value,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'fabricColorPresetInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricColorPresetInternalIdMatches(String pattern,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'fabricColorPresetInternalId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricColorPresetInternalIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'fabricColorPresetInternalId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricColorPresetInternalIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'fabricColorPresetInternalId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricColorSnapshotEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'fabricColorSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricColorSnapshotGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'fabricColorSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricColorSnapshotLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'fabricColorSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricColorSnapshotBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'fabricColorSnapshot',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricColorSnapshotStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'fabricColorSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricColorSnapshotEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'fabricColorSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricColorSnapshotContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'fabricColorSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricColorSnapshotMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'fabricColorSnapshot',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricColorSnapshotIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'fabricColorSnapshot',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricColorSnapshotIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'fabricColorSnapshot',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricIdSnapshotEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'fabricIdSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricIdSnapshotGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'fabricIdSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricIdSnapshotLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'fabricIdSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricIdSnapshotBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'fabricIdSnapshot',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricIdSnapshotStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'fabricIdSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricIdSnapshotEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'fabricIdSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricIdSnapshotContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'fabricIdSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricIdSnapshotMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'fabricIdSnapshot',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricIdSnapshotIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'fabricIdSnapshot',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricIdSnapshotIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'fabricIdSnapshot',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricNamePresetInternalIdIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'fabricNamePresetInternalId',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricNamePresetInternalIdIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'fabricNamePresetInternalId',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricNamePresetInternalIdEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'fabricNamePresetInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricNamePresetInternalIdGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'fabricNamePresetInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricNamePresetInternalIdLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'fabricNamePresetInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricNamePresetInternalIdBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'fabricNamePresetInternalId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricNamePresetInternalIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'fabricNamePresetInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricNamePresetInternalIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'fabricNamePresetInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricNamePresetInternalIdContains(String value,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'fabricNamePresetInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricNamePresetInternalIdMatches(String pattern,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'fabricNamePresetInternalId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricNamePresetInternalIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'fabricNamePresetInternalId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricNamePresetInternalIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'fabricNamePresetInternalId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricNameSnapshotEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'fabricNameSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricNameSnapshotGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'fabricNameSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricNameSnapshotLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'fabricNameSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricNameSnapshotBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'fabricNameSnapshot',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricNameSnapshotStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'fabricNameSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricNameSnapshotEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'fabricNameSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricNameSnapshotContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'fabricNameSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricNameSnapshotMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'fabricNameSnapshot',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricNameSnapshotIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'fabricNameSnapshot',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      fabricNameSnapshotIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'fabricNameSnapshot',
         value: '',
       ));
     });
@@ -3192,6 +4780,76 @@ extension OrderEntityQueryLinks
 
 extension OrderEntityQuerySortBy
     on QueryBuilder<OrderEntity, OrderEntity, QSortBy> {
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      sortByCatalogDesignNameSnapshot() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'catalogDesignNameSnapshot', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      sortByCatalogDesignNameSnapshotDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'catalogDesignNameSnapshot', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      sortByCatalogDesignerShopNameSnapshot() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'catalogDesignerShopNameSnapshot', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      sortByCatalogDesignerShopNameSnapshotDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'catalogDesignerShopNameSnapshot', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      sortByCatalogImagePathSnapshot() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'catalogImagePathSnapshot', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      sortByCatalogImagePathSnapshotDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'catalogImagePathSnapshot', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      sortByCatalogItemInternalId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'catalogItemInternalId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      sortByCatalogItemInternalIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'catalogItemInternalId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      sortByCatalogThumbnailPathSnapshot() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'catalogThumbnailPathSnapshot', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      sortByCatalogThumbnailPathSnapshotDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'catalogThumbnailPathSnapshot', Sort.desc);
+    });
+  }
+
   QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> sortByCreatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdAt', Sort.asc);
@@ -3253,6 +4911,76 @@ extension OrderEntityQuerySortBy
       sortByDisplayOrderNoDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'displayOrderNo', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      sortByFabricColorPresetInternalId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fabricColorPresetInternalId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      sortByFabricColorPresetInternalIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fabricColorPresetInternalId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      sortByFabricColorSnapshot() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fabricColorSnapshot', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      sortByFabricColorSnapshotDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fabricColorSnapshot', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      sortByFabricIdSnapshot() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fabricIdSnapshot', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      sortByFabricIdSnapshotDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fabricIdSnapshot', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      sortByFabricNamePresetInternalId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fabricNamePresetInternalId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      sortByFabricNamePresetInternalIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fabricNamePresetInternalId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      sortByFabricNameSnapshot() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fabricNameSnapshot', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      sortByFabricNameSnapshotDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fabricNameSnapshot', Sort.desc);
     });
   }
 
@@ -3429,6 +5157,76 @@ extension OrderEntityQuerySortBy
 
 extension OrderEntityQuerySortThenBy
     on QueryBuilder<OrderEntity, OrderEntity, QSortThenBy> {
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      thenByCatalogDesignNameSnapshot() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'catalogDesignNameSnapshot', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      thenByCatalogDesignNameSnapshotDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'catalogDesignNameSnapshot', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      thenByCatalogDesignerShopNameSnapshot() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'catalogDesignerShopNameSnapshot', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      thenByCatalogDesignerShopNameSnapshotDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'catalogDesignerShopNameSnapshot', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      thenByCatalogImagePathSnapshot() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'catalogImagePathSnapshot', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      thenByCatalogImagePathSnapshotDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'catalogImagePathSnapshot', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      thenByCatalogItemInternalId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'catalogItemInternalId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      thenByCatalogItemInternalIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'catalogItemInternalId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      thenByCatalogThumbnailPathSnapshot() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'catalogThumbnailPathSnapshot', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      thenByCatalogThumbnailPathSnapshotDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'catalogThumbnailPathSnapshot', Sort.desc);
+    });
+  }
+
   QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy> thenByCreatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdAt', Sort.asc);
@@ -3490,6 +5288,76 @@ extension OrderEntityQuerySortThenBy
       thenByDisplayOrderNoDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'displayOrderNo', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      thenByFabricColorPresetInternalId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fabricColorPresetInternalId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      thenByFabricColorPresetInternalIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fabricColorPresetInternalId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      thenByFabricColorSnapshot() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fabricColorSnapshot', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      thenByFabricColorSnapshotDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fabricColorSnapshot', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      thenByFabricIdSnapshot() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fabricIdSnapshot', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      thenByFabricIdSnapshotDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fabricIdSnapshot', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      thenByFabricNamePresetInternalId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fabricNamePresetInternalId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      thenByFabricNamePresetInternalIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fabricNamePresetInternalId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      thenByFabricNameSnapshot() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fabricNameSnapshot', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      thenByFabricNameSnapshotDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fabricNameSnapshot', Sort.desc);
     });
   }
 
@@ -3678,6 +5546,46 @@ extension OrderEntityQuerySortThenBy
 
 extension OrderEntityQueryWhereDistinct
     on QueryBuilder<OrderEntity, OrderEntity, QDistinct> {
+  QueryBuilder<OrderEntity, OrderEntity, QDistinct>
+      distinctByCatalogDesignNameSnapshot({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'catalogDesignNameSnapshot',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QDistinct>
+      distinctByCatalogDesignerShopNameSnapshot({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'catalogDesignerShopNameSnapshot',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QDistinct>
+      distinctByCatalogImagePathSnapshot({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'catalogImagePathSnapshot',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QDistinct>
+      distinctByCatalogItemInternalId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'catalogItemInternalId',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QDistinct>
+      distinctByCatalogThumbnailPathSnapshot({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'catalogThumbnailPathSnapshot',
+          caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<OrderEntity, OrderEntity, QDistinct> distinctByCreatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'createdAt');
@@ -3708,6 +5616,46 @@ extension OrderEntityQueryWhereDistinct
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'displayOrderNo',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QDistinct>
+      distinctByFabricColorPresetInternalId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'fabricColorPresetInternalId',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QDistinct>
+      distinctByFabricColorSnapshot({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'fabricColorSnapshot',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QDistinct> distinctByFabricIdSnapshot(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'fabricIdSnapshot',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QDistinct>
+      distinctByFabricNamePresetInternalId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'fabricNamePresetInternalId',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QDistinct>
+      distinctByFabricNameSnapshot({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'fabricNameSnapshot',
           caseSensitive: caseSensitive);
     });
   }
@@ -3816,6 +5764,41 @@ extension OrderEntityQueryProperty
     });
   }
 
+  QueryBuilder<OrderEntity, String, QQueryOperations>
+      catalogDesignNameSnapshotProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'catalogDesignNameSnapshot');
+    });
+  }
+
+  QueryBuilder<OrderEntity, String, QQueryOperations>
+      catalogDesignerShopNameSnapshotProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'catalogDesignerShopNameSnapshot');
+    });
+  }
+
+  QueryBuilder<OrderEntity, String?, QQueryOperations>
+      catalogImagePathSnapshotProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'catalogImagePathSnapshot');
+    });
+  }
+
+  QueryBuilder<OrderEntity, String?, QQueryOperations>
+      catalogItemInternalIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'catalogItemInternalId');
+    });
+  }
+
+  QueryBuilder<OrderEntity, String?, QQueryOperations>
+      catalogThumbnailPathSnapshotProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'catalogThumbnailPathSnapshot');
+    });
+  }
+
   QueryBuilder<OrderEntity, DateTime?, QQueryOperations> createdAtProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'createdAt');
@@ -3844,6 +5827,41 @@ extension OrderEntityQueryProperty
   QueryBuilder<OrderEntity, String, QQueryOperations> displayOrderNoProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'displayOrderNo');
+    });
+  }
+
+  QueryBuilder<OrderEntity, String?, QQueryOperations>
+      fabricColorPresetInternalIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'fabricColorPresetInternalId');
+    });
+  }
+
+  QueryBuilder<OrderEntity, String, QQueryOperations>
+      fabricColorSnapshotProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'fabricColorSnapshot');
+    });
+  }
+
+  QueryBuilder<OrderEntity, String, QQueryOperations>
+      fabricIdSnapshotProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'fabricIdSnapshot');
+    });
+  }
+
+  QueryBuilder<OrderEntity, String?, QQueryOperations>
+      fabricNamePresetInternalIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'fabricNamePresetInternalId');
+    });
+  }
+
+  QueryBuilder<OrderEntity, String, QQueryOperations>
+      fabricNameSnapshotProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'fabricNameSnapshot');
     });
   }
 

@@ -17,11 +17,13 @@ Future<int?> showOrderPaymentAmountSheet(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
+    useSafeArea: true,
     builder: (ctx) {
-      return Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(ctx).viewInsets.bottom,
-        ),
+      final keyboard = MediaQuery.viewInsetsOf(ctx).bottom;
+      return AnimatedPadding(
+        duration: const Duration(milliseconds: 100),
+        curve: Curves.easeOut,
+        padding: EdgeInsets.only(bottom: keyboard),
         child: _OrderPaymentAmountBody(
           l10n: l10n,
           title: title,

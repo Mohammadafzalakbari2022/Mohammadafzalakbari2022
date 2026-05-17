@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
-/// Step progress for the new-order composer (customer → measurements → style → date → payment).
+/// Step progress for the new-order composer.
 class OrderComposerProgressHeader extends StatelessWidget {
   const OrderComposerProgressHeader({
     super.key,
@@ -9,6 +9,7 @@ class OrderComposerProgressHeader extends StatelessWidget {
     required this.customerDone,
     required this.measurementsDone,
     required this.styleDone,
+    required this.fabricDone,
     required this.deliveryDone,
     required this.paymentDone,
   });
@@ -17,6 +18,7 @@ class OrderComposerProgressHeader extends StatelessWidget {
   final bool customerDone;
   final bool measurementsDone;
   final bool styleDone;
+  final bool fabricDone;
   final bool deliveryDone;
   final bool paymentDone;
 
@@ -24,6 +26,7 @@ class OrderComposerProgressHeader extends StatelessWidget {
         customerDone,
         measurementsDone,
         styleDone,
+        fabricDone,
         deliveryDone,
         paymentDone,
       ].where((d) => d).length;
@@ -36,6 +39,7 @@ class OrderComposerProgressHeader extends StatelessWidget {
       _Step(customerDone, l10n.ordersComposerProgressCustomer),
       _Step(measurementsDone, l10n.ordersComposerProgressMeasurements),
       _Step(styleDone, l10n.ordersComposerProgressStyle),
+      _Step(fabricDone, l10n.ordersComposerProgressFabric),
       _Step(deliveryDone, l10n.ordersComposerProgressDelivery),
       _Step(paymentDone, l10n.ordersComposerProgressPayment),
     ];

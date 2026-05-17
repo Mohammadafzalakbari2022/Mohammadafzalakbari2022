@@ -25,6 +25,7 @@ Future<void> main() async {
     final initialLocale = localeFromPrefs(prefs);
     final initialUiSounds = uiSoundsFromPrefs(prefs);
     final initialUiHaptics = uiHapticsFromPrefs(prefs);
+    final initialMeasurementUnit = measurementUnitFromPrefs(prefs);
     final initialNotificationsMuted = prefs.getBool('pride_notifications_muted') ?? false;
     NotificationSoundBridge.configure(
       soundsEnabled: initialUiSounds,
@@ -60,6 +61,9 @@ Future<void> main() async {
           localeOverrideProvider.overrideWith((ref) => initialLocale),
           uiSoundsEnabledProvider.overrideWith((ref) => initialUiSounds),
           uiHapticsEnabledProvider.overrideWith((ref) => initialUiHaptics),
+          defaultMeasurementUnitProvider.overrideWith(
+            (ref) => initialMeasurementUnit,
+          ),
           lastSuccessfulSyncAtProvider.overrideWith((_) => initialLastSync),
         ],
         child: const AfghanPrideApp(),

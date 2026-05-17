@@ -5,18 +5,33 @@ import 'package:pdf/widgets.dart' as pw;
 class InvoicePdfFonts {
   InvoicePdfFonts._();
 
-  static pw.Font? _regular;
+  static pw.Font? _arabic;
+  static pw.Font? _helvetica;
 
-  static Future<pw.Font> regular() async {
-    if (_regular != null) return _regular!;
+  static pw.Font helvetica() => _helvetica ??= pw.Font.helvetica();
+
+  /// Primary invoice font (Noto Naskh Arabic) with Helvetica for Latin digits/labels.
+  static Future<pw.Font> primary() async {
+    if (_arabic != null) return _arabic!;
     try {
       final data = await rootBundle.load(
         'assets/fonts/NotoNaskhArabic-Regular.ttf',
       );
-      _regular = pw.Font.ttf(data);
-      return _regular!;
+      _arabic = pw.Font.ttf(data);
+      return _arabic!;
     } on Object {
-      return pw.Font.helvetica();
+      return helvetica();
     }
   }
+
+  static pw.ThemeData themeFor(pw.Font primary) {
+    final latin = helvetica();
+    final fallback = primary == latin ? const <pw.Font>[] : [latin];
+    return pw.ThemeData.withFont(
+      base: primary,
+      bold: primary,
+      fontFallback: fallback,
+    );
+  }
+
 }

@@ -39,11 +39,16 @@ class PrideFormBottomBar extends StatelessWidget {
   }
 }
 
-/// List / scroll body padding that grows when the software keyboard is open.
+/// List / scroll body padding above a [PrideFormBottomBar] or similar footer.
+///
+/// Do not add keyboard insets here when the footer already uses
+/// [KeyboardSafeBottomBar] — double-reserving space rebuilds the scroll view and
+/// can dismiss the keyboard after the first keystroke.
 EdgeInsets prideFormScrollPadding(
   BuildContext context, {
   double baseBottom = 96,
+  bool reserveKeyboardInset = false,
 }) {
-  final kb = MediaQuery.viewInsetsOf(context).bottom;
+  final kb = reserveKeyboardInset ? MediaQuery.viewInsetsOf(context).bottom : 0.0;
   return EdgeInsets.fromLTRB(16, 16, 16, baseBottom + kb);
 }

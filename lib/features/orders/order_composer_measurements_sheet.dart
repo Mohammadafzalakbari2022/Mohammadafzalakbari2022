@@ -6,9 +6,9 @@ import '../../data/local/measurement_profile_formatting.dart';
 import '../../data/local/measurement_profile_line.dart';
 import '../../data/local/measurement_profile_summary.dart';
 import '../../data/local/measurement_type_summary.dart';
-import '../../data/local/measurement_unit_codes.dart';
 import '../../data/local/order_measurement_snapshot_item_input.dart';
 import '../../data/providers/local_data_providers.dart';
+import '../settings/settings_providers.dart';
 
 /// Result of the full measurements editor (order hub).
 class OrderMeasurementsEditorResult {
@@ -164,7 +164,7 @@ class _OrderMeasurementsEditorBodyState
       final v = raw.trim();
       if (v.isEmpty) continue;
       order += 10;
-      final uc = MeasurementUnitCodes.cm;
+      final uc = ref.read(defaultMeasurementUnitProvider);
       items.add(
         OrderMeasurementSnapshotItemInput(
           measurementTypeInternalId: t.internalId,

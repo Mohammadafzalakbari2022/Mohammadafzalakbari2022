@@ -655,6 +655,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Labels for customer profiles and orders';
 
   @override
+  String get settingsMeasurementUnitTitle => 'Default measurement unit';
+
+  @override
+  String get settingsMeasurementUnitSubtitle =>
+      'Used when entering cloth measurements on new orders';
+
+  @override
   String get tasksTitle => 'Tasks';
 
   @override
@@ -1308,6 +1315,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ordersComposerProgressStyle => 'Style';
 
   @override
+  String get ordersComposerProgressFabric => 'Fabric';
+
+  @override
   String get ordersComposerProgressDelivery => 'Delivery';
 
   @override
@@ -1555,6 +1565,51 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ordersComposerStyleTitle => 'Style';
 
   @override
+  String get ordersComposerFabricTitle => 'Customer fabric';
+
+  @override
+  String get ordersComposerFabricOptional =>
+      'Optional — cloth the customer brings';
+
+  @override
+  String ordersComposerFabricSummary(String name, String color, String id) {
+    return '$name • $color • ID $id';
+  }
+
+  @override
+  String ordersComposerFabricPartialSummary(String name, String color) {
+    return '$name • $color';
+  }
+
+  @override
+  String get ordersComposerFabricUnset => 'No fabric recorded';
+
+  @override
+  String get ordersComposerFabricSheetTitle => 'Customer fabric';
+
+  @override
+  String get ordersComposerFabricNameLabel => 'Fabric name';
+
+  @override
+  String get ordersComposerFabricNameHint => 'Select or type';
+
+  @override
+  String get ordersComposerFabricColorLabel => 'Fabric color';
+
+  @override
+  String get ordersComposerFabricColorHint => 'Select or type';
+
+  @override
+  String get ordersComposerFabricIdLabel => 'Fabric ID';
+
+  @override
+  String get ordersComposerFabricIdHint =>
+      'Assigned automatically when you save';
+
+  @override
+  String get ordersComposerFabricClearCta => 'Clear fabric';
+
+  @override
   String get ordersComposerStyleRequired => 'Add style (required)';
 
   @override
@@ -1583,6 +1638,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ordersComposerStyleClearFigures => 'Clear all selections';
 
   @override
+  String get ordersComposerCatalogDesignTitle => 'Complete design from catalog';
+
+  @override
+  String get ordersComposerCatalogDesignNone => 'No catalog design selected';
+
+  @override
+  String get ordersComposerCatalogChooseCta => 'Choose from catalog';
+
+  @override
+  String get ordersComposerCatalogClearCta => 'Clear design';
+
+  @override
+  String get ordersComposerCatalogPickerTitle => 'My designs';
+
+  @override
+  String get ordersComposerCatalogPickerEmpty =>
+      'No designs in your catalog yet. Add designs in the Catalog tab.';
+
+  @override
+  String get customerLastCatalogDesignLabel => 'Last catalog design';
+
+  @override
+  String get orderDetailCatalogDesignTitle => 'Complete design';
+
+  @override
+  String get receiptCatalogDesignLabel => 'Design';
+
+  @override
+  String get invoiceCatalogDesignLabel => 'Catalog design';
+
+  @override
+  String get invoiceCatalogDesignerLabel => 'Designer';
+
+  @override
   String get settingsStyleHubTitle => 'Order style';
 
   @override
@@ -1590,6 +1679,69 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsStyleTileSubtitle => 'Style names and design figures';
+
+  @override
+  String get settingsFabricHubTitle => 'Customer fabric';
+
+  @override
+  String get settingsFabricHubSubtitle => 'Preset names and colors for orders';
+
+  @override
+  String get settingsFabricNamesTitle => 'Fabric names';
+
+  @override
+  String get settingsFabricNamesSubtitle =>
+      'Cotton, wool, and other cloth types';
+
+  @override
+  String get settingsFabricNamesEmpty => 'No fabric names yet.';
+
+  @override
+  String get settingsFabricNameAddCta => 'Add fabric name';
+
+  @override
+  String get settingsFabricNameFieldLabel => 'Name';
+
+  @override
+  String get settingsFabricNameRenameTitle => 'Rename fabric';
+
+  @override
+  String get settingsFabricNameDeleteTitle => 'Delete fabric name?';
+
+  @override
+  String get settingsFabricNameDeleteBody =>
+      'This removes the name from the list. Existing orders are not changed.';
+
+  @override
+  String get settingsFabricColorsTitle => 'Fabric colors';
+
+  @override
+  String get settingsFabricColorsSubtitle => 'Navy, cream, and other colors';
+
+  @override
+  String get settingsFabricColorsEmpty => 'No fabric colors yet.';
+
+  @override
+  String get settingsFabricColorAddCta => 'Add fabric color';
+
+  @override
+  String get settingsFabricColorFieldLabel => 'Color';
+
+  @override
+  String get settingsFabricColorRenameTitle => 'Rename color';
+
+  @override
+  String get settingsFabricColorDeleteTitle => 'Delete fabric color?';
+
+  @override
+  String get settingsFabricColorDeleteBody =>
+      'This removes the color from the list. Existing orders are not changed.';
+
+  @override
+  String get settingsFabricActiveLabel => 'In use';
+
+  @override
+  String get settingsFabricInactiveLabel => 'Hidden';
 
   @override
   String get settingsStyleNamesTitle => 'Cloth style names';
@@ -2517,6 +2669,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get devPortalCodesRevokeCta => 'Revoke';
 
   @override
+  String get devPortalCodesDetailTitle => 'Activation code';
+
+  @override
+  String get devPortalCodesCopyCta => 'Copy code';
+
+  @override
+  String get devPortalCodesShareCta => 'Share code';
+
+  @override
+  String get devPortalCodesCopied => 'Code copied to clipboard.';
+
+  @override
+  String get devPortalCodesShareSubject => 'Afghan Pride activation code';
+
+  @override
+  String devPortalCodesShareMessage(String code, int days) {
+    return 'Afghan Pride — subscription activation\n\nCode: $code\nPaid days when redeemed: $days\n\nIn the shop app: Settings → Subscription → enter this code.\nSingle-use unless noted otherwise.';
+  }
+
+  @override
   String get devPortalApiHealthPrompt =>
       'Pull down to refresh and call GET /health.';
 
@@ -2790,6 +2962,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get receiptStyleLabel => 'Style notes';
+
+  @override
+  String get receiptFabricLabel => 'Customer fabric';
+
+  @override
+  String get receiptFabricNameLabel => 'Fabric';
+
+  @override
+  String get receiptFabricColorLabel => 'Color';
+
+  @override
+  String get receiptFabricIdLabel => 'Fabric ID';
+
+  @override
+  String get orderDetailFabricTitle => 'Customer fabric';
 
   @override
   String get receiptInternalNotesHeader => 'Internal notes';

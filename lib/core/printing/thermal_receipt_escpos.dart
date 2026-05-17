@@ -114,6 +114,10 @@ class OrderReceiptEscPosContent {
 
     this.styleLine,
 
+    this.catalogDesignLine,
+
+    this.fabricLine,
+
     this.styleFigures = const [],
 
     this.internalNotesLine,
@@ -157,6 +161,10 @@ class OrderReceiptEscPosContent {
   final String? measurementsLine;
 
   final String? styleLine;
+
+  final String? catalogDesignLine;
+
+  final String? fabricLine;
 
   final List<ReceiptStyleFigure> styleFigures;
 
@@ -393,8 +401,35 @@ Future<List<int>> buildThermalOrderReceipt({
 
   }
 
+  final fabric = c.fabricLine?.trim();
+
+  if (fabric != null && fabric.isNotEmpty) {
+
+    bytes.addAll(gen.hr());
+
+    bytes.addAll(gen.text(receiptLatin1Safe(fabric)));
+
+  }
+
+  final catalogDesign = c.catalogDesignLine?.trim();
+
+  if (catalogDesign != null && catalogDesign.isNotEmpty) {
+
+    if ((style == null || style.isEmpty) &&
+        (fabric == null || fabric.isEmpty)) {
+
+      bytes.addAll(gen.hr());
+
+    }
+
+    bytes.addAll(gen.text(receiptLatin1Safe(catalogDesign)));
+
+  }
+
   if (c.styleFigures.isNotEmpty) {
-    if (style == null || style.isEmpty) {
+    if ((style == null || style.isEmpty) &&
+        (fabric == null || fabric.isEmpty) &&
+        (catalogDesign == null || catalogDesign.isEmpty)) {
       bytes.addAll(gen.hr());
     }
     _appendStyleFigures(gen, bytes, c.styleFigures);

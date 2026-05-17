@@ -121,6 +121,18 @@ class OrderListTile extends StatelessWidget {
                             ),
                           ],
                         ),
+                        if (order.catalogDesignNameSnapshot.trim().isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            order.catalogDesignNameSnapshot.trim(),
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: scheme.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                         const SizedBox(height: 4),
                         Row(
                           children: [

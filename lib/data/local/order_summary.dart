@@ -17,6 +17,16 @@ class OrderSummary {
     this.styleNameInternalId,
     this.styleSelectionJson = '',
     this.styleSummary = '',
+    this.catalogItemInternalId,
+    this.catalogDesignNameSnapshot = '',
+    this.catalogDesignerShopNameSnapshot = '',
+    this.catalogImagePathSnapshot,
+    this.catalogThumbnailPathSnapshot,
+    this.fabricNameSnapshot = '',
+    this.fabricColorSnapshot = '',
+    this.fabricIdSnapshot = '',
+    this.fabricNamePresetInternalId,
+    this.fabricColorPresetInternalId,
     required this.status,
     required this.deliveryDate,
     required this.createdAt,
@@ -39,7 +49,22 @@ class OrderSummary {
   final String? styleNameInternalId;
   final String styleSelectionJson;
   final String styleSummary;
+  final String? catalogItemInternalId;
+  final String catalogDesignNameSnapshot;
+  final String catalogDesignerShopNameSnapshot;
+  final String? catalogImagePathSnapshot;
+  final String? catalogThumbnailPathSnapshot;
+  final String fabricNameSnapshot;
+  final String fabricColorSnapshot;
+  final String fabricIdSnapshot;
+  final String? fabricNamePresetInternalId;
+  final String? fabricColorPresetInternalId;
   final OrderLocalStatus status;
+
+  bool get hasCustomerFabric =>
+      fabricNameSnapshot.trim().isNotEmpty ||
+      fabricColorSnapshot.trim().isNotEmpty ||
+      fabricIdSnapshot.trim().isNotEmpty;
   final DateTime deliveryDate;
   final DateTime createdAt;
   final DateTime updatedAt;

@@ -10,7 +10,8 @@ Future<img.Image?> _decodeAndResizeLogoBytes(
   List<int> raw,
   int maxWidthPx,
 ) async {
-  final decoded = img.decodeImage(raw);
+  final bytes = raw is Uint8List ? raw : Uint8List.fromList(raw);
+  final decoded = img.decodeImage(bytes);
   if (decoded == null) return null;
   if (decoded.width <= maxWidthPx) return decoded;
   return img.copyResize(

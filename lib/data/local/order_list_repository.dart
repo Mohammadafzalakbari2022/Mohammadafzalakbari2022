@@ -45,6 +45,18 @@ abstract class OrderListRepository {
     String? styleNameInternalId,
     String styleSelectionJson = '',
     String styleSummary = '',
+    String? catalogItemInternalId,
+    String catalogDesignNameSnapshot = '',
+    String catalogDesignerShopNameSnapshot = '',
+    String? catalogImagePathSnapshot,
+    String? catalogThumbnailPathSnapshot,
+    String? catalogSourceImagePath,
+    String? catalogSourceThumbnailPath,
+    String fabricNameSnapshot = '',
+    String fabricColorSnapshot = '',
+    String fabricIdSnapshot = '',
+    String? fabricNamePresetInternalId,
+    String? fabricColorPresetInternalId,
   });
 
   /// Update order status locally (plan-12).

@@ -1,4 +1,4 @@
-# Release APK with stacked dart-define-from-file. Output: build\app\outputs\flutter-apk\app-release.apk
+# Release APK with stacked dart-define-from-file. Output: build\app\outputs\flutter-apk\Pride.apk
 # Usage:
 #   .\scripts\build-apk-release.ps1
 #   .\scripts\build-apk-release.ps1 -Environment staging
@@ -20,7 +20,16 @@ try {
     } else {
         & $helper $Environment build apk --release
     }
-    Write-Host "Done: build\app\outputs\flutter-apk\app-release.apk"
+    $apk = "build\app\outputs\flutter-apk\Pride.apk"
+    $fallback = "build\app\outputs\flutter-apk\app-release.apk"
+    if (Test-Path $apk) {
+        Write-Host "Done: $apk"
+    } elseif (Test-Path $fallback) {
+        Copy-Item -Force $fallback $apk
+        Write-Host "Done: $apk (renamed from app-release.apk)"
+    } else {
+        throw "APK not found under build\app\outputs\flutter-apk\"
+    }
 }
 finally {
     Pop-Location

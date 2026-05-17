@@ -6,17 +6,22 @@
 #   .\scripts\upload-apk-release.ps1 -Tag v1.0.1
 
 param(
-    [string] $Tag = "v1.0.1",
-    [string] $ApkPath = "build\app\outputs\flutter-apk\app-release.apk"
+    [string] $Tag = "v3.5.3.2",
+    [string] $ApkPath = "build\app\outputs\flutter-apk\Pride.apk"
 )
 
 $ErrorActionPreference = "Stop"
 $root = Join-Path $PSScriptRoot ".."
 $apk = Join-Path $root $ApkPath
-$asset = Join-Path $root "Pride-android.apk"
+$asset = Join-Path $root "Pride.apk"
+$fallback = Join-Path $root "build\app\outputs\flutter-apk\app-release.apk"
 
 if (-not (Test-Path $apk)) {
-    throw "APK not found. Run: .\scripts\build-apk-release.ps1`nExpected: $apk"
+    if (Test-Path $fallback) {
+        $apk = $fallback
+    } else {
+        throw "APK not found. Run: .\scripts\build-apk-release.ps1`nExpected: $ApkPath"
+    }
 }
 
 Copy-Item -Force $apk $asset
@@ -33,7 +38,7 @@ try {
             --notes-file docs/RELEASE_NOTES_TEMPLATE.md
     }
     Write-Host "Done. Customers can download:"
-    Write-Host "https://github.com/Mohammadafzalakbari2022/Mohammadafzalakbari2022/releases/latest/download/Pride-android.apk"
+    Write-Host "https://github.com/Mohammadafzalakbari2022/Mohammadafzalakbari2022/releases/latest/download/Pride.apk"
 }
 finally {
     Pop-Location

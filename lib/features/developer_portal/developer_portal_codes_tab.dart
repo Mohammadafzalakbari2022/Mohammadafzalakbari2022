@@ -6,6 +6,7 @@ import 'package:pride_v3/core/api/pride_api_config.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../shell/shell_sync_providers.dart';
+import 'developer_portal_code_share.dart';
 
 /// Activation codes list + create (`plan-18`).
 class DeveloperPortalCodesTab extends ConsumerStatefulWidget {
@@ -124,13 +125,24 @@ class _DeveloperPortalCodesTabState extends ConsumerState<DeveloperPortalCodesTa
     if (!mounted) return;
     final messenger = ScaffoldMessenger.of(context);
     if (res.ok && res.created != null) {
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(
-            widget.l10n.devPortalCodesCreated('${res.created!['code']}'),
+      final created = res.created!;
+      final code = '${created['code'] ?? ''}';
+      final createdPlanDays =
+          (created['plan_days'] as num?)?.toInt() ?? planDays;
+      if (code.isNotEmpty) {
+        await showDeveloperPortalActivationCodeDialog(
+          context,
+          widget.l10n,
+          code: code,
+          planDays: createdPlanDays,
+        );
+      } else {
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(widget.l10n.devPortalCodesCreated(code)),
           ),
-        ),
-      );
+        );
+      }
       await _load();
     } else {
       messenger.showSnackBar(
@@ -247,9 +259,14 @@ class _DeveloperPortalCodesTabState extends ConsumerState<DeveloperPortalCodesTa
                       final uses = '${m['uses_count'] ?? 0}/${m['max_uses'] ?? 1}';
                       final plan = '${m['plan_days'] ?? ''}d';
                       final revoked = status == 'revoked' || status == 'depleted';
+                      final planDays =
+                          (m['plan_days'] as num?)?.toInt() ?? 0;
                       return Card(
                         child: ListTile(
-                          title: Text(code, style: const TextStyle(fontFamily: 'monospace')),
+                          title: Text(
+                            code,
+                            style: const TextStyle(fontFamily: 'monospace'),
+                          ),
                           subtitle: Text('$status · $uses · $plan'),
                           trailing: revoked
                               ? null
@@ -258,6 +275,14 @@ class _DeveloperPortalCodesTabState extends ConsumerState<DeveloperPortalCodesTa
                                   tooltip: widget.l10n.devPortalCodesRevokeCta,
                                   onPressed: () => _revoke(m),
                                 ),
+                          onTap: code.isEmpty
+                              ? null
+                              : () => showDeveloperPortalActivationCodeDialog(
+                                    context,
+                                    widget.l10n,
+                                    code: code,
+                                    planDays: planDays,
+                                  ),
                         ),
                       );
                     },

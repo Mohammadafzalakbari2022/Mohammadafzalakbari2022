@@ -1,6 +1,7 @@
 import 'sync_change_server_time.dart';
 import '../../data/local/app_notification_repository.dart';
 import '../../data/local/catalog_repository.dart';
+import '../../data/local/fabric_preset_repository.dart';
 import '../../data/local/style_catalog_repository.dart';
 import '../../data/local/customer_list_repository.dart';
 import '../../data/local/measurement_profile_repository.dart';
@@ -20,6 +21,7 @@ class SyncInboundApplier {
     required this.measurementProfiles,
     required this.catalog,
     required this.styleCatalog,
+    required this.fabricPresets,
     required this.shopFinance,
     required this.shopId,
   });
@@ -32,6 +34,7 @@ class SyncInboundApplier {
   final MeasurementProfileRepository measurementProfiles;
   final CatalogRepository catalog;
   final StyleCatalogRepository styleCatalog;
+  final FabricPresetRepository fabricPresets;
   final ShopFinanceRepository shopFinance;
   final String shopId;
 
@@ -126,6 +129,22 @@ class SyncInboundApplier {
         applied++;
       } else if (et == 'style_figure') {
         await styleCatalog.mergeRemoteStyleFigure(
+          shopId: shopId,
+          internalId: id,
+          operation: op,
+          data: raw['data'],
+        );
+        applied++;
+      } else if (et == 'fabric_name') {
+        await fabricPresets.mergeRemoteFabricName(
+          shopId: shopId,
+          internalId: id,
+          operation: op,
+          data: raw['data'],
+        );
+        applied++;
+      } else if (et == 'fabric_color') {
+        await fabricPresets.mergeRemoteFabricColor(
           shopId: shopId,
           internalId: id,
           operation: op,

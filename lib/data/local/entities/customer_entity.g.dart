@@ -37,23 +37,43 @@ const CustomerEntitySchema = CollectionSchema(
       name: r'internalId',
       type: IsarType.string,
     ),
-    r'name': PropertySchema(
+    r'lastCatalogDesignName': PropertySchema(
       id: 4,
+      name: r'lastCatalogDesignName',
+      type: IsarType.string,
+    ),
+    r'lastCatalogDesignerShopName': PropertySchema(
+      id: 5,
+      name: r'lastCatalogDesignerShopName',
+      type: IsarType.string,
+    ),
+    r'lastCatalogItemInternalId': PropertySchema(
+      id: 6,
+      name: r'lastCatalogItemInternalId',
+      type: IsarType.string,
+    ),
+    r'lastCatalogThumbnailPath': PropertySchema(
+      id: 7,
+      name: r'lastCatalogThumbnailPath',
+      type: IsarType.string,
+    ),
+    r'name': PropertySchema(
+      id: 8,
       name: r'name',
       type: IsarType.string,
     ),
     r'notes': PropertySchema(
-      id: 5,
+      id: 9,
       name: r'notes',
       type: IsarType.string,
     ),
     r'phone': PropertySchema(
-      id: 6,
+      id: 10,
       name: r'phone',
       type: IsarType.string,
     ),
     r'shopId': PropertySchema(
-      id: 7,
+      id: 11,
       name: r'shopId',
       type: IsarType.string,
     )
@@ -125,6 +145,20 @@ int _customerEntityEstimateSize(
     }
   }
   bytesCount += 3 + object.internalId.length * 3;
+  bytesCount += 3 + object.lastCatalogDesignName.length * 3;
+  bytesCount += 3 + object.lastCatalogDesignerShopName.length * 3;
+  {
+    final value = object.lastCatalogItemInternalId;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.lastCatalogThumbnailPath;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   bytesCount += 3 + object.name.length * 3;
   {
     final value = object.notes;
@@ -152,10 +186,14 @@ void _customerEntitySerialize(
   writer.writeDateTime(offsets[1], object.createdAt);
   writer.writeDateTime(offsets[2], object.deletedAt);
   writer.writeString(offsets[3], object.internalId);
-  writer.writeString(offsets[4], object.name);
-  writer.writeString(offsets[5], object.notes);
-  writer.writeString(offsets[6], object.phone);
-  writer.writeString(offsets[7], object.shopId);
+  writer.writeString(offsets[4], object.lastCatalogDesignName);
+  writer.writeString(offsets[5], object.lastCatalogDesignerShopName);
+  writer.writeString(offsets[6], object.lastCatalogItemInternalId);
+  writer.writeString(offsets[7], object.lastCatalogThumbnailPath);
+  writer.writeString(offsets[8], object.name);
+  writer.writeString(offsets[9], object.notes);
+  writer.writeString(offsets[10], object.phone);
+  writer.writeString(offsets[11], object.shopId);
 }
 
 CustomerEntity _customerEntityDeserialize(
@@ -170,10 +208,14 @@ CustomerEntity _customerEntityDeserialize(
   object.deletedAt = reader.readDateTimeOrNull(offsets[2]);
   object.id = id;
   object.internalId = reader.readString(offsets[3]);
-  object.name = reader.readString(offsets[4]);
-  object.notes = reader.readStringOrNull(offsets[5]);
-  object.phone = reader.readStringOrNull(offsets[6]);
-  object.shopId = reader.readString(offsets[7]);
+  object.lastCatalogDesignName = reader.readString(offsets[4]);
+  object.lastCatalogDesignerShopName = reader.readString(offsets[5]);
+  object.lastCatalogItemInternalId = reader.readStringOrNull(offsets[6]);
+  object.lastCatalogThumbnailPath = reader.readStringOrNull(offsets[7]);
+  object.name = reader.readString(offsets[8]);
+  object.notes = reader.readStringOrNull(offsets[9]);
+  object.phone = reader.readStringOrNull(offsets[10]);
+  object.shopId = reader.readString(offsets[11]);
   return object;
 }
 
@@ -195,10 +237,18 @@ P _customerEntityDeserializeProp<P>(
     case 4:
       return (reader.readString(offset)) as P;
     case 5:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 6:
       return (reader.readStringOrNull(offset)) as P;
     case 7:
+      return (reader.readStringOrNull(offset)) as P;
+    case 8:
+      return (reader.readString(offset)) as P;
+    case 9:
+      return (reader.readStringOrNull(offset)) as P;
+    case 10:
+      return (reader.readStringOrNull(offset)) as P;
+    case 11:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1024,6 +1074,593 @@ extension CustomerEntityQueryFilter
   }
 
   QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogDesignNameEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'lastCatalogDesignName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogDesignNameGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'lastCatalogDesignName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogDesignNameLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'lastCatalogDesignName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogDesignNameBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'lastCatalogDesignName',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogDesignNameStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'lastCatalogDesignName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogDesignNameEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'lastCatalogDesignName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogDesignNameContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'lastCatalogDesignName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogDesignNameMatches(String pattern,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'lastCatalogDesignName',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogDesignNameIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'lastCatalogDesignName',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogDesignNameIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'lastCatalogDesignName',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogDesignerShopNameEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'lastCatalogDesignerShopName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogDesignerShopNameGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'lastCatalogDesignerShopName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogDesignerShopNameLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'lastCatalogDesignerShopName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogDesignerShopNameBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'lastCatalogDesignerShopName',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogDesignerShopNameStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'lastCatalogDesignerShopName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogDesignerShopNameEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'lastCatalogDesignerShopName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogDesignerShopNameContains(String value,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'lastCatalogDesignerShopName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogDesignerShopNameMatches(String pattern,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'lastCatalogDesignerShopName',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogDesignerShopNameIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'lastCatalogDesignerShopName',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogDesignerShopNameIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'lastCatalogDesignerShopName',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogItemInternalIdIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'lastCatalogItemInternalId',
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogItemInternalIdIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'lastCatalogItemInternalId',
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogItemInternalIdEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'lastCatalogItemInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogItemInternalIdGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'lastCatalogItemInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogItemInternalIdLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'lastCatalogItemInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogItemInternalIdBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'lastCatalogItemInternalId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogItemInternalIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'lastCatalogItemInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogItemInternalIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'lastCatalogItemInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogItemInternalIdContains(String value,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'lastCatalogItemInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogItemInternalIdMatches(String pattern,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'lastCatalogItemInternalId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogItemInternalIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'lastCatalogItemInternalId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogItemInternalIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'lastCatalogItemInternalId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogThumbnailPathIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'lastCatalogThumbnailPath',
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogThumbnailPathIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'lastCatalogThumbnailPath',
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogThumbnailPathEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'lastCatalogThumbnailPath',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogThumbnailPathGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'lastCatalogThumbnailPath',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogThumbnailPathLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'lastCatalogThumbnailPath',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogThumbnailPathBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'lastCatalogThumbnailPath',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogThumbnailPathStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'lastCatalogThumbnailPath',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogThumbnailPathEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'lastCatalogThumbnailPath',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogThumbnailPathContains(String value,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'lastCatalogThumbnailPath',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogThumbnailPathMatches(String pattern,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'lastCatalogThumbnailPath',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogThumbnailPathIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'lastCatalogThumbnailPath',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      lastCatalogThumbnailPathIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'lastCatalogThumbnailPath',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
       nameEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -1665,6 +2302,62 @@ extension CustomerEntityQuerySortBy
     });
   }
 
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterSortBy>
+      sortByLastCatalogDesignName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastCatalogDesignName', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterSortBy>
+      sortByLastCatalogDesignNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastCatalogDesignName', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterSortBy>
+      sortByLastCatalogDesignerShopName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastCatalogDesignerShopName', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterSortBy>
+      sortByLastCatalogDesignerShopNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastCatalogDesignerShopName', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterSortBy>
+      sortByLastCatalogItemInternalId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastCatalogItemInternalId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterSortBy>
+      sortByLastCatalogItemInternalIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastCatalogItemInternalId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterSortBy>
+      sortByLastCatalogThumbnailPath() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastCatalogThumbnailPath', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterSortBy>
+      sortByLastCatalogThumbnailPathDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastCatalogThumbnailPath', Sort.desc);
+    });
+  }
+
   QueryBuilder<CustomerEntity, CustomerEntity, QAfterSortBy> sortByName() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'name', Sort.asc);
@@ -1782,6 +2475,62 @@ extension CustomerEntityQuerySortThenBy
     });
   }
 
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterSortBy>
+      thenByLastCatalogDesignName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastCatalogDesignName', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterSortBy>
+      thenByLastCatalogDesignNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastCatalogDesignName', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterSortBy>
+      thenByLastCatalogDesignerShopName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastCatalogDesignerShopName', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterSortBy>
+      thenByLastCatalogDesignerShopNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastCatalogDesignerShopName', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterSortBy>
+      thenByLastCatalogItemInternalId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastCatalogItemInternalId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterSortBy>
+      thenByLastCatalogItemInternalIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastCatalogItemInternalId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterSortBy>
+      thenByLastCatalogThumbnailPath() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastCatalogThumbnailPath', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterSortBy>
+      thenByLastCatalogThumbnailPathDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastCatalogThumbnailPath', Sort.desc);
+    });
+  }
+
   QueryBuilder<CustomerEntity, CustomerEntity, QAfterSortBy> thenByName() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'name', Sort.asc);
@@ -1862,6 +2611,38 @@ extension CustomerEntityQueryWhereDistinct
     });
   }
 
+  QueryBuilder<CustomerEntity, CustomerEntity, QDistinct>
+      distinctByLastCatalogDesignName({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'lastCatalogDesignName',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QDistinct>
+      distinctByLastCatalogDesignerShopName({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'lastCatalogDesignerShopName',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QDistinct>
+      distinctByLastCatalogItemInternalId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'lastCatalogItemInternalId',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QDistinct>
+      distinctByLastCatalogThumbnailPath({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'lastCatalogThumbnailPath',
+          caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<CustomerEntity, CustomerEntity, QDistinct> distinctByName(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -1921,6 +2702,34 @@ extension CustomerEntityQueryProperty
   QueryBuilder<CustomerEntity, String, QQueryOperations> internalIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'internalId');
+    });
+  }
+
+  QueryBuilder<CustomerEntity, String, QQueryOperations>
+      lastCatalogDesignNameProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'lastCatalogDesignName');
+    });
+  }
+
+  QueryBuilder<CustomerEntity, String, QQueryOperations>
+      lastCatalogDesignerShopNameProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'lastCatalogDesignerShopName');
+    });
+  }
+
+  QueryBuilder<CustomerEntity, String?, QQueryOperations>
+      lastCatalogItemInternalIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'lastCatalogItemInternalId');
+    });
+  }
+
+  QueryBuilder<CustomerEntity, String?, QQueryOperations>
+      lastCatalogThumbnailPathProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'lastCatalogThumbnailPath');
     });
   }
 
