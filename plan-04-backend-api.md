@@ -168,6 +168,9 @@ Scaffold behavior: `changes` is always an empty array until server-side history 
 ### Licensing
 - `POST /license/redeem` (activation code)
 - `GET /license/status`
+- `GET /license/billing-info` (published Hesab Pay profile; optional `?locale=`)
+- `POST /license/payment-claims` (shop **owner** only: submit transaction ID)
+- `GET /license/payment-claims` (shop owner: own claim history)
 
 License status contract (important for offline):
 - Response must include:
@@ -201,6 +204,11 @@ Rules:
 - `POST /admin/activation-codes`
 - `GET /admin/shops`
 - `GET /admin/licenses`
+- `GET /admin/billing-info` / `POST /admin/billing-info` (upsert singleton Hesab Pay profile)
+- `GET /admin/payment-claims` (optional `?status=pending|all`)
+- `GET /admin/payment-claims/:id`
+- `POST /admin/payment-claims/:id/approve` (`activation_code` or `auto_create_code`)
+- `POST /admin/payment-claims/:id/reject` (`review_notes`)
 
 ## Data access & safety
 - API uses a **service role key** only on the server

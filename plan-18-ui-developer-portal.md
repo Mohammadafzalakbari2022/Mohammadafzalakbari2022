@@ -73,7 +73,19 @@ Action:
 - Set new password (audited)
 - Mark resolved
 
-### 5) Diagnostics (support)
+### 5) Billing (Hesab Pay)
+Profile editor:
+- Account name/number, merchant reference, 1y/2y/lifetime AFN prices
+- Localized payment steps, activation delivery steps, cash note (en/fa/ps)
+- WhatsApp, Telegram, direct phone
+- Publish toggle
+
+Payment claims inbox:
+- Filter pending / all
+- Approve (auto-create activation code assigned to shop) or reject with note
+- Share activation code via existing code-share dialog
+
+### 6) Diagnostics (support)
 View:
 - recent API errors (if stored)
 - per-shop last sync timestamp (if tracked)
@@ -93,6 +105,8 @@ Device diagnostics bundle:
 - `POST /admin/shops/:shopId/extend-license` (optional; audited)
 - `GET /admin/password-resets`
 - `POST /admin/password-resets/:requestId/reset`
+- `GET /admin/billing-info` / `POST /admin/billing-info`
+- `GET /admin/payment-claims` / `POST /admin/payment-claims/:id/approve` / `POST /admin/payment-claims/:id/reject`
 
 ## Definition of Done
 - Portal is inaccessible unless server confirms developer status

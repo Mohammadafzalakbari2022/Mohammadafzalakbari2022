@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/input/pride_ltr_input.dart';
 import '../../core/defaults/effective_shop_profile.dart';
 import '../../core/printing/thermal_printer_prefs.dart';
 import '../../core/printing/thermal_printer_socket.dart';
@@ -188,6 +189,8 @@ class _SettingsPrinterScreenState extends ConsumerState<SettingsPrinterScreen> {
                     border: const OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.number,
+                  textDirection: PrideLtrInput.direction,
+                  textAlign: PrideLtrInput.align,
                   textInputAction: TextInputAction.done,
                 ),
                 const SizedBox(height: 16),

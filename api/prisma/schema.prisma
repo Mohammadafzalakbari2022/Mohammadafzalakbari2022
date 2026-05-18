@@ -117,7 +117,54 @@ model ActivationCode {
   redeemedAt         DateTime? @map("redeemed_at")
   lastRedeemedShopId String?   @map("last_redeemed_shop_id")
 
+  paymentClaims SubscriptionPaymentClaim[]
+
   @@map("activation_codes")
+}
+
+/// Global Hesab Pay / subscription payment instructions (singleton `default`).
+model SubscriptionBillingConfig {
+  id                      String   @id
+  hesabPayAccountName     String?  @map("hesab_pay_account_name")
+  hesabPayAccountNumber   String?  @map("hesab_pay_account_number")
+  hesabPayMerchantId      String?  @map("hesab_pay_merchant_id")
+  price1YearAfn           Int?     @map("price_1_year_afn")
+  price2YearAfn           Int?     @map("price_2_year_afn")
+  priceLifetimeAfn        Int?     @map("price_lifetime_afn")
+  paymentSteps            Json     @default("{}") @map("payment_steps")
+  activationDeliverySteps Json     @default("{}") @map("activation_delivery_steps")
+  cashPaymentNote         Json     @default("{}") @map("cash_payment_note")
+  whatsappE164            String?  @map("whatsapp_e164")
+  telegramHandle          String?  @map("telegram_handle")
+  directPhoneE164         String?  @map("direct_phone_e164")
+  isPublished             Boolean  @default(false) @map("is_published")
+  updatedAt               DateTime @updatedAt @map("updated_at")
+  updatedByDeveloperSub   String?  @map("updated_by_developer_sub")
+
+  @@map("subscription_billing_config")
+}
+
+/// Shop owner-submitted Hesab Pay payment proof awaiting developer review.
+model SubscriptionPaymentClaim {
+  id                     String          @id @default(uuid())
+  shopId                 String          @map("shop_id")
+  submittedByUserId      String          @map("submitted_by_user_id")
+  planTier               String          @map("plan_tier")
+  amountAfn              Int             @map("amount_afn")
+  transactionId          String          @unique @map("transaction_id")
+  payerPhone             String?         @map("payer_phone")
+  notes                  String?         @map("notes")
+  status                 String          @default("pending")
+  reviewedAt             DateTime?       @map("reviewed_at")
+  reviewedByDeveloperSub String?         @map("reviewed_by_developer_sub")
+  reviewNotes            String?         @map("review_notes")
+  linkedActivationCodeId String?         @map("linked_activation_code_id")
+  linkedActivationCode   ActivationCode? @relation(fields: [linkedActivationCodeId], references: [id], onDelete: SetNull)
+  createdAt              DateTime        @default(now()) @map("created_at")
+
+  @@index([status, createdAt])
+  @@index([shopId, createdAt])
+  @@map("subscription_payment_claims")
 }
 
 /// Developer / admin actions (`plan-18`).

@@ -494,6 +494,19 @@ class IsarOrderRepository implements OrderListRepository {
   }
 
   @override
+  Future<void> softDeleteOrder(String orderInternalId) async {
+    await _isar.writeTxn(() async {
+      final e = await _isar.orderEntitys.getByInternalId(orderInternalId);
+      if (e == null || e.deletedAt != null) return;
+      final now = DateTime.now();
+      e
+        ..deletedAt = now
+        ..updatedAt = now;
+      await _isar.orderEntitys.putByInternalId(e);
+    });
+  }
+
+  @override
   Future<void> mergeRemoteOrder({
     required String shopId,
     required String internalId,

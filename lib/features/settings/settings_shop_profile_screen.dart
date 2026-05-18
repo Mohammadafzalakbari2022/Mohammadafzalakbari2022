@@ -284,24 +284,25 @@ class _SettingsShopProfileScreenState
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 const SizedBox(height: 12),
-                if (kIsWeb)
+                ShopLogoImage(
+                  logoRelativePath: shop.logoRelativePath,
+                  size: 96,
+                  borderRadius: 8,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  (shop.logoRelativePath ?? '').isNotEmpty
+                      ? l10n.shopProfileLogoStatusOnFile
+                      : l10n.shopProfileLogoDefaultCaption,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                if (kIsWeb) ...[
+                  const SizedBox(height: 8),
                   Text(
                     l10n.shopProfileLogoWebHint,
                     style: Theme.of(context).textTheme.bodySmall,
-                  )
-                else ...[
-                  ShopLogoImage(
-                    logoRelativePath: shop.logoRelativePath,
-                    size: 72,
-                    borderRadius: 8,
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    (shop.logoRelativePath ?? '').isNotEmpty
-                        ? l10n.shopProfileLogoStatusOnFile
-                        : l10n.shopProfileLogoDefaultCaption,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
+                ] else ...[
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,

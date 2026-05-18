@@ -33,8 +33,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get loginTitle => 'ننوتل';
 
   @override
-  String get loginSubtitle =>
-      'د خپلې هټۍ کارن نوم او پاسورډ ولیکئ. کله چې API ونښلوي سرور به تایید کړي.';
+  String get loginSubtitle => 'د خپلې هټۍ کارن نوم او پاسورډ ولیکئ.';
 
   @override
   String get loginMockHint =>
@@ -44,7 +43,47 @@ class AppLocalizationsPs extends AppLocalizations {
   String get loginShopIdLabel => 'د هټۍ پېژند (اختیاري)';
 
   @override
-  String get loginShopIdHint => 'د یوې هټۍ پراختیا لپاره خالي پرېږدئ';
+  String get loginShopIdHint => 'یوازې که ستاسو هټۍ تاسو ته پېژند درکړی وي';
+
+  @override
+  String get loginSigningInHint =>
+      'مهرباني وکړئ انتظار وکړئ. په ورو انټرنټ کې تر یوې دقیقې پورې وخت نیسي.';
+
+  @override
+  String get loginCreatingShopHint =>
+      'مهرباني وکړئ انتظار وکړئ. د هټۍ جوړول ممکن یو څه وخت ونیسي.';
+
+  @override
+  String get loginInvalidCredentials =>
+      'د هټۍ پېژند، کارن نوم یا پاسورډ سم نه دی. وګورئ او بیا هڅه وکړئ.';
+
+  @override
+  String get loginNoInternet => 'انټرنټ نشته. شبکه وګورئ او بیا هڅه وکړئ.';
+
+  @override
+  String get loginConnectionSlow =>
+      'اړیکه ورو ده یا قطع شوه. لږ انتظار وکړئ او بیا هڅه وکړئ.';
+
+  @override
+  String get loginServerBusy => 'اوس خدمت ګڼ دی. څو دقیقې وروسته بیا هڅه وکړئ.';
+
+  @override
+  String get loginSomethingWrong => 'اوس ننوتل نشو. مهرباني وکړئ بیا هڅه وکړئ.';
+
+  @override
+  String get loginShopCreateFailed =>
+      'اوس هټۍ نشوه جوړېدای. مهرباني وکړئ بیا هڅه وکړئ.';
+
+  @override
+  String get loginForgotPasswordSubmitting => 'ستاسو غوښتنه لیږل کېږي…';
+
+  @override
+  String get loginForgotPasswordSubmitHint =>
+      'مهرباني وکړئ انتظار وکړئ. په ورو انټرنټ کې ممکن یو څه وخت ونیسي.';
+
+  @override
+  String get loginForgotPasswordFailed =>
+      'اوس غوښتنه نشوه لیږل. مهرباني وکړئ بیا هڅه وکړئ.';
 
   @override
   String get loginUsernameLabel => 'کارن نوم';
@@ -144,7 +183,8 @@ class AppLocalizationsPs extends AppLocalizations {
   String get loginSigningIn => 'ننوتل روان دي…';
 
   @override
-  String get loginApiUnauthorized => 'ناسم هټۍ، کارن نوم یا پاسورډ.';
+  String get loginApiUnauthorized =>
+      'د هټۍ پېژند، کارن نوم یا پاسورډ سم نه دی. وګورئ او بیا هڅه وکړئ.';
 
   @override
   String loginApiError(String error) {
@@ -224,7 +264,10 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get subscriptionBody =>
-      'د نوي کولو یا د فعالولو کوړ د بلینګ نښلولو وخت کې. د پای په دوره کې سمون محدود دی؛ لیست او جزئیات لیدل شته.';
+      'د حساب پی له لارې (لاندې ګامونه کله چې خپور شي)، د هټۍ مالک په توګه د تادیې غوښتنه، یا د ملاتړ فعالولو کوډ سره نوي کړئ. پای ته رسېدو وروسته سمون محدود دی؛ خپل معلومات لیدلی شئ.';
+
+  @override
+  String get subscriptionBillingSectionTitle => 'تادیه او نوي کول';
 
   @override
   String get subscriptionListTileSubtitle => 'جواز، ازمایښت او فعالول';
@@ -1852,6 +1895,17 @@ class AppLocalizationsPs extends AppLocalizations {
   String get deleteCta => 'ړنګول';
 
   @override
+  String deleteByTypingConfirmHint(String expected) {
+    return 'د تایید لپاره لاندې «$expected» ولیکئ.';
+  }
+
+  @override
+  String get deleteByTypingConfirmFieldLabel => 'تایید';
+
+  @override
+  String get deleteByTypingConfirmMismatch => 'سمون نه خوري. املا وګورئ.';
+
+  @override
   String get deleteConfirmTitle => 'ړنګ شي؟';
 
   @override
@@ -2090,6 +2144,228 @@ class AppLocalizationsPs extends AppLocalizations {
   }
 
   @override
+  String get subscriptionBillingPlansTitle => 'پلانونه او بیې (افغانۍ)';
+
+  @override
+  String get subscriptionBillingPrice1Year => '۱ کال';
+
+  @override
+  String get subscriptionBillingPrice2Year => '۲ کاله';
+
+  @override
+  String get subscriptionBillingPriceLifetime => 'تلپاتې';
+
+  @override
+  String get subscriptionBillingHesabPayTitle => 'د حساب پی له لارې تادیه';
+
+  @override
+  String get subscriptionBillingCashTitle => 'نغدي تادیه';
+
+  @override
+  String get subscriptionBillingContactTitle =>
+      'وروسته له تادیې — له ملاتړ سره اړیکه';
+
+  @override
+  String get subscriptionBillingCopyAccount => 'د حساب شمېره کاپي';
+
+  @override
+  String get subscriptionBillingCopied => 'کاپي شو';
+
+  @override
+  String subscriptionBillingOfflineCache(String when) {
+    return 'خوندي معلومات له $when. د تازه کولو لپاره انلاین شئ.';
+  }
+
+  @override
+  String get subscriptionBillingNotPublished =>
+      'د تادیې لارښوونې لا خپرې نه دي. له خپل توزیع‌کونکي وغواړئ په پراختیاګر پورټل → بلینګ کې خپورې کړي، یا لاندې فعالولو کوډ ولیکئ.';
+
+  @override
+  String subscriptionBillingLoadError(String error) {
+    return 'د تادیې معلومات نه لوستل کېږي: $error';
+  }
+
+  @override
+  String get subscriptionPaymentClaimTitle => 'ما تادیه کړې (حساب پی)';
+
+  @override
+  String get subscriptionPaymentClaimOwnerOnly =>
+      'یوازې د هټۍ خاوند کولی شي غوښتنه ولیږي.';
+
+  @override
+  String get subscriptionPaymentClaimPlanTier => 'پلان';
+
+  @override
+  String get subscriptionPaymentClaimPlanOneYear => '۱ کال';
+
+  @override
+  String get subscriptionPaymentClaimPlanTwoYear => '۲ کاله';
+
+  @override
+  String get subscriptionPaymentClaimPlanLifetime => 'تلپاتې';
+
+  @override
+  String get subscriptionPaymentClaimTransactionId => 'د معاملې پېژند';
+
+  @override
+  String get subscriptionPaymentClaimTransactionHint => 'له حساب پی رسید';
+
+  @override
+  String get subscriptionPaymentClaimPayerPhone => 'ستاسو تلیفون (اختیاري)';
+
+  @override
+  String get subscriptionPaymentClaimNotes => 'یادښت (اختیاري)';
+
+  @override
+  String get subscriptionPaymentClaimSubmit => 'د تادیې غوښتنه ولیږئ';
+
+  @override
+  String get subscriptionPaymentClaimSubmitting => 'لیږل کېږي…';
+
+  @override
+  String get subscriptionPaymentClaimSubmitSuccess =>
+      'غوښتنه ولیږل شوه. وروسته به فعالولو کوډ درکړل شي.';
+
+  @override
+  String subscriptionPaymentClaimSubmitError(String error) {
+    return 'لیږل ناکام: $error';
+  }
+
+  @override
+  String get subscriptionPaymentClaimHistoryTitle => 'ستاسو د تادیې غوښتنې';
+
+  @override
+  String get subscriptionPaymentClaimStatusPending => 'د کتنې په تمه';
+
+  @override
+  String get subscriptionPaymentClaimStatusApproved => 'منظور شو';
+
+  @override
+  String get subscriptionPaymentClaimStatusRejected => 'رد شو';
+
+  @override
+  String get subscriptionPaymentClaimCodeLabel => 'د فعالولو کوډ';
+
+  @override
+  String get subscriptionBillingWhatsapp => 'واټساپ';
+
+  @override
+  String get subscriptionBillingTelegram => 'ټیلیګرام';
+
+  @override
+  String get subscriptionBillingPhone => 'تلیفون';
+
+  @override
+  String get devPortalTabBilling => 'بلینګ';
+
+  @override
+  String get devPortalBillingIntro =>
+      'د حساب پی جزئیات، بیې (افغانۍ) او د تادیې ګامونه په هر ژبه ولیکئ. «خپور شوی» فعال کړئ ترڅو ټولې هټۍ یې په تنظیمات → ګډون وګوري. لاندې د تادیې غوښتنې وڅارئ او د فعالولو کوډ جوړولو لپاره ومنئ.';
+
+  @override
+  String devPortalBillingLoadError(String error) {
+    return 'د بلینګ پروفایل بارول ناکام: $error';
+  }
+
+  @override
+  String get devPortalBillingProfileTitle => 'د حساب پی پروفایل';
+
+  @override
+  String get devPortalBillingPublished => 'خپور شوی (د هټیو لپاره)';
+
+  @override
+  String get devPortalBillingAccountName => 'د حساب نوم';
+
+  @override
+  String get devPortalBillingAccountNumber => 'د حساب شمېره';
+
+  @override
+  String get devPortalBillingMerchantId => 'مرچنت / مرجع پېژند';
+
+  @override
+  String get devPortalBillingPrice1Year => 'بیه ۱ کال (افغانۍ)';
+
+  @override
+  String get devPortalBillingPrice2Year => 'بیه ۲ کاله (افغانۍ)';
+
+  @override
+  String get devPortalBillingPriceLifetime => 'تلپاتې بیه (افغانۍ)';
+
+  @override
+  String get devPortalBillingPaymentStepsEn => 'د تادیې ګامونه (انګلیسي)';
+
+  @override
+  String get devPortalBillingPaymentStepsFa => 'د تادیې ګامونه (دري)';
+
+  @override
+  String get devPortalBillingPaymentStepsPs => 'د تادیې ګامونه (پښتو)';
+
+  @override
+  String get devPortalBillingActivationStepsEn => 'کوډ ترلاسه کول (انګلیسي)';
+
+  @override
+  String get devPortalBillingActivationStepsFa => 'کوډ ترلاسه کول (دري)';
+
+  @override
+  String get devPortalBillingActivationStepsPs => 'کوډ ترلاسه کول (پښتو)';
+
+  @override
+  String get devPortalBillingCashNoteEn => 'نغدي یادښت (انګلیسي)';
+
+  @override
+  String get devPortalBillingCashNoteFa => 'نغدي یادښت (دري)';
+
+  @override
+  String get devPortalBillingCashNotePs => 'نغدي یادښت (پښتو)';
+
+  @override
+  String get devPortalBillingWhatsapp => 'واټساپ (E.164)';
+
+  @override
+  String get devPortalBillingTelegram => 'ټیلیګرام';
+
+  @override
+  String get devPortalBillingPhone => 'مستقیم تلیفون (E.164)';
+
+  @override
+  String get devPortalBillingSave => 'پروفایل خوندي کړئ';
+
+  @override
+  String get devPortalBillingSaveSuccess => 'پروفایل خوندي شو.';
+
+  @override
+  String devPortalBillingSaveError(String error) {
+    return 'خوندي کول ناکام: $error';
+  }
+
+  @override
+  String get devPortalBillingClaimsTitle => 'د تادیې غوښتنې';
+
+  @override
+  String get devPortalBillingClaimsPending => 'په تمه';
+
+  @override
+  String get devPortalBillingClaimsAll => 'ټول';
+
+  @override
+  String get devPortalBillingClaimApprove => 'منظور او کوډ جوړول';
+
+  @override
+  String get devPortalBillingClaimReject => 'رد';
+
+  @override
+  String get devPortalBillingClaimRejectNotes => 'دلیل (اختیاري)';
+
+  @override
+  String get devPortalBillingClaimApproved => 'غوښتنه منظور شوه.';
+
+  @override
+  String get devPortalBillingClaimRejected => 'غوښتنه رد شوه.';
+
+  @override
+  String get devPortalBillingNoClaims => 'غوښتنه نشته.';
+
+  @override
   String get customersListView => 'لیست لید';
 
   @override
@@ -2128,6 +2404,19 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get customerDeleted => 'پیرودونکی لرې شو';
+
+  @override
+  String get orderDeleteMenu => 'امر ړنګول';
+
+  @override
+  String get orderDeleteConfirmTitle => 'دا امر ړنګ شي؟';
+
+  @override
+  String get orderDeleteConfirmBody =>
+      'امر به له دې وسیلې ستاسو لیست څخه لرې شي.';
+
+  @override
+  String get orderDeleted => 'امر لرې شو';
 
   @override
   String get customersFinancialSectionTitle => 'پاتې';
@@ -2543,7 +2832,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get devPortalAdviceOnlineBody =>
-      'کتنه GET /health کوي. هټۍ او بیا تنظیمونه کله چې د پراختیاګر په توګه ننوتلي یاست بارېږي. تشخیص له تنظیمات → سنک او تشخیص صادر کړئ.';
+      'بلینګ کې د حساب پی لارښوونې ټولو هټیو لپاره خپورې کړئ. کتنه د API روغتیا او احصائیه ښیي. کوډونه، هټۍ او بیا تنظیمونه په API کې د پراختیاګر حساب ته اړتیا لري.';
 
   @override
   String get devPortalShopsEmpty => 'لا په سرور هټۍ نشته.';

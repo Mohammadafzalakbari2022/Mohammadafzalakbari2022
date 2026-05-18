@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pride_v3/app/app_theme.dart';
 import 'package:pride_v3/core/feedback/app_feedback.dart';
+import 'package:pride_v3/core/input/pride_ltr_input.dart';
 import 'package:pride_v3/core/validation/afghan_phone_input.dart';
 import 'package:pride_v3/core/widgets/pride_close_button.dart';
 import 'package:pride_v3/core/widgets/pride_form_bottom_bar.dart';
@@ -197,6 +198,8 @@ class _NewCustomerScreenState extends ConsumerState<NewCustomerScreen> {
             TextFormField(
               controller: _phone,
               keyboardType: TextInputType.phone,
+              textDirection: PrideLtrInput.direction,
+              textAlign: PrideLtrInput.align,
               inputFormatters: const [AfghanPhoneInputFormatter()],
               decoration: InputDecoration(
                 labelText: l10n.customerPhoneLabel,

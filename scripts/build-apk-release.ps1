@@ -20,16 +20,16 @@ try {
     } else {
         & $helper $Environment build apk --release
     }
+    if ($LASTEXITCODE -ne 0) {
+        throw "flutter build apk failed (exit $LASTEXITCODE). Do not install an old APK from build\app\outputs\flutter-apk\."
+    }
     $apk = "build\app\outputs\flutter-apk\Pride.apk"
     $fallback = "build\app\outputs\flutter-apk\app-release.apk"
-    if (Test-Path $apk) {
-        Write-Host "Done: $apk"
-    } elseif (Test-Path $fallback) {
-        Copy-Item -Force $fallback $apk
-        Write-Host "Done: $apk (renamed from app-release.apk)"
-    } else {
-        throw "APK not found under build\app\outputs\flutter-apk\"
+    if (-not (Test-Path $fallback)) {
+        throw "APK not found: $fallback"
     }
+    Copy-Item -Force $fallback $apk
+    Write-Host "Done: $apk"
 }
 finally {
     Pop-Location

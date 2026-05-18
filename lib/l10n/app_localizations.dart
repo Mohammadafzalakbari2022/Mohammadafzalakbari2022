@@ -151,7 +151,7 @@ abstract class AppLocalizations {
   /// No description provided for @loginSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Use your shop username and password to open your shop.'**
+  /// **'Enter your shop username and password to open your shop.'**
   String get loginSubtitle;
 
   /// No description provided for @loginMockHint.
@@ -169,8 +169,74 @@ abstract class AppLocalizations {
   /// No description provided for @loginShopIdHint.
   ///
   /// In en, this message translates to:
-  /// **'Leave blank for single-shop dev'**
+  /// **'Only if your shop gave you a shop ID'**
   String get loginShopIdHint;
+
+  /// No description provided for @loginSigningInHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Please wait. On slow internet this can take up to a minute.'**
+  String get loginSigningInHint;
+
+  /// No description provided for @loginCreatingShopHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Please wait while your shop is being set up. This can take a moment.'**
+  String get loginCreatingShopHint;
+
+  /// No description provided for @loginInvalidCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop ID, username, or password is not correct. Please check and try again.'**
+  String get loginInvalidCredentials;
+
+  /// No description provided for @loginNoInternet.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection. Check your network and try again.'**
+  String get loginNoInternet;
+
+  /// No description provided for @loginConnectionSlow.
+  ///
+  /// In en, this message translates to:
+  /// **'The connection is slow or timed out. Please wait a moment and try again.'**
+  String get loginConnectionSlow;
+
+  /// No description provided for @loginServerBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'The service is busy right now. Please try again in a few minutes.'**
+  String get loginServerBusy;
+
+  /// No description provided for @loginSomethingWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not sign in right now. Please try again.'**
+  String get loginSomethingWrong;
+
+  /// No description provided for @loginShopCreateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not create your shop right now. Please try again.'**
+  String get loginShopCreateFailed;
+
+  /// No description provided for @loginForgotPasswordSubmitting.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending your request…'**
+  String get loginForgotPasswordSubmitting;
+
+  /// No description provided for @loginForgotPasswordSubmitHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Please wait. This may take a moment on slow internet.'**
+  String get loginForgotPasswordSubmitHint;
+
+  /// No description provided for @loginForgotPasswordFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not send your request right now. Please try again.'**
+  String get loginForgotPasswordFailed;
 
   /// No description provided for @loginUsernameLabel.
   ///
@@ -349,7 +415,7 @@ abstract class AppLocalizations {
   /// No description provided for @loginApiUnauthorized.
   ///
   /// In en, this message translates to:
-  /// **'Invalid shop, username, or password.'**
+  /// **'Shop ID, username, or password is not correct. Please check and try again.'**
   String get loginApiUnauthorized;
 
   /// No description provided for @loginApiError.
@@ -493,8 +559,14 @@ abstract class AppLocalizations {
   /// No description provided for @subscriptionBody.
   ///
   /// In en, this message translates to:
-  /// **'Renew or enter an activation code when billing is connected. While expired, editing is limited; viewing lists and details stays available.'**
+  /// **'Renew with Hesab Pay (steps below when published), submit a payment claim as shop owner, or enter an activation code from support. While expired, editing is limited; you can still view your data.'**
   String get subscriptionBody;
+
+  /// No description provided for @subscriptionBillingSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay & renew'**
+  String get subscriptionBillingSectionTitle;
 
   /// No description provided for @subscriptionListTileSubtitle.
   ///
@@ -3506,6 +3578,24 @@ abstract class AppLocalizations {
   /// **'Delete'**
   String get deleteCta;
 
+  /// No description provided for @deleteByTypingConfirmHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type “{expected}” below to confirm.'**
+  String deleteByTypingConfirmHint(String expected);
+
+  /// No description provided for @deleteByTypingConfirmFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmation'**
+  String get deleteByTypingConfirmFieldLabel;
+
+  /// No description provided for @deleteByTypingConfirmMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'That does not match. Check spelling and try again.'**
+  String get deleteByTypingConfirmMismatch;
+
   /// No description provided for @deleteConfirmTitle.
   ///
   /// In en, this message translates to:
@@ -3926,6 +4016,420 @@ abstract class AppLocalizations {
   /// **'Could not refresh: {error}'**
   String subscriptionRefreshError(String error);
 
+  /// No description provided for @subscriptionBillingPlansTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Plans & prices (AFN)'**
+  String get subscriptionBillingPlansTitle;
+
+  /// No description provided for @subscriptionBillingPrice1Year.
+  ///
+  /// In en, this message translates to:
+  /// **'1 year'**
+  String get subscriptionBillingPrice1Year;
+
+  /// No description provided for @subscriptionBillingPrice2Year.
+  ///
+  /// In en, this message translates to:
+  /// **'2 years'**
+  String get subscriptionBillingPrice2Year;
+
+  /// No description provided for @subscriptionBillingPriceLifetime.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifetime'**
+  String get subscriptionBillingPriceLifetime;
+
+  /// No description provided for @subscriptionBillingHesabPayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay with Hesab Pay'**
+  String get subscriptionBillingHesabPayTitle;
+
+  /// No description provided for @subscriptionBillingCashTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay in cash'**
+  String get subscriptionBillingCashTitle;
+
+  /// No description provided for @subscriptionBillingContactTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'After payment — contact support'**
+  String get subscriptionBillingContactTitle;
+
+  /// No description provided for @subscriptionBillingCopyAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy account number'**
+  String get subscriptionBillingCopyAccount;
+
+  /// No description provided for @subscriptionBillingCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get subscriptionBillingCopied;
+
+  /// No description provided for @subscriptionBillingOfflineCache.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing saved payment info from {when}. Connect to refresh.'**
+  String subscriptionBillingOfflineCache(String when);
+
+  /// No description provided for @subscriptionBillingNotPublished.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment instructions are not published yet. Ask your distributor to publish them in Developer Portal → Billing, or enter an activation code below.'**
+  String get subscriptionBillingNotPublished;
+
+  /// No description provided for @subscriptionBillingLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load payment info: {error}'**
+  String subscriptionBillingLoadError(String error);
+
+  /// No description provided for @subscriptionPaymentClaimTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'I have paid (Hesab Pay)'**
+  String get subscriptionPaymentClaimTitle;
+
+  /// No description provided for @subscriptionPaymentClaimOwnerOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the shop owner can submit a payment claim.'**
+  String get subscriptionPaymentClaimOwnerOnly;
+
+  /// No description provided for @subscriptionPaymentClaimPlanTier.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan'**
+  String get subscriptionPaymentClaimPlanTier;
+
+  /// No description provided for @subscriptionPaymentClaimPlanOneYear.
+  ///
+  /// In en, this message translates to:
+  /// **'1 year'**
+  String get subscriptionPaymentClaimPlanOneYear;
+
+  /// No description provided for @subscriptionPaymentClaimPlanTwoYear.
+  ///
+  /// In en, this message translates to:
+  /// **'2 years'**
+  String get subscriptionPaymentClaimPlanTwoYear;
+
+  /// No description provided for @subscriptionPaymentClaimPlanLifetime.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifetime'**
+  String get subscriptionPaymentClaimPlanLifetime;
+
+  /// No description provided for @subscriptionPaymentClaimTransactionId.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction ID'**
+  String get subscriptionPaymentClaimTransactionId;
+
+  /// No description provided for @subscriptionPaymentClaimTransactionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'From your Hesab Pay receipt'**
+  String get subscriptionPaymentClaimTransactionHint;
+
+  /// No description provided for @subscriptionPaymentClaimPayerPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone (optional)'**
+  String get subscriptionPaymentClaimPayerPhone;
+
+  /// No description provided for @subscriptionPaymentClaimNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes (optional)'**
+  String get subscriptionPaymentClaimNotes;
+
+  /// No description provided for @subscriptionPaymentClaimSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit payment claim'**
+  String get subscriptionPaymentClaimSubmit;
+
+  /// No description provided for @subscriptionPaymentClaimSubmitting.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitting…'**
+  String get subscriptionPaymentClaimSubmitting;
+
+  /// No description provided for @subscriptionPaymentClaimSubmitSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment claim submitted. We will review and send your activation code.'**
+  String get subscriptionPaymentClaimSubmitSuccess;
+
+  /// No description provided for @subscriptionPaymentClaimSubmitError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not submit: {error}'**
+  String subscriptionPaymentClaimSubmitError(String error);
+
+  /// No description provided for @subscriptionPaymentClaimHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your payment claims'**
+  String get subscriptionPaymentClaimHistoryTitle;
+
+  /// No description provided for @subscriptionPaymentClaimStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending review'**
+  String get subscriptionPaymentClaimStatusPending;
+
+  /// No description provided for @subscriptionPaymentClaimStatusApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get subscriptionPaymentClaimStatusApproved;
+
+  /// No description provided for @subscriptionPaymentClaimStatusRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get subscriptionPaymentClaimStatusRejected;
+
+  /// No description provided for @subscriptionPaymentClaimCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Activation code'**
+  String get subscriptionPaymentClaimCodeLabel;
+
+  /// No description provided for @subscriptionBillingWhatsapp.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp'**
+  String get subscriptionBillingWhatsapp;
+
+  /// No description provided for @subscriptionBillingTelegram.
+  ///
+  /// In en, this message translates to:
+  /// **'Telegram'**
+  String get subscriptionBillingTelegram;
+
+  /// No description provided for @subscriptionBillingPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get subscriptionBillingPhone;
+
+  /// No description provided for @devPortalTabBilling.
+  ///
+  /// In en, this message translates to:
+  /// **'Billing'**
+  String get devPortalTabBilling;
+
+  /// No description provided for @devPortalBillingIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Set Hesab Pay account details, prices (AFN), and payment steps in each language. Turn on Published so every shop sees them under Settings → Subscription. Review payment claims below and approve to create activation codes.'**
+  String get devPortalBillingIntro;
+
+  /// No description provided for @devPortalBillingLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load billing profile: {error}'**
+  String devPortalBillingLoadError(String error);
+
+  /// No description provided for @devPortalBillingProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hesab Pay profile'**
+  String get devPortalBillingProfileTitle;
+
+  /// No description provided for @devPortalBillingPublished.
+  ///
+  /// In en, this message translates to:
+  /// **'Published (visible to shops)'**
+  String get devPortalBillingPublished;
+
+  /// No description provided for @devPortalBillingAccountName.
+  ///
+  /// In en, this message translates to:
+  /// **'Account name'**
+  String get devPortalBillingAccountName;
+
+  /// No description provided for @devPortalBillingAccountNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Account number'**
+  String get devPortalBillingAccountNumber;
+
+  /// No description provided for @devPortalBillingMerchantId.
+  ///
+  /// In en, this message translates to:
+  /// **'Merchant / reference ID'**
+  String get devPortalBillingMerchantId;
+
+  /// No description provided for @devPortalBillingPrice1Year.
+  ///
+  /// In en, this message translates to:
+  /// **'Price 1 year (AFN)'**
+  String get devPortalBillingPrice1Year;
+
+  /// No description provided for @devPortalBillingPrice2Year.
+  ///
+  /// In en, this message translates to:
+  /// **'Price 2 years (AFN)'**
+  String get devPortalBillingPrice2Year;
+
+  /// No description provided for @devPortalBillingPriceLifetime.
+  ///
+  /// In en, this message translates to:
+  /// **'Price lifetime (AFN)'**
+  String get devPortalBillingPriceLifetime;
+
+  /// No description provided for @devPortalBillingPaymentStepsEn.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment steps (English)'**
+  String get devPortalBillingPaymentStepsEn;
+
+  /// No description provided for @devPortalBillingPaymentStepsFa.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment steps (Dari)'**
+  String get devPortalBillingPaymentStepsFa;
+
+  /// No description provided for @devPortalBillingPaymentStepsPs.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment steps (Pashto)'**
+  String get devPortalBillingPaymentStepsPs;
+
+  /// No description provided for @devPortalBillingActivationStepsEn.
+  ///
+  /// In en, this message translates to:
+  /// **'Activation delivery (English)'**
+  String get devPortalBillingActivationStepsEn;
+
+  /// No description provided for @devPortalBillingActivationStepsFa.
+  ///
+  /// In en, this message translates to:
+  /// **'Activation delivery (Dari)'**
+  String get devPortalBillingActivationStepsFa;
+
+  /// No description provided for @devPortalBillingActivationStepsPs.
+  ///
+  /// In en, this message translates to:
+  /// **'Activation delivery (Pashto)'**
+  String get devPortalBillingActivationStepsPs;
+
+  /// No description provided for @devPortalBillingCashNoteEn.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash payment note (English)'**
+  String get devPortalBillingCashNoteEn;
+
+  /// No description provided for @devPortalBillingCashNoteFa.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash payment note (Dari)'**
+  String get devPortalBillingCashNoteFa;
+
+  /// No description provided for @devPortalBillingCashNotePs.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash payment note (Pashto)'**
+  String get devPortalBillingCashNotePs;
+
+  /// No description provided for @devPortalBillingWhatsapp.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp (E.164)'**
+  String get devPortalBillingWhatsapp;
+
+  /// No description provided for @devPortalBillingTelegram.
+  ///
+  /// In en, this message translates to:
+  /// **'Telegram handle'**
+  String get devPortalBillingTelegram;
+
+  /// No description provided for @devPortalBillingPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct phone (E.164)'**
+  String get devPortalBillingPhone;
+
+  /// No description provided for @devPortalBillingSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save billing profile'**
+  String get devPortalBillingSave;
+
+  /// No description provided for @devPortalBillingSaveSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Billing profile saved.'**
+  String get devPortalBillingSaveSuccess;
+
+  /// No description provided for @devPortalBillingSaveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Save failed: {error}'**
+  String devPortalBillingSaveError(String error);
+
+  /// No description provided for @devPortalBillingClaimsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment claims'**
+  String get devPortalBillingClaimsTitle;
+
+  /// No description provided for @devPortalBillingClaimsPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get devPortalBillingClaimsPending;
+
+  /// No description provided for @devPortalBillingClaimsAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get devPortalBillingClaimsAll;
+
+  /// No description provided for @devPortalBillingClaimApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve & create code'**
+  String get devPortalBillingClaimApprove;
+
+  /// No description provided for @devPortalBillingClaimReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get devPortalBillingClaimReject;
+
+  /// No description provided for @devPortalBillingClaimRejectNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason (optional)'**
+  String get devPortalBillingClaimRejectNotes;
+
+  /// No description provided for @devPortalBillingClaimApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Claim approved.'**
+  String get devPortalBillingClaimApproved;
+
+  /// No description provided for @devPortalBillingClaimRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Claim rejected.'**
+  String get devPortalBillingClaimRejected;
+
+  /// No description provided for @devPortalBillingNoClaims.
+  ///
+  /// In en, this message translates to:
+  /// **'No payment claims.'**
+  String get devPortalBillingNoClaims;
+
   /// No description provided for @customersListView.
   ///
   /// In en, this message translates to:
@@ -4003,6 +4507,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Customer removed'**
   String get customerDeleted;
+
+  /// No description provided for @orderDeleteMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete order'**
+  String get orderDeleteMenu;
+
+  /// No description provided for @orderDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this order?'**
+  String get orderDeleteConfirmTitle;
+
+  /// No description provided for @orderDeleteConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The order will be removed from your list on this device.'**
+  String get orderDeleteConfirmBody;
+
+  /// No description provided for @orderDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Order removed'**
+  String get orderDeleted;
 
   /// No description provided for @customersFinancialSectionTitle.
   ///
@@ -4701,7 +5229,7 @@ abstract class AppLocalizations {
   /// No description provided for @devPortalAdviceOnlineBody.
   ///
   /// In en, this message translates to:
-  /// **'Overview pings GET /health. Shops and Resets load when you are signed in with the API as a developer (PRIDE_DEVELOPER_IDS). Export diagnostics from Settings → Sync & Diagnostics.'**
+  /// **'Use Billing to publish Hesab Pay instructions for all shops. Overview shows API health and stats. Codes, Shops, and Resets need a developer account on the API.'**
   String get devPortalAdviceOnlineBody;
 
   /// No description provided for @devPortalShopsEmpty.

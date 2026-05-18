@@ -37,7 +37,7 @@ class OrderDetailShareActions extends ConsumerWidget {
     );
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
       child: Row(
         children: [
           Expanded(

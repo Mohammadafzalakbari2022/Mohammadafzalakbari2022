@@ -16,6 +16,7 @@ import type { Request } from 'express';
 
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import type { PrideAccessPayload } from '../auth/jwt-payload.interface';
+import { BillingService } from '../billing/billing.service';
 import { PushDispatchService } from '../push/push-dispatch.service';
 import { AdminService } from './admin.service';
 
@@ -24,6 +25,7 @@ export class AdminController {
   constructor(
     private readonly admin: AdminService,
     private readonly pushDispatch: PushDispatchService,
+    private readonly billing: BillingService,
   ) {}
 
   /** `GET /admin/me` — developer gate (`plan-18`). */
@@ -246,6 +248,95 @@ export class AdminController {
       throw new ForbiddenException();
     }
     return this.admin.extendShopLicense(req.user.sub, shopId, body?.add_days);
+  }
+
+  /** `GET /admin/billing-info` — developer edits global Hesab Pay profile. */
+  @Get('billing-info')
+  @UseGuards(JwtAuthGuard)
+  async getBillingInfo(
+    @Req() req: Request & { user: PrideAccessPayload },
+    @Query('locale') locale?: string,
+  ) {
+    if (!this.admin.isDeveloper(req.user)) {
+      throw new ForbiddenException();
+    }
+    return this.billing.getAdminBillingInfo(locale);
+  }
+
+  /** `PUT /admin/billing-info` — upsert singleton billing config. */
+  @Post('billing-info')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  async putBillingInfo(
+    @Req() req: Request & { user: PrideAccessPayload },
+    @Body() body: Record<string, unknown>,
+  ) {
+    if (!this.admin.isDeveloper(req.user)) {
+      throw new ForbiddenException();
+    }
+    return this.billing.upsertAdminBillingInfo(req.user.sub, body ?? {});
+  }
+
+  /** `GET /admin/payment-claims` — developer payment claim queue. */
+  @Get('payment-claims')
+  @UseGuards(JwtAuthGuard)
+  async listPaymentClaims(
+    @Req() req: Request & { user: PrideAccessPayload },
+    @Query('status') status?: string,
+  ) {
+    if (!this.admin.isDeveloper(req.user)) {
+      throw new ForbiddenException();
+    }
+    return this.billing.listAdminPaymentClaims(status);
+  }
+
+  /** `GET /admin/payment-claims/:id` */
+  @Get('payment-claims/:id')
+  @UseGuards(JwtAuthGuard)
+  async getPaymentClaim(
+    @Req() req: Request & { user: PrideAccessPayload },
+    @Param('id') id: string,
+  ) {
+    if (!this.admin.isDeveloper(req.user)) {
+      throw new ForbiddenException();
+    }
+    return this.billing.getAdminPaymentClaim(id);
+  }
+
+  /** `POST /admin/payment-claims/:id/approve` */
+  @Post('payment-claims/:id/approve')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  async approvePaymentClaim(
+    @Req() req: Request & { user: PrideAccessPayload },
+    @Param('id') id: string,
+    @Body()
+    body: {
+      activation_code?: unknown;
+      auto_create_code?: unknown;
+      plan_days?: unknown;
+    },
+  ) {
+    if (!this.admin.isDeveloper(req.user)) {
+      throw new ForbiddenException();
+    }
+    return this.billing.approvePaymentClaim(req.user.sub, id, body ?? {});
+  }
+
+  /** `POST /admin/payment-claims/:id/reject` */
+  @Post('payment-claims/:id/reject')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  async rejectPaymentClaim(
+    @Req() req: Request & { user: PrideAccessPayload },
+    @Param('id') id: string,
+    @Body() body: { review_notes?: unknown },
+  ) {
+    if (!this.admin.isDeveloper(req.user)) {
+      throw new ForbiddenException();
+    }
+    const notes = String(body?.review_notes ?? '');
+    return this.billing.rejectPaymentClaim(req.user.sub, id, notes);
   }
 
   /**

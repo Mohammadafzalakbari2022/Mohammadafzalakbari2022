@@ -5,12 +5,12 @@ import 'package:pride_v3/features/orders/order_composer_catalog_picker.dart';
 
 void main() {
   test('catalog asset ref round-trip', () {
-    const ref = 'asset:catalog_seed/design_1.jpeg';
+    const ref = 'asset:catalog_seed/design_1.png';
     expect(isCatalogAssetImageRef(ref), isTrue);
-    expect(catalogBundleAssetPath(ref), 'design_1.jpeg');
+    expect(catalogBundleAssetPath(ref), 'design_1.png');
     expect(
-      catalogAssetRefFromBundleFile('design_2.jpeg'),
-      'asset:catalog_seed/design_2.jpeg',
+      catalogAssetRefFromBundleFile('design_2.png'),
+      'asset:catalog_seed/design_2.png',
     );
   });
 

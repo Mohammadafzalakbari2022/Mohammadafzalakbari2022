@@ -203,6 +203,23 @@ Purpose: enable **offline enforcement** and consistent UX.
 - assigned_shop_id?
 - redeemed_at?
 
+### subscription_billing_config (server-owned singleton)
+Purpose: global Hesab Pay payment instructions shown on **Settings → Subscription** (MVP: manual verification, no Hesab Pay API).
+- id (`default`)
+- hesab_pay_account_name, hesab_pay_account_number, hesab_pay_merchant_id (optional)
+- price_1_year_afn, price_2_year_afn, price_lifetime_afn
+- payment_steps, activation_delivery_steps, cash_payment_note (JSON per locale: en/fa/ps)
+- whatsapp_e164, telegram_handle, direct_phone_e164
+- is_published, updated_at, updated_by_developer_sub
+
+### subscription_payment_claims (server-owned)
+Purpose: shop owner submits Hesab Pay transaction ID; developer approves and links an activation code.
+- shop_id, submitted_by_user_id
+- plan_tier (`one_year` | `two_year` | `lifetime`), amount_afn (snapshot), transaction_id (unique)
+- payer_phone?, notes?
+- status (`pending` | `approved` | `rejected`), reviewed_at, reviewed_by_developer_sub, review_notes?
+- linked_activation_code_id?
+
 ### notifications (synced; in-app inbox)
 Purpose: system-wide notifications for all users in a shop (no SMS/email).
 - internal_id

@@ -9,6 +9,7 @@ import '../core/shop_finance/rent_due_checker.dart';
 import '../dashboard/dashboard_drawer.dart';
 import '../data/providers/local_data_providers.dart';
 import '../features/settings/shop_profile_provider.dart';
+import 'shell_app_bar_branding.dart';
 import 'shell_app_bar_sync_button.dart';
 import 'shell_app_bar_title.dart';
 import 'shell_primary_tab.dart';
@@ -69,13 +70,20 @@ class _AppShellState extends ConsumerState<AppShell> {
     final canPop = GoRouter.of(context).canPop();
     final shopName = ref.watch(shopDisplayNameProvider).trim();
     final primaryTab = shellPathIsPrimaryTab(path);
-    final title = !canPop && primaryTab && shopName.isNotEmpty
-        ? shopName
-        : moduleTitle;
+    final showShopBranding =
+        !canPop && primaryTab && shopName.isNotEmpty;
+    final title = showShopBranding ? shopName : moduleTitle;
 
     final openDrawer = !canPop && primaryTab
         ? () => _scaffoldKey.currentState?.openDrawer()
         : null;
+
+    final titleWidget = showShopBranding
+        ? ShellAppBarBranding(
+            shopName: shopName,
+            onTap: openDrawer,
+          )
+        : Text(title);
 
     return Scaffold(
       key: _scaffoldKey,
@@ -83,19 +91,24 @@ class _AppShellState extends ConsumerState<AppShell> {
       drawerEdgeDragWidth: 56,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: openDrawer == null
-            ? Text(title)
-            : Tooltip(
+        title: openDrawer != null && showShopBranding
+            ? Tooltip(
                 message: l10n.appShellTapTitleForMenu,
-                child: InkWell(
-                  onTap: openDrawer,
-                  borderRadius: BorderRadius.circular(8),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: Text(title),
-                  ),
-                ),
-              ),
+                child: titleWidget,
+              )
+            : openDrawer != null
+                ? Tooltip(
+                    message: l10n.appShellTapTitleForMenu,
+                    child: InkWell(
+                      onTap: openDrawer,
+                      borderRadius: BorderRadius.circular(8),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: titleWidget,
+                      ),
+                    ),
+                  )
+                : titleWidget,
         leading: canPop
             ? AppBackButton(onPressed: () => context.pop())
             : openDrawer != null

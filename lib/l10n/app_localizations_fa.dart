@@ -33,8 +33,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get loginTitle => 'ورود';
 
   @override
-  String get loginSubtitle =>
-      'نام کاربری و رمز فروشگاه را وارد کنید. سرور هنگام اتصال API تأیید می‌کند.';
+  String get loginSubtitle => 'نام کاربری و رمز فروشگاه خود را وارد کنید.';
 
   @override
   String get loginMockHint =>
@@ -44,7 +43,50 @@ class AppLocalizationsFa extends AppLocalizations {
   String get loginShopIdLabel => 'شناسه فروشگاه (اختیاری)';
 
   @override
-  String get loginShopIdHint => 'برای توسعه تک‌فروشگاه خالی بگذارید';
+  String get loginShopIdHint => 'فقط اگر فروشگاه به شما شناسه داده است';
+
+  @override
+  String get loginSigningInHint =>
+      'لطفاً صبر کنید. با اینترنت کند ممکن است تا یک دقیقه طول بکشد.';
+
+  @override
+  String get loginCreatingShopHint =>
+      'لطفاً صبر کنید. ایجاد فروشگاه ممکن است کمی زمان ببرد.';
+
+  @override
+  String get loginInvalidCredentials =>
+      'شناسه فروشگاه، نام کاربری یا رمز درست نیست. بررسی کنید و دوباره تلاش کنید.';
+
+  @override
+  String get loginNoInternet =>
+      'اتصال اینترنت نیست. شبکه را بررسی کنید و دوباره تلاش کنید.';
+
+  @override
+  String get loginConnectionSlow =>
+      'اتصال کند است یا قطع شد. کمی صبر کنید و دوباره تلاش کنید.';
+
+  @override
+  String get loginServerBusy =>
+      'سرویس الان شلوغ است. چند دقیقه بعد دوباره تلاش کنید.';
+
+  @override
+  String get loginSomethingWrong =>
+      'الان ورود ممکن نشد. لطفاً دوباره تلاش کنید.';
+
+  @override
+  String get loginShopCreateFailed =>
+      'الان ایجاد فروشگاه ممکن نشد. لطفاً دوباره تلاش کنید.';
+
+  @override
+  String get loginForgotPasswordSubmitting => 'در حال ارسال درخواست…';
+
+  @override
+  String get loginForgotPasswordSubmitHint =>
+      'لطفاً صبر کنید. با اینترنت کند ممکن است کمی طول بکشد.';
+
+  @override
+  String get loginForgotPasswordFailed =>
+      'الان ارسال درخواست ممکن نشد. لطفاً دوباره تلاش کنید.';
 
   @override
   String get loginUsernameLabel => 'نام کاربری';
@@ -145,7 +187,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get loginApiUnauthorized =>
-      'شناسه فروشگاه، نام کاربری یا رمز نادرست است.';
+      'شناسه فروشگاه، نام کاربری یا رمز درست نیست. بررسی کنید و دوباره تلاش کنید.';
 
   @override
   String loginApiError(String error) {
@@ -226,7 +268,10 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get subscriptionBody =>
-      'تمدید یا کد فعال‌سازی هنگام اتصال صورتحساب. پس از انقضا ویرایش محدود است؛ مشاهده فهرست و جزئیات ممکن است.';
+      'با حساب پی (مراحل زیر پس از انتشار)، درخواست پرداخت به‌عنوان مالک دکان، یا کد فعال‌سازی از پشتیبانی تمدید کنید. پس از انقضا ویرایش محدود است؛ داده‌هایتان را می‌بینید.';
+
+  @override
+  String get subscriptionBillingSectionTitle => 'پرداخت و تمدید';
 
   @override
   String get subscriptionListTileSubtitle => 'مجوز، آزمایش و فعال‌سازی';
@@ -1858,6 +1903,18 @@ class AppLocalizationsFa extends AppLocalizations {
   String get deleteCta => 'حذف';
 
   @override
+  String deleteByTypingConfirmHint(String expected) {
+    return 'برای تأیید «$expected» را در زیر بنویسید.';
+  }
+
+  @override
+  String get deleteByTypingConfirmFieldLabel => 'تأیید';
+
+  @override
+  String get deleteByTypingConfirmMismatch =>
+      'مطابقت ندارد. املا را بررسی کنید.';
+
+  @override
   String get deleteConfirmTitle => 'حذف؟';
 
   @override
@@ -2097,6 +2154,228 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String get subscriptionBillingPlansTitle => 'پلان‌ها و قیمت‌ها (افغانی)';
+
+  @override
+  String get subscriptionBillingPrice1Year => '۱ سال';
+
+  @override
+  String get subscriptionBillingPrice2Year => '۲ سال';
+
+  @override
+  String get subscriptionBillingPriceLifetime => 'مادام‌العمر';
+
+  @override
+  String get subscriptionBillingHesabPayTitle => 'پرداخت با حساب پی';
+
+  @override
+  String get subscriptionBillingCashTitle => 'پرداخت نقدی';
+
+  @override
+  String get subscriptionBillingContactTitle =>
+      'بعد از پرداخت — تماس با پشتیبانی';
+
+  @override
+  String get subscriptionBillingCopyAccount => 'کاپی شماره حساب';
+
+  @override
+  String get subscriptionBillingCopied => 'کاپی شد';
+
+  @override
+  String subscriptionBillingOfflineCache(String when) {
+    return 'اطلاعات ذخیره‌شده از $when. برای تازه‌سازی آنلاین شوید.';
+  }
+
+  @override
+  String get subscriptionBillingNotPublished =>
+      'دستورالعمل پرداخت هنوز منتشر نشده. از توزیع‌کننده بخواهید در پورتال توسعه‌دهنده → صورتحساب منتشر کند، یا کد فعال‌سازی را پایین وارد کنید.';
+
+  @override
+  String subscriptionBillingLoadError(String error) {
+    return 'بارگذاری اطلاعات پرداخت ناموفق: $error';
+  }
+
+  @override
+  String get subscriptionPaymentClaimTitle => 'پرداخت کردم (حساب پی)';
+
+  @override
+  String get subscriptionPaymentClaimOwnerOnly =>
+      'فقط مالک دکان می‌تواند درخواست پرداخت بفرستد.';
+
+  @override
+  String get subscriptionPaymentClaimPlanTier => 'پلان';
+
+  @override
+  String get subscriptionPaymentClaimPlanOneYear => '۱ سال';
+
+  @override
+  String get subscriptionPaymentClaimPlanTwoYear => '۲ سال';
+
+  @override
+  String get subscriptionPaymentClaimPlanLifetime => 'مادام‌العمر';
+
+  @override
+  String get subscriptionPaymentClaimTransactionId => 'شناسه معامله';
+
+  @override
+  String get subscriptionPaymentClaimTransactionHint => 'از رسید حساب پی';
+
+  @override
+  String get subscriptionPaymentClaimPayerPhone => 'تلفن شما (اختیاری)';
+
+  @override
+  String get subscriptionPaymentClaimNotes => 'یادداشت (اختیاری)';
+
+  @override
+  String get subscriptionPaymentClaimSubmit => 'ارسال درخواست پرداخت';
+
+  @override
+  String get subscriptionPaymentClaimSubmitting => 'در حال ارسال…';
+
+  @override
+  String get subscriptionPaymentClaimSubmitSuccess =>
+      'درخواست ارسال شد. پس از بررسی کد فعال‌سازی فرستاده می‌شود.';
+
+  @override
+  String subscriptionPaymentClaimSubmitError(String error) {
+    return 'ارسال ناموفق: $error';
+  }
+
+  @override
+  String get subscriptionPaymentClaimHistoryTitle => 'درخواست‌های پرداخت شما';
+
+  @override
+  String get subscriptionPaymentClaimStatusPending => 'در انتظار بررسی';
+
+  @override
+  String get subscriptionPaymentClaimStatusApproved => 'تأیید شد';
+
+  @override
+  String get subscriptionPaymentClaimStatusRejected => 'رد شد';
+
+  @override
+  String get subscriptionPaymentClaimCodeLabel => 'کد فعال‌سازی';
+
+  @override
+  String get subscriptionBillingWhatsapp => 'واتساپ';
+
+  @override
+  String get subscriptionBillingTelegram => 'تلگرام';
+
+  @override
+  String get subscriptionBillingPhone => 'تلفن';
+
+  @override
+  String get devPortalTabBilling => 'صورتحساب';
+
+  @override
+  String get devPortalBillingIntro =>
+      'مشخصات حساب پی، قیمت‌ها (افغانی) و مراحل پرداخت را به هر زبان تنظیم کنید. «منتشر شده» را روشن کنید تا همه دکان‌ها در تنظیمات → اشتراک ببینند. درخواست‌های پرداخت را بررسی و با تأیید کد فعال‌سازی بسازید.';
+
+  @override
+  String devPortalBillingLoadError(String error) {
+    return 'بارگذاری مشخصات صورتحساب ناموفق: $error';
+  }
+
+  @override
+  String get devPortalBillingProfileTitle => 'مشخصات حساب پی';
+
+  @override
+  String get devPortalBillingPublished => 'منتشر شده (برای دکان‌ها)';
+
+  @override
+  String get devPortalBillingAccountName => 'نام حساب';
+
+  @override
+  String get devPortalBillingAccountNumber => 'شماره حساب';
+
+  @override
+  String get devPortalBillingMerchantId => 'شناسه مرچنت / مرجع';
+
+  @override
+  String get devPortalBillingPrice1Year => 'قیمت ۱ سال (افغانی)';
+
+  @override
+  String get devPortalBillingPrice2Year => 'قیمت ۲ سال (افغانی)';
+
+  @override
+  String get devPortalBillingPriceLifetime => 'قیمت مادام‌العمر (افغانی)';
+
+  @override
+  String get devPortalBillingPaymentStepsEn => 'مراحل پرداخت (انگلیسی)';
+
+  @override
+  String get devPortalBillingPaymentStepsFa => 'مراحل پرداخت (دری)';
+
+  @override
+  String get devPortalBillingPaymentStepsPs => 'مراحل پرداخت (پشتو)';
+
+  @override
+  String get devPortalBillingActivationStepsEn => 'دریافت کد (انگلیسی)';
+
+  @override
+  String get devPortalBillingActivationStepsFa => 'دریافت کد (دری)';
+
+  @override
+  String get devPortalBillingActivationStepsPs => 'دریافت کد (پشتو)';
+
+  @override
+  String get devPortalBillingCashNoteEn => 'یادداشت نقدی (انگلیسی)';
+
+  @override
+  String get devPortalBillingCashNoteFa => 'یادداشت نقدی (دری)';
+
+  @override
+  String get devPortalBillingCashNotePs => 'یادداشت نقدی (پشتو)';
+
+  @override
+  String get devPortalBillingWhatsapp => 'واتساپ (E.164)';
+
+  @override
+  String get devPortalBillingTelegram => 'تلگرام';
+
+  @override
+  String get devPortalBillingPhone => 'تلفن مستقیم (E.164)';
+
+  @override
+  String get devPortalBillingSave => 'ذخیره مشخصات';
+
+  @override
+  String get devPortalBillingSaveSuccess => 'مشخصات ذخیره شد.';
+
+  @override
+  String devPortalBillingSaveError(String error) {
+    return 'ذخیره ناموفق: $error';
+  }
+
+  @override
+  String get devPortalBillingClaimsTitle => 'درخواست‌های پرداخت';
+
+  @override
+  String get devPortalBillingClaimsPending => 'در انتظار';
+
+  @override
+  String get devPortalBillingClaimsAll => 'همه';
+
+  @override
+  String get devPortalBillingClaimApprove => 'تأیید و ساخت کد';
+
+  @override
+  String get devPortalBillingClaimReject => 'رد';
+
+  @override
+  String get devPortalBillingClaimRejectNotes => 'دلیل (اختیاری)';
+
+  @override
+  String get devPortalBillingClaimApproved => 'درخواست تأیید شد.';
+
+  @override
+  String get devPortalBillingClaimRejected => 'درخواست رد شد.';
+
+  @override
+  String get devPortalBillingNoClaims => 'درخواستی نیست.';
+
+  @override
   String get customersListView => 'نمای فهرستی';
 
   @override
@@ -2135,6 +2414,19 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get customerDeleted => 'مشتری حذف شد';
+
+  @override
+  String get orderDeleteMenu => 'حذف سفارش';
+
+  @override
+  String get orderDeleteConfirmTitle => 'این سفارش حذف شود؟';
+
+  @override
+  String get orderDeleteConfirmBody =>
+      'سفارش از فهرست شما روی این دستگاه حذف می‌شود.';
+
+  @override
+  String get orderDeleted => 'سفارش حذف شد';
 
   @override
   String get customersFinancialSectionTitle => 'مانده';
@@ -2547,7 +2839,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get devPortalAdviceOnlineBody =>
-      'نمای کلی GET /health را می‌زند. فروشگاه‌ها و بازنشانی‌ها وقتی با API به‌عنوان توسعه‌دهنده (PRIDE_DEVELOPER_IDS) وارد شده‌اید بارگذاری می‌شوند. بستهٔ تشخیص را از تنظیمات → همگام‌سازی و تشخیص بگیرید.';
+      'از صورتحساب برای انتشار دستورالعمل حساب پی برای همه دکان‌ها استفاده کنید. نمای کلی سلامت API و آمار را نشان می‌دهد. کدها، دکان‌ها و بازنشانی رمز به حساب توسعه‌دهنده در API نیاز دارند.';
 
   @override
   String get devPortalShopsEmpty => 'هنوز فروشگاهی روی سرور ثبت نشده است.';
@@ -3047,7 +3339,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String orderShareInvoiceFail(String detail) {
-    return 'اشتراک ناموفق: $detail';
+    return 'ارسال فاکتور ناموفق: $detail';
   }
 
   @override

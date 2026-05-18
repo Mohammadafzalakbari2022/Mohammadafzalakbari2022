@@ -56,6 +56,22 @@ export class AppSeedService implements OnModuleInit {
     }
 
     await this.ensureOperatorFromEnv();
+    await this.ensureDefaultBillingConfig();
+  }
+
+  /** Singleton Hesab Pay billing profile row (`subscription_billing_config`). */
+  private async ensureDefaultBillingConfig(): Promise<void> {
+    await this.prisma.subscriptionBillingConfig.upsert({
+      where: { id: 'default' },
+      create: {
+        id: 'default',
+        paymentSteps: {},
+        activationDeliverySteps: {},
+        cashPaymentNote: {},
+        isPublished: false,
+      },
+      update: {},
+    });
   }
 
   /**

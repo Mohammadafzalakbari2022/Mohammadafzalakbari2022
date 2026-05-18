@@ -27,11 +27,13 @@ Sectioned list (cards/tiles), consistent across Android/iOS/Web.
 - Show limits: Trial 2 / Paid 5
 - Owner cannot be deleted
 
-### 3) Subscription (Owner only)
-- Enter activation code
+### 3) Subscription
+- Enter activation code (all users when license allows)
 - Current plan + expiry
 - “Refresh license status” (when online)
 - Explain read-only mode behavior when expired
+- **Hesab Pay (when published):** plans/prices, payment steps, cash note, support contacts
+- **Payment claim (owner only):** submit transaction ID after paying at Hesab Pay center; view claim status/history
 
 ### 4) Backup & Restore (Owner only)
 Backup:

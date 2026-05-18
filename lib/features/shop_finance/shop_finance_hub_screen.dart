@@ -10,6 +10,8 @@ import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
 import 'package:pride_v3/core/calendar/report_month_period.dart';
 import 'package:pride_v3/core/calendar/date_calendar_system.dart';
 import 'package:pride_v3/core/formatting/digit_normalizer.dart';
+import 'package:pride_v3/core/widgets/pride_money_field.dart';
+import 'package:pride_v3/core/widgets/pride_numeric_text_field.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 import 'package:uuid/uuid.dart';
 
@@ -75,12 +77,9 @@ class _ShopFinanceHubScreenState extends ConsumerState<ShopFinanceHubScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  TextField(
+                  PrideMoneyField(
                     controller: amountCtrl,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      labelText: l10n.shopFinanceAmountLabel,
-                    ),
+                    labelText: l10n.shopFinanceAmountLabel,
                   ),
                   const SizedBox(height: 8),
                   ListTile(
@@ -109,12 +108,10 @@ class _ShopFinanceHubScreenState extends ConsumerState<ShopFinanceHubScreen> {
                       }
                     },
                   ),
-                  TextField(
+                  PrideNumericTextField(
                     controller: periodCtrl,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      labelText: l10n.shopFinancePeriodMonthsLabel,
-                    ),
+                    labelText: l10n.shopFinancePeriodMonthsLabel,
+                    decimal: false,
                   ),
                 ],
               ),
@@ -172,10 +169,9 @@ class _ShopFinanceHubScreenState extends ConsumerState<ShopFinanceHubScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(l10n.shopFinanceRecordRentPayment),
-        content: TextField(
+        content: PrideMoneyField(
           controller: amountCtrl,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(labelText: l10n.shopFinanceAmountLabel),
+          labelText: l10n.shopFinanceAmountLabel,
         ),
         actions: [
           TextButton(
@@ -268,12 +264,9 @@ class _ShopFinanceHubScreenState extends ConsumerState<ShopFinanceHubScreen> {
                       if (v != null) setModal(() => category = v);
                     },
                   ),
-                  TextField(
+                  PrideMoneyField(
                     controller: amountCtrl,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      labelText: l10n.shopFinanceAmountLabel,
-                    ),
+                    labelText: l10n.shopFinanceAmountLabel,
                   ),
                   ListTile(
                     contentPadding: EdgeInsets.zero,

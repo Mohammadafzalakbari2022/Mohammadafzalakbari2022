@@ -1,5 +1,24 @@
 # Deploy Pride Web (GitHub Actions → Cloudflare Pages)
 
+## Do NOT use Cloudflare “Connect to Git” + `npx wrangler deploy`
+
+If your build log shows:
+
+- `Output Directory: docs`
+- `Read 4 files from the assets directory .../docs`
+- `npx wrangler deploy` and a URL ending in **`*.workers.dev`**
+
+then Cloudflare deployed the **wrong thing**: the small **APK download landing page** in [`docs/`](../docs/) (Dari install guide), **not** the Flutter app. The Flutter app only exists after `flutter build web` in **`build/web/`** (~5 MB `main.dart.js`, `canvaskit/`, etc.).
+
+| URL pattern | What it is |
+|-------------|------------|
+| **`https://pride-v3-web.pages.dev`** | **Cloudflare Pages** — this is what the README uses for the web **app** |
+| **`https://pride-v3-web.*.workers.dev`** | **Cloudflare Worker** — your log deployed here with only `docs/` |
+
+**Fix:** In Cloudflare, open the project that is tied to Git → **Settings** → disconnect or delete that Worker-style Git build. Then deploy **`build/web/`** using one of the methods below (GitHub **Deploy Web** workflow or **Direct Upload** / `wrangler pages deploy`, not `wrangler deploy`).
+
+---
+
 ## Why this stack (free + reliable)
 
 | Piece | Role |
@@ -62,10 +81,37 @@ Copy [`config/dart_defines_staging.json.example`](../config/dart_defines_staging
 
 ## Manual upload (no GitHub)
 
-Upload **`build/web/`** via Cloudflare Pages **Direct Upload** if you prefer not to use Actions.
+Upload the **contents** of **`build/web/`** (so `index.html` is at the site root), not the `web/` source folder and not a nested `build/web/` path.
+
+```powershell
+.\scripts\build-flutter-with-defines.ps1 build web --release
+.\scripts\verify-web-build.ps1
+```
+
+Then Cloudflare → **pride-v3-web** → **Create deployment** → **Direct Upload** → select **all files inside** `build\web\` (or use Wrangler: `npx wrangler pages deploy build/web --project-name=pride-v3-web`).
 
 If not at domain root:
 
 ```powershell
 .\scripts\build-flutter-with-defines.ps1 build web --release --base-href=/your-path/
 ```
+
+## Troubleshooting (page blank, 503, or “not loading”)
+
+| Symptom | Likely cause | Fix |
+|--------|----------------|-----|
+| **503** on `*.pages.dev` | No successful **Production** deployment | Cloudflare → **Deployments** → latest must be **Success** and marked Production. Re-upload or re-run GitHub **Deploy Web**. |
+| **Blank white page**, HTML loads | Uploaded **`web/`** source instead of **`build/web/`** | `index.html` still contains `$FLUTTER_BASE_HREF`; `main.dart.js` missing. Rebuild Flutter, run `.\scripts\verify-web-build.ps1`, upload again. |
+| **404** on `/main.dart.js` | Wrong zip/folder shape (nested `build/web/index.html`) | Deploy **files inside** `build/web/`, not the parent `build` folder. |
+| CI “succeeds” but site empty | **Connect repo** on Cloudflare with wrong build (no Flutter) | Do **not** use Cloudflare’s Git build for this app. Use **GitHub Actions** (`deploy_web.yml`) or **Direct Upload** of `build/web/` only. |
+| Build log: **`docs`**, 4 files, **`wrangler deploy`**, **workers.dev** | Worker deploy of install landing page, not Pages Flutter build | Remove Git Worker build; deploy `build/web/` to **Pages** (see top of this file). |
+| **`pages.dev` broken**, log shows **workers.dev** success | App never uploaded to **Pages** | Same fix; `pages.dev` and `workers.dev` are different targets. |
+| Deep links 404 | `_redirects` missing from deploy | Must be in `build/web/` after `flutter build web` (copied from `web/_redirects`). |
+
+**Quick checks in the browser** (replace with your Pages URL):
+
+1. `https://pride-v3-web.pages.dev/` — View source: `<base href="/">` and `<script src="flutter_bootstrap.js">`.
+2. `https://pride-v3-web.pages.dev/flutter_bootstrap.js` — should return JavaScript (not 404).
+3. `https://pride-v3-web.pages.dev/main.dart.js` — large file (~5+ MB); 404 means wrong upload.
+
+**GitHub Actions:** repo → **Actions** → **Deploy Web** → latest run must be green. Needs secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`. A red run means nothing new reached Pages.

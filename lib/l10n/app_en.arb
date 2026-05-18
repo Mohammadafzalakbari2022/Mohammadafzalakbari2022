@@ -8,10 +8,21 @@
   "tabReports": "Reports",
   "tabSettings": "Settings",
   "loginTitle": "Sign in",
-  "loginSubtitle": "Use your shop username and password to open your shop.",
+  "loginSubtitle": "Enter your shop username and password to open your shop.",
   "loginMockHint": "In this build, any non-empty username and password will sign you in locally.",
   "loginShopIdLabel": "Shop ID (optional)",
-  "loginShopIdHint": "Leave blank for single-shop dev",
+  "loginShopIdHint": "Only if your shop gave you a shop ID",
+  "loginSigningInHint": "Please wait. On slow internet this can take up to a minute.",
+  "loginCreatingShopHint": "Please wait while your shop is being set up. This can take a moment.",
+  "loginInvalidCredentials": "Shop ID, username, or password is not correct. Please check and try again.",
+  "loginNoInternet": "No internet connection. Check your network and try again.",
+  "loginConnectionSlow": "The connection is slow or timed out. Please wait a moment and try again.",
+  "loginServerBusy": "The service is busy right now. Please try again in a few minutes.",
+  "loginSomethingWrong": "Could not sign in right now. Please try again.",
+  "loginShopCreateFailed": "Could not create your shop right now. Please try again.",
+  "loginForgotPasswordSubmitting": "Sending your request…",
+  "loginForgotPasswordSubmitHint": "Please wait. This may take a moment on slow internet.",
+  "loginForgotPasswordFailed": "Could not send your request right now. Please try again.",
   "loginUsernameLabel": "Username",
   "loginUsernameHint": "Your shop login name",
   "loginPasswordLabel": "Password",
@@ -62,7 +73,7 @@
   "loginDevContinue": "Continue without account (dev)",
   "loginApiHint": "Sign in with your shop ID, username, and password.",
   "loginSigningIn": "Signing in…",
-  "loginApiUnauthorized": "Invalid shop, username, or password.",
+  "loginApiUnauthorized": "Shop ID, username, or password is not correct. Please check and try again.",
   "loginApiError": "Could not sign in: {error}",
   "@loginApiError": {
     "placeholders": {
@@ -108,7 +119,8 @@
   "dashboardRecentIncomeTitle": "Income — last 7 days",
   "dashboardActivitySectionTitle": "Sync & notifications",
   "subscriptionTitle": "Subscription",
-  "subscriptionBody": "Renew or enter an activation code when billing is connected. While expired, editing is limited; viewing lists and details stays available.",
+  "subscriptionBody": "Renew with Hesab Pay (steps below when published), submit a payment claim as shop owner, or enter an activation code from support. While expired, editing is limited; you can still view your data.",
+  "subscriptionBillingSectionTitle": "Pay & renew",
   "subscriptionListTileSubtitle": "License, trial, and activation",
   "licenseDevControlsTitle": "License (dev only)",
   "licenseStatusTrial": "Trial",
@@ -802,6 +814,14 @@
   "deleted": "Deleted.",
   "editCta": "Edit",
   "deleteCta": "Delete",
+  "deleteByTypingConfirmHint": "Type “{expected}” below to confirm.",
+  "@deleteByTypingConfirmHint": {
+    "placeholders": {
+      "expected": { "type": "String" }
+    }
+  },
+  "deleteByTypingConfirmFieldLabel": "Confirmation",
+  "deleteByTypingConfirmMismatch": "That does not match. Check spelling and try again.",
   "deleteConfirmTitle": "Delete?",
   "deleteConfirmBody": "This action cannot be undone.",
   "catalogItemNotFound": "This catalog item could not be found.",
@@ -918,6 +938,100 @@
       }
     }
   },
+  "subscriptionBillingPlansTitle": "Plans & prices (AFN)",
+  "subscriptionBillingPrice1Year": "1 year",
+  "subscriptionBillingPrice2Year": "2 years",
+  "subscriptionBillingPriceLifetime": "Lifetime",
+  "subscriptionBillingHesabPayTitle": "Pay with Hesab Pay",
+  "subscriptionBillingCashTitle": "Pay in cash",
+  "subscriptionBillingContactTitle": "After payment — contact support",
+  "subscriptionBillingCopyAccount": "Copy account number",
+  "subscriptionBillingCopied": "Copied",
+  "subscriptionBillingOfflineCache": "Showing saved payment info from {when}. Connect to refresh.",
+  "@subscriptionBillingOfflineCache": {
+    "placeholders": {
+      "when": { "type": "String" }
+    }
+  },
+  "subscriptionBillingNotPublished": "Payment instructions are not published yet. Ask your distributor to publish them in Developer Portal → Billing, or enter an activation code below.",
+  "subscriptionBillingLoadError": "Could not load payment info: {error}",
+  "@subscriptionBillingLoadError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "subscriptionPaymentClaimTitle": "I have paid (Hesab Pay)",
+  "subscriptionPaymentClaimOwnerOnly": "Only the shop owner can submit a payment claim.",
+  "subscriptionPaymentClaimPlanTier": "Plan",
+  "subscriptionPaymentClaimPlanOneYear": "1 year",
+  "subscriptionPaymentClaimPlanTwoYear": "2 years",
+  "subscriptionPaymentClaimPlanLifetime": "Lifetime",
+  "subscriptionPaymentClaimTransactionId": "Transaction ID",
+  "subscriptionPaymentClaimTransactionHint": "From your Hesab Pay receipt",
+  "subscriptionPaymentClaimPayerPhone": "Your phone (optional)",
+  "subscriptionPaymentClaimNotes": "Notes (optional)",
+  "subscriptionPaymentClaimSubmit": "Submit payment claim",
+  "subscriptionPaymentClaimSubmitting": "Submitting…",
+  "subscriptionPaymentClaimSubmitSuccess": "Payment claim submitted. We will review and send your activation code.",
+  "subscriptionPaymentClaimSubmitError": "Could not submit: {error}",
+  "@subscriptionPaymentClaimSubmitError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "subscriptionPaymentClaimHistoryTitle": "Your payment claims",
+  "subscriptionPaymentClaimStatusPending": "Pending review",
+  "subscriptionPaymentClaimStatusApproved": "Approved",
+  "subscriptionPaymentClaimStatusRejected": "Rejected",
+  "subscriptionPaymentClaimCodeLabel": "Activation code",
+  "subscriptionBillingWhatsapp": "WhatsApp",
+  "subscriptionBillingTelegram": "Telegram",
+  "subscriptionBillingPhone": "Phone",
+  "devPortalTabBilling": "Billing",
+  "devPortalBillingIntro": "Set Hesab Pay account details, prices (AFN), and payment steps in each language. Turn on Published so every shop sees them under Settings → Subscription. Review payment claims below and approve to create activation codes.",
+  "devPortalBillingLoadError": "Could not load billing profile: {error}",
+  "@devPortalBillingLoadError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "devPortalBillingProfileTitle": "Hesab Pay profile",
+  "devPortalBillingPublished": "Published (visible to shops)",
+  "devPortalBillingAccountName": "Account name",
+  "devPortalBillingAccountNumber": "Account number",
+  "devPortalBillingMerchantId": "Merchant / reference ID",
+  "devPortalBillingPrice1Year": "Price 1 year (AFN)",
+  "devPortalBillingPrice2Year": "Price 2 years (AFN)",
+  "devPortalBillingPriceLifetime": "Price lifetime (AFN)",
+  "devPortalBillingPaymentStepsEn": "Payment steps (English)",
+  "devPortalBillingPaymentStepsFa": "Payment steps (Dari)",
+  "devPortalBillingPaymentStepsPs": "Payment steps (Pashto)",
+  "devPortalBillingActivationStepsEn": "Activation delivery (English)",
+  "devPortalBillingActivationStepsFa": "Activation delivery (Dari)",
+  "devPortalBillingActivationStepsPs": "Activation delivery (Pashto)",
+  "devPortalBillingCashNoteEn": "Cash payment note (English)",
+  "devPortalBillingCashNoteFa": "Cash payment note (Dari)",
+  "devPortalBillingCashNotePs": "Cash payment note (Pashto)",
+  "devPortalBillingWhatsapp": "WhatsApp (E.164)",
+  "devPortalBillingTelegram": "Telegram handle",
+  "devPortalBillingPhone": "Direct phone (E.164)",
+  "devPortalBillingSave": "Save billing profile",
+  "devPortalBillingSaveSuccess": "Billing profile saved.",
+  "devPortalBillingSaveError": "Save failed: {error}",
+  "@devPortalBillingSaveError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "devPortalBillingClaimsTitle": "Payment claims",
+  "devPortalBillingClaimsPending": "Pending",
+  "devPortalBillingClaimsAll": "All",
+  "devPortalBillingClaimApprove": "Approve & create code",
+  "devPortalBillingClaimReject": "Reject",
+  "devPortalBillingClaimRejectNotes": "Reason (optional)",
+  "devPortalBillingClaimApproved": "Claim approved.",
+  "devPortalBillingClaimRejected": "Claim rejected.",
+  "devPortalBillingNoClaims": "No payment claims.",
   "customersListView": "List view",
   "customersCardView": "Card view",
   "customerEditDialogTitle": "Edit customer",
@@ -931,6 +1045,10 @@
   "customerDeleteConfirmTitle": "Delete this customer?",
   "customerDeleteConfirmBody": "They will be removed from your list. Existing orders stay in the Orders tab.",
   "customerDeleted": "Customer removed",
+  "orderDeleteMenu": "Delete order",
+  "orderDeleteConfirmTitle": "Delete this order?",
+  "orderDeleteConfirmBody": "The order will be removed from your list on this device.",
+  "orderDeleted": "Order removed",
   "customersFinancialSectionTitle": "Balance",
   "customersFinancialFilterAll": "Any balance",
   "customersFilterHasUnpaid": "Has unpaid orders",
@@ -1143,7 +1261,7 @@
   "devPortalAdviceOfflineTitle": "You appear offline",
   "devPortalAdviceOfflineBody": "Connect to the internet to test public API health. Admin lists (shops, codes, resets) need the deployed admin APIs.",
   "devPortalAdviceOnlineTitle": "Developer tools",
-  "devPortalAdviceOnlineBody": "Overview pings GET /health. Shops and Resets load when you are signed in with the API as a developer (PRIDE_DEVELOPER_IDS). Export diagnostics from Settings → Sync & Diagnostics.",
+  "devPortalAdviceOnlineBody": "Use Billing to publish Hesab Pay instructions for all shops. Overview shows API health and stats. Codes, Shops, and Resets need a developer account on the API.",
   "devPortalShopsEmpty": "No shops on the server yet.",
   "devPortalShopRowUsers": "{count, plural, one{1 user} other{{count} users}}",
   "@devPortalShopRowUsers": {

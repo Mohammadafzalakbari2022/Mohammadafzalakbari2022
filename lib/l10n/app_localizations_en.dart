@@ -34,7 +34,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loginSubtitle =>
-      'Use your shop username and password to open your shop.';
+      'Enter your shop username and password to open your shop.';
 
   @override
   String get loginMockHint =>
@@ -44,7 +44,50 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginShopIdLabel => 'Shop ID (optional)';
 
   @override
-  String get loginShopIdHint => 'Leave blank for single-shop dev';
+  String get loginShopIdHint => 'Only if your shop gave you a shop ID';
+
+  @override
+  String get loginSigningInHint =>
+      'Please wait. On slow internet this can take up to a minute.';
+
+  @override
+  String get loginCreatingShopHint =>
+      'Please wait while your shop is being set up. This can take a moment.';
+
+  @override
+  String get loginInvalidCredentials =>
+      'Shop ID, username, or password is not correct. Please check and try again.';
+
+  @override
+  String get loginNoInternet =>
+      'No internet connection. Check your network and try again.';
+
+  @override
+  String get loginConnectionSlow =>
+      'The connection is slow or timed out. Please wait a moment and try again.';
+
+  @override
+  String get loginServerBusy =>
+      'The service is busy right now. Please try again in a few minutes.';
+
+  @override
+  String get loginSomethingWrong =>
+      'Could not sign in right now. Please try again.';
+
+  @override
+  String get loginShopCreateFailed =>
+      'Could not create your shop right now. Please try again.';
+
+  @override
+  String get loginForgotPasswordSubmitting => 'Sending your request…';
+
+  @override
+  String get loginForgotPasswordSubmitHint =>
+      'Please wait. This may take a moment on slow internet.';
+
+  @override
+  String get loginForgotPasswordFailed =>
+      'Could not send your request right now. Please try again.';
 
   @override
   String get loginUsernameLabel => 'Username';
@@ -145,7 +188,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginSigningIn => 'Signing in…';
 
   @override
-  String get loginApiUnauthorized => 'Invalid shop, username, or password.';
+  String get loginApiUnauthorized =>
+      'Shop ID, username, or password is not correct. Please check and try again.';
 
   @override
   String loginApiError(String error) {
@@ -226,7 +270,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get subscriptionBody =>
-      'Renew or enter an activation code when billing is connected. While expired, editing is limited; viewing lists and details stays available.';
+      'Renew with Hesab Pay (steps below when published), submit a payment claim as shop owner, or enter an activation code from support. While expired, editing is limited; you can still view your data.';
+
+  @override
+  String get subscriptionBillingSectionTitle => 'Pay & renew';
 
   @override
   String get subscriptionListTileSubtitle => 'License, trial, and activation';
@@ -1866,6 +1913,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteCta => 'Delete';
 
   @override
+  String deleteByTypingConfirmHint(String expected) {
+    return 'Type “$expected” below to confirm.';
+  }
+
+  @override
+  String get deleteByTypingConfirmFieldLabel => 'Confirmation';
+
+  @override
+  String get deleteByTypingConfirmMismatch =>
+      'That does not match. Check spelling and try again.';
+
+  @override
   String get deleteConfirmTitle => 'Delete?';
 
   @override
@@ -2106,6 +2165,231 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get subscriptionBillingPlansTitle => 'Plans & prices (AFN)';
+
+  @override
+  String get subscriptionBillingPrice1Year => '1 year';
+
+  @override
+  String get subscriptionBillingPrice2Year => '2 years';
+
+  @override
+  String get subscriptionBillingPriceLifetime => 'Lifetime';
+
+  @override
+  String get subscriptionBillingHesabPayTitle => 'Pay with Hesab Pay';
+
+  @override
+  String get subscriptionBillingCashTitle => 'Pay in cash';
+
+  @override
+  String get subscriptionBillingContactTitle =>
+      'After payment — contact support';
+
+  @override
+  String get subscriptionBillingCopyAccount => 'Copy account number';
+
+  @override
+  String get subscriptionBillingCopied => 'Copied';
+
+  @override
+  String subscriptionBillingOfflineCache(String when) {
+    return 'Showing saved payment info from $when. Connect to refresh.';
+  }
+
+  @override
+  String get subscriptionBillingNotPublished =>
+      'Payment instructions are not published yet. Ask your distributor to publish them in Developer Portal → Billing, or enter an activation code below.';
+
+  @override
+  String subscriptionBillingLoadError(String error) {
+    return 'Could not load payment info: $error';
+  }
+
+  @override
+  String get subscriptionPaymentClaimTitle => 'I have paid (Hesab Pay)';
+
+  @override
+  String get subscriptionPaymentClaimOwnerOnly =>
+      'Only the shop owner can submit a payment claim.';
+
+  @override
+  String get subscriptionPaymentClaimPlanTier => 'Plan';
+
+  @override
+  String get subscriptionPaymentClaimPlanOneYear => '1 year';
+
+  @override
+  String get subscriptionPaymentClaimPlanTwoYear => '2 years';
+
+  @override
+  String get subscriptionPaymentClaimPlanLifetime => 'Lifetime';
+
+  @override
+  String get subscriptionPaymentClaimTransactionId => 'Transaction ID';
+
+  @override
+  String get subscriptionPaymentClaimTransactionHint =>
+      'From your Hesab Pay receipt';
+
+  @override
+  String get subscriptionPaymentClaimPayerPhone => 'Your phone (optional)';
+
+  @override
+  String get subscriptionPaymentClaimNotes => 'Notes (optional)';
+
+  @override
+  String get subscriptionPaymentClaimSubmit => 'Submit payment claim';
+
+  @override
+  String get subscriptionPaymentClaimSubmitting => 'Submitting…';
+
+  @override
+  String get subscriptionPaymentClaimSubmitSuccess =>
+      'Payment claim submitted. We will review and send your activation code.';
+
+  @override
+  String subscriptionPaymentClaimSubmitError(String error) {
+    return 'Could not submit: $error';
+  }
+
+  @override
+  String get subscriptionPaymentClaimHistoryTitle => 'Your payment claims';
+
+  @override
+  String get subscriptionPaymentClaimStatusPending => 'Pending review';
+
+  @override
+  String get subscriptionPaymentClaimStatusApproved => 'Approved';
+
+  @override
+  String get subscriptionPaymentClaimStatusRejected => 'Rejected';
+
+  @override
+  String get subscriptionPaymentClaimCodeLabel => 'Activation code';
+
+  @override
+  String get subscriptionBillingWhatsapp => 'WhatsApp';
+
+  @override
+  String get subscriptionBillingTelegram => 'Telegram';
+
+  @override
+  String get subscriptionBillingPhone => 'Phone';
+
+  @override
+  String get devPortalTabBilling => 'Billing';
+
+  @override
+  String get devPortalBillingIntro =>
+      'Set Hesab Pay account details, prices (AFN), and payment steps in each language. Turn on Published so every shop sees them under Settings → Subscription. Review payment claims below and approve to create activation codes.';
+
+  @override
+  String devPortalBillingLoadError(String error) {
+    return 'Could not load billing profile: $error';
+  }
+
+  @override
+  String get devPortalBillingProfileTitle => 'Hesab Pay profile';
+
+  @override
+  String get devPortalBillingPublished => 'Published (visible to shops)';
+
+  @override
+  String get devPortalBillingAccountName => 'Account name';
+
+  @override
+  String get devPortalBillingAccountNumber => 'Account number';
+
+  @override
+  String get devPortalBillingMerchantId => 'Merchant / reference ID';
+
+  @override
+  String get devPortalBillingPrice1Year => 'Price 1 year (AFN)';
+
+  @override
+  String get devPortalBillingPrice2Year => 'Price 2 years (AFN)';
+
+  @override
+  String get devPortalBillingPriceLifetime => 'Price lifetime (AFN)';
+
+  @override
+  String get devPortalBillingPaymentStepsEn => 'Payment steps (English)';
+
+  @override
+  String get devPortalBillingPaymentStepsFa => 'Payment steps (Dari)';
+
+  @override
+  String get devPortalBillingPaymentStepsPs => 'Payment steps (Pashto)';
+
+  @override
+  String get devPortalBillingActivationStepsEn =>
+      'Activation delivery (English)';
+
+  @override
+  String get devPortalBillingActivationStepsFa => 'Activation delivery (Dari)';
+
+  @override
+  String get devPortalBillingActivationStepsPs =>
+      'Activation delivery (Pashto)';
+
+  @override
+  String get devPortalBillingCashNoteEn => 'Cash payment note (English)';
+
+  @override
+  String get devPortalBillingCashNoteFa => 'Cash payment note (Dari)';
+
+  @override
+  String get devPortalBillingCashNotePs => 'Cash payment note (Pashto)';
+
+  @override
+  String get devPortalBillingWhatsapp => 'WhatsApp (E.164)';
+
+  @override
+  String get devPortalBillingTelegram => 'Telegram handle';
+
+  @override
+  String get devPortalBillingPhone => 'Direct phone (E.164)';
+
+  @override
+  String get devPortalBillingSave => 'Save billing profile';
+
+  @override
+  String get devPortalBillingSaveSuccess => 'Billing profile saved.';
+
+  @override
+  String devPortalBillingSaveError(String error) {
+    return 'Save failed: $error';
+  }
+
+  @override
+  String get devPortalBillingClaimsTitle => 'Payment claims';
+
+  @override
+  String get devPortalBillingClaimsPending => 'Pending';
+
+  @override
+  String get devPortalBillingClaimsAll => 'All';
+
+  @override
+  String get devPortalBillingClaimApprove => 'Approve & create code';
+
+  @override
+  String get devPortalBillingClaimReject => 'Reject';
+
+  @override
+  String get devPortalBillingClaimRejectNotes => 'Reason (optional)';
+
+  @override
+  String get devPortalBillingClaimApproved => 'Claim approved.';
+
+  @override
+  String get devPortalBillingClaimRejected => 'Claim rejected.';
+
+  @override
+  String get devPortalBillingNoClaims => 'No payment claims.';
+
+  @override
   String get customersListView => 'List view';
 
   @override
@@ -2144,6 +2428,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get customerDeleted => 'Customer removed';
+
+  @override
+  String get orderDeleteMenu => 'Delete order';
+
+  @override
+  String get orderDeleteConfirmTitle => 'Delete this order?';
+
+  @override
+  String get orderDeleteConfirmBody =>
+      'The order will be removed from your list on this device.';
+
+  @override
+  String get orderDeleted => 'Order removed';
 
   @override
   String get customersFinancialSectionTitle => 'Balance';
@@ -2561,7 +2858,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get devPortalAdviceOnlineBody =>
-      'Overview pings GET /health. Shops and Resets load when you are signed in with the API as a developer (PRIDE_DEVELOPER_IDS). Export diagnostics from Settings → Sync & Diagnostics.';
+      'Use Billing to publish Hesab Pay instructions for all shops. Overview shows API health and stats. Codes, Shops, and Resets need a developer account on the API.';
 
   @override
   String get devPortalShopsEmpty => 'No shops on the server yet.';

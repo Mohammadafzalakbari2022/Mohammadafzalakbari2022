@@ -19,8 +19,10 @@ import 'package:pride_v3/licensing/license_snapshot_persist.dart';
 import '../core/widgets/pride_form_bottom_bar.dart';
 
 import 'admin_me_provider.dart';
+import 'auth_form_feedback_banner.dart';
 import 'auth_providers.dart';
 import 'auth_session_storage.dart';
+import 'auth_user_messages.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -39,6 +41,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _createOwnerPass = TextEditingController();
   bool _busy = false;
   bool _busyCreate = false;
+  String? _signInError;
+  String? _createError;
 
   @override
   void dispose() {
@@ -101,7 +105,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     FocusScope.of(context).unfocus();
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
-    setState(() => _busy = true);
+    setState(() {
+      _busy = true;
+      _signInError = null;
+    });
     try {
       if (PrideApiConfig.isConfigured) {
         final sid = _shopId.text.trim();
@@ -118,10 +125,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         if (!mounted) return;
 
         if (result is PrideApiLoginFailure) {
-          final msg = result.statusCode == 401
-              ? l10n.loginApiUnauthorized
-              : l10n.loginApiError(result.message);
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+          setState(
+            () => _signInError = loginFailureUserMessage(l10n, result),
+          );
           return;
         }
 
@@ -168,7 +174,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       );
       return;
     }
-    setState(() => _busyCreate = true);
+    setState(() {
+      _busyCreate = true;
+      _createError = null;
+    });
     try {
       final result = await postPrideApiShopCreate(
         shopName: name,
@@ -177,8 +186,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       );
       if (!mounted) return;
       if (result is PrideApiLoginFailure) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.loginShopCreateError(result.message))),
+        setState(
+          () => _createError = shopCreateFailureUserMessage(l10n, result),
         );
         return;
       }
@@ -263,19 +272,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   style: theme.textTheme.bodyLarge,
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  PrideApiConfig.isConfigured
-                      ? l10n.loginApiHint
-                      : l10n.loginMockHint,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
                 const SizedBox(height: 32),
+                if (_busy)
+                  AuthFormFeedbackBanner(
+                    loadingTitle: l10n.loginSigningIn,
+                    loadingHint: l10n.loginSigningInHint,
+                  )
+                else if (_signInError != null)
+                  AuthFormFeedbackBanner(errorMessage: _signInError),
+                if (_busy || _signInError != null) const SizedBox(height: 16),
                 TextFormField(
                   controller: _shopId,
+                  enabled: !_busy && !_busyCreate,
                   textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
                     labelText: l10n.loginShopIdLabel,
@@ -286,6 +294,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _username,
+                  enabled: !_busy && !_busyCreate,
                   textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
                     labelText: l10n.loginUsernameLabel,
@@ -318,32 +327,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 24),
                 FilledButton(
-                  onPressed: _busy ? null : () => _signIn(l10n),
-                  child: _busy
-                      ? Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: theme.colorScheme.onPrimary,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Text(l10n.loginSigningIn),
-                          ],
-                        )
-                      : Text(l10n.loginSignInCta),
+                  onPressed: (_busy || _busyCreate) ? null : () => _signIn(l10n),
+                  child: Text(_busy ? l10n.loginSigningIn : l10n.loginSignInCta),
                 ),
                 if (PrideApiConfig.isConfigured) ...[
                   const SizedBox(height: 8),
                   Align(
                     alignment: Alignment.center,
                     child: TextButton(
-                      onPressed: _busy
+                      onPressed: (_busy || _busyCreate)
                           ? null
                           : () => context.push('/auth/forgot-password'),
                       child: Text(l10n.loginForgotPasswordCta),
@@ -359,8 +351,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
+                            if (_busyCreate)
+                              AuthFormFeedbackBanner(
+                                loadingTitle: l10n.loginShopCreating,
+                                loadingHint: l10n.loginCreatingShopHint,
+                              )
+                            else if (_createError != null)
+                              AuthFormFeedbackBanner(
+                                errorMessage: _createError,
+                              ),
+                            if (_busyCreate || _createError != null)
+                              const SizedBox(height: 12),
                             TextField(
                               controller: _createShopName,
+                              enabled: !_busyCreate && !_busy,
                               decoration: InputDecoration(
                                 labelText: l10n.loginShopCreateNameLabel,
                                 border: const OutlineInputBorder(),
@@ -369,6 +373,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             const SizedBox(height: 12),
                             TextField(
                               controller: _createOwnerUser,
+                              enabled: !_busyCreate && !_busy,
                               decoration: InputDecoration(
                                 labelText:
                                     l10n.loginShopCreateOwnerUsernameLabel,
@@ -387,29 +392,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ),
                             const SizedBox(height: 16),
                             FilledButton(
-                              onPressed: _busyCreate
+                              onPressed: (_busyCreate || _busy)
                                   ? null
                                   : () => _createShop(l10n),
-                              child: _busyCreate
-                                  ? Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            color: theme
-                                                .colorScheme.onPrimary,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Text(l10n.loginShopCreating),
-                                      ],
-                                    )
-                                  : Text(l10n.loginShopCreateCta),
+                              child: Text(
+                                _busyCreate
+                                    ? l10n.loginShopCreating
+                                    : l10n.loginShopCreateCta,
+                              ),
                             ),
                           ],
                         ),

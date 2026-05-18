@@ -12,6 +12,7 @@ import 'package:pride_v3/l10n/app_localizations.dart';
 
 import 'package:pride_v3/app/app_theme.dart';
 import 'package:pride_v3/core/widgets/pride_action_buttons.dart';
+import 'package:pride_v3/core/widgets/pride_carved_section.dart';
 import 'package:pride_v3/core/feedback/app_feedback.dart';
 
 import 'package:uuid/uuid.dart';
@@ -26,7 +27,7 @@ import '../../data/local/entities/order_status.dart';
 import '../../data/providers/local_data_providers.dart';
 import '../../licensing/license_providers.dart';
 import '../../core/printing/thermal_print_order.dart';
-import '../../security/owner_password_verify.dart';
+import '../../security/delete_by_typing_name.dart';
 import '../../shell/shell_sync_providers.dart';
 import '../catalog/catalog_item_image.dart';
 import 'order_detail_hero_card.dart';
@@ -34,6 +35,7 @@ import 'order_detail_share_actions.dart';
 import 'order_invoice_share.dart';
 import 'order_payment_amount_sheet.dart';
 import 'order_status_label.dart';
+import 'order_customer_fabric_panel.dart';
 import 'order_style_figures_panel.dart';
 
 /// Order details with collapsible sections (plan-12); data from local stream.
@@ -42,64 +44,59 @@ class OrderDetailScreen extends ConsumerWidget {
 
   final String orderId;
 
-  bool _requiresOwnerPassword(OrderLocalStatus status) {
-    return status == OrderLocalStatus.delivered ||
-        status == OrderLocalStatus.cancelled;
-  }
-
   bool _isTerminal(OrderLocalStatus status) {
     return status == OrderLocalStatus.delivered ||
         status == OrderLocalStatus.cancelled;
   }
 
-  Future<bool> _confirm(
+  Future<void> _deleteOrder(
     BuildContext context,
-    String title,
-    String body,
-    String confirmText,
+    WidgetRef ref,
+    AppLocalizations l10n,
+    OrderSummary o,
   ) async {
-    final result = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text(body),
-        actions: prideDialogCancelSave(
-          context: context,
-          onCancel: () => Navigator.of(context).pop(false),
-          onConfirm: () => Navigator.of(context).pop(true),
-          saveLabel: confirmText,
-          confirmVariant: PrideButtonVariant.warning,
+    if (ref.read(licenseEditingBlockedProvider)) {
+      showAppFeedback(
+        context,
+        ref,
+        kind: AppFeedbackKind.error,
+        message: licenseWriteBlockedMessage(
+          ref.read(licenseNotifierProvider),
+          l10n,
         ),
-      ),
-    );
-    return result ?? false;
-  }
+      );
+      return;
+    }
 
-  Future<String?> _promptOwnerPassword(BuildContext context) async {
-    final controller = TextEditingController();
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.of(context)!.ownerPasswordTitle),
-        content: TextField(
-          controller: controller,
-          obscureText: true,
-          decoration: InputDecoration(
-            labelText: AppLocalizations.of(context)!.ownerPasswordLabel,
-          ),
-        ),
-        actions: prideDialogCancelSave(
-          context: context,
-          onCancel: () => Navigator.of(context).pop(false),
-          onConfirm: () => Navigator.of(context).pop(true),
-          saveLabel: MaterialLocalizations.of(context).okButtonLabel,
-        ),
-      ),
+    final ok = await confirmDeleteByTypingName(
+      context,
+      l10n: l10n,
+      title: l10n.orderDeleteConfirmTitle,
+      explanation: l10n.orderDeleteConfirmBody,
+      expectedName: o.displayOrderNo,
     );
-    if (ok != true) return null;
-    final value = controller.text.trim();
-    if (value.isEmpty) return null;
-    return value;
+    if (!ok || !context.mounted) return;
+
+    final shopId = ref.read(effectiveShopIdProvider);
+    recordSyncOutboxMutation(
+      ref,
+      kind: SyncOutboxKinds.orderDelete,
+      entityRef: o.internalId,
+      shopId: shopId,
+    );
+
+    final repo = await ref.read(orderListRepositoryProvider.future);
+    await repo.softDeleteOrder(o.internalId);
+
+    if (!context.mounted) return;
+    showAppFeedback(
+      context,
+      ref,
+      kind: AppFeedbackKind.success,
+      message: l10n.orderDeleted,
+      deleted: true,
+    );
+    context.go('/app/orders');
   }
 
   Future<void> _editInternalNotes(
@@ -257,6 +254,20 @@ class OrderDetailScreen extends ConsumerWidget {
             ),
             title: Text(l10n.ordersNumberPrefix(o.displayOrderNo)),
             actions: [
+              if (!editBlockedByLicense)
+                PopupMenuButton<String>(
+                  onSelected: (value) {
+                    if (value == 'delete') {
+                      _deleteOrder(context, ref, l10n, o);
+                    }
+                  },
+                  itemBuilder: (ctx) => [
+                    PopupMenuItem(
+                      value: 'delete',
+                      child: Text(l10n.orderDeleteMenu),
+                    ),
+                  ],
+                ),
               IconButton(
                 icon: const Icon(Icons.share_outlined),
                 tooltip: l10n.orderShareInvoiceTooltip,
@@ -328,132 +339,102 @@ class OrderDetailScreen extends ConsumerWidget {
                 calendar: calendar,
                 statusText: orderStatusLabel(o.status, l10n),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: FilledButton(
-                  style: prideButtonStyle(context, PrideButtonVariant.warning),
-                  onPressed: changeStatusEnabled
-                      ? () async {
-                          final picked =
-                              await _pickStatus(context, l10n, o.status);
-                          if (!context.mounted) return;
-                          if (picked == null || picked == o.status) return;
+              PrideCarvedPanel(
+                title: l10n.ordersDetailChangeStatus,
+                subtitle: changeStatusEnabled
+                    ? l10n.ordersDetailChangeStatusSubtitle
+                    : statusLocked
+                        ? l10n.ordersDetailLockedHint
+                        : l10n.licenseReadOnlyHint,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    FilledButton(
+                      style: prideButtonStyle(
+                        context,
+                        PrideButtonVariant.warning,
+                      ),
+                      onPressed: changeStatusEnabled
+                          ? () async {
+                              final picked =
+                                  await _pickStatus(context, l10n, o.status);
+                              if (!context.mounted) return;
+                              if (picked == null || picked == o.status) {
+                                return;
+                              }
 
-                          final confirmed = await _confirm(
-                            context,
-                            l10n.ordersDetailConfirmTitle,
-                            l10n.ordersDetailConfirmBody(
-                              orderStatusLabel(picked, l10n),
-                            ),
-                            l10n.ordersDetailConfirmCta,
-                          );
-                          if (!context.mounted) return;
-                          if (!confirmed) return;
-
-                          if (_requiresOwnerPassword(picked)) {
-                            final pw = await _promptOwnerPassword(context);
-                            if (!context.mounted) return;
-                            if (pw == null) return;
-                            if (!verifyOwnerPasswordForLocalActions(pw)) {
+                              final repo = await ref.read(
+                                orderListRepositoryProvider.future,
+                              );
+                              await repo.updateOrderStatus(
+                                orderInternalId: o.internalId,
+                                newStatus: picked,
+                              );
+                              recordSyncOutboxMutation(
+                                ref,
+                                kind: SyncOutboxKinds.orderStatus,
+                                entityRef: o.internalId,
+                                shopId: o.shopId,
+                                payloadJson: jsonEncode({
+                                  'status_index': picked.code,
+                                  'display_order_no': o.displayOrderNo,
+                                  'updated_at': DateTime.now()
+                                      .toUtc()
+                                      .toIso8601String(),
+                                }),
+                              );
+                              final notifRepo = await ref.read(
+                                appNotificationRepositoryProvider.future,
+                              );
+                              final shopForNotif =
+                                  ref.read(authSessionProvider).shopId?.trim();
+                              final notifShopId = (shopForNotif != null &&
+                                      shopForNotif.isNotEmpty)
+                                  ? shopForNotif
+                                  : kDevShopId;
+                              final notifId = const Uuid().v4();
+                              final title = l10n.notifOrderStatusTitle(
+                                o.displayOrderNo,
+                              );
+                              final body = l10n.notifOrderStatusBody(
+                                orderStatusLabel(picked, l10n),
+                              );
+                              await notifRepo.append(
+                                shopId: notifShopId,
+                                title: title,
+                                body: body,
+                                relatedOrderInternalId: o.internalId,
+                                internalId: notifId,
+                              );
+                              recordSyncOutboxMutation(
+                                ref,
+                                kind: SyncOutboxKinds.notificationAppend,
+                                entityRef: notifId,
+                                shopId: notifShopId,
+                                payloadJson: jsonEncode({
+                                  'title': title,
+                                  'body': body,
+                                  'related_order_internal_id': o.internalId,
+                                  'created_at': DateTime.now()
+                                      .toUtc()
+                                      .toIso8601String(),
+                                }),
+                              );
+                              if (!context.mounted) return;
                               showAppFeedback(
                                 context,
                                 ref,
-                                kind: AppFeedbackKind.error,
-                                message: l10n.ownerPasswordMismatch,
+                                kind: AppFeedbackKind.success,
+                                message: l10n.ordersDetailStatusUpdated(
+                                  orderStatusLabel(picked, l10n),
+                                ),
                               );
-                              return;
                             }
-                          }
-
-                          final repo = await ref.read(
-                            orderListRepositoryProvider.future,
-                          );
-                          await repo.updateOrderStatus(
-                            orderInternalId: o.internalId,
-                            newStatus: picked,
-                          );
-                          recordSyncOutboxMutation(
-                            ref,
-                            kind: SyncOutboxKinds.orderStatus,
-                            entityRef: o.internalId,
-                            shopId: o.shopId,
-                            payloadJson: jsonEncode({
-                              'status_index': picked.code,
-                              'display_order_no': o.displayOrderNo,
-                              'updated_at':
-                                  DateTime.now().toUtc().toIso8601String(),
-                            }),
-                          );
-                          final notifRepo = await ref.read(
-                            appNotificationRepositoryProvider.future,
-                          );
-                          final shopForNotif =
-                              ref.read(authSessionProvider).shopId?.trim();
-                          final notifShopId =
-                              (shopForNotif != null && shopForNotif.isNotEmpty)
-                                  ? shopForNotif
-                                  : kDevShopId;
-                          final notifId = const Uuid().v4();
-                          final title =
-                              l10n.notifOrderStatusTitle(o.displayOrderNo);
-                          final body = l10n.notifOrderStatusBody(
-                            orderStatusLabel(picked, l10n),
-                          );
-                          await notifRepo.append(
-                            shopId: notifShopId,
-                            title: title,
-                            body: body,
-                            relatedOrderInternalId: o.internalId,
-                            internalId: notifId,
-                          );
-                          recordSyncOutboxMutation(
-                            ref,
-                            kind: SyncOutboxKinds.notificationAppend,
-                            entityRef: notifId,
-                            shopId: notifShopId,
-                            payloadJson: jsonEncode({
-                              'title': title,
-                              'body': body,
-                              'related_order_internal_id': o.internalId,
-                              'created_at':
-                                  DateTime.now().toUtc().toIso8601String(),
-                            }),
-                          );
-                          if (!context.mounted) return;
-                          showAppFeedback(
-                            context,
-                            ref,
-                            kind: AppFeedbackKind.success,
-                            message: l10n.ordersDetailStatusUpdated(
-                              orderStatusLabel(picked, l10n),
-                            ),
-                          );
-                        }
-                      : null,
-                  child: Text(l10n.ordersDetailChangeStatus),
-                ),
-              ),
-              if (editBlockedByLicense)
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Text(
-                    l10n.licenseReadOnlyHint,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ),
-              if (statusLocked)
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(
-                        l10n.ordersDetailLockedHint,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                      const SizedBox(height: 6),
+                          : null,
+                      child: Text(l10n.ordersDetailChangeStatus),
+                    ),
+                    if (statusLocked) ...[
+                      const SizedBox(height: 10),
                       Text(
                         l10n.ordersDetailLockedStillInternalNotes,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -463,77 +444,74 @@ class OrderDetailScreen extends ConsumerWidget {
                             ),
                       ),
                     ],
-                  ),
+                  ],
                 ),
-              const SizedBox(height: 8),
-              ExpansionTile(
-                title: Text(l10n.ordersDetailSectionCustomer),
-                subtitle: Text(o.customerName),
-                initiallyExpanded: true,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          leading: const Icon(Icons.person_outline),
-                          title: Text(l10n.customerNameLabel),
-                          subtitle: Text(o.customerName),
-                        ),
-                        ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          leading: const Icon(Icons.phone_outlined),
-                          title: Text(l10n.customerPhoneLabel),
-                          subtitle: Text(
-                            o.customerPhone ?? l10n.customersPhoneMissing,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
               ),
-              ExpansionTile(
-                title: Text(l10n.ordersDetailSectionMeasurements),
-                children: [
-                  if (o.sourceMeasurementProfileLabel.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                      child: Text(
-                        l10n.ordersDetailMeasurementsFromProfile(
-                          o.sourceMeasurementProfileLabel,
-                        ),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant,
-                            ),
-                      ),
+              PrideCarvedSection(
+                title: l10n.ordersDetailSectionCustomer,
+                subtitle: o.customerName,
+                initiallyExpanded: true,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _OrderDetailInfoRow(
+                      icon: Icons.person_outline,
+                      label: l10n.customerNameLabel,
+                      value: o.customerName,
                     ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                    child: snapshotAsync.when(
+                    _OrderDetailInfoRow(
+                      icon: Icons.phone_outlined,
+                      label: l10n.customerPhoneLabel,
+                      value: o.customerPhone ?? l10n.customersPhoneMissing,
+                    ),
+                  ],
+                ),
+              ),
+              PrideCarvedSection(
+                title: l10n.ordersDetailSectionMeasurements,
+                subtitle: o.sourceMeasurementProfileLabel.isNotEmpty
+                    ? o.sourceMeasurementProfileLabel
+                    : null,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (o.sourceMeasurementProfileLabel.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: Text(
+                          l10n.ordersDetailMeasurementsFromProfile(
+                            o.sourceMeasurementProfileLabel,
+                          ),
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                  ),
+                        ),
+                      ),
+                    snapshotAsync.when(
                       data: (snap) {
                         final items = snap?.items ?? [];
                         if (items.isNotEmpty) {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              for (final it in items)
-                                ListTile(
-                                  contentPadding: EdgeInsets.zero,
-                                  dense: true,
-                                  title: Text(it.typeName),
-                                  trailing: Text(
-                                    '${it.value.trim()}'
-                                    '${MeasurementProfileFormatting.unitSuffix(it.unitCode)}',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium,
+                              for (var i = 0; i < items.length; i++) ...[
+                                if (i > 0)
+                                  Divider(
+                                    height: 1,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .outlineVariant
+                                        .withValues(alpha: 0.6),
                                   ),
+                                _OrderDetailMeasurementRow(
+                                  label: items[i].typeName,
+                                  value:
+                                      '${items[i].value.trim()}${MeasurementProfileFormatting.unitSuffix(items[i].unitCode)}',
                                 ),
+                              ],
                             ],
                           );
                         }
@@ -541,162 +519,121 @@ class OrderDetailScreen extends ConsumerWidget {
                           o.measurementsSnapshot.trim().isEmpty
                               ? l10n.ordersDetailSnapshotEmpty
                               : o.measurementsSnapshot,
+                          style: Theme.of(context).textTheme.bodyMedium,
                         );
                       },
                       loading: () => const LinearProgressIndicator(),
                       error: (e, _) => Text('$e'),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               if (o.catalogDesignNameSnapshot.trim().isNotEmpty)
-                ExpansionTile(
-                  title: Text(l10n.orderDetailCatalogDesignTitle),
-                  subtitle: Text(
-                    o.catalogDesignNameSnapshot.trim(),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          CatalogItemImage(
-                            imagePath: o.catalogImagePathSnapshot ??
-                                o.catalogThumbnailPathSnapshot,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            o.catalogDesignNameSnapshot.trim(),
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          if (o.catalogDesignerShopNameSnapshot
-                              .trim()
-                              .isNotEmpty)
-                            Text(
-                              o.catalogDesignerShopNameSnapshot.trim(),
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                          if (o.catalogItemInternalId != null) ...[
-                            const SizedBox(height: 8),
-                            Align(
-                              alignment: AlignmentDirectional.centerStart,
-                              child: TextButton(
-                                onPressed: () => context.push(
-                                  '/app/catalog/${o.catalogItemInternalId}',
-                                ),
-                                child: Text(l10n.catalogDetailTitle),
-                              ),
-                            ),
-                          ],
-                        ],
+                PrideCarvedSection(
+                  title: l10n.orderDetailCatalogDesignTitle,
+                  subtitle: o.catalogDesignNameSnapshot.trim(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: CatalogItemImage(
+                          imagePath: o.catalogImagePathSnapshot ??
+                              o.catalogThumbnailPathSnapshot,
+                        ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 10),
+                      Text(
+                        o.catalogDesignNameSnapshot.trim(),
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      if (o.catalogDesignerShopNameSnapshot.trim().isNotEmpty)
+                        Text(
+                          o.catalogDesignerShopNameSnapshot.trim(),
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      if (o.catalogItemInternalId != null) ...[
+                        const SizedBox(height: 8),
+                        Align(
+                          alignment: AlignmentDirectional.centerStart,
+                          child: TextButton(
+                            onPressed: () => context.push(
+                              '/app/catalog/${o.catalogItemInternalId}',
+                            ),
+                            child: Text(l10n.catalogDetailTitle),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
               if (o.styleName.trim().isNotEmpty ||
                   o.styleSummary.trim().isNotEmpty ||
                   o.styleSelectionJson.trim().isNotEmpty)
-                ExpansionTile(
-                  title: Text(l10n.ordersDetailSectionStyle),
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                      child: OrderStyleFiguresPanel(order: o),
-                    ),
-                  ],
+                PrideCarvedSection(
+                  title: l10n.ordersDetailSectionStyle,
+                  subtitle: o.styleName.trim().isNotEmpty
+                      ? o.styleName.trim()
+                      : null,
+                  child: OrderStyleFiguresPanel(order: o),
                 ),
               if (o.hasCustomerFabric)
-                ExpansionTile(
-                  title: Text(l10n.orderDetailFabricTitle),
+                PrideCarvedSection(
+                  title: l10n.orderDetailFabricTitle,
+                  subtitle: orderCustomerFabricSummaryLine(l10n, o),
+                  child: OrderCustomerFabricPanel(order: o),
+                ),
+              PrideCarvedSection(
+                title: l10n.ordersDetailSectionInternalNotes,
+                subtitle: o.internalNotes.trim().isEmpty
+                    ? l10n.ordersDetailSnapshotEmpty
+                    : o.internalNotes,
+                initiallyExpanded: false,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          if (o.fabricNameSnapshot.trim().isNotEmpty)
-                            Text(
-                              '${l10n.receiptFabricNameLabel}: ${o.fabricNameSnapshot.trim()}',
-                            ),
-                          if (o.fabricColorSnapshot.trim().isNotEmpty) ...[
-                            if (o.fabricNameSnapshot.trim().isNotEmpty)
-                              const SizedBox(height: 6),
-                            Text(
-                              '${l10n.receiptFabricColorLabel}: ${o.fabricColorSnapshot.trim()}',
-                            ),
-                          ],
-                          if (o.fabricIdSnapshot.trim().isNotEmpty) ...[
-                            const SizedBox(height: 6),
-                            Text(
-                              '${l10n.receiptFabricIdLabel}: ${o.fabricIdSnapshot.trim()}',
-                            ),
-                          ],
-                        ],
-                      ),
+                    Text(
+                      o.internalNotes.trim().isEmpty
+                          ? l10n.ordersDetailSnapshotEmpty
+                          : o.internalNotes,
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
+                    if (!editBlockedByLicense) ...[
+                      const SizedBox(height: 12),
+                      Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: FilledButton(
+                          style: prideButtonStyle(
+                            context,
+                            PrideButtonVariant.edit,
+                          ),
+                          onPressed: () => _editInternalNotes(
+                            context,
+                            ref,
+                            l10n,
+                            o,
+                          ),
+                          child: Text(l10n.editCta),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
-              ExpansionTile(
-                title: Text(l10n.ordersDetailSectionInternalNotes),
-                subtitle: Text(
-                  o.internalNotes.trim().isEmpty
-                      ? l10n.ordersDetailSnapshotEmpty
-                      : o.internalNotes,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(
-                          o.internalNotes.trim().isEmpty
-                              ? l10n.ordersDetailSnapshotEmpty
-                              : o.internalNotes,
-                        ),
-                        if (!editBlockedByLicense) ...[
-                          const SizedBox(height: 12),
-                          Align(
-                            alignment: AlignmentDirectional.centerStart,
-                            child: FilledButton(
-                              style: prideButtonStyle(
-                                context,
-                                PrideButtonVariant.edit,
-                              ),
-                              onPressed: () => _editInternalNotes(
-                                context,
-                                ref,
-                                l10n,
-                                o,
-                              ),
-                              child: Text(l10n.editCta),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ],
               ),
-              ExpansionTile(
-                title: Text(l10n.ordersDetailSectionPayments),
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                    child: _TotalsCard(
+              PrideCarvedSection(
+                title: l10n.ordersDetailSectionPayments,
+                subtitle: formatMoney(o.remainingAmountMinor),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _TotalsCard(
                       totalMinor: o.totalAmountMinor,
                       paidMinor: o.paidAmountMinor,
                       l10n: l10n,
+                      formatMoney: formatMoney,
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                    child: Wrap(
+                    const SizedBox(height: 12),
+                    Wrap(
                       spacing: 8,
                       runSpacing: 8,
                       children: [
@@ -810,14 +747,12 @@ class OrderDetailScreen extends ConsumerWidget {
                         ),
                       ],
                     ),
-                  ),
-                  asyncPayments.when(
-                    data: (payments) {
-                      if (payments.isEmpty) {
-                        final scheme = Theme.of(context).colorScheme;
-                        return Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                          child: Row(
+                    const SizedBox(height: 12),
+                    asyncPayments.when(
+                      data: (payments) {
+                        if (payments.isEmpty) {
+                          final scheme = Theme.of(context).colorScheme;
+                          return Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Icon(
@@ -833,77 +768,54 @@ class OrderDetailScreen extends ConsumerWidget {
                                       .textTheme
                                       .bodyMedium
                                       ?.copyWith(
-                                    color: scheme.onSurfaceVariant,
-                                  ),
+                                        color: scheme.onSurfaceVariant,
+                                      ),
                                 ),
                               ),
                             ],
-                          ),
+                          );
+                        }
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            for (var i = 0; i < payments.length; i++) ...[
+                              if (i > 0) const SizedBox(height: 8),
+                              _OrderDetailPaymentRow(
+                                payment: payments[i],
+                                l10n: l10n,
+                                calendar: calendar,
+                                locale: locale,
+                              ),
+                            ],
+                          ],
                         );
-                      }
-                      return Column(
-                        children: [
-                          for (final p in payments)
-                            ListTile(
-                              leading: const Icon(Icons.payments_outlined),
-                              title: Wrap(
-                                crossAxisAlignment:
-                                    WrapCrossAlignment.center,
-                                spacing: 8,
-                                children: [
-                                  Text(
-                                    l10n.paymentAmount(
-                                      p.amountMinor.toString(),
-                                    ),
-                                  ),
-                                  if (p.isAdjustment)
-                                    Chip(
-                                      label: Text(
-                                        l10n.paymentLedgerAdjustmentTag,
-                                      ),
-                                      visualDensity: VisualDensity.compact,
-                                    ),
-                                ],
-                              ),
-                              subtitle: Text(
-                                '${p.method} · ${AppCalendarFormat.dateTimeMedium(l10n, calendar, p.createdAt, locale)}',
-                              ),
-                            ),
-                        ],
-                      );
-                    },
-                    loading: () => const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
+                      },
+                      loading: () => const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Center(child: CircularProgressIndicator()),
+                      ),
+                      error: (e, _) => Text('$e'),
                     ),
-                    error: (e, _) => Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Text('$e'),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              ExpansionTile(
-                title: Text(l10n.ordersDetailSectionAudit),
-                children: [
-                  asyncPayments.when(
-                    data: (payments) => _OrderAuditSection(
-                      o: o,
-                      payments: payments,
-                      l10n: l10n,
-                      calendar: calendar,
-                      locale: locale,
-                    ),
-                    loading: () => const Padding(
-                      padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
-                      child: Center(child: CircularProgressIndicator()),
-                    ),
-                    error: (e, _) => Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                      child: Text('$e'),
-                    ),
+              PrideCarvedSection(
+                title: l10n.ordersDetailSectionAudit,
+                initiallyExpanded: false,
+                child: asyncPayments.when(
+                  data: (payments) => _OrderAuditSection(
+                    o: o,
+                    payments: payments,
+                    l10n: l10n,
+                    calendar: calendar,
+                    locale: locale,
                   ),
-                ],
+                  loading: () => const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                  error: (e, _) => Text('$e'),
+                ),
               ),
             ],
           ),
@@ -971,98 +883,84 @@ class _OrderAuditSection extends ConsumerWidget {
             ),
           );
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            l10n.ordersDetailAuditIntro,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                ),
-          ),
-          const SizedBox(height: 8),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.fingerprint_outlined),
-            title: Text(l10n.ordersAuditInternalId),
-            subtitle: SelectableText(
-              o.internalId,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            trailing: IconButton(
-              tooltip: l10n.ordersAuditCopyIdTooltip,
-              icon: const Icon(Icons.copy_outlined),
-              onPressed: () async {
-                await Clipboard.setData(ClipboardData(text: o.internalId));
-                if (!context.mounted) return;
-                showAppFeedback(
-                  context,
-                  ref,
-                  kind: AppFeedbackKind.info,
-                  message: l10n.ordersAuditCopiedId,
-                );
-              },
-            ),
-          ),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.schedule_outlined),
-            title: Text(l10n.ordersAuditCreatedAt),
-            subtitle: Text(
-              AppCalendarFormat.dateTimeMedium(
-                l10n,
-                calendar,
-                o.createdAt,
-                locale,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          l10n.ordersDetailAuditIntro,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: scheme.onSurfaceVariant,
               ),
-            ),
+        ),
+        const SizedBox(height: 10),
+        _OrderDetailInfoRow(
+          icon: Icons.fingerprint_outlined,
+          label: l10n.ordersAuditInternalId,
+          value: o.internalId,
+          selectable: true,
+          trailing: IconButton(
+            tooltip: l10n.ordersAuditCopyIdTooltip,
+            icon: const Icon(Icons.copy_outlined),
+            onPressed: () async {
+              await Clipboard.setData(ClipboardData(text: o.internalId));
+              if (!context.mounted) return;
+              showAppFeedback(
+                context,
+                ref,
+                kind: AppFeedbackKind.info,
+                message: l10n.ordersAuditCopiedId,
+              );
+            },
           ),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.update_outlined),
-            title: Text(l10n.ordersAuditUpdatedAt),
-            subtitle: Text(
-              AppCalendarFormat.dateTimeMedium(
-                l10n,
-                calendar,
-                o.updatedAt,
-                locale,
+        ),
+        _OrderDetailInfoRow(
+          icon: Icons.schedule_outlined,
+          label: l10n.ordersAuditCreatedAt,
+          value: AppCalendarFormat.dateTimeMedium(
+            l10n,
+            calendar,
+            o.createdAt,
+            locale,
+          ),
+        ),
+        _OrderDetailInfoRow(
+          icon: Icons.update_outlined,
+          label: l10n.ordersAuditUpdatedAt,
+          value: AppCalendarFormat.dateTimeMedium(
+            l10n,
+            calendar,
+            o.updatedAt,
+            locale,
+          ),
+        ),
+        _OrderDetailInfoRow(
+          icon: Icons.flag_outlined,
+          label: l10n.ordersAuditStatus,
+          value: orderStatusLabel(o.status, l10n),
+        ),
+        _OrderDetailInfoRow(
+          icon: Icons.event_outlined,
+          label: l10n.ordersAuditDelivery,
+          value: AppCalendarFormat.mediumDate(
+            l10n,
+            calendar,
+            o.deliveryDate,
+            locale,
+          ),
+        ),
+        const Divider(height: 20),
+        Text(
+          l10n.ordersAuditPaymentsTitle,
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w700,
               ),
-            ),
-          ),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.flag_outlined),
-            title: Text(l10n.ordersAuditStatus),
-            subtitle: Text(orderStatusLabel(o.status, l10n)),
-          ),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.event_outlined),
-            title: Text(l10n.ordersAuditDelivery),
-            subtitle: Text(
-              AppCalendarFormat.mediumDate(
-                l10n,
-                calendar,
-                o.deliveryDate,
-                locale,
-              ),
-            ),
-          ),
-          const Divider(height: 24),
-          Text(
-            l10n.ordersAuditPaymentsTitle,
-            style: Theme.of(context).textTheme.titleSmall,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            paySubtitle,
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          paySubtitle,
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+      ],
     );
   }
 }
@@ -1072,39 +970,261 @@ class _TotalsCard extends StatelessWidget {
     required this.totalMinor,
     required this.paidMinor,
     required this.l10n,
+    required this.formatMoney,
   });
 
   final int totalMinor;
   final int paidMinor;
   final AppLocalizations l10n;
+  final String Function(int minor) formatMoney;
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final remaining = totalMinor - paidMinor;
-    return Card(
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: scheme.surfaceContainerLowest,
+        border: Border.all(
+          color: scheme.outlineVariant.withValues(alpha: 0.75),
+        ),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _kv(l10n.paymentTotal, totalMinor.toString(), context),
-            _kv(l10n.paymentPaid, paidMinor.toString(), context),
-            _kv(l10n.paymentRemaining, remaining.toString(), context),
+            Expanded(
+              child: _kv(
+                l10n.paymentTotal,
+                formatMoney(totalMinor),
+                context,
+              ),
+            ),
+            Expanded(
+              child: _kv(
+                l10n.paymentPaid,
+                formatMoney(paidMinor),
+                context,
+              ),
+            ),
+            Expanded(
+              child: _kv(
+                l10n.paymentRemaining,
+                formatMoney(remaining),
+                context,
+                emphasize: remaining > 0,
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _kv(String k, String v, BuildContext context) {
-    final style = Theme.of(context).textTheme.bodySmall;
+  Widget _kv(
+    String k,
+    String v,
+    BuildContext context, {
+    bool emphasize = false,
+  }) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(k, style: style),
+        Text(
+          k,
+          style: theme.textTheme.labelMedium?.copyWith(
+            color: scheme.onSurfaceVariant,
+          ),
+        ),
         const SizedBox(height: 4),
-        Text(v, style: Theme.of(context).textTheme.titleMedium),
+        Text(
+          v,
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: emphasize ? FontWeight.w800 : FontWeight.w700,
+            color: emphasize ? scheme.error : null,
+          ),
+        ),
       ],
+    );
+  }
+}
+
+class _OrderDetailInfoRow extends StatelessWidget {
+  const _OrderDetailInfoRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.trailing,
+    this.selectable = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final Widget? trailing;
+  final bool selectable;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final valueWidget = selectable
+        ? SelectableText(
+            value,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          )
+        : Text(
+            value,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          );
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 22, color: scheme.primary),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                valueWidget,
+              ],
+            ),
+          ),
+          if (trailing != null) trailing!,
+        ],
+      ),
+    );
+  }
+}
+
+class _OrderDetailMeasurementRow extends StatelessWidget {
+  const _OrderDetailMeasurementRow({
+    required this.label,
+    required this.value,
+  });
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          Text(
+            value,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _OrderDetailPaymentRow extends StatelessWidget {
+  const _OrderDetailPaymentRow({
+    required this.payment,
+    required this.l10n,
+    required this.calendar,
+    required this.locale,
+  });
+
+  final PaymentSummary payment;
+  final AppLocalizations l10n;
+  final DateCalendarSystem calendar;
+  final String locale;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: scheme.surfaceContainerLowest,
+        border: Border.all(
+          color: scheme.outlineVariant.withValues(alpha: 0.75),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              payment.isAdjustment
+                  ? Icons.tune_outlined
+                  : Icons.payments_outlined,
+              size: 22,
+              color: scheme.primary,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: [
+                      Text(
+                        l10n.paymentAmount(payment.amountMinor.toString()),
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      if (payment.isAdjustment)
+                        Chip(
+                          label: Text(l10n.paymentLedgerAdjustmentTag),
+                          visualDensity: VisualDensity.compact,
+                          materialTapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap,
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '${payment.method} · ${AppCalendarFormat.dateTimeMedium(l10n, calendar, payment.createdAt, locale)}',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -1127,10 +1247,11 @@ class _FromNewBannerState extends State<_FromNewBanner> {
     final l10n = AppLocalizations.of(context)!;
     final scheme = Theme.of(context).colorScheme;
     final actions = Theme.of(context).extension<PrideActionColors>()!;
-    return Material(
-      elevation: 0,
-      borderRadius: BorderRadius.circular(14),
-      color: actions.addContainer,
+    return DecoratedBox(
+      decoration: prideCarvedDecoration(scheme).copyWith(
+        color: actions.addContainer,
+        border: Border.all(color: actions.add.withValues(alpha: 0.35)),
+      ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         child: Row(

@@ -9,6 +9,7 @@ import 'package:pride_v3/l10n/app_localizations.dart';
 import '../../shell/shell_sync_providers.dart';
 import 'developer_portal_account_tab.dart';
 import 'developer_portal_codes_tab.dart';
+import 'developer_portal_billing_tab.dart';
 import 'developer_portal_diagnostics_tab.dart';
 
 /// Developer portal shell (plan-18): overview, activation codes, shops, resets, diagnostics.
@@ -20,7 +21,7 @@ class DeveloperPortalScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final online = ref.watch(connectivityOnlineProvider);
     return DefaultTabController(
-      length: 6,
+      length: 7,
       child: Scaffold(
         appBar: AppBar(
           title: Text(l10n.devPortalTitle),
@@ -29,6 +30,7 @@ class DeveloperPortalScreen extends ConsumerWidget {
             tabs: [
               Tab(text: l10n.devPortalTabOverview),
               Tab(text: l10n.devPortalTabCodes),
+              Tab(text: l10n.devPortalTabBilling),
               Tab(text: l10n.devPortalTabShops),
               Tab(text: l10n.devPortalTabResets),
               Tab(text: l10n.devPortalTabDiagnostics),
@@ -54,6 +56,7 @@ class DeveloperPortalScreen extends ConsumerWidget {
                 children: [
                   _OverviewTab(l10n: l10n),
                   DeveloperPortalCodesTab(l10n: l10n),
+                  DeveloperPortalBillingTab(l10n: l10n),
                   _DevPortalShopsTab(l10n: l10n),
                   _DevPortalResetsTab(l10n: l10n),
                   const DeveloperPortalDiagnosticsTab(),

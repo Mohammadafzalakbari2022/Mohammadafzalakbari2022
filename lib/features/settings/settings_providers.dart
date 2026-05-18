@@ -5,9 +5,11 @@ import 'package:pride_v3/data/local/measurement_unit_codes.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 const prideLocaleLanguageCodeKey = 'pride_locale_language_code';
+const prideThemeModeKey = 'pride_theme_mode';
 const prideUiSoundsKey = 'pride_ui_sounds_enabled';
 const prideUiHapticsKey = 'pride_ui_haptics_enabled';
 const prideMeasurementUnitKey = 'pride_measurement_unit_code';
+const prideNotificationsMutedKey = 'pride_notifications_muted';
 
 /// Reads saved app language (`en` / `fa` / `ps`). Defaults to Dari on first launch.
 Locale localeFromPrefs(SharedPreferences prefs) {
@@ -55,6 +57,28 @@ int measurementUnitFromPrefs(SharedPreferences prefs) {
 
 Future<void> persistMeasurementUnit(SharedPreferences prefs, int unitCode) async {
   await prefs.setInt(prideMeasurementUnitKey, unitCode);
+}
+
+ThemeMode themeModeFromPrefs(SharedPreferences prefs) {
+  final raw = prefs.getString(prideThemeModeKey);
+  for (final mode in ThemeMode.values) {
+    if (mode.name == raw) return mode;
+  }
+  return ThemeMode.system;
+}
+
+Future<void> persistThemeMode(SharedPreferences prefs, ThemeMode mode) async {
+  await prefs.setString(prideThemeModeKey, mode.name);
+}
+
+bool notificationsMutedFromPrefs(SharedPreferences prefs) =>
+    prefs.getBool(prideNotificationsMutedKey) ?? false;
+
+Future<void> persistNotificationsMuted(
+  SharedPreferences prefs,
+  bool value,
+) async {
+  await prefs.setBool(prideNotificationsMutedKey, value);
 }
 
 /// Short success sounds (SystemSound); persisted locally.

@@ -12,6 +12,8 @@ const int kSyncPushOutboxBatchLimit = 100;
     case SyncOutboxKinds.orderStatus:
     case SyncOutboxKinds.orderInternalNotes:
       return (entityType: 'order', operation: 'upsert');
+    case SyncOutboxKinds.orderDelete:
+      return (entityType: 'order', operation: 'delete');
     case SyncOutboxKinds.paymentAppend:
       return (entityType: 'payment', operation: 'upsert');
     case SyncOutboxKinds.notificationAppend:

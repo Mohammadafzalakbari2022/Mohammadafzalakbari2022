@@ -384,6 +384,14 @@ class MemoryOrderRepository implements OrderListRepository {
   }
 
   @override
+  Future<void> softDeleteOrder(String orderInternalId) async {
+    _orders.removeWhere((o) => o.internalId == orderInternalId);
+    _measurementSnapshotsByOrder.remove(orderInternalId);
+    _emitOrders();
+    _emitSnapshots();
+  }
+
+  @override
   Future<void> mergeRemoteOrder({
     required String shopId,
     required String internalId,

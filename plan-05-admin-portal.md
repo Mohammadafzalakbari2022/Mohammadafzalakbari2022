@@ -74,7 +74,13 @@ Capabilities:
 - Download/Share “diagnostics bundle” from device (client-side)
   - last sync errors, outbox stats, last license snapshot, app version
 
-### 5) Password reset requests (manual support)
+### 5) Subscription billing (Hesab Pay MVP)
+Capabilities:
+- Edit global Hesab Pay profile (account, prices, localized steps, contacts)
+- Publish / unpublish instructions for all shops
+- Review payment claims queue (pending → approve with auto-created code, or reject)
+
+### 6) Password reset requests (manual support)
 No SMS/email reset. Developer handles resets via portal.
 Capabilities:
 - View password reset requests (shop_id + username + requested_at)

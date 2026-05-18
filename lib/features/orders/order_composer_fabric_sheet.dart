@@ -272,24 +272,59 @@ class _OrderComposerFabricSheetState
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Text(
-                      l10n.ordersComposerFabricIdLabel,
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _fabricId.trim().isEmpty
-                          ? l10n.ordersComposerFabricIdHint
-                          : _fabricId,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 2,
-                          ),
+                    Card(
+                      clipBehavior: Clip.antiAlias,
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.tag_outlined,
+                                  size: 20,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  l10n.ordersComposerFabricIdLabel,
+                                  style:
+                                      Theme.of(context).textTheme.titleSmall,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              _fabricId.trim().isEmpty
+                                  ? l10n.ordersComposerFabricIdHint
+                                  : _fabricId,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 2,
+                                    color: _fabricId.trim().isEmpty
+                                        ? Theme.of(context)
+                                            .colorScheme
+                                            .onSurfaceVariant
+                                        : null,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 16),
-                    TextButton(
-                      onPressed: _clear,
-                      child: Text(l10n.ordersComposerFabricClearCta),
+                    Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: TextButton(
+                        onPressed: _clear,
+                        child: Text(l10n.ordersComposerFabricClearCta),
+                      ),
                     ),
                   ],
                 ),

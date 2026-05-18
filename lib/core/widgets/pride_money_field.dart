@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../input/pride_ltr_input.dart';
+
 /// Money / amount entry: Western + Persian + Arabic-Indic digits, keyboard-safe padding.
 class PrideMoneyField extends StatefulWidget {
   const PrideMoneyField({
@@ -32,6 +34,7 @@ class PrideMoneyField extends StatefulWidget {
 
 class _PrideMoneyFieldState extends State<PrideMoneyField> {
   final _focusNode = FocusNode();
+  var _scrollEnsuredForFocus = false;
 
   @override
   void initState() {
@@ -47,11 +50,14 @@ class _PrideMoneyFieldState extends State<PrideMoneyField> {
   }
 
   void _onFocusChange() {
-    if (!_focusNode.hasFocus) return;
+    if (!_focusNode.hasFocus) {
+      _scrollEnsuredForFocus = false;
+      return;
+    }
+    if (_scrollEnsuredForFocus) return;
+    _scrollEnsuredForFocus = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || !_focusNode.hasFocus) return;
-      final scrollable = Scrollable.maybeOf(context);
-      if (scrollable == null) return;
       Scrollable.ensureVisible(
         context,
         alignment: 0.35,
@@ -63,7 +69,6 @@ class _PrideMoneyFieldState extends State<PrideMoneyField> {
 
   @override
   Widget build(BuildContext context) {
-    final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
     return TextField(
       controller: widget.controller,
       focusNode: _focusNode,
@@ -73,12 +78,14 @@ class _PrideMoneyFieldState extends State<PrideMoneyField> {
           ? const TextInputType.numberWithOptions(signed: true, decimal: false)
           : TextInputType.number,
       textInputAction: widget.textInputAction,
+      textDirection: PrideLtrInput.direction,
+      textAlign: PrideLtrInput.align,
       inputFormatters: [
         FilteringTextInputFormatter.allow(
           widget.signed ? RegExp(r'[0-9۰-۹٠-٩\-]') : RegExp(r'[0-9۰-۹٠-٩]'),
         ),
       ],
-      scrollPadding: EdgeInsets.only(bottom: 140 + bottomInset),
+      scrollPadding: kPrideKeyboardSafeScrollPadding,
       decoration: InputDecoration(
         labelText: widget.labelText,
         hintText: widget.hintText,

@@ -34,8 +34,14 @@ class SettingsAppearanceLanguageScreen extends ConsumerWidget {
               ButtonSegment(value: ThemeMode.dark, label: Text(l10n.themeDark)),
             ],
             selected: {themeMode},
-            onSelectionChanged: (s) =>
-                ref.read(themeModeProvider.notifier).state = s.first,
+            onSelectionChanged: (s) async {
+              final mode = s.first;
+              ref.read(themeModeProvider.notifier).state = mode;
+              await persistThemeMode(
+                ref.read(sharedPreferencesProvider),
+                mode,
+              );
+            },
           ),
           const SizedBox(height: 16),
           Text(

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pride_v3/auth/auth_providers.dart';
 import 'package:pride_v3/core/api/pride_api_admin.dart';
 import 'package:pride_v3/core/api/pride_api_config.dart';
+import 'package:pride_v3/core/widgets/pride_numeric_text_field.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../shell/shell_sync_providers.dart';
@@ -85,20 +86,16 @@ class _DeveloperPortalCodesTabState extends ConsumerState<DeveloperPortalCodesTa
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
+            PrideNumericTextField(
               controller: planCtrl,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: widget.l10n.devPortalCodesPlanDaysLabel,
-              ),
+              labelText: widget.l10n.devPortalCodesPlanDaysLabel,
+              decimal: false,
             ),
             const SizedBox(height: 12),
-            TextField(
+            PrideNumericTextField(
               controller: maxCtrl,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: widget.l10n.devPortalCodesMaxUsesLabel,
-              ),
+              labelText: widget.l10n.devPortalCodesMaxUsesLabel,
+              decimal: false,
             ),
           ],
         ),

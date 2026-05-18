@@ -3,16 +3,15 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pride_v3/core/branding/app_branding.dart';
 import 'package:pride_v3/core/defaults/effective_shop_profile.dart';
 
-/// Shop logo from upload or bundled default thumbnail.
+/// Shop logo from upload or bundled app icon, shown in a square frame.
 class ShopLogoImage extends StatelessWidget {
   const ShopLogoImage({
     super.key,
     this.logoRelativePath,
     this.size = 48,
-    this.borderRadius = 12,
+    this.borderRadius = 8,
   });
 
   final String? logoRelativePath;
@@ -23,16 +22,7 @@ class ShopLogoImage extends StatelessWidget {
   Widget build(BuildContext context) {
     final path = logoRelativePath?.trim();
     if (kIsWeb || path == null || path.isEmpty) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(borderRadius),
-        child: Image.asset(
-          kDefaultShopLogoAsset,
-          width: size,
-          height: size,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => _placeholder(context),
-        ),
-      );
+      return _framed(context, _defaultAssetImage(context));
     }
 
     return FutureBuilder<File?>(
@@ -40,53 +30,60 @@ class ShopLogoImage extends StatelessWidget {
       builder: (context, snap) {
         final file = snap.data;
         if (file != null) {
-          return ClipRRect(
-            borderRadius: BorderRadius.circular(borderRadius),
-            child: Image.file(
+          return _framed(
+            context,
+            Image.file(
               file,
-              width: size,
-              height: size,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => _assetFallback(),
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) =>
+                  _defaultAssetImage(context),
             ),
           );
         }
-        return _assetFallback();
+        if (snap.connectionState == ConnectionState.waiting) {
+          return _framed(
+            context,
+            const Center(
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
+          );
+        }
+        return _framed(context, _defaultAssetImage(context));
       },
     );
   }
 
-  Widget _assetFallback() {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(borderRadius),
-      child: Image.asset(
-        kDefaultShopLogoAsset,
-        width: size,
-        height: size,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) =>
-            SizedBox(width: size, height: size),
+  Widget _framed(BuildContext context, Widget child) {
+    final scheme = Theme.of(context).colorScheme;
+    final inset = (size * 0.1).clamp(3.0, 8.0);
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: scheme.surface,
+        borderRadius: BorderRadius.circular(borderRadius),
+        border: Border.all(color: scheme.outlineVariant),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Padding(
+        padding: EdgeInsets.all(inset),
+        child: child,
       ),
     );
   }
 
-  Widget _placeholder(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(borderRadius),
-      child: Image.asset(
-        kAppBrandIconAsset,
-        width: size,
-        height: size,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(borderRadius),
-          ),
-          child: Icon(Icons.store, size: size * 0.5),
-        ),
+  Widget _defaultAssetImage(BuildContext context) {
+    return Image.asset(
+      kDefaultShopLogoAsset,
+      fit: BoxFit.contain,
+      errorBuilder: (context, error, stackTrace) => Icon(
+        Icons.store,
+        size: size * 0.45,
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
       ),
     );
   }

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pride_v3/core/calendar/app_calendar_format.dart';
+import 'package:pride_v3/core/feedback/notification_sound_bridge.dart';
+import 'package:pride_v3/core/persistence/shared_preferences_provider.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
@@ -127,8 +129,17 @@ class _SettingsNotificationsScreenState
             title: Text(l10n.settingsMuteNotificationsTitle),
             subtitle: Text(l10n.settingsMuteNotificationsSubtitle),
             value: muted,
-            onChanged: (v) =>
-                ref.read(notificationsMutedProvider.notifier).state = v,
+            onChanged: (v) async {
+              ref.read(notificationsMutedProvider.notifier).state = v;
+              await persistNotificationsMuted(
+                ref.read(sharedPreferencesProvider),
+                v,
+              );
+              NotificationSoundBridge.configure(
+                soundsEnabled: ref.read(uiSoundsEnabledProvider),
+                muted: v,
+              );
+            },
           ),
           Align(
             alignment: Alignment.centerRight,

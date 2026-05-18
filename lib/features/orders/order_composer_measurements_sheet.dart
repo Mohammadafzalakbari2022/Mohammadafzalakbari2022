@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pride_v3/core/widgets/pride_numeric_text_field.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../data/local/measurement_profile_formatting.dart';
@@ -278,7 +279,6 @@ class _OrderMeasurementsEditorBodyState
                         _CompactMeasurementValueField(
                           label: t.name,
                           controller: _controllerFor(t.internalId),
-                          onChanged: (_) => setState(() {}),
                         ),
                     ],
                   ),
@@ -330,12 +330,10 @@ class _CompactMeasurementValueField extends StatelessWidget {
   const _CompactMeasurementValueField({
     required this.label,
     required this.controller,
-    this.onChanged,
   });
 
   final String label;
   final TextEditingController controller;
-  final ValueChanged<String>? onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -356,22 +354,11 @@ class _CompactMeasurementValueField extends StatelessWidget {
           const SizedBox(width: 10),
           SizedBox(
             width: 80,
-            child: TextField(
+            child: PrideNumericTextField(
               controller: controller,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
               maxLength: 5,
               textAlign: TextAlign.center,
-              style: theme.textTheme.titleMedium,
-              decoration: InputDecoration(
-                isDense: true,
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                counterText: '',
-              ),
-              onChanged: onChanged,
+              dense: true,
             ),
           ),
         ],

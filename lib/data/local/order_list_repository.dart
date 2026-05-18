@@ -65,6 +65,9 @@ abstract class OrderListRepository {
     required OrderLocalStatus newStatus,
   });
 
+  /// Soft-delete an order on this device (synced when online).
+  Future<void> softDeleteOrder(String orderInternalId);
+
   /// Staff-only internal notes (plan-12); allowed while license is valid.
   Future<void> updateOrderInternalNotes({
     required String orderInternalId,

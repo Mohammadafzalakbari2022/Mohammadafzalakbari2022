@@ -1,37 +1,42 @@
 import 'package:flutter/services.dart';
 import 'package:pdf/widgets.dart' as pw;
 
-/// Bundled font for RTL invoice PDFs (Dari, Pashto, English).
+/// Bundled fonts for RTL invoice PDFs (Dari, Pashto, English).
+///
+/// Uses [Vazirmatn] (static TTF) — reliable with `pdf` 3.11+ and avoids
+/// Noto Naskh compound-glyph null crashes on some devices.
 class InvoicePdfFonts {
   InvoicePdfFonts._();
 
-  static pw.Font? _arabic;
-  static pw.Font? _helvetica;
+  static const _regularAsset = 'assets/fonts/Vazirmatn-Regular.ttf';
+  static const _boldAsset = 'assets/fonts/Vazirmatn-Bold.ttf';
 
-  static pw.Font helvetica() => _helvetica ??= pw.Font.helvetica();
+  static pw.Font? _regular;
+  static pw.Font? _bold;
 
-  /// Primary invoice font (Noto Naskh Arabic) with Helvetica for Latin digits/labels.
-  static Future<pw.Font> primary() async {
-    if (_arabic != null) return _arabic!;
-    try {
-      final data = await rootBundle.load(
-        'assets/fonts/NotoNaskhArabic-Regular.ttf',
-      );
-      _arabic = pw.Font.ttf(data);
-      return _arabic!;
-    } on Object {
-      return helvetica();
+  /// Loads regular + bold; throws if assets are missing (caller may retry).
+  static Future<InvoicePdfFontSet> load() async {
+    if (_regular != null && _bold != null) {
+      return InvoicePdfFontSet(regular: _regular!, bold: _bold!);
     }
+    final regularData = await rootBundle.load(_regularAsset);
+    final boldData = await rootBundle.load(_boldAsset);
+    _regular = pw.Font.ttf(regularData);
+    _bold = pw.Font.ttf(boldData);
+    return InvoicePdfFontSet(regular: _regular!, bold: _bold!);
   }
 
-  static pw.ThemeData themeFor(pw.Font primary) {
-    final latin = helvetica();
-    final fallback = primary == latin ? const <pw.Font>[] : [latin];
+  static pw.ThemeData themeFor(InvoicePdfFontSet fonts) {
     return pw.ThemeData.withFont(
-      base: primary,
-      bold: primary,
-      fontFallback: fallback,
+      base: fonts.regular,
+      bold: fonts.bold,
     );
   }
+}
 
+class InvoicePdfFontSet {
+  const InvoicePdfFontSet({required this.regular, required this.bold});
+
+  final pw.Font regular;
+  final pw.Font bold;
 }

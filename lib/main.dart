@@ -26,7 +26,8 @@ Future<void> main() async {
     final initialUiSounds = uiSoundsFromPrefs(prefs);
     final initialUiHaptics = uiHapticsFromPrefs(prefs);
     final initialMeasurementUnit = measurementUnitFromPrefs(prefs);
-    final initialNotificationsMuted = prefs.getBool('pride_notifications_muted') ?? false;
+    final initialThemeMode = themeModeFromPrefs(prefs);
+    final initialNotificationsMuted = notificationsMutedFromPrefs(prefs);
     NotificationSoundBridge.configure(
       soundsEnabled: initialUiSounds,
       muted: initialNotificationsMuted,
@@ -59,6 +60,10 @@ Future<void> main() async {
           authSessionProvider.overrideWith((ref) => authSession),
           licenseNotifierProvider.overrideWith((ref) => licenseNotifier),
           localeOverrideProvider.overrideWith((ref) => initialLocale),
+          themeModeProvider.overrideWith((ref) => initialThemeMode),
+          notificationsMutedProvider.overrideWith(
+            (ref) => initialNotificationsMuted,
+          ),
           uiSoundsEnabledProvider.overrideWith((ref) => initialUiSounds),
           uiHapticsEnabledProvider.overrideWith((ref) => initialUiHaptics),
           defaultMeasurementUnitProvider.overrideWith(

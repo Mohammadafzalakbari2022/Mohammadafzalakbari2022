@@ -5,6 +5,9 @@ import 'package:pride_v3/core/api/pride_api_config.dart';
 import 'package:pride_v3/core/api/pride_api_password_reset.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
+import 'auth_form_feedback_banner.dart';
+import 'auth_user_messages.dart';
+
 /// Request password reset (developer completes in portal) — `plan-18`.
 class ForgotPasswordScreen extends ConsumerStatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -17,6 +20,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   final _shopId = TextEditingController();
   final _username = TextEditingController();
   bool _busy = false;
+  String? _error;
 
   @override
   void dispose() {
@@ -30,12 +34,13 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     final shop = _shopId.text.trim();
     final user = _username.text.trim();
     if (shop.isEmpty || user.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.loginForgotPasswordFieldsRequired)),
-      );
+      setState(() => _error = l10n.loginForgotPasswordFieldsRequired);
       return;
     }
-    setState(() => _busy = true);
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
     try {
       final r = await postPrideApiPasswordResetRequest(
         shopId: shop,
@@ -49,8 +54,11 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
           );
           context.pop();
         case PrideApiPasswordResetRequestFailure(:final message):
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.loginApiError(message))),
+          setState(
+            () => _error = passwordResetFailureUserMessage(
+              l10n,
+              rawMessage: message,
+            ),
           );
       }
     } finally {
@@ -74,6 +82,14 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
         children: [
           Text(l10n.loginForgotPasswordBody),
           const SizedBox(height: 16),
+          if (_busy)
+            AuthFormFeedbackBanner(
+              loadingTitle: l10n.loginForgotPasswordSubmitting,
+              loadingHint: l10n.loginForgotPasswordSubmitHint,
+            )
+          else if (_error != null)
+            AuthFormFeedbackBanner(errorMessage: _error),
+          if (_busy || _error != null) const SizedBox(height: 16),
           TextField(
             controller: _shopId,
             decoration: InputDecoration(
@@ -92,18 +108,18 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
             ),
             textInputAction: TextInputAction.done,
             enabled: !_busy,
-            onSubmitted: (_) => _submit(l10n),
+            onSubmitted: (_) {
+              if (!_busy) _submit(l10n);
+            },
           ),
           const SizedBox(height: 24),
           FilledButton(
             onPressed: _busy ? null : () => _submit(l10n),
-            child: _busy
-                ? const SizedBox(
-                    height: 22,
-                    width: 22,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : Text(l10n.loginForgotPasswordSubmit),
+            child: Text(
+              _busy
+                  ? l10n.loginForgotPasswordSubmitting
+                  : l10n.loginForgotPasswordSubmit,
+            ),
           ),
         ],
       ),

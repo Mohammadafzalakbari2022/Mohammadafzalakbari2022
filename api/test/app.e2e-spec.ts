@@ -14,7 +14,10 @@ describe('AppController (e2e)', () => {
     const prisma = new PrismaClient();
     await prisma.$executeRawUnsafe('TRUNCATE TABLE "shops" CASCADE');
     await prisma.$executeRawUnsafe(
-      'TRUNCATE TABLE "password_reset_requests", "shop_push_tokens", "admin_audit_logs", "activation_codes"',
+      'TRUNCATE TABLE "subscription_payment_claims", "password_reset_requests", "shop_push_tokens", "admin_audit_logs", "activation_codes"',
+    );
+    await prisma.$executeRawUnsafe(
+      'TRUNCATE TABLE "subscription_billing_config"',
     );
     await prisma.$disconnect();
 
@@ -479,6 +482,167 @@ describe('AppController (e2e)', () => {
       } finally {
         process.env.PRIDE_DEVELOPER_IDS = prev;
       }
+    } finally {
+      await prisma.$disconnect();
+    }
+  });
+
+  it('/license/billing-info (GET) 404 when unpublished', async () => {
+    const login = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ username: 'owner', password: 'changeme', shop_id: 'dev' })
+      .expect(200);
+    const token = login.body.access_token as string;
+    return request(app.getHttpServer())
+      .get('/license/billing-info')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(404);
+  });
+
+  it('/admin/billing-info (GET) returns defaults when config row missing', async () => {
+    const prisma = new PrismaClient();
+    try {
+      await prisma.$executeRawUnsafe(
+        'TRUNCATE TABLE "subscription_billing_config"',
+      );
+      const login = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ username: 'owner', password: 'changeme', shop_id: 'dev' })
+        .expect(200);
+      const token = login.body.access_token as string;
+      const owner = await prisma.shopUser.findFirstOrThrow({
+        where: { shopId: 'dev', username: 'owner', deletedAt: null },
+      });
+      const prev = process.env.PRIDE_DEVELOPER_IDS;
+      process.env.PRIDE_DEVELOPER_IDS = owner.id;
+      try {
+        await request(app.getHttpServer())
+          .get('/admin/billing-info')
+          .set('Authorization', `Bearer ${token}`)
+          .expect(200)
+          .expect((res) => {
+            expect(res.body.is_published).toBe(false);
+            expect(res.body.schema_version).toBe(1);
+          });
+      } finally {
+        process.env.PRIDE_DEVELOPER_IDS = prev;
+      }
+    } finally {
+      await prisma.$disconnect();
+    }
+  });
+
+  it('/admin/billing-info (POST) 403 for non-developer JWT', async () => {
+    const login = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ username: 'owner', password: 'changeme', shop_id: 'dev' })
+      .expect(200);
+    const token = login.body.access_token as string;
+    return request(app.getHttpServer())
+      .post('/admin/billing-info')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ is_published: true })
+      .expect(403);
+  });
+
+  it('billing publish, claim submit, and approve flow', async () => {
+    const prisma = new PrismaClient();
+    try {
+      const login = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ username: 'owner', password: 'changeme', shop_id: 'dev' })
+        .expect(200);
+      const token = login.body.access_token as string;
+      const owner = await prisma.shopUser.findFirstOrThrow({
+        where: { shopId: 'dev', username: 'owner', deletedAt: null },
+      });
+      const prev = process.env.PRIDE_DEVELOPER_IDS;
+      process.env.PRIDE_DEVELOPER_IDS = owner.id;
+      try {
+        await request(app.getHttpServer())
+          .post('/admin/billing-info')
+          .set('Authorization', `Bearer ${token}`)
+          .send({
+            is_published: true,
+            hesab_pay_account_name: 'Afghan Pride',
+            hesab_pay_account_number: '0700123456',
+            price_1_year_afn: 5000,
+            payment_steps: { en: 'Pay at Hesab Pay center.' },
+          })
+          .expect(200);
+
+        await request(app.getHttpServer())
+          .get('/license/billing-info')
+          .set('Authorization', `Bearer ${token}`)
+          .expect(200)
+          .expect((res) => {
+            expect(res.body.is_published).toBe(true);
+            expect(res.body.hesab_pay_account_number).toBe('0700123456');
+          });
+
+        const claim = await request(app.getHttpServer())
+          .post('/license/payment-claims')
+          .set('Authorization', `Bearer ${token}`)
+          .send({
+            plan_tier: 'one_year',
+            transaction_id: 'HP-E2E-001',
+          })
+          .expect(200);
+        expect(claim.body.status).toBe('pending');
+
+        const approved = await request(app.getHttpServer())
+          .post(`/admin/payment-claims/${claim.body.id}/approve`)
+          .set('Authorization', `Bearer ${token}`)
+          .send({ auto_create_code: true })
+          .expect(200);
+        expect(approved.body.status).toBe('approved');
+        expect(typeof approved.body.activation_code).toBe('string');
+      } finally {
+        process.env.PRIDE_DEVELOPER_IDS = prev;
+      }
+    } finally {
+      await prisma.$disconnect();
+    }
+  });
+
+  it('/license/payment-claims (POST) 403 for non-owner', async () => {
+    const prisma = new PrismaClient();
+    try {
+      const owner = await prisma.shopUser.findFirstOrThrow({
+        where: { shopId: 'dev', username: 'owner', deletedAt: null },
+      });
+      await prisma.subscriptionBillingConfig.upsert({
+        where: { id: 'default' },
+        create: {
+          id: 'default',
+          isPublished: true,
+          paymentSteps: {},
+          activationDeliverySteps: {},
+          cashPaymentNote: {},
+          price1YearAfn: 100,
+        },
+        update: { isPublished: true, price1YearAfn: 100 },
+      });
+      const staffId = randomUUID();
+      await prisma.shopUser.create({
+        data: {
+          id: staffId,
+          shopId: 'dev',
+          username: 'staff_e2e',
+          passwordHash: owner.passwordHash,
+          isShopOwner: false,
+        },
+      });
+      const login = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ username: 'staff_e2e', password: 'changeme', shop_id: 'dev' })
+        .expect(200);
+      const token = login.body.access_token as string;
+      await request(app.getHttpServer())
+        .post('/license/payment-claims')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ plan_tier: 'one_year', transaction_id: 'HP-STAFF-001' })
+        .expect(403);
     } finally {
       await prisma.$disconnect();
     }

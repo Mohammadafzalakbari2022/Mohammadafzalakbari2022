@@ -1,7 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:pride_v3/core/input/pride_ltr_input.dart';
 import 'package:pride_v3/core/validation/afghan_phone_input.dart';
+import 'package:pride_v3/core/widgets/pride_numeric_text_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -21,6 +23,7 @@ import '../../data/local/measurement_unit_codes.dart';
 import '../../data/local/sync_outbox_kinds.dart';
 import '../../data/providers/local_data_providers.dart';
 import '../../licensing/license_providers.dart';
+import '../../security/delete_by_typing_name.dart';
 import '../../shell/shell_sync_providers.dart';
 import '../orders/order_list_tile.dart';
 import 'customer_profile_hero_card.dart';
@@ -74,6 +77,8 @@ class CustomerProfileScreen extends ConsumerWidget {
               TextField(
                 controller: phoneCtrl,
                 keyboardType: TextInputType.phone,
+                textDirection: PrideLtrInput.direction,
+                textAlign: PrideLtrInput.align,
                 inputFormatters: const [AfghanPhoneInputFormatter()],
                 decoration: InputDecoration(
                   labelText: l10n.customerPhoneLabel,
@@ -161,6 +166,7 @@ class CustomerProfileScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     AppLocalizations l10n,
+    String customerName,
   ) async {
     final license = ref.read(licenseNotifierProvider);
     if (ref.read(licenseEditingBlockedProvider)) {
@@ -173,20 +179,14 @@ class CustomerProfileScreen extends ConsumerWidget {
       return;
     }
 
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l10n.customerDeleteConfirmTitle),
-        content: Text(l10n.customerDeleteConfirmBody),
-        actions: prideDialogCancelDelete(
-          context: ctx,
-          onCancel: () => Navigator.pop(ctx, false),
-          onConfirm: () => Navigator.pop(ctx, true),
-          deleteLabel: l10n.deleteCta,
-        ),
-      ),
+    final ok = await confirmDeleteByTypingName(
+      context,
+      l10n: l10n,
+      title: l10n.customerDeleteConfirmTitle,
+      explanation: l10n.customerDeleteConfirmBody,
+      expectedName: customerName,
     );
-    if (ok != true || !context.mounted) return;
+    if (!ok || !context.mounted) return;
 
     final shopId = ref.read(effectiveShopIdProvider);
     recordSyncOutboxMutation(
@@ -289,7 +289,7 @@ class CustomerProfileScreen extends ConsumerWidget {
               PopupMenuButton<String>(
                 onSelected: (value) {
                   if (value == 'delete') {
-                    _deleteCustomer(context, ref, l10n);
+                    _deleteCustomer(context, ref, l10n, customerName);
                   }
                 },
                 itemBuilder: (ctx) => [
@@ -705,16 +705,9 @@ class _MeasurementProfileEditorBodyState
                         ),
                         const SizedBox(height: 8),
                         for (final t in widget.types) ...[
-                          TextField(
-                            controller: _valueCtrls[t.internalId],
-                            keyboardType:
-                                const TextInputType.numberWithOptions(
-                              decimal: true,
-                            ),
-                            decoration: InputDecoration(
-                              labelText: t.name,
-                              border: const OutlineInputBorder(),
-                            ),
+                          PrideNumericTextField(
+                            controller: _valueCtrls[t.internalId]!,
+                            labelText: t.name,
                             onChanged: (_) => setModal(() {}),
                           ),
                           const SizedBox(height: 8),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pride_v3/app/app_theme.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 class SettingsFabricScreen extends StatelessWidget {
@@ -19,7 +20,10 @@ class SettingsFabricScreen extends StatelessWidget {
       body: ListView(
         children: [
           ListTile(
-            leading: const Icon(Icons.texture_outlined),
+            leading: PrideColoredLeading(
+              icon: Icons.texture_outlined,
+              color: prideSettingsIconColor(3),
+            ),
             title: Text(l10n.settingsFabricNamesTitle),
             subtitle: Text(l10n.settingsFabricNamesSubtitle),
             trailing: const Icon(Icons.chevron_right),
@@ -27,7 +31,10 @@ class SettingsFabricScreen extends StatelessWidget {
           ),
           const Divider(height: 1),
           ListTile(
-            leading: const Icon(Icons.palette_outlined),
+            leading: PrideColoredLeading(
+              icon: Icons.palette_outlined,
+              color: prideSettingsIconColor(4),
+            ),
             title: Text(l10n.settingsFabricColorsTitle),
             subtitle: Text(l10n.settingsFabricColorsSubtitle),
             trailing: const Icon(Icons.chevron_right),

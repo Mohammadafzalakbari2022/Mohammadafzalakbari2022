@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pride_v3/app/app_theme.dart';
 import 'package:pride_v3/core/api/pride_api_config.dart';
 import 'package:pride_v3/core/feedback/notification_sound_bridge.dart';
+import 'package:pride_v3/core/persistence/shared_preferences_provider.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../auth/admin_me_provider.dart';
@@ -14,6 +15,7 @@ import '../../auth/sign_out.dart';
 import '../../licensing/license_notifier.dart';
 import '../../licensing/license_providers.dart';
 import '../catalog/catalog_sharing_provider.dart';
+import 'settings_owner_access.dart';
 import 'settings_providers.dart';
 import 'shop_profile_provider.dart';
 
@@ -120,8 +122,16 @@ class SettingsTabScreen extends ConsumerWidget {
         adminCheck != null &&
         adminCheck.checkFailed;
 
-    final effectiveOwner =
-        auth.hasApiSession ? auth.isShopOwner : isOwnerDev;
+    final effectiveOwner = settingsEffectiveShopOwner(
+      auth: auth,
+      devOwnerSimulated: isOwnerDev,
+      devDeveloperSimulated: devSimulated,
+      adminCheck: adminCheck,
+      clientDeveloperLoginMatch: PrideApiConfig.isDeveloperLogin(
+        shopId: auth.shopId,
+        username: auth.username,
+      ),
+    );
     final roleLabel =
         effectiveOwner ? l10n.settingsRoleOwner : l10n.settingsRoleUser;
     final shopAsync = ref.watch(shopProfileProvider);
@@ -259,8 +269,12 @@ class SettingsTabScreen extends ConsumerWidget {
               title: Text(l10n.settingsMuteNotificationsTitle),
               subtitle: Text(l10n.settingsMuteNotificationsSubtitle),
               value: ref.watch(notificationsMutedProvider),
-              onChanged: (v) {
+              onChanged: (v) async {
                 ref.read(notificationsMutedProvider.notifier).state = v;
+                await persistNotificationsMuted(
+                  ref.read(sharedPreferencesProvider),
+                  v,
+                );
                 NotificationSoundBridge.configure(
                   soundsEnabled: ref.read(uiSoundsEnabledProvider),
                   muted: v,

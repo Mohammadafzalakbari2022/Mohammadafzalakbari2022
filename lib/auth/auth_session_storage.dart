@@ -5,6 +5,7 @@ import '../licensing/license_clock_guard.dart';
 import '../licensing/license_notifier.dart';
 import 'auth_session.dart';
 import 'developer_portal_gate.dart';
+import 'jwt_access_payload.dart';
 
 /// Persists API login fields for cold start (`IMPLEMENTATION_TODO.md` P0).
 abstract final class AuthSessionStorage {
@@ -144,7 +145,7 @@ abstract final class AuthSessionStorage {
     final userId = prefs.getString(_userId);
     final shopId = prefs.getString(_shopId);
     final username = prefs.getString(_username);
-    final owner = prefs.getBool(_isOwner);
+    var owner = prefs.getBool(_isOwner);
     final lic = prefs.getString(_licenseStatus);
 
     if (userId == null ||
@@ -154,6 +155,12 @@ abstract final class AuthSessionStorage {
         lic == null) {
       await clear(prefs);
       return false;
+    }
+
+    final ownerFromJwt = isShopOwnerClaimFromAccessToken(token);
+    if (ownerFromJwt != null && ownerFromJwt != owner) {
+      owner = ownerFromJwt;
+      await prefs.setBool(_isOwner, ownerFromJwt);
     }
 
     session.signInFromApi(

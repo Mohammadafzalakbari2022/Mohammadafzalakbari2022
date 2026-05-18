@@ -8,6 +8,7 @@ import '../../auth/auth_providers.dart';
 import '../../licensing/license_notifier.dart';
 import '../../licensing/license_providers.dart';
 import '../../licensing/license_snapshot_persist.dart';
+import 'subscription_billing_panel.dart';
 
 /// `/app/settings/subscription` — always reachable when license expired (plan-19).
 class SubscriptionScreen extends ConsumerStatefulWidget {
@@ -155,6 +156,14 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
           l10n.subscriptionBody,
           style: Theme.of(context).textTheme.bodyLarge,
         ),
+        if (apiOn) ...[
+          const SizedBox(height: 20),
+          Text(
+            l10n.subscriptionBillingSectionTitle,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+        ],
+        const SubscriptionBillingPanel(),
         const SizedBox(height: 24),
         Text(
           l10n.subscriptionActivationTitle,
