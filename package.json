@@ -9,6 +9,11 @@
     "api:install": "npm install --prefix api",
     "api:build": "npm run build --prefix api",
     "api:test": "npm test --prefix api",
-    "api:dev": "npm run start:dev --prefix api"
+    "api:dev": "npm run start:dev --prefix api",
+    "deploy": "wrangler deploy",
+    "preview": "wrangler dev"
+  },
+  "devDependencies": {
+    "wrangler": "^4.92.0"
   }
 }
