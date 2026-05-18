@@ -32,11 +32,12 @@ class _ShellAppBarSyncIconButtonState
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final online = ref.watch(connectivityOnlineProvider);
+    final syncing = _busy || ref.watch(syncInProgressProvider);
 
     return IconButton(
       tooltip: l10n.shellAppBarSyncA11y,
-      onPressed: _busy || !online ? null : _runSync,
-      icon: _busy
+      onPressed: syncing || !online ? null : _runSync,
+      icon: syncing
           ? SizedBox(
               width: 22,
               height: 22,

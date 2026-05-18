@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 abstract final class SyncDiagnosticsStorage {
   static const _lastSuccessfulSyncEpochMs = 'pride_sync_last_success_epoch_ms';
 
-  /// Last successful manual (or future automatic) server sync instant, if any.
+  /// Last successful manual or automatic server sync instant, if any.
   static DateTime? readLastSuccessfulSync(SharedPreferences prefs) {
     final ms = prefs.getInt(_lastSuccessfulSyncEpochMs);
     if (ms == null) return null;

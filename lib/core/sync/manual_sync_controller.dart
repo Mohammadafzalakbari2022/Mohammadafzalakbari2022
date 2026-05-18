@@ -6,6 +6,7 @@ import '../../licensing/license_providers.dart';
 import '../../shell/shell_sync_providers.dart';
 import '../persistence/shared_preferences_provider.dart';
 import '../persistence/sync_diagnostics_storage.dart';
+import 'sync_coordinator.dart';
 import 'manual_sync_runner.dart';
 
 sealed class ManualSyncUiOutcome {
@@ -25,7 +26,7 @@ final class ManualSyncUiSuccess extends ManualSyncUiOutcome {
 final class ManualSyncUiFailure extends ManualSyncUiOutcome {
   const ManualSyncUiFailure(this.messageKey, {this.detail});
 
-  /// `sign_in` | `offline` | `license` | `error`
+  /// `sign_in` | `offline` | `license` | `busy` | `error`
   final String messageKey;
   final String? detail;
 }
@@ -45,58 +46,66 @@ Future<ManualSyncUiOutcome> runManualSyncFromRef(WidgetRef ref) async {
   }
 
   try {
-    final repo = await ref.read(syncOutboxRepositoryProvider.future);
-    final notifRepo = await ref.read(appNotificationRepositoryProvider.future);
-    final customersRepo = await ref.read(customerListRepositoryProvider.future);
-    final tasksRepo = await ref.read(taskRepositoryProvider.future);
-    final paymentsRepo = await ref.read(paymentRepositoryProvider.future);
-    final ordersRepo = await ref.read(orderListRepositoryProvider.future);
-    final measurementRepo =
-        await ref.read(measurementProfileRepositoryProvider.future);
-    final catalogRepo = await ref.read(catalogRepositoryProvider.future);
-    final styleCatalogRepo =
-        await ref.read(styleCatalogRepositoryProvider.future);
-    final fabricPresetsRepo =
-        await ref.read(fabricPresetRepositoryProvider.future);
-    final shopFinanceRepo =
-        await ref.read(shopFinanceRepositoryProvider.future);
-    final prefs = ref.read(sharedPreferencesProvider);
-    final syncShopId = ref.read(effectiveShopIdProvider);
+    final uiOutcome = await SyncCoordinator.instance.runExclusive(() async {
+      final repo = await ref.read(syncOutboxRepositoryProvider.future);
+      final notifRepo =
+          await ref.read(appNotificationRepositoryProvider.future);
+      final customersRepo =
+          await ref.read(customerListRepositoryProvider.future);
+      final tasksRepo = await ref.read(taskRepositoryProvider.future);
+      final paymentsRepo = await ref.read(paymentRepositoryProvider.future);
+      final ordersRepo = await ref.read(orderListRepositoryProvider.future);
+      final measurementRepo =
+          await ref.read(measurementProfileRepositoryProvider.future);
+      final catalogRepo = await ref.read(catalogRepositoryProvider.future);
+      final styleCatalogRepo =
+          await ref.read(styleCatalogRepositoryProvider.future);
+      final fabricPresetsRepo =
+          await ref.read(fabricPresetRepositoryProvider.future);
+      final shopFinanceRepo =
+          await ref.read(shopFinanceRepositoryProvider.future);
+      final prefs = ref.read(sharedPreferencesProvider);
+      final syncShopId = ref.read(effectiveShopIdProvider);
 
-    final outcome = await runManualSyncWithOutbox(
-      outboxRepo: repo,
-      accessToken: token,
-      prefs: prefs,
-      syncShopId: syncShopId,
-      notifications: notifRepo,
-      customers: customersRepo,
-      tasks: tasksRepo,
-      payments: paymentsRepo,
-      orders: ordersRepo,
-      measurementProfiles: measurementRepo,
-      catalog: catalogRepo,
-      styleCatalog: styleCatalogRepo,
-      fabricPresets: fabricPresetsRepo,
-      shopFinance: shopFinanceRepo,
-    );
+      final outcome = await runManualSyncWithOutbox(
+        outboxRepo: repo,
+        accessToken: token,
+        prefs: prefs,
+        syncShopId: syncShopId,
+        notifications: notifRepo,
+        customers: customersRepo,
+        tasks: tasksRepo,
+        payments: paymentsRepo,
+        orders: ordersRepo,
+        measurementProfiles: measurementRepo,
+        catalog: catalogRepo,
+        styleCatalog: styleCatalogRepo,
+        fabricPresets: fabricPresetsRepo,
+        shopFinance: shopFinanceRepo,
+      );
 
-    switch (outcome) {
-      case ManualSyncSuccess(
-          :final pushedMutationCount,
-          :final remoteChangeCount,
-        ):
-        final at = DateTime.now();
-        ref.read(lastSuccessfulSyncAtProvider.notifier).state = at;
-        await SyncDiagnosticsStorage.recordSuccessfulSync(prefs, at);
-        return ManualSyncUiSuccess(
-          pushedMutationCount: pushedMutationCount,
-          remoteChangeCount: remoteChangeCount,
-        );
-      case ManualSyncFailure(:final message):
-        return message == 'license_expired'
-            ? const ManualSyncUiFailure('license')
-            : ManualSyncUiFailure('error', detail: message);
+      switch (outcome) {
+        case ManualSyncSuccess(
+            :final pushedMutationCount,
+            :final remoteChangeCount,
+          ):
+          final at = DateTime.now();
+          ref.read(lastSuccessfulSyncAtProvider.notifier).state = at;
+          await SyncDiagnosticsStorage.recordSuccessfulSync(prefs, at);
+          return ManualSyncUiSuccess(
+            pushedMutationCount: pushedMutationCount,
+            remoteChangeCount: remoteChangeCount,
+          );
+        case ManualSyncFailure(:final message):
+          return message == 'license_expired'
+              ? const ManualSyncUiFailure('license')
+              : ManualSyncUiFailure('error', detail: message);
+      }
+    });
+    if (uiOutcome == null) {
+      return const ManualSyncUiFailure('busy');
     }
+    return uiOutcome;
   } catch (e) {
     return ManualSyncUiFailure('error', detail: e.toString());
   }

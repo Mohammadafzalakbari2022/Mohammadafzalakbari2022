@@ -45,7 +45,8 @@ class _ShellDrawerQuickActionsState
     final badgeCount = ref.watch(unreadAppNotificationCountProvider);
     final muted = ref.watch(notificationsMutedProvider);
 
-    final syncSubtitle = _syncBusy
+    final syncInProgress = _syncBusy || ref.watch(syncInProgressProvider);
+    final syncSubtitle = syncInProgress
         ? l10n.dashboardSyncRunning
         : !online
             ? l10n.shellSyncTooltipOffline
@@ -68,7 +69,7 @@ class _ShellDrawerQuickActionsState
           leading: Badge(
             isLabelVisible: queue > 0,
             label: Text(queue > 99 ? '99+' : '$queue'),
-            child: _syncBusy
+            child: syncInProgress
                 ? SizedBox(
                     width: 24,
                     height: 24,
@@ -103,7 +104,7 @@ class _ShellDrawerQuickActionsState
                     context.push('/app/settings/sync-diagnostics');
                   },
                 ),
-          onTap: _syncBusy ? null : _runSync,
+          onTap: syncInProgress ? null : _runSync,
           onLongPress: () {
             Navigator.of(context).pop();
             context.push('/app/settings/sync-diagnostics');

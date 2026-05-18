@@ -558,17 +558,38 @@ flutter run -d chrome --dart-define=API_BASE_URL=http://localhost:3000
 
 ### Verify before commit / push
 
+**One script (Flutter analyze/test + API build/tests):**
+
 ```powershell
 cd C:\Users\Moh.Akbari\Desktop\Pride-v3
-flutter pub get
-flutter gen-l10n
-flutter analyze
-flutter test
-npm run db:migrate
-cd api; npm test; npm run test:e2e; cd ..
-.\scripts\build-flutter-with-defines.ps1 build web --release
-.\scripts\build-apk-release.ps1
+.\scripts\verify-before-push.ps1
 ```
+
+**Full release check (add platform builds after the script above):**
+
+```powershell
+cd C:\Users\Moh.Akbari\Desktop\Pride-v3
+.\scripts\verify-before-push.ps1
+.\scripts\build-flutter-with-defines.ps1 build web --release
+.\scripts\verify-web-build.ps1
+.\scripts\build-apk-release.ps1
+git add -A
+git commit -m "Describe what changed and why."
+git push origin main
+```
+
+| Command | What it does |
+|---------|----------------|
+| `.\scripts\verify-before-push.ps1` | `flutter pub get`, `gen-l10n`, `analyze`, `test`, then `api/` `npm ci`, `build`, `test`, `test:e2e`. |
+| `.\scripts\build-flutter-with-defines.ps1 build web --release` | Production web artifact (`build/web/`). |
+| `.\scripts\verify-web-build.ps1` | Confirms `main.dart.js` exists before Cloudflare upload. |
+| `.\scripts\build-apk-release.ps1` | Release APK for Android QA / GitHub release. |
+| `.\scripts\build-store-release.ps1` | AAB + web for store submission (Windows). |
+| `./scripts/build-ios-release.sh` | IPA on macOS only. |
+| `npm run api:dev` | Local Nest API (separate terminal). |
+| `flutter run -d chrome` | Web UI dev. |
+| `flutter run -d android` | Android + Isar dev. |
+| `flutter run -d ios` | iOS + Isar dev (macOS). |
 
 **macOS (iOS release, after the Flutter steps above):**
 
@@ -633,6 +654,7 @@ APK/IPA from GitHub **does not install on iPhone** for random users. Use **web**
 
 ## Notes
 
+- **Automatic sync (mobile + web with API session):** On app open, on resume, when connectivity returns, and every **15 minutes** while foreground — pull then push (outbox, up to 5×100 mutations per run). Skipped when offline, mock login, license read-only, or API not configured. Manual sync still available from the app bar / drawer.
 - **Web:** Isar is not used; sample data is in-memory. **Android/iOS** use Isar on device.
 - **iOS = Android** for app features; only platform-specific gaps: WhatsApp deep link (Android), custom UI sounds (Android channel; iOS uses system sounds).
 - **Supabase:** hosted Postgres via API `DATABASE_URL` — no Supabase CLI in this repo.

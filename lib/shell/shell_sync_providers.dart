@@ -4,6 +4,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../auth/auth_providers.dart';
+import '../core/sync/sync_coordinator.dart';
 import '../data/local/dev_shop_constants.dart';
 import '../data/providers/local_data_providers.dart';
 
@@ -29,6 +30,15 @@ final connectivityOnlineProvider = Provider<bool>((ref) {
 ///
 /// Seeded from [SyncDiagnosticsStorage] in [main.dart]; updated after manual sync.
 final lastSuccessfulSyncAtProvider = StateProvider<DateTime?>((ref) => null);
+
+/// True while a manual or automatic push/pull sync is running.
+final syncInProgressProvider = Provider<bool>((ref) {
+  final coordinator = SyncCoordinator.instance;
+  void listener() => ref.invalidateSelf();
+  coordinator.addListener(listener);
+  ref.onDispose(() => coordinator.removeListener(listener));
+  return coordinator.busy;
+});
 
 /// Enqueue a local mutation for a future sync worker (plan-03). Fire-and-forget.
 void recordSyncOutboxMutation(

@@ -37,6 +37,7 @@ final class ManualSyncFailure extends ManualSyncOutcome {
 }
 
 const int _kMaxPullPages = 32;
+const int _kMaxPushBatchesPerRun = 5;
 
 /// Runs `GET /sync/pull` (paged, cursor persisted), applies supported entities, then `POST /sync/push`.
 Future<ManualSyncOutcome> runManualSyncWithOutbox({
@@ -93,37 +94,46 @@ Future<ManualSyncOutcome> runManualSyncWithOutbox({
     }
   }
 
-  final pending =
-      await outboxRepo.listPendingEntries(syncShopId, limit: 100);
-  final batch = buildOutboxPushBatch(pending);
-  final push = await postPrideApiSyncPush(
-    accessToken: accessToken,
-    mutations: batch.mutations,
-  );
-  switch (push) {
-    case PrideApiSyncPushFailure(:final message, :final errorCode):
-      if (errorCode == 'license_expired') {
-        return const ManualSyncFailure('license_expired');
-      }
-      return ManualSyncFailure(message);
-    case PrideApiSyncPushOk(:final results):
-      if (results.length != batch.mutations.length) {
-        return const ManualSyncFailure('Unexpected server response length');
-      }
-      for (final r in results) {
-        if (r.status != 'accepted') {
-          return ManualSyncFailure(
-            'Sync incomplete: ${r.internalId} → ${r.status}',
-          );
+  var pushedMutationCount = 0;
+  for (var batchIndex = 0; batchIndex < _kMaxPushBatchesPerRun; batchIndex++) {
+    final pending =
+        await outboxRepo.listPendingEntries(syncShopId, limit: 100);
+    if (pending.isEmpty) break;
+
+    final batch = buildOutboxPushBatch(pending);
+    if (batch.mutations.isEmpty) break;
+
+    final push = await postPrideApiSyncPush(
+      accessToken: accessToken,
+      mutations: batch.mutations,
+    );
+    switch (push) {
+      case PrideApiSyncPushFailure(:final message, :final errorCode):
+        if (errorCode == 'license_expired') {
+          return const ManualSyncFailure('license_expired');
         }
-      }
-      await outboxRepo.markPendingSynced(
-        syncShopId,
-        batch.entryIdsToClear,
-      );
-      return ManualSyncSuccess(
-        pushedMutationCount: batch.mutations.length,
-        remoteChangeCount: remoteChangeCount,
-      );
+        return ManualSyncFailure(message);
+      case PrideApiSyncPushOk(:final results):
+        if (results.length != batch.mutations.length) {
+          return const ManualSyncFailure('Unexpected server response length');
+        }
+        for (final r in results) {
+          if (r.status != 'accepted') {
+            return ManualSyncFailure(
+              'Sync incomplete: ${r.internalId} → ${r.status}',
+            );
+          }
+        }
+        await outboxRepo.markPendingSynced(
+          syncShopId,
+          batch.entryIdsToClear,
+        );
+        pushedMutationCount += batch.mutations.length;
+    }
   }
+
+  return ManualSyncSuccess(
+    pushedMutationCount: pushedMutationCount,
+    remoteChangeCount: remoteChangeCount,
+  );
 }

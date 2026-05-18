@@ -36,6 +36,7 @@ Future<void> runManualSyncWithFeedback({
         'sign_in' => l10n.settingsSyncRetrySignIn,
         'offline' => l10n.shellSyncTooltipOffline,
         'license' => l10n.settingsSyncRetryLicenseExpired,
+        'busy' => l10n.dashboardSyncRunning,
         _ => l10n.settingsSyncRetryFailed(detail ?? ''),
       };
       messenger.showSnackBar(SnackBar(content: Text(text)));

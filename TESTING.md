@@ -4,6 +4,18 @@ Use this when **you** verify what Cursor or another developer built. The AI is i
 
 **Web-first testing:** You can validate the whole UI on **Chrome** (`flutter run -d chrome`). Sample orders use **in-memory** data on Web (Isar is not compiled for Web: its generated schema IDs are 64-bit integers that **JavaScript cannot represent**). **Android and iOS** are unaffected and use **Isar** on the device. After **Android SDK command-line tools** are installed, run **`flutter run -d android`** — the same UI reads from **Isar** there.
 
+## Automatic sync (QA)
+
+With `API_BASE_URL` set and a real online login:
+
+1. Create or edit data offline (airplane mode), then reconnect — within about a minute (or on resume) changes should reach the server.
+2. **Settings → Sync & diagnostics** — **Last successful sync** updates without tapping **Sync now**.
+3. Two devices on the same shop: edits on device A appear on device B after the next sync cycle (≤15 min foreground, or pull-to-sync manually).
+
+Sync is skipped in mock-only login, when the license is read-only, or when offline.
+
+---
+
 ## One-time setup (Windows + Android + Web)
 
 1. **Install Flutter** (stable) and add it to `PATH`.
