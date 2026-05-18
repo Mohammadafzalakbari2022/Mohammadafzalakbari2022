@@ -129,8 +129,8 @@ class _AutoSyncHostState extends ConsumerState<AutoSyncHost>
         unawaited(_runSync(bypassMinGap: true));
       }
     });
-    ref.listen(licenseEditingBlockedProvider, (_, blocked) {
-      if (blocked != null) _restartTimer();
+    ref.listen(licenseEditingBlockedProvider, (previous, next) {
+      if (previous != next) _restartTimer();
     });
     ref.listen(connectivityListProvider, (previous, next) {
       next.whenData((list) {
