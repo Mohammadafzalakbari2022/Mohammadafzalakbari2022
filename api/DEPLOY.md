@@ -80,6 +80,18 @@ flutter run \
 
 `PORT` is set automatically by Render; the app reads `process.env.PORT`.
 
+## Hesab Pay billing (Developer Portal + subscription screen)
+
+After deploy, confirm billing routes exist (401 without JWT is OK; **404 means an old API build**):
+
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" https://pride-v3.onrender.com/admin/billing-info
+```
+
+Production Postgres must include `subscription_billing_config` and `subscription_payment_claims`, and `_prisma_migrations` must list all migrations in `api/prisma/migrations/` (use `npx prisma migrate deploy` or baseline per [Prisma baselining](https://www.prisma.io/docs/guides/migrate/developing-with-prisma-migrate/add-prisma-migrate-to-a-project#baseline-your-production-environment)).
+
+**Auto redeploy on `api/**` pushes:** add [`.github/workflows/deploy_api.yml`](../.github/workflows/deploy_api.yml) and set GitHub secret `RENDER_DEPLOY_HOOK_URL` (Render → service → **Deploy Hook**).
+
 ## Launch checklist (plan-07 / plan-21)
 
 - **API:** set `DATABASE_URL`, `JWT_SECRET`, optional `PRIDE_DEVELOPER_IDS` (comma-separated `shop_users.id`, same as JWT `sub`, for developer-only admin routes), optional `PRIDE_LEGACY_REDEEM_CODES`, optional `CATALOG_SHARING_DEFAULT` (`false` turns off default catalog sharing in `GET /catalog/public`).

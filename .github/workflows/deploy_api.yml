@@ -1,0 +1,55 @@
+# Triggers a Render redeploy when the Nest API or render.yaml changes.
+# One-time setup: Render Dashboard → your web service → Settings → Deploy Hook →
+# copy URL → GitHub repo → Settings → Secrets → RENDER_DEPLOY_HOOK_URL
+name: Deploy API
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "api/**"
+      - "render.yaml"
+      - ".github/workflows/deploy_api.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-api-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  trigger-render:
+    name: render-deploy-hook
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render deploy
+        env:
+          HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "::warning::RENDER_DEPLOY_HOOK_URL is not set. Add a Render Deploy Hook URL as a GitHub secret, or redeploy manually from the Render dashboard."
+            exit 0
+          fi
+          curl -fsS -X POST "$HOOK"
+          echo "Render deploy hook invoked."
+
+      - name: Post-deploy smoke (optional)
+        env:
+          API_BASE: https://pride-v3.onrender.com
+        run: |
+          echo "Waiting for Render cold start..."
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            code=$(curl -s -o /tmp/health.json -w "%{http_code}" "$API_BASE/health" || true)
+            if [ "$code" = "200" ]; then break; fi
+            sleep 15
+          done
+          curl -fsS "$API_BASE/health"
+          # Billing routes return 401 without JWT; 404 means old API build is still live.
+          billing_code=$(curl -s -o /dev/null -w "%{http_code}" "$API_BASE/admin/billing-info" || true)
+          if [ "$billing_code" = "404" ]; then
+            echo "::error::GET /admin/billing-info still 404 — Render may still be on an old build. Retry deploy or check build logs."
+            exit 1
+          fi
+          echo "GET /admin/billing-info → HTTP $billing_code (expected 401 without token)"
