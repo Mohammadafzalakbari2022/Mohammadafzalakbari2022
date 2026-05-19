@@ -29,8 +29,11 @@ jobs:
           HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         run: |
           if [ -z "$HOOK" ]; then
-            echo "::warning::RENDER_DEPLOY_HOOK_URL is not set. Add a Render Deploy Hook URL as a GitHub secret, or redeploy manually from the Render dashboard."
-            exit 0
+            echo "::error::RENDER_DEPLOY_HOOK_URL is not set."
+            echo "Render → your API service → Settings → Deploy Hook → copy URL."
+            echo "GitHub → repo Settings → Secrets and variables → Actions → New secret → RENDER_DEPLOY_HOOK_URL"
+            echo "Then re-run this workflow (Actions → Deploy API → Run workflow)."
+            exit 1
           fi
           curl -fsS -X POST "$HOOK"
           echo "Render deploy hook invoked."

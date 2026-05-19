@@ -90,7 +90,23 @@ curl -s -o /dev/null -w "%{http_code}\n" https://pride-v3.onrender.com/admin/bil
 
 Production Postgres must include `subscription_billing_config` and `subscription_payment_claims`, and `_prisma_migrations` must list all migrations in `api/prisma/migrations/` (use `npx prisma migrate deploy` or baseline per [Prisma baselining](https://www.prisma.io/docs/guides/migrate/developing-with-prisma-migrate/add-prisma-migrate-to-a-project#baseline-your-production-environment)).
 
-**Auto redeploy on `api/**` pushes:** add [`.github/workflows/deploy_api.yml`](../.github/workflows/deploy_api.yml) and set GitHub secret `RENDER_DEPLOY_HOOK_URL` (Render → service → **Deploy Hook**).
+**Auto redeploy on `api/**` pushes:** [`.github/workflows/deploy_api.yml`](../.github/workflows/deploy_api.yml) calls your Render **Deploy Hook** on every `api/**` push to `main`.
+
+### One-time: GitHub secret `RENDER_DEPLOY_HOOK_URL` (required)
+
+Without this secret, the **Deploy API** workflow fails and Render does **not** get a new build.
+
+1. **Render:** open your web service (e.g. `pride-v3` on Render) → **Settings** → **Deploy Hook** → **Create deploy hook** → copy the full URL (`https://api.render.com/deploy/srv-…?key=…`).
+2. **GitHub:** repo **Settings** → **Secrets and variables** → **Actions** → **New repository secret**
+   - Name: `RENDER_DEPLOY_HOOK_URL`
+   - Value: paste the deploy hook URL
+3. **Redeploy:** **Actions** → **Deploy API** → **Run workflow** → branch `main` → **Run workflow**
+
+Or in GitHub Desktop: push any commit under `api/`, or use **Repository** → **Open in GitHub** → **Actions** → **Deploy API** → **Run workflow**.
+
+**CLI (after `gh auth login`):** `gh workflow run deploy_api.yml --ref main`
+
+**Manual fallback:** Render dashboard → your service → **Manual Deploy** → **Deploy latest commit**.
 
 ## Launch checklist (plan-07 / plan-21)
 

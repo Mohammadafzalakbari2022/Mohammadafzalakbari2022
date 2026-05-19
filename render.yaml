@@ -21,6 +21,7 @@ services:
     preDeployCommand: npx prisma migrate deploy
     startCommand: npm run start:prod
     healthCheckPath: /health
+    autoDeploy: true
     envVars:
       - key: NODE_ENV
         value: production
