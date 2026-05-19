@@ -133,31 +133,52 @@ export class AdminService {
     Array<{
       id: string;
       name: string;
+      created_at: string;
       user_count: number;
       license_status: string;
       license_expires_at: string | null;
+      trial_started_at: string | null;
       disabled_at: string | null;
+      users: Array<{
+        id: string;
+        username: string;
+        is_shop_owner: boolean;
+        deleted_at: string | null;
+        has_password: boolean;
+      }>;
     }>
   > {
     const now = new Date();
     const rows = await this.prisma.shop.findMany({
       orderBy: { name: 'asc' },
-      include: { license: true },
+      include: {
+        license: true,
+        users: { orderBy: { username: 'asc' } },
+      },
     });
     const out: Array<{
       id: string;
       name: string;
+      created_at: string;
       user_count: number;
       license_status: string;
       license_expires_at: string | null;
+      trial_started_at: string | null;
       disabled_at: string | null;
+      users: Array<{
+        id: string;
+        username: string;
+        is_shop_owner: boolean;
+        deleted_at: string | null;
+        has_password: boolean;
+      }>;
     }> = [];
     for (const s of rows) {
-      const user_count = await this.prisma.shopUser.count({
-        where: { shopId: s.id, deletedAt: null },
-      });
+      const activeUsers = s.users.filter((u) => u.deletedAt == null);
+      const user_count = activeUsers.length;
       let license_status = 'none';
       let license_expires_at: string | null = null;
+      let trial_started_at: string | null = null;
       if (s.license) {
         const dto = licenseStatusDtoFromRow(
           { statusStored: s.license.statusStored, expiresAt: s.license.expiresAt },
@@ -165,14 +186,24 @@ export class AdminService {
         );
         license_status = dto.status;
         license_expires_at = dto.expires_at;
+        trial_started_at = s.license.trialStartedAt?.toISOString() ?? null;
       }
       out.push({
         id: s.id,
         name: s.name,
+        created_at: s.createdAt.toISOString(),
         user_count,
         license_status,
         license_expires_at,
+        trial_started_at,
         disabled_at: s.disabledAt?.toISOString() ?? null,
+        users: s.users.map((u) => ({
+          id: u.id,
+          username: u.username,
+          is_shop_owner: u.isShopOwner,
+          deleted_at: u.deletedAt?.toISOString() ?? null,
+          has_password: u.passwordHash.trim().length > 0,
+        })),
       });
     }
     return out;

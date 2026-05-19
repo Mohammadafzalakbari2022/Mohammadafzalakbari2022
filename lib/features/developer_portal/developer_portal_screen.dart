@@ -327,6 +327,23 @@ class _DevPortalShopsTabState extends ConsumerState<_DevPortalShopsTab> {
   String? _error;
   List<Map<String, dynamic>> _rows = const [];
 
+  String _formatIsoDate(String? raw) {
+    if (raw == null || raw.isEmpty || raw == 'null') return '—';
+    final dt = DateTime.tryParse(raw);
+    if (dt == null) return raw;
+    final local = dt.toLocal();
+    final y = local.year.toString().padLeft(4, '0');
+    final m = local.month.toString().padLeft(2, '0');
+    final d = local.day.toString().padLeft(2, '0');
+    return '$y-$m-$d';
+  }
+
+  List<Map<String, dynamic>> _shopUsers(Map<String, dynamic> shop) {
+    final raw = shop['users'];
+    if (raw is! List) return const [];
+    return raw.whereType<Map<String, dynamic>>().toList();
+  }
+
   Future<void> _disableShop(String shopId) async {
     final token = ref.read(authSessionProvider).accessToken;
     if (token == null) return;
@@ -570,20 +587,23 @@ class _DevPortalShopsTabState extends ConsumerState<_DevPortalShopsTab> {
           final uc = m['user_count'];
           final count = uc is int ? uc : int.tryParse('$uc') ?? 0;
           final lic = '${m['license_status'] ?? ''}';
-          final exp = '${m['license_expires_at'] ?? ''}';
+          final exp = _formatIsoDate('${m['license_expires_at'] ?? ''}');
+          final created = _formatIsoDate('${m['created_at'] ?? ''}');
+          final trial = _formatIsoDate('${m['trial_started_at'] ?? ''}');
           final disabledRaw = m['disabled_at'];
           final disabled = disabledRaw != null &&
               '$disabledRaw'.trim().isNotEmpty &&
               '$disabledRaw' != 'null';
+          final users = _shopUsers(m);
           return Card(
-            child: ListTile(
-              title: Text(name.isEmpty ? id : name),
-              subtitle: Text(
-                '$id · ${widget.l10n.devPortalShopRowUsers(count)}\n$lic · $exp'
-                '${disabled ? '\n${widget.l10n.devPortalShopDisabledLabel}' : ''}',
-              ),
-              isThreeLine: true,
-              trailing: PopupMenuButton<String>(
+            clipBehavior: Clip.antiAlias,
+            child: ExpansionTile(
+              title: Row(
+                children: [
+                  Expanded(
+                    child: Text(name.isEmpty ? id : name),
+                  ),
+                  PopupMenuButton<String>(
                 tooltip: widget.l10n.devPortalShopActionsTooltip,
                 onSelected: (v) async {
                   if (v == 'disable') {
@@ -616,7 +636,57 @@ class _DevPortalShopsTabState extends ConsumerState<_DevPortalShopsTab> {
                     child: Text(widget.l10n.devPortalShopPushTestCta),
                   ),
                 ],
+                  ),
+                ],
               ),
+              subtitle: Text(
+                '$id · ${widget.l10n.devPortalShopRowUsers(count)}\n'
+                '${widget.l10n.devPortalShopSignedUp(created)}\n'
+                '$lic · $exp'
+                '${trial != '—' ? '\n${widget.l10n.devPortalShopTrialStarted(trial)}' : ''}'
+                '${disabled ? '\n${widget.l10n.devPortalShopDisabledLabel}' : ''}',
+              ),
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Text(
+                      widget.l10n.devPortalShopUsersHeader,
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                  ),
+                ),
+                if (users.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                    child: Text(
+                      widget.l10n.devPortalShopRowUsers(0),
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  )
+                else
+                  for (final u in users)
+                    ListTile(
+                      dense: true,
+                      title: Text('${u['username'] ?? ''}'),
+                      subtitle: Text(
+                        [
+                          '${u['id'] ?? ''}',
+                          if (u['is_shop_owner'] == true)
+                            widget.l10n.devPortalShopUserOwnerBadge,
+                          if (u['deleted_at'] != null &&
+                              '${u['deleted_at']}'.trim().isNotEmpty &&
+                              '${u['deleted_at']}' != 'null')
+                            widget.l10n.devPortalShopUserDeletedBadge,
+                          if (u['has_password'] == true)
+                            widget.l10n.devPortalShopUserPasswordNote,
+                        ].join(' · '),
+                      ),
+                      isThreeLine: true,
+                    ),
+                const SizedBox(height: 8),
+              ],
             ),
           );
         },

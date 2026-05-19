@@ -5244,6 +5244,42 @@ abstract class AppLocalizations {
   /// **'{count, plural, one{1 user} other{{count} users}}'**
   String devPortalShopRowUsers(int count);
 
+  /// No description provided for @devPortalShopSignedUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed up: {date}'**
+  String devPortalShopSignedUp(String date);
+
+  /// No description provided for @devPortalShopTrialStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Trial started: {date}'**
+  String devPortalShopTrialStarted(String date);
+
+  /// No description provided for @devPortalShopUsersHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Accounts'**
+  String get devPortalShopUsersHeader;
+
+  /// No description provided for @devPortalShopUserOwnerBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get devPortalShopUserOwnerBadge;
+
+  /// No description provided for @devPortalShopUserDeletedBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed'**
+  String get devPortalShopUserDeletedBadge;
+
+  /// No description provided for @devPortalShopUserPasswordNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Password is stored hashed on the server. Use the Password resets tab to set a new one.'**
+  String get devPortalShopUserPasswordNote;
+
   /// No description provided for @devPortalShopDisabledLabel.
   ///
   /// In en, this message translates to:

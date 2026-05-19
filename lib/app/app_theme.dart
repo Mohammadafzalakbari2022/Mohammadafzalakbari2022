@@ -860,6 +860,49 @@ ThemeData _buildTheme(
 
       thickness: 1,
     ),
+
+    switchTheme: SwitchThemeData(
+      thumbColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.disabled)) {
+          return isDark
+              ? scheme.onSurface.withValues(alpha: 0.35)
+              : scheme.onSurface.withValues(alpha: 0.28);
+        }
+        if (states.contains(WidgetState.selected)) {
+          return scheme.onPrimary;
+        }
+        return isDark ? scheme.surfaceContainerLowest : Colors.white;
+      }),
+      trackColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.disabled)) {
+          return scheme.surfaceContainerHighest.withValues(alpha: 0.5);
+        }
+        if (states.contains(WidgetState.selected)) {
+          return scheme.primary;
+        }
+        return isDark
+            ? scheme.surfaceContainerHigh
+            : scheme.surfaceContainerHigh;
+      }),
+      trackOutlineColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return Colors.transparent;
+        }
+        return scheme.outline;
+      }),
+    ),
+
+    radioTheme: RadioThemeData(
+      fillColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.disabled)) {
+          return scheme.onSurface.withValues(alpha: 0.28);
+        }
+        if (states.contains(WidgetState.selected)) {
+          return scheme.primary;
+        }
+        return scheme.outline;
+      }),
+    ),
   );
 }
 

@@ -8,25 +8,31 @@ import 'style_figure_image_ref.dart';
 
 /// First-run defaults for style catalog (names, parts, bundled figures).
 Future<void> seedStyleCatalogIfEmpty(Isar isar, String shopId) async {
-  if (await isar.styleNameEntitys.filter().shopIdEqualTo(shopId).count() > 0) {
-    return;
-  }
   final now = DateTime.now();
+  await _seedStyleNamesIfMissing(isar, shopId, now);
+  await _seedStylePartsIfMissing(isar, shopId, now);
+  await _ensureBundledStyleFigures(isar, shopId, now);
+}
+
+Future<void> _seedStyleNamesIfMissing(
+  Isar isar,
+  String shopId,
+  DateTime now,
+) async {
+  final hasNames = await isar.styleNameEntitys
+      .filter()
+      .shopIdEqualTo(shopId)
+      .and()
+      .deletedAtIsNull()
+      .count();
+  if (hasNames > 0) return;
+
   final names = <(String id, String label, int order)>[
     (DevSeedIds.styleNameQasimi, 'Qasimi', 10),
     (DevSeedIds.styleNameKandahari, 'Kandahari', 20),
     (DevSeedIds.styleNameArabi, 'Arabi', 30),
     (DevSeedIds.styleNameClassic, 'Classic', 40),
     (DevSeedIds.styleNameModern, 'Modern', 50),
-  ];
-  final parts = <(String id, String label, int order)>[
-    (DevSeedIds.stylePartSleeve, 'Sleeve', 10),
-    (DevSeedIds.stylePartCollar, 'Collar', 20),
-    (DevSeedIds.stylePartPocket, 'Pocket', 30),
-    (DevSeedIds.stylePartCuff, 'Cuff', 40),
-    (DevSeedIds.stylePartNeck, 'Neck', 50),
-    (DevSeedIds.stylePartFront, 'Front', 60),
-    (DevSeedIds.stylePartBottom, 'Bottom', 70),
   ];
 
   final nameEntities = names
@@ -42,6 +48,34 @@ Future<void> seedStyleCatalogIfEmpty(Isar isar, String shopId) async {
       )
       .toList();
 
+  await isar.writeTxn(() async {
+    await isar.styleNameEntitys.putAll(nameEntities);
+  });
+}
+
+Future<void> _seedStylePartsIfMissing(
+  Isar isar,
+  String shopId,
+  DateTime now,
+) async {
+  final hasParts = await isar.stylePartEntitys
+      .filter()
+      .shopIdEqualTo(shopId)
+      .and()
+      .deletedAtIsNull()
+      .count();
+  if (hasParts > 0) return;
+
+  final parts = <(String id, String label, int order)>[
+    (DevSeedIds.stylePartSleeve, 'Sleeve', 10),
+    (DevSeedIds.stylePartCollar, 'Collar', 20),
+    (DevSeedIds.stylePartPocket, 'Pocket', 30),
+    (DevSeedIds.stylePartCuff, 'Cuff', 40),
+    (DevSeedIds.stylePartNeck, 'Neck', 50),
+    (DevSeedIds.stylePartFront, 'Front', 60),
+    (DevSeedIds.stylePartBottom, 'Bottom', 70),
+  ];
+
   final partEntities = parts
       .map(
         (p) => StylePartEntity()
@@ -55,6 +89,16 @@ Future<void> seedStyleCatalogIfEmpty(Isar isar, String shopId) async {
       )
       .toList();
 
+  await isar.writeTxn(() async {
+    await isar.stylePartEntitys.putAll(partEntities);
+  });
+}
+
+Future<void> _ensureBundledStyleFigures(
+  Isar isar,
+  String shopId,
+  DateTime now,
+) async {
   final partIds = [
     DevSeedIds.stylePartSleeve,
     DevSeedIds.stylePartSleeve,
@@ -91,9 +135,26 @@ Future<void> seedStyleCatalogIfEmpty(Isar isar, String shopId) async {
     DevSeedIds.styleFigure15,
   ];
 
-  final figureEntities = <StyleFigureEntity>[];
+  final toWrite = <StyleFigureEntity>[];
   for (var i = 0; i < 15; i++) {
-    figureEntities.add(
+    final existing = await isar.styleFigureEntitys.getByInternalId(figureIds[i]);
+    if (existing != null && existing.shopId != shopId) continue;
+    if (existing != null && existing.deletedAt == null) continue;
+
+    if (existing != null) {
+      existing
+        ..shopId = shopId
+        ..partInternalId = partIds[i]
+        ..imageRef = StyleFigureImageRef.bundledAssetKey(i + 1)
+        ..sortOrder = (i + 1) * 10
+        ..isActive = true
+        ..updatedAt = now
+        ..deletedAt = null;
+      toWrite.add(existing);
+      continue;
+    }
+
+    toWrite.add(
       StyleFigureEntity()
         ..internalId = figureIds[i]
         ..shopId = shopId
@@ -107,9 +168,9 @@ Future<void> seedStyleCatalogIfEmpty(Isar isar, String shopId) async {
     );
   }
 
+  if (toWrite.isEmpty) return;
+
   await isar.writeTxn(() async {
-    await isar.styleNameEntitys.putAll(nameEntities);
-    await isar.stylePartEntitys.putAll(partEntities);
-    await isar.styleFigureEntitys.putAll(figureEntities);
+    await isar.styleFigureEntitys.putAll(toWrite);
   });
 }

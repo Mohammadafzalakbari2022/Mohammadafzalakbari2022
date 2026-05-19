@@ -78,6 +78,26 @@
       }
     }
   },
+  "devPortalShopSignedUp": "نوم لیکنه: {date}",
+  "@devPortalShopSignedUp": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "devPortalShopTrialStarted": "ازموینه پیل: {date}",
+  "@devPortalShopTrialStarted": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "devPortalShopUsersHeader": "حسابونه",
+  "devPortalShopUserOwnerBadge": "خاوند",
+  "devPortalShopUserDeletedBadge": "ړنګ شوی",
+  "devPortalShopUserPasswordNote": "پټنوم په سرور کې هش شوی دی. د نوي پټنوم لپاره د پټنوم بیاځای کولو برخه وکاروئ.",
   "devPortalShopDisabledLabel": "غیرفعال",
   "devPortalShopActionsTooltip": "د هټۍ کړنې",
   "devPortalShopDisableCta": "هټۍ غیرفعاله کړئ",

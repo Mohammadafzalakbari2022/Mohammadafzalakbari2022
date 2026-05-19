@@ -102,7 +102,8 @@ final customersListStreamProvider =
 
 final catalogRepositoryProvider = FutureProvider<CatalogRepository>((ref) async {
   final repo = MemoryCatalogRepository();
-  await repo.seedIfEmpty();
+  final shopId = ref.watch(effectiveShopIdProvider);
+  await repo.seedIfEmpty(shopId);
   return repo;
 });
 

@@ -15,13 +15,14 @@ class MemoryCatalogRepository implements CatalogRepository {
   final _uuid = const Uuid();
 
   @override
-  Future<void> seedIfEmpty() async {
-    if (_items.isEmpty) {
+  Future<void> seedIfEmpty(String shopId) async {
+    final hasAnyForShop = _items.any((i) => i.shopId == shopId);
+    if (!hasAnyForShop) {
       final now = DateTime.now();
       final seed = [
         CatalogItemDetail(
           internalId: 'cat-1',
-          shopId: kDevShopId,
+          shopId: shopId,
           designName: 'Classic Suit',
           designerShopName: 'My Shop',
           createdAt: now,
@@ -31,7 +32,7 @@ class MemoryCatalogRepository implements CatalogRepository {
         ),
         CatalogItemDetail(
           internalId: 'cat-2',
-          shopId: kDevShopId,
+          shopId: shopId,
           designName: 'Modern Kameez',
           designerShopName: 'My Shop',
           createdAt: now.subtract(const Duration(days: 2)),
@@ -44,17 +45,21 @@ class MemoryCatalogRepository implements CatalogRepository {
       _items.addAll(seed.map(_toSummary));
     }
     _ensureCommunity();
-    _ensureBundleDesigns();
+    _ensureBundleDesigns(shopId);
   }
 
-  void _ensureBundleDesigns() {
+  void _ensureBundleDesigns(String shopId) {
     final now = DateTime.now();
     var added = false;
     for (final row in catalogBundleMemorySeedRows()) {
-      if (_details.any((x) => x.internalId == row.internalId)) continue;
+      if (_details.any(
+        (x) => x.internalId == row.internalId && x.shopId == shopId,
+      )) {
+        continue;
+      }
       final detail = CatalogItemDetail(
         internalId: row.internalId,
-        shopId: kDevShopId,
+        shopId: shopId,
         designName: row.designName,
         designerShopName: row.designerShopName,
         createdAt: now,
@@ -107,7 +112,7 @@ class MemoryCatalogRepository implements CatalogRepository {
 
   @override
   Stream<List<CatalogItemSummary>> watchMyDesigns([String shopId = kDevShopId]) async* {
-    await seedIfEmpty();
+    await seedIfEmpty(shopId);
     yield _sortedForShop(shopId);
     yield* _controller.stream.map((_) => _sortedForShop(shopId));
   }
@@ -115,7 +120,7 @@ class MemoryCatalogRepository implements CatalogRepository {
   @override
   Stream<List<CatalogItemSummary>> watchCommunityDesigns(
       [String myShopId = kDevShopId]) async* {
-    await seedIfEmpty();
+    await seedIfEmpty(myShopId);
     yield _communitySorted(myShopId);
     yield* _controller.stream.map((_) => _communitySorted(myShopId));
   }
@@ -147,7 +152,12 @@ class MemoryCatalogRepository implements CatalogRepository {
 
   @override
   Stream<CatalogItemDetail?> watchItem(String internalId) async* {
-    await seedIfEmpty();
+    final shopId = _details
+            .where((d) => d.internalId == internalId)
+            .map((d) => d.shopId)
+            .firstOrNull ??
+        kDevShopId;
+    await seedIfEmpty(shopId);
     yield _details
         .where((d) => d.internalId == internalId)
         .cast<CatalogItemDetail?>()
@@ -170,7 +180,7 @@ class MemoryCatalogRepository implements CatalogRepository {
     String? thumbnailPath,
     bool isSharedPublic = false,
   }) async {
-    await seedIfEmpty();
+    await seedIfEmpty(shopId);
     final id = _uuid.v4();
     final now = DateTime.now();
     final next = CatalogItemDetail(
@@ -262,7 +272,7 @@ class MemoryCatalogRepository implements CatalogRepository {
     required String operation,
     Object? data,
   }) async {
-    await seedIfEmpty();
+    await seedIfEmpty(shopId);
     if (operation == 'delete') {
       await softDelete(internalId);
       return;

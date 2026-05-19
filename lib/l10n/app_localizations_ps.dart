@@ -2849,6 +2849,29 @@ class AppLocalizationsPs extends AppLocalizations {
   }
 
   @override
+  String devPortalShopSignedUp(String date) {
+    return 'نوم لیکنه: $date';
+  }
+
+  @override
+  String devPortalShopTrialStarted(String date) {
+    return 'ازموینه پیل: $date';
+  }
+
+  @override
+  String get devPortalShopUsersHeader => 'حسابونه';
+
+  @override
+  String get devPortalShopUserOwnerBadge => 'خاوند';
+
+  @override
+  String get devPortalShopUserDeletedBadge => 'ړنګ شوی';
+
+  @override
+  String get devPortalShopUserPasswordNote =>
+      'پټنوم په سرور کې هش شوی دی. د نوي پټنوم لپاره د پټنوم بیاځای کولو برخه وکاروئ.';
+
+  @override
   String get devPortalShopDisabledLabel => 'غیرفعال';
 
   @override

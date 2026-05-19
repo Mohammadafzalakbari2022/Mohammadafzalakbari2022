@@ -9,7 +9,7 @@ abstract class CatalogRepository {
   Stream<List<CatalogItemSummary>> watchCommunityDesigns(
       [String myShopId = kDevShopId]);
 
-  Future<void> seedIfEmpty();
+  Future<void> seedIfEmpty(String shopId);
 
   Stream<CatalogItemDetail?> watchItem(String internalId);
 

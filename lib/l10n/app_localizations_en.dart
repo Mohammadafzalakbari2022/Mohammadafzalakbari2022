@@ -2875,6 +2875,29 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String devPortalShopSignedUp(String date) {
+    return 'Signed up: $date';
+  }
+
+  @override
+  String devPortalShopTrialStarted(String date) {
+    return 'Trial started: $date';
+  }
+
+  @override
+  String get devPortalShopUsersHeader => 'Accounts';
+
+  @override
+  String get devPortalShopUserOwnerBadge => 'Owner';
+
+  @override
+  String get devPortalShopUserDeletedBadge => 'Removed';
+
+  @override
+  String get devPortalShopUserPasswordNote =>
+      'Password is stored hashed on the server. Use the Password resets tab to set a new one.';
+
+  @override
   String get devPortalShopDisabledLabel => 'Disabled';
 
   @override

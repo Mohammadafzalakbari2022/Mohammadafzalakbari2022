@@ -165,7 +165,8 @@ final tasksForShopProvider =
 final catalogRepositoryProvider = FutureProvider<CatalogRepository>((ref) async {
   final isar = await ref.watch(isarProvider.future);
   final repo = IsarCatalogRepository(isar);
-  await repo.seedIfEmpty();
+  final shopId = ref.watch(effectiveShopIdProvider);
+  await repo.seedIfEmpty(shopId);
   return repo;
 });
 

@@ -1271,6 +1271,26 @@
       }
     }
   },
+  "devPortalShopSignedUp": "Signed up: {date}",
+  "@devPortalShopSignedUp": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "devPortalShopTrialStarted": "Trial started: {date}",
+  "@devPortalShopTrialStarted": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "devPortalShopUsersHeader": "Accounts",
+  "devPortalShopUserOwnerBadge": "Owner",
+  "devPortalShopUserDeletedBadge": "Removed",
+  "devPortalShopUserPasswordNote": "Password is stored hashed on the server. Use the Password resets tab to set a new one.",
   "devPortalShopDisabledLabel": "Disabled",
   "devPortalShopActionsTooltip": "Shop actions",
   "devPortalShopDisableCta": "Disable shop",

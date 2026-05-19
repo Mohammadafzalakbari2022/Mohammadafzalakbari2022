@@ -16,13 +16,19 @@ class IsarCatalogRepository implements CatalogRepository {
   final _uuid = const Uuid();
 
   @override
-  Future<void> seedIfEmpty() async {
-    if (await _isar.catalogItemEntitys.count() == 0) {
+  Future<void> seedIfEmpty(String shopId) async {
+    final myCount = await _isar.catalogItemEntitys
+        .filter()
+        .shopIdEqualTo(shopId)
+        .and()
+        .deletedAtIsNull()
+        .count();
+    if (myCount == 0) {
       final now = DateTime.now();
       final items = [
         CatalogItemEntity()
           ..internalId = 'cat-1'
-          ..shopId = kDevShopId
+          ..shopId = shopId
           ..designName = 'Classic Suit'
           ..designerShopName = 'My Shop'
           ..createdAt = now
@@ -30,7 +36,7 @@ class IsarCatalogRepository implements CatalogRepository {
           ..isSharedPublic = false,
         CatalogItemEntity()
           ..internalId = 'cat-2'
-          ..shopId = kDevShopId
+          ..shopId = shopId
           ..designName = 'Modern Kameez'
           ..designerShopName = 'My Shop'
           ..createdAt = now.subtract(const Duration(days: 2))
@@ -42,7 +48,7 @@ class IsarCatalogRepository implements CatalogRepository {
       });
     }
     await _ensureCommunityCatalog();
-    await seedCatalogBundleIfMissing(_isar, kDevShopId);
+    await seedCatalogBundleIfMissing(_isar, shopId);
   }
 
   Future<void> _ensureCommunityCatalog() async {

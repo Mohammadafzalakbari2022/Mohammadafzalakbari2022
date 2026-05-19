@@ -25,7 +25,12 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
 
   @override
   Future<void> seedIfEmpty(String shopId) async {
-    if (_names.isNotEmpty) return;
+    final hasNames = _names.any((n) => n.shopId == shopId);
+    if (hasNames) {
+      _ensureParts(shopId);
+      _ensureBundledFigures(shopId);
+      return;
+    }
     final names = [
       (DevSeedIds.styleNameQasimi, 'Qasimi', 10),
       (DevSeedIds.styleNameKandahari, 'Kandahari', 20),
@@ -114,6 +119,89 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
     _emitNames();
     _emitParts();
     _emitFigures();
+  }
+
+  void _ensureParts(String shopId) {
+    if (_parts.any((p) => p.shopId == shopId)) return;
+    final parts = [
+      (DevSeedIds.stylePartSleeve, 'Sleeve', 10),
+      (DevSeedIds.stylePartCollar, 'Collar', 20),
+      (DevSeedIds.stylePartPocket, 'Pocket', 30),
+      (DevSeedIds.stylePartCuff, 'Cuff', 40),
+      (DevSeedIds.stylePartNeck, 'Neck', 50),
+      (DevSeedIds.stylePartFront, 'Front', 60),
+      (DevSeedIds.stylePartBottom, 'Bottom', 70),
+    ];
+    for (final p in parts) {
+      _parts.add(
+        StylePartSummary(
+          internalId: p.$1,
+          shopId: shopId,
+          name: p.$2,
+          sortOrder: p.$3,
+          isActive: true,
+        ),
+      );
+    }
+    _emitParts();
+  }
+
+  void _ensureBundledFigures(String shopId) {
+    final partIds = [
+      DevSeedIds.stylePartSleeve,
+      DevSeedIds.stylePartSleeve,
+      DevSeedIds.stylePartSleeve,
+      DevSeedIds.stylePartCollar,
+      DevSeedIds.stylePartCollar,
+      DevSeedIds.stylePartPocket,
+      DevSeedIds.stylePartPocket,
+      DevSeedIds.stylePartCuff,
+      DevSeedIds.stylePartCuff,
+      DevSeedIds.stylePartNeck,
+      DevSeedIds.stylePartNeck,
+      DevSeedIds.stylePartFront,
+      DevSeedIds.stylePartFront,
+      DevSeedIds.stylePartBottom,
+      DevSeedIds.stylePartBottom,
+    ];
+    final figureIds = [
+      DevSeedIds.styleFigure1,
+      DevSeedIds.styleFigure2,
+      DevSeedIds.styleFigure3,
+      DevSeedIds.styleFigure4,
+      DevSeedIds.styleFigure5,
+      DevSeedIds.styleFigure6,
+      DevSeedIds.styleFigure7,
+      DevSeedIds.styleFigure8,
+      DevSeedIds.styleFigure9,
+      DevSeedIds.styleFigure10,
+      DevSeedIds.styleFigure11,
+      DevSeedIds.styleFigure12,
+      DevSeedIds.styleFigure13,
+      DevSeedIds.styleFigure14,
+      DevSeedIds.styleFigure15,
+    ];
+    var added = false;
+    for (var i = 0; i < 15; i++) {
+      if (_figures.any(
+        (f) => f.internalId == figureIds[i] && f.shopId == shopId,
+      )) {
+        continue;
+      }
+      _figures.add(
+        StyleFigureSummary(
+          internalId: figureIds[i],
+          shopId: shopId,
+          partInternalId: partIds[i],
+          name: '',
+          imageRef: StyleFigureImageRef.bundledAssetKey(i + 1),
+          sortOrder: (i + 1) * 10,
+          isActive: true,
+        ),
+      );
+      added = true;
+    }
+    if (added) _emitFigures();
   }
 
   List<StyleNameSummary> _namesFor(String shopId) =>

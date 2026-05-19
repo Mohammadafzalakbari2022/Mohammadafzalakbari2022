@@ -2856,6 +2856,29 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String devPortalShopSignedUp(String date) {
+    return 'ثبت‌نام: $date';
+  }
+
+  @override
+  String devPortalShopTrialStarted(String date) {
+    return 'آزمایشی از: $date';
+  }
+
+  @override
+  String get devPortalShopUsersHeader => 'حساب‌ها';
+
+  @override
+  String get devPortalShopUserOwnerBadge => 'مالک';
+
+  @override
+  String get devPortalShopUserDeletedBadge => 'حذف‌شده';
+
+  @override
+  String get devPortalShopUserPasswordNote =>
+      'رمز عبور به‌صورت هش روی سرور ذخیره شده است. برای تنظیم رمز جدید از برگه «بازیابی رمز» استفاده کنید.';
+
+  @override
   String get devPortalShopDisabledLabel => 'غیرفعال';
 
   @override
