@@ -4,13 +4,23 @@ Use this checklist when submitting **Pride** to Google Play Console.
 
 ## Privacy policy URL (required)
 
-After the next **Deploy Web** workflow (push to `main` that includes `web/privacy-policy.html`), your public URL is:
+### Option A — GitHub Pages (recommended; no Cloudflare secrets)
+
+1. **One-time:** GitHub → repo **Settings** → **Pages** → **Build and deployment** → **Source:** choose **GitHub Actions** (not “Deploy from branch”).
+2. Push is already done; run **Actions** → **Deploy Privacy Policy (GitHub Pages)** → **Run workflow** if needed.
+3. After a green run, open **Settings → Pages** and copy the site URL. It is usually:
+
+**https://mohammadafzalakbari2022.github.io/Mohammadafzalakbari2022/privacy-policy.html**
+
+Use that full URL in Play Console.
+
+### Option B — Cloudflare Pages (when secrets are set)
+
+Requires GitHub secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` (see `web/DEPLOY.md`). Then:
 
 **https://pride-v3-web.pages.dev/privacy-policy.html**
 
-If you use a custom domain on Cloudflare Pages, use:
-
-**https://YOUR-DOMAIN/privacy-policy.html**
+(Custom domain: `https://YOUR-DOMAIN/privacy-policy.html`)
 
 ### Paste in Play Console
 
@@ -63,14 +73,14 @@ The app is **free** on Play Store; subscriptions use **activation codes** outsid
 
 ## Redeploy privacy page only
 
-Any change to `web/privacy-policy.html` is published when **Deploy Web** runs (push to `main` under `lib/`, `web/`, or `pubspec.yaml`). Or run **Actions** → **Deploy Web** → **Run workflow**.
+Edit **`docs/privacy-policy.html`** (and copy the same changes to **`web/privacy-policy.html`** if you use Cloudflare later). Push to `main` → **Deploy Privacy Policy (GitHub Pages)** runs automatically.
 
 ---
 
 ## Quick verify
 
-Open in a browser:
+Open in a browser (GitHub Pages URL after setup):
 
-- https://pride-v3-web.pages.dev/privacy-policy.html
+- https://mohammadafzalakbari2022.github.io/Mohammadafzalakbari2022/privacy-policy.html
 
 You should see the purple header and full policy text. Use this exact URL in Play Console.
