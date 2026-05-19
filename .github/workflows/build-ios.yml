@@ -1,0 +1,33 @@
+# Compile-check iOS release on macOS (no signing). For TestFlight/IPA use Xcode on a Mac.
+name: Build iOS
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+    paths:
+      - ".github/workflows/build-ios.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build-ios:
+    name: ios-release-no-codesign
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+      - run: flutter gen-l10n
+
+      - name: Build iOS (no codesign)
+        run: |
+          flutter build ios --release --no-codesign \
+            --dart-define-from-file=config/dart_defines_base.json \
+            --dart-define-from-file=config/dart_defines_prod.json
