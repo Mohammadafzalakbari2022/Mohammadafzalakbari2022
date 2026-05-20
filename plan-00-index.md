@@ -49,6 +49,8 @@ If you want a free place for optional Web builds (mostly for UI testing):
 
 **Agent / implementation contract:** [`AGENTS.md`](AGENTS.md) — non-negotiable rules for humans and AI when writing code in this repo (stack, offline-first, guards, l10n). Use it together with the `plan-NN-*.md` contracts.
 
+**Closure / resume work:** [`docs/PROJECT_HANDOFF.md`](docs/PROJECT_HANDOFF.md) — builds, CI, offline login, bundled assets, DB notes, deferred backlog.
+
 **Testing (commands + Android/Web):** [`TESTING.md`](TESTING.md).
 
 Notes:

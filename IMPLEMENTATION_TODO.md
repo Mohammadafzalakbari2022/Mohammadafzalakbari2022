@@ -5,6 +5,8 @@ Aligned with `plan-00-index.md`, `plan-25-implementation-backlog.md`, and `AGENT
 ## P0 — Foundation (server + client contract)
 
 - [x] **`POST /auth/login`** + Flutter login when `API_BASE_URL` is set.
+- [x] **Offline login** — local SHA-256 verifier after first online login (`lib/auth/offline_credential_storage.dart`; `plan-04`).
+- [x] **Bundled defaults** — 15 style figures + 4 catalog designs on device (`ensure_bundled_shop_defaults`, `assets/style_figures/`, `assets/catalog_seed/`).
 - [x] **Persist API session** — restore / clear paths wired.
 - [x] **JWT** + guards on protected routes.
 - [ ] **Supabase-managed RLS / optional managed auth** — not the default path; **Nest + Postgres + Prisma** is what ships (`api/prisma/`). Hosted Postgres (e.g. Supabase connection string) works as the database only.

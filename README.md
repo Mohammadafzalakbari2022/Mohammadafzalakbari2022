@@ -18,6 +18,7 @@ Offline-first tailoring shop app — **Flutter** (Android, iOS, Web) + **NestJS 
 
 ## Developers
 
+- **Project handoff (closure, upgrades, deferred work):** [docs/PROJECT_HANDOFF.md](docs/PROJECT_HANDOFF.md)
 - Commands: [COMMANDS.md](COMMANDS.md)
 - Testing: [TESTING.md](TESTING.md)
 - Agent rules: [AGENTS.md](AGENTS.md)
