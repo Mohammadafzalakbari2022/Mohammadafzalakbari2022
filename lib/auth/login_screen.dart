@@ -9,6 +9,7 @@ import 'package:pride_v3/core/api/pride_api_shop.dart';
 import 'package:pride_v3/core/persistence/shared_preferences_provider.dart';
 import 'package:pride_v3/core/persistence/sync_cursor_storage.dart';
 import 'package:pride_v3/core/persistence/sync_diagnostics_storage.dart';
+import 'package:pride_v3/data/local/seed_bundled_defaults.dart';
 import 'package:pride_v3/shell/shell_sync_providers.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 import 'package:pride_v3/licensing/license_clock_guard.dart';
@@ -23,6 +24,7 @@ import 'auth_form_feedback_banner.dart';
 import 'auth_providers.dart';
 import 'auth_session_storage.dart';
 import 'auth_user_messages.dart';
+import 'offline_credential_storage.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -55,7 +57,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
-  Future<void> _persistLoginOk(PrideApiLoginOk ok) async {
+  Future<void> _seedBundledDefaultsForShop(String shopId) async {
+    try {
+      await seedBundledDefaultsForShop(ref, shopId);
+    } catch (_) {
+      // Non-fatal; repository providers also seed on first use.
+    }
+  }
+
+  Future<void> _persistLoginOk(
+    PrideApiLoginOk ok, {
+    required String password,
+  }) async {
     ref.read(authSessionProvider).signInFromApi(
           accessToken: ok.accessToken,
           userId: ok.userId,
@@ -92,13 +105,100 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       licenseExpiresAtIso: expStr,
       licenseLastSuccessfulCheckAtIso: lastStr,
     );
+    await OfflineCredentialStorage.upsertFromLogin(
+      prefs,
+      shopId: ok.shopId,
+      username: ok.username,
+      userId: ok.userId,
+      isShopOwner: ok.isShopOwner,
+      password: password,
+      accessToken: ok.accessToken,
+      licenseStatusApi: licStr,
+      licenseExpiresAtIso: expStr,
+      licenseLastSuccessfulCheckAtIso: lastStr,
+    );
     if (PrideApiConfig.isDeveloperLogin(
       shopId: ok.shopId,
       username: ok.username,
     )) {
       await AuthSessionStorage.markDeveloperPortalUnlocked(prefs);
     }
+    await _seedBundledDefaultsForShop(ok.shopId);
     ref.invalidate(adminMeProvider);
+  }
+
+  Future<void> _restoreOfflineSession(OfflineVerifyOk cred) async {
+    ref.read(authSessionProvider).signInFromApi(
+          accessToken: cred.accessToken,
+          userId: cred.userId,
+          username: cred.username,
+          shopId: cred.shopId,
+          isShopOwner: cred.isShopOwner,
+        );
+    ref.read(licenseNotifierProvider).applyLicenseSnapshotMap({
+      'status': cred.licenseStatusApi,
+      if (cred.licenseExpiresAtIso != null)
+        'expires_at': cred.licenseExpiresAtIso,
+      if (cred.licenseLastSuccessfulCheckAtIso != null)
+        'last_successful_check_at': cred.licenseLastSuccessfulCheckAtIso,
+    });
+    final prefs = ref.read(sharedPreferencesProvider);
+    ref.read(licenseNotifierProvider).restoreTimingFromIso(
+          expiresAtIso: cred.licenseExpiresAtIso,
+          lastSuccessfulCheckAtIso: cred.licenseLastSuccessfulCheckAtIso,
+        );
+    ref.read(licenseNotifierProvider).setSuspectedTimeTamper(
+          LicenseClockGuard.readTamperFlag(prefs),
+        );
+    await AuthSessionStorage.persist(
+      prefs,
+      accessToken: cred.accessToken,
+      userId: cred.userId,
+      shopId: cred.shopId,
+      username: cred.username,
+      isShopOwner: cred.isShopOwner,
+      licenseStatusApi: cred.licenseStatusApi,
+      licenseExpiresAtIso: cred.licenseExpiresAtIso,
+      licenseLastSuccessfulCheckAtIso: cred.licenseLastSuccessfulCheckAtIso,
+    );
+    if (PrideApiConfig.isDeveloperLogin(
+      shopId: cred.shopId,
+      username: cred.username,
+    )) {
+      await AuthSessionStorage.markDeveloperPortalUnlocked(prefs);
+    }
+    await _seedBundledDefaultsForShop(cred.shopId);
+    ref.invalidate(adminMeProvider);
+  }
+
+  /// Returns `true` when offline sign-in succeeded.
+  Future<bool> _tryOfflineSignIn(
+    AppLocalizations l10n, {
+    required String shopIdRaw,
+    required String username,
+    required String password,
+  }) async {
+    final prefs = ref.read(sharedPreferencesProvider);
+    final result = OfflineCredentialStorage.verify(
+      prefs: prefs,
+      username: username,
+      password: password,
+      shopId: shopIdRaw.isEmpty ? null : shopIdRaw,
+    );
+    switch (result) {
+      case OfflineVerifyOk():
+        await _restoreOfflineSession(result);
+        return true;
+      case OfflineVerifyWrongPassword():
+        setState(() => _signInError = l10n.loginInvalidCredentials);
+        return false;
+      case OfflineVerifyRequiresShopId():
+        setState(() => _signInError = l10n.loginOfflineShopIdRequired);
+        return false;
+      case OfflineVerifyNotFound():
+        setState(() => _signInError = l10n.loginOfflineNotSetUp);
+        return false;
+    }
   }
 
   Future<void> _signIn(AppLocalizations l10n) async {
@@ -112,27 +212,39 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     try {
       if (PrideApiConfig.isConfigured) {
         final sid = _shopId.text.trim();
+        final username = _username.text;
+        final password = _password.text;
         final result = sid.isNotEmpty
             ? await postPrideApiShopJoin(
-                username: _username.text,
-                password: _password.text,
+                username: username,
+                password: password,
                 shopId: sid,
               )
             : await postPrideApiLogin(
-                username: _username.text,
-                password: _password.text,
+                username: username,
+                password: password,
               );
         if (!mounted) return;
 
         if (result is PrideApiLoginFailure) {
-          setState(
-            () => _signInError = loginFailureUserMessage(l10n, result),
-          );
+          if (isLoginFailureOfflineRecoverable(result)) {
+            final offlineOk = await _tryOfflineSignIn(
+              l10n,
+              shopIdRaw: sid,
+              username: username,
+              password: password,
+            );
+            if (offlineOk) return;
+          } else {
+            setState(
+              () => _signInError = loginFailureUserMessage(l10n, result),
+            );
+          }
           return;
         }
 
         final ok = result as PrideApiLoginOk;
-        await _persistLoginOk(ok);
+        await _persistLoginOk(ok, password: password);
       } else {
         final prefs = ref.read(sharedPreferencesProvider);
         final sid = ref.read(authSessionProvider).shopId?.trim();
@@ -192,7 +304,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         return;
       }
       final ok = result as PrideApiLoginOk;
-      await _persistLoginOk(ok);
+      await _persistLoginOk(ok, password: pass);
     } finally {
       if (mounted) setState(() => _busyCreate = false);
     }

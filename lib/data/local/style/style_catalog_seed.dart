@@ -138,8 +138,11 @@ Future<void> _ensureBundledStyleFigures(
   final toWrite = <StyleFigureEntity>[];
   for (var i = 0; i < 15; i++) {
     final existing = await isar.styleFigureEntitys.getByInternalId(figureIds[i]);
-    if (existing != null && existing.shopId != shopId) continue;
-    if (existing != null && existing.deletedAt == null) continue;
+    if (existing != null &&
+        existing.shopId == shopId &&
+        existing.deletedAt == null) {
+      continue;
+    }
 
     if (existing != null) {
       existing

@@ -16,6 +16,8 @@
   "loginCreatingShopHint": "لطفاً صبر کنید. ایجاد فروشگاه ممکن است کمی زمان ببرد.",
   "loginInvalidCredentials": "شناسه فروشگاه، نام کاربری یا رمز درست نیست. بررسی کنید و دوباره تلاش کنید.",
   "loginNoInternet": "اتصال اینترنت نیست. شبکه را بررسی کنید و دوباره تلاش کنید.",
+  "loginOfflineNotSetUp": "برای ورود آفلاین، یک‌بار با اینترنت وارد شوید.",
+  "loginOfflineShopIdRequired": "برای ورود آفلاین، شناسه فروشگاه را وارد کنید.",
   "loginConnectionSlow": "اتصال کند است یا قطع شد. کمی صبر کنید و دوباره تلاش کنید.",
   "loginServerBusy": "سرویس الان شلوغ است. چند دقیقه بعد دوباره تلاش کنید.",
   "loginSomethingWrong": "الان ورود ممکن نشد. لطفاً دوباره تلاش کنید.",
@@ -640,7 +642,30 @@
   "settingsSectionDeveloper": "توسعه‌دهنده",
   "settingsShopTileTitle": "پروفایل فروشگاه",
   "settingsShopTileSubtitle": "جزئیات فروشگاه اینجا نمایش داده می‌شود.",
-  "settingsCurrentUserTitle": "کاربر جاری",
+  "settingsCurrentUserTitle": "حساب",
+  "settingsAccountTitle": "حساب",
+  "settingsAccountUsernameLabel": "نام کاربری",
+  "settingsAccountUsernameHint": "نام کاربری را مالک فروشگاه تنظیم می‌کند و اینجا قابل تغییر نیست.",
+  "settingsAccountRoleLabel": "نقش",
+  "settingsAccountChangePasswordTitle": "تغییر رمز عبور",
+  "settingsAccountChangePasswordSubtitle": "رمز این حساب را برای ورود بعدی به‌روز کنید.",
+  "settingsAccountCurrentPasswordLabel": "رمز فعلی",
+  "settingsAccountNewPasswordLabel": "رمز جدید",
+  "settingsAccountConfirmPasswordLabel": "تأیید رمز جدید",
+  "settingsAccountChangePasswordCta": "به‌روزرسانی رمز",
+  "settingsAccountChangePasswordOk": "رمز به‌روز شد. دفعه بعد با رمز جدید وارد شوید.",
+  "settingsAccountChangePasswordFail": "به‌روزرسانی رمز ناموفق بود: {error}",
+  "@settingsAccountChangePasswordFail": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsAccountPasswordMismatch": "رمزهای جدید یکسان نیستند.",
+  "settingsAccountOfflineHint": "برای تغییر رمز به سرور متصل شوید.",
+  "settingsAccountForgotPasswordCta": "درخواست بازنشانی رمز از پشتیبانی",
+  "settingsUsersReadOnlyHint": "فقط مالک فروشگاه می‌تواند کاربر اضافه یا حذف کند.",
   "settingsSignOutTitle": "خروج",
   "settingsSignOutSubtitle": "پایان این نشست روی این دستگاه",
   "settingsSignOutDialogTitle": "خروج؟",

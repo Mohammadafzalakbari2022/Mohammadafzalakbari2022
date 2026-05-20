@@ -17,36 +17,6 @@ class IsarCatalogRepository implements CatalogRepository {
 
   @override
   Future<void> seedIfEmpty(String shopId) async {
-    final myCount = await _isar.catalogItemEntitys
-        .filter()
-        .shopIdEqualTo(shopId)
-        .and()
-        .deletedAtIsNull()
-        .count();
-    if (myCount == 0) {
-      final now = DateTime.now();
-      final items = [
-        CatalogItemEntity()
-          ..internalId = 'cat-1'
-          ..shopId = shopId
-          ..designName = 'Classic Suit'
-          ..designerShopName = 'My Shop'
-          ..createdAt = now
-          ..updatedAt = now
-          ..isSharedPublic = false,
-        CatalogItemEntity()
-          ..internalId = 'cat-2'
-          ..shopId = shopId
-          ..designName = 'Modern Kameez'
-          ..designerShopName = 'My Shop'
-          ..createdAt = now.subtract(const Duration(days: 2))
-          ..updatedAt = now.subtract(const Duration(days: 2))
-          ..isSharedPublic = true,
-      ];
-      await _isar.writeTxn(() async {
-        await _isar.catalogItemEntitys.putAll(items);
-      });
-    }
     await _ensureCommunityCatalog();
     await seedCatalogBundleIfMissing(_isar, shopId);
   }

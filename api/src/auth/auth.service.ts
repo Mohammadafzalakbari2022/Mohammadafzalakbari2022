@@ -34,4 +34,32 @@ export class AuthService {
     }
     return this.loginResponse.fromUser(user);
   }
+
+  /** Self-service password change for the signed-in shop user. */
+  async changePassword(
+    shopId: string,
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<void> {
+    const current = currentPassword ?? '';
+    const next = newPassword ?? '';
+    if (!current || !next) {
+      throw new BadRequestException(
+        'current_password and new_password are required',
+      );
+    }
+    if (next.length < 4) {
+      throw new BadRequestException('new_password is too short');
+    }
+    const ok = await this.shopRegistry.verifyUserPassword(
+      shopId,
+      userId,
+      current,
+    );
+    if (!ok) {
+      throw new UnauthorizedException('current password is incorrect');
+    }
+    await this.shopRegistry.setUserPasswordPlain(shopId, userId, next);
+  }
 }

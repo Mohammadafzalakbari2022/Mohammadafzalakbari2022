@@ -85,6 +85,6 @@ Edit **`docs/privacy-policy.html`** (and copy the same changes to **`web/privacy
 
 Open in a browser (GitHub Pages URL after setup):
 
-- https://mohammadafzalakbari2022.github.io/Mohammadafzalakbari2022/privacy-policy.html
+- https://mohammadafzalakbari2022.github.io/Mohammadafzalakbari2022/docs/privacy-policy.html
 
 You should see the purple header and full policy text. Use this exact URL in Play Console.

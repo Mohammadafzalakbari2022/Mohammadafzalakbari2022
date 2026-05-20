@@ -184,7 +184,8 @@ class SettingsTabScreen extends ConsumerWidget {
               iconColor: prideSettingsIconColor(5),
               title: l10n.settingsCurrentUserTitle,
               subtitle: userSubtitle,
-              enabled: false,
+              enabled: true,
+              onTap: () => context.push('/app/settings/account'),
             ),
             const Divider(height: 1),
             _LockedTile(

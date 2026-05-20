@@ -42,6 +42,7 @@ import '../features/settings/settings_printer_screen.dart';
 import '../features/settings/settings_shop_profile_screen.dart';
 import '../features/settings/settings_about_screen.dart';
 import '../features/settings/settings_appearance_language_screen.dart';
+import '../features/settings/settings_account_screen.dart';
 import '../features/settings/settings_users_screen.dart';
 import '../features/subscription/subscription_screen.dart';
 import '../licensing/license_providers.dart';
@@ -331,6 +332,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                     path: 'tasks',
                     parentNavigatorKey: appRootNavigatorKey,
                     builder: (context, state) => const SettingsTasksScreen(),
+                  ),
+                  GoRoute(
+                    path: 'account',
+                    parentNavigatorKey: appRootNavigatorKey,
+                    builder: (context, state) =>
+                        const SettingsAccountScreen(),
                   ),
                   GoRoute(
                     path: 'users',

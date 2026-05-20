@@ -16,6 +16,8 @@
   "loginCreatingShopHint": "Please wait while your shop is being set up. This can take a moment.",
   "loginInvalidCredentials": "Shop ID, username, or password is not correct. Please check and try again.",
   "loginNoInternet": "No internet connection. Check your network and try again.",
+  "loginOfflineNotSetUp": "Sign in once while online on this device to enable offline sign-in.",
+  "loginOfflineShopIdRequired": "Enter your Shop ID to sign in offline.",
   "loginConnectionSlow": "The connection is slow or timed out. Please wait a moment and try again.",
   "loginServerBusy": "The service is busy right now. Please try again in a few minutes.",
   "loginSomethingWrong": "Could not sign in right now. Please try again.",
@@ -516,7 +518,30 @@
   "settingsSectionDeveloper": "Developer",
   "settingsShopTileTitle": "Shop profile",
   "settingsShopTileSubtitle": "Shop details will appear here.",
-  "settingsCurrentUserTitle": "Current user",
+  "settingsCurrentUserTitle": "Account",
+  "settingsAccountTitle": "Account",
+  "settingsAccountUsernameLabel": "Username",
+  "settingsAccountUsernameHint": "Usernames are set by the shop owner and cannot be changed here.",
+  "settingsAccountRoleLabel": "Role",
+  "settingsAccountChangePasswordTitle": "Change password",
+  "settingsAccountChangePasswordSubtitle": "Update the password for this account on this device.",
+  "settingsAccountCurrentPasswordLabel": "Current password",
+  "settingsAccountNewPasswordLabel": "New password",
+  "settingsAccountConfirmPasswordLabel": "Confirm new password",
+  "settingsAccountChangePasswordCta": "Update password",
+  "settingsAccountChangePasswordOk": "Password updated. Use the new password next time you sign in.",
+  "settingsAccountChangePasswordFail": "Could not update password: {error}",
+  "@settingsAccountChangePasswordFail": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsAccountPasswordMismatch": "New passwords do not match.",
+  "settingsAccountOfflineHint": "Connect to the server to change your password.",
+  "settingsAccountForgotPasswordCta": "Request password reset from support",
+  "settingsUsersReadOnlyHint": "Only the shop owner can add or remove users.",
   "settingsSignOutTitle": "Sign out",
   "settingsSignOutSubtitle": "End this session on this device",
   "settingsSignOutDialogTitle": "Sign out?",

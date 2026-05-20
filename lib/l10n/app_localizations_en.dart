@@ -63,6 +63,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'No internet connection. Check your network and try again.';
 
   @override
+  String get loginOfflineNotSetUp =>
+      'Sign in once while online on this device to enable offline sign-in.';
+
+  @override
+  String get loginOfflineShopIdRequired =>
+      'Enter your Shop ID to sign in offline.';
+
+  @override
   String get loginConnectionSlow =>
       'The connection is slow or timed out. Please wait a moment and try again.';
 
@@ -1139,7 +1147,63 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsShopTileSubtitle => 'Shop details will appear here.';
 
   @override
-  String get settingsCurrentUserTitle => 'Current user';
+  String get settingsCurrentUserTitle => 'Account';
+
+  @override
+  String get settingsAccountTitle => 'Account';
+
+  @override
+  String get settingsAccountUsernameLabel => 'Username';
+
+  @override
+  String get settingsAccountUsernameHint =>
+      'Usernames are set by the shop owner and cannot be changed here.';
+
+  @override
+  String get settingsAccountRoleLabel => 'Role';
+
+  @override
+  String get settingsAccountChangePasswordTitle => 'Change password';
+
+  @override
+  String get settingsAccountChangePasswordSubtitle =>
+      'Update the password for this account on this device.';
+
+  @override
+  String get settingsAccountCurrentPasswordLabel => 'Current password';
+
+  @override
+  String get settingsAccountNewPasswordLabel => 'New password';
+
+  @override
+  String get settingsAccountConfirmPasswordLabel => 'Confirm new password';
+
+  @override
+  String get settingsAccountChangePasswordCta => 'Update password';
+
+  @override
+  String get settingsAccountChangePasswordOk =>
+      'Password updated. Use the new password next time you sign in.';
+
+  @override
+  String settingsAccountChangePasswordFail(String error) {
+    return 'Could not update password: $error';
+  }
+
+  @override
+  String get settingsAccountPasswordMismatch => 'New passwords do not match.';
+
+  @override
+  String get settingsAccountOfflineHint =>
+      'Connect to the server to change your password.';
+
+  @override
+  String get settingsAccountForgotPasswordCta =>
+      'Request password reset from support';
+
+  @override
+  String get settingsUsersReadOnlyHint =>
+      'Only the shop owner can add or remove users.';
 
   @override
   String get settingsSignOutTitle => 'Sign out';

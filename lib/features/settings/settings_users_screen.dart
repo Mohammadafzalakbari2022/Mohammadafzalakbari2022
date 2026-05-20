@@ -197,13 +197,13 @@ class _SettingsUsersScreenState extends ConsumerState<SettingsUsersScreen> {
     final l10n = AppLocalizations.of(context)!;
     final api = PrideApiConfig.isConfigured;
     final session = ref.watch(authSessionProvider);
-    final owner = session.isShopOwner;
+    final canManageUsers = session.isShopOwner;
     final tokenReady =
         session.hasApiSession && (session.accessToken?.isNotEmpty == true);
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.settingsUsersTitle)),
-      floatingActionButton: api && owner && tokenReady
+      floatingActionButton: api && canManageUsers && tokenReady
           ? FloatingActionButton.extended(
               onPressed: () => _showAddDialog(l10n),
               icon: const Icon(Icons.person_add_alt_1),
@@ -272,7 +272,15 @@ class _SettingsUsersScreenState extends ConsumerState<SettingsUsersScreen> {
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
                 ),
               )
-            else
+            else ...[
+              if (!canManageUsers)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Text(
+                    l10n.settingsUsersReadOnlyHint,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ),
               Card(
                 child: Column(
                   children: [
@@ -280,8 +288,8 @@ class _SettingsUsersScreenState extends ConsumerState<SettingsUsersScreen> {
                       if (i > 0) const Divider(height: 1),
                       _UserTile(
                         row: _users[i],
-                        isOwnerViewer: owner,
-                        onDelete: owner
+                        isOwnerViewer: canManageUsers,
+                        onDelete: canManageUsers
                             ? () => _confirmDelete(
                                   l10n,
                                   _users[i]['id']! as String,
@@ -293,6 +301,7 @@ class _SettingsUsersScreenState extends ConsumerState<SettingsUsersScreen> {
                   ],
                 ),
               ),
+            ],
           ],
         ],
       ),

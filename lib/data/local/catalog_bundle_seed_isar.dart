@@ -28,9 +28,31 @@ Future<void> seedCatalogBundleIfMissing(Isar isar, String shopId) async {
   for (final entry in catalogBundleSeedEntries) {
     final existing =
         await isar.catalogItemEntitys.getByInternalId(entry.internalId);
-    if (existing != null) continue;
+
+    if (existing != null &&
+        existing.shopId == shopId &&
+        existing.deletedAt == null &&
+        !isCatalogAssetImageRef(existing.imagePath)) {
+      continue;
+    }
 
     final paths = await _materializeBundleAsset(entry.assetFileName);
+
+    if (existing != null) {
+      existing
+        ..shopId = shopId
+        ..designName = entry.designName
+        ..designerShopName = entry.designerShopName
+        ..imagePath = paths.imagePath
+        ..thumbnailPath = paths.thumbnailPath
+        ..isSharedPublic = false
+        ..updatedAt = now
+        ..deletedAt = null;
+      await isar.writeTxn(() async {
+        await isar.catalogItemEntitys.putByInternalId(existing);
+      });
+      continue;
+    }
 
     final e = CatalogItemEntity()
       ..internalId = entry.internalId
@@ -47,16 +69,25 @@ Future<void> seedCatalogBundleIfMissing(Isar isar, String shopId) async {
       await isar.catalogItemEntitys.putByInternalId(e);
     });
   }
-  await _repairCatalogBundleAssetRefs(isar);
+  await _repairCatalogBundleAssetRefs(isar, shopId: shopId);
+  await _retireLegacyPlaceholderCatalogRows(isar, shopId);
 }
 
 /// Re-materializes bundled rows still pointing at [asset:catalog_seed/] refs
 /// (e.g. after JPEG → PNG asset rename or a failed first-run copy).
-Future<void> _repairCatalogBundleAssetRefs(Isar isar) async {
+Future<void> _repairCatalogBundleAssetRefs(
+  Isar isar, {
+  String? shopId,
+}) async {
   for (final entry in catalogBundleSeedEntries) {
     final existing =
         await isar.catalogItemEntitys.getByInternalId(entry.internalId);
     if (existing == null) continue;
+    if (shopId != null &&
+        shopId.isNotEmpty &&
+        existing.shopId != shopId) {
+      continue;
+    }
 
     final imageIsAsset = isCatalogAssetImageRef(existing.imagePath);
     final thumbIsAsset = isCatalogAssetImageRef(existing.thumbnailPath);
@@ -74,4 +105,28 @@ Future<void> _repairCatalogBundleAssetRefs(Isar isar) async {
       await isar.catalogItemEntitys.putByInternalId(existing);
     });
   }
+}
+
+/// Soft-deletes imageless demo rows so the four bundled designs are visible.
+Future<void> _retireLegacyPlaceholderCatalogRows(
+  Isar isar,
+  String shopId,
+) async {
+  const legacyIds = {'cat-1', 'cat-2'};
+  final now = DateTime.now();
+  await isar.writeTxn(() async {
+    for (final id in legacyIds) {
+      final row = await isar.catalogItemEntitys.getByInternalId(id);
+      if (row == null || row.shopId != shopId || row.deletedAt != null) {
+        continue;
+      }
+      final noImage = (row.imagePath == null || row.imagePath!.isEmpty) &&
+          (row.thumbnailPath == null || row.thumbnailPath!.isEmpty);
+      if (!noImage) continue;
+      row
+        ..deletedAt = now
+        ..updatedAt = now;
+      await isar.catalogItemEntitys.putByInternalId(row);
+    }
+  });
 }

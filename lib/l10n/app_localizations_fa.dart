@@ -62,6 +62,14 @@ class AppLocalizationsFa extends AppLocalizations {
       'اتصال اینترنت نیست. شبکه را بررسی کنید و دوباره تلاش کنید.';
 
   @override
+  String get loginOfflineNotSetUp =>
+      'برای ورود آفلاین، یک‌بار با اینترنت وارد شوید.';
+
+  @override
+  String get loginOfflineShopIdRequired =>
+      'برای ورود آفلاین، شناسه فروشگاه را وارد کنید.';
+
+  @override
   String get loginConnectionSlow =>
       'اتصال کند است یا قطع شد. کمی صبر کنید و دوباره تلاش کنید.';
 
@@ -1138,7 +1146,62 @@ class AppLocalizationsFa extends AppLocalizations {
       'جزئیات فروشگاه اینجا نمایش داده می‌شود.';
 
   @override
-  String get settingsCurrentUserTitle => 'کاربر جاری';
+  String get settingsCurrentUserTitle => 'حساب';
+
+  @override
+  String get settingsAccountTitle => 'حساب';
+
+  @override
+  String get settingsAccountUsernameLabel => 'نام کاربری';
+
+  @override
+  String get settingsAccountUsernameHint =>
+      'نام کاربری را مالک فروشگاه تنظیم می‌کند و اینجا قابل تغییر نیست.';
+
+  @override
+  String get settingsAccountRoleLabel => 'نقش';
+
+  @override
+  String get settingsAccountChangePasswordTitle => 'تغییر رمز عبور';
+
+  @override
+  String get settingsAccountChangePasswordSubtitle =>
+      'رمز این حساب را برای ورود بعدی به‌روز کنید.';
+
+  @override
+  String get settingsAccountCurrentPasswordLabel => 'رمز فعلی';
+
+  @override
+  String get settingsAccountNewPasswordLabel => 'رمز جدید';
+
+  @override
+  String get settingsAccountConfirmPasswordLabel => 'تأیید رمز جدید';
+
+  @override
+  String get settingsAccountChangePasswordCta => 'به‌روزرسانی رمز';
+
+  @override
+  String get settingsAccountChangePasswordOk =>
+      'رمز به‌روز شد. دفعه بعد با رمز جدید وارد شوید.';
+
+  @override
+  String settingsAccountChangePasswordFail(String error) {
+    return 'به‌روزرسانی رمز ناموفق بود: $error';
+  }
+
+  @override
+  String get settingsAccountPasswordMismatch => 'رمزهای جدید یکسان نیستند.';
+
+  @override
+  String get settingsAccountOfflineHint => 'برای تغییر رمز به سرور متصل شوید.';
+
+  @override
+  String get settingsAccountForgotPasswordCta =>
+      'درخواست بازنشانی رمز از پشتیبانی';
+
+  @override
+  String get settingsUsersReadOnlyHint =>
+      'فقط مالک فروشگاه می‌تواند کاربر اضافه یا حذف کند.';
 
   @override
   String get settingsSignOutTitle => 'خروج';

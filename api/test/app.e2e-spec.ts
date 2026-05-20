@@ -147,6 +147,82 @@ describe('AppController (e2e)', () => {
       });
   });
 
+  it('/shop/users (GET) 403 for POST/DELETE when not owner', async () => {
+    const created = await request(app.getHttpServer())
+      .post('/shop/create')
+      .send({
+        shop_name: 'Member Shop',
+        owner_username: 'memowner',
+        owner_password: 'memownerpass',
+      })
+      .expect(200);
+    const ownerToken = created.body.access_token as string;
+    await request(app.getHttpServer())
+      .post('/shop/users')
+      .set('Authorization', `Bearer ${ownerToken}`)
+      .send({ username: 'staff1', password: 'staff1pass' })
+      .expect(200);
+    const staffLogin = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        shop_id: created.body.user.shop_id,
+        username: 'staff1',
+        password: 'staff1pass',
+      })
+      .expect(200);
+    const staffToken = staffLogin.body.access_token as string;
+    await request(app.getHttpServer())
+      .get('/shop/users')
+      .set('Authorization', `Bearer ${staffToken}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.length).toBeGreaterThanOrEqual(2);
+      });
+    await request(app.getHttpServer())
+      .post('/shop/users')
+      .set('Authorization', `Bearer ${staffToken}`)
+      .send({ username: 'staff2', password: 'staff2pass' })
+      .expect(403);
+    await request(app.getHttpServer())
+      .delete(`/shop/users/${created.body.user.id}`)
+      .set('Authorization', `Bearer ${staffToken}`)
+      .expect(403);
+  });
+
+  it('/auth/change-password (POST) updates password', async () => {
+    const created = await request(app.getHttpServer())
+      .post('/shop/create')
+      .send({
+        shop_name: 'Pwd Shop',
+        owner_username: 'pwdowner',
+        owner_password: 'oldpass1234',
+      })
+      .expect(200);
+    const token = created.body.access_token as string;
+    const shopId = created.body.user.shop_id as string;
+    await request(app.getHttpServer())
+      .post('/auth/change-password')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ current_password: 'oldpass1234', new_password: 'newpass5678' })
+      .expect(200);
+    await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        shop_id: shopId,
+        username: 'pwdowner',
+        password: 'oldpass1234',
+      })
+      .expect(401);
+    await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        shop_id: shopId,
+        username: 'pwdowner',
+        password: 'newpass5678',
+      })
+      .expect(200);
+  });
+
   it('/shop/create (POST) returns JWT and /shop/users lists owner', async () => {
     const created = await request(app.getHttpServer())
       .post('/shop/create')

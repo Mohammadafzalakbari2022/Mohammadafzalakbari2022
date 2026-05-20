@@ -148,6 +148,38 @@ Future<PrideApiLoginResult> _postPrideApiAuthSession({
   }
 }
 
+/// `POST /auth/change-password` — updates password for the JWT user.
+Future<String?> postPrideApiChangePassword({
+  required String accessToken,
+  required String currentPassword,
+  required String newPassword,
+  Duration timeout = const Duration(seconds: 25),
+}) async {
+  final base = PrideApiConfig.normalizedBase;
+  if (base == null) return 'API_BASE_URL not set';
+  final uri = Uri.parse('$base/auth/change-password');
+  try {
+    final response = await http
+        .post(
+          uri,
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'Authorization': 'Bearer $accessToken',
+          },
+          body: jsonEncode({
+            'current_password': currentPassword,
+            'new_password': newPassword,
+          }),
+        )
+        .timeout(timeout);
+    if (response.statusCode == 200) return null;
+    return _extractErrorMessage(response.body) ??
+        'HTTP ${response.statusCode}';
+  } on Exception catch (e) {
+    return e.toString();
+  }
+}
+
 String? _extractErrorMessage(String body) {
   final t = body.trim();
   if (t.isEmpty) return null;

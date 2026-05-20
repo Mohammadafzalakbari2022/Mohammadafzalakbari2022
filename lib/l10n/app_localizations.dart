@@ -196,6 +196,18 @@ abstract class AppLocalizations {
   /// **'No internet connection. Check your network and try again.'**
   String get loginNoInternet;
 
+  /// No description provided for @loginOfflineNotSetUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in once while online on this device to enable offline sign-in.'**
+  String get loginOfflineNotSetUp;
+
+  /// No description provided for @loginOfflineShopIdRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your Shop ID to sign in offline.'**
+  String get loginOfflineShopIdRequired;
+
   /// No description provided for @loginConnectionSlow.
   ///
   /// In en, this message translates to:
@@ -2155,8 +2167,104 @@ abstract class AppLocalizations {
   /// No description provided for @settingsCurrentUserTitle.
   ///
   /// In en, this message translates to:
-  /// **'Current user'**
+  /// **'Account'**
   String get settingsCurrentUserTitle;
+
+  /// No description provided for @settingsAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get settingsAccountTitle;
+
+  /// No description provided for @settingsAccountUsernameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get settingsAccountUsernameLabel;
+
+  /// No description provided for @settingsAccountUsernameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Usernames are set by the shop owner and cannot be changed here.'**
+  String get settingsAccountUsernameHint;
+
+  /// No description provided for @settingsAccountRoleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get settingsAccountRoleLabel;
+
+  /// No description provided for @settingsAccountChangePasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change password'**
+  String get settingsAccountChangePasswordTitle;
+
+  /// No description provided for @settingsAccountChangePasswordSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update the password for this account on this device.'**
+  String get settingsAccountChangePasswordSubtitle;
+
+  /// No description provided for @settingsAccountCurrentPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password'**
+  String get settingsAccountCurrentPasswordLabel;
+
+  /// No description provided for @settingsAccountNewPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get settingsAccountNewPasswordLabel;
+
+  /// No description provided for @settingsAccountConfirmPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm new password'**
+  String get settingsAccountConfirmPasswordLabel;
+
+  /// No description provided for @settingsAccountChangePasswordCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Update password'**
+  String get settingsAccountChangePasswordCta;
+
+  /// No description provided for @settingsAccountChangePasswordOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Password updated. Use the new password next time you sign in.'**
+  String get settingsAccountChangePasswordOk;
+
+  /// No description provided for @settingsAccountChangePasswordFail.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update password: {error}'**
+  String settingsAccountChangePasswordFail(String error);
+
+  /// No description provided for @settingsAccountPasswordMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'New passwords do not match.'**
+  String get settingsAccountPasswordMismatch;
+
+  /// No description provided for @settingsAccountOfflineHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to the server to change your password.'**
+  String get settingsAccountOfflineHint;
+
+  /// No description provided for @settingsAccountForgotPasswordCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Request password reset from support'**
+  String get settingsAccountForgotPasswordCta;
+
+  /// No description provided for @settingsUsersReadOnlyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the shop owner can add or remove users.'**
+  String get settingsUsersReadOnlyHint;
 
   /// No description provided for @settingsSignOutTitle.
   ///

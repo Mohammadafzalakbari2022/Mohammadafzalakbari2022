@@ -90,3 +90,12 @@ bool _looksLikeNetwork(String m) =>
     m.contains('clientexception') ||
     m.contains('failed to fetch') ||
     m.contains('network error');
+
+/// True when sign-in may succeed against a cached offline credential (`plan-04`).
+bool isLoginFailureOfflineRecoverable(PrideApiLoginFailure failure) {
+  return switch (_classifyFailure(failure)) {
+    _AuthFailureKind.noInternet => true,
+    _AuthFailureKind.connectionSlow => true,
+    _ => false,
+  };
+}

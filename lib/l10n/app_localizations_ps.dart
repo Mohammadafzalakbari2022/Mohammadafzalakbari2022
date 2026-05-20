@@ -61,6 +61,14 @@ class AppLocalizationsPs extends AppLocalizations {
   String get loginNoInternet => 'انټرنټ نشته. شبکه وګورئ او بیا هڅه وکړئ.';
 
   @override
+  String get loginOfflineNotSetUp =>
+      'د آفلاین ننوتلو لپاره یو ځل په انټرنټ کې ننوځئ.';
+
+  @override
+  String get loginOfflineShopIdRequired =>
+      'د آفلاین ننوتلو لپاره د هټۍ پېژندنه ولیکئ.';
+
+  @override
   String get loginConnectionSlow =>
       'اړیکه ورو ده یا قطع شوه. لږ انتظار وکړئ او بیا هڅه وکړئ.';
 
@@ -1133,7 +1141,63 @@ class AppLocalizationsPs extends AppLocalizations {
   String get settingsShopTileSubtitle => 'د هټۍ جزئیات به دلته ښکاري.';
 
   @override
-  String get settingsCurrentUserTitle => 'اوسنی کارن';
+  String get settingsCurrentUserTitle => 'حساب';
+
+  @override
+  String get settingsAccountTitle => 'حساب';
+
+  @override
+  String get settingsAccountUsernameLabel => 'کارن نوم';
+
+  @override
+  String get settingsAccountUsernameHint =>
+      'کارن نوم د هټۍ مالک ټاکي؛ دلته نشي بدلېدلی.';
+
+  @override
+  String get settingsAccountRoleLabel => 'رول';
+
+  @override
+  String get settingsAccountChangePasswordTitle => 'پاسورډ بدلول';
+
+  @override
+  String get settingsAccountChangePasswordSubtitle =>
+      'د راتلونکي ننوتلو لپاره پاسورډ تازه کړئ.';
+
+  @override
+  String get settingsAccountCurrentPasswordLabel => 'اوسنی پاسورډ';
+
+  @override
+  String get settingsAccountNewPasswordLabel => 'نوی پاسورډ';
+
+  @override
+  String get settingsAccountConfirmPasswordLabel => 'نوی پاسورډ تایید';
+
+  @override
+  String get settingsAccountChangePasswordCta => 'پاسورډ تازه کړئ';
+
+  @override
+  String get settingsAccountChangePasswordOk =>
+      'پاسورډ تازه شو. بل ځل له نوي پاسورډ سره ننوځئ.';
+
+  @override
+  String settingsAccountChangePasswordFail(String error) {
+    return 'پاسورډ نشو تازه کېدلی: $error';
+  }
+
+  @override
+  String get settingsAccountPasswordMismatch => 'نوي پاسورډونه سره نه خوري.';
+
+  @override
+  String get settingsAccountOfflineHint =>
+      'د پاسورډ بدلولو لپاره سرور ته وصل شئ.';
+
+  @override
+  String get settingsAccountForgotPasswordCta =>
+      'د ملاتړ له لارې د پاسورډ بیا تنظیم غوښتنه';
+
+  @override
+  String get settingsUsersReadOnlyHint =>
+      'یوازې د هټۍ مالک کارن زیاتولی یا لرې کولی شي.';
 
   @override
   String get settingsSignOutTitle => 'وتل';

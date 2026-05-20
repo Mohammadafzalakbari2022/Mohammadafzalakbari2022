@@ -16,6 +16,8 @@
   "loginCreatingShopHint": "مهرباني وکړئ انتظار وکړئ. د هټۍ جوړول ممکن یو څه وخت ونیسي.",
   "loginInvalidCredentials": "د هټۍ پېژند، کارن نوم یا پاسورډ سم نه دی. وګورئ او بیا هڅه وکړئ.",
   "loginNoInternet": "انټرنټ نشته. شبکه وګورئ او بیا هڅه وکړئ.",
+  "loginOfflineNotSetUp": "د آفلاین ننوتلو لپاره یو ځل په انټرنټ کې ننوځئ.",
+  "loginOfflineShopIdRequired": "د آفلاین ننوتلو لپاره د هټۍ پېژندنه ولیکئ.",
   "loginConnectionSlow": "اړیکه ورو ده یا قطع شوه. لږ انتظار وکړئ او بیا هڅه وکړئ.",
   "loginServerBusy": "اوس خدمت ګڼ دی. څو دقیقې وروسته بیا هڅه وکړئ.",
   "loginSomethingWrong": "اوس ننوتل نشو. مهرباني وکړئ بیا هڅه وکړئ.",
@@ -640,7 +642,30 @@
   "settingsSectionDeveloper": "پراختیاګر",
   "settingsShopTileTitle": "د هټۍ پروفایل",
   "settingsShopTileSubtitle": "د هټۍ جزئیات به دلته ښکاري.",
-  "settingsCurrentUserTitle": "اوسنی کارن",
+  "settingsCurrentUserTitle": "حساب",
+  "settingsAccountTitle": "حساب",
+  "settingsAccountUsernameLabel": "کارن نوم",
+  "settingsAccountUsernameHint": "کارن نوم د هټۍ مالک ټاکي؛ دلته نشي بدلېدلی.",
+  "settingsAccountRoleLabel": "رول",
+  "settingsAccountChangePasswordTitle": "پاسورډ بدلول",
+  "settingsAccountChangePasswordSubtitle": "د راتلونکي ننوتلو لپاره پاسورډ تازه کړئ.",
+  "settingsAccountCurrentPasswordLabel": "اوسنی پاسورډ",
+  "settingsAccountNewPasswordLabel": "نوی پاسورډ",
+  "settingsAccountConfirmPasswordLabel": "نوی پاسورډ تایید",
+  "settingsAccountChangePasswordCta": "پاسورډ تازه کړئ",
+  "settingsAccountChangePasswordOk": "پاسورډ تازه شو. بل ځل له نوي پاسورډ سره ننوځئ.",
+  "settingsAccountChangePasswordFail": "پاسورډ نشو تازه کېدلی: {error}",
+  "@settingsAccountChangePasswordFail": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsAccountPasswordMismatch": "نوي پاسورډونه سره نه خوري.",
+  "settingsAccountOfflineHint": "د پاسورډ بدلولو لپاره سرور ته وصل شئ.",
+  "settingsAccountForgotPasswordCta": "د ملاتړ له لارې د پاسورډ بیا تنظیم غوښتنه",
+  "settingsUsersReadOnlyHint": "یوازې د هټۍ مالک کارن زیاتولی یا لرې کولی شي.",
   "settingsSignOutTitle": "وتل",
   "settingsSignOutSubtitle": "په دې وسیله کې دا ناسته پای ته ورکړئ",
   "settingsSignOutDialogTitle": "وتل؟",
