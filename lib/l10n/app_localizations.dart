@@ -268,6 +268,18 @@ abstract class AppLocalizations {
   /// **'Password'**
   String get loginPasswordLabel;
 
+  /// No description provided for @loginPasswordShowA11y.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get loginPasswordShowA11y;
+
+  /// No description provided for @loginPasswordHideA11y.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get loginPasswordHideA11y;
+
   /// No description provided for @loginSignInCta.
   ///
   /// In en, this message translates to:
@@ -2996,6 +3008,96 @@ abstract class AppLocalizations {
   /// **'Example: 500'**
   String get ordersComposerPaidHint;
 
+  /// No description provided for @ordersComposerDueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Due'**
+  String get ordersComposerDueLabel;
+
+  /// No description provided for @ordersComposerPaymentSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get ordersComposerPaymentSheetTitle;
+
+  /// No description provided for @ordersComposerPaymentInitialOnSaveHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Initial payment is recorded when you save the order.'**
+  String get ordersComposerPaymentInitialOnSaveHint;
+
+  /// No description provided for @ordersPaymentInitialExceedsTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Initial payment cannot exceed the order total.'**
+  String get ordersPaymentInitialExceedsTotal;
+
+  /// No description provided for @ordersPaymentExceedsRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment cannot exceed the remaining balance.'**
+  String get ordersPaymentExceedsRemaining;
+
+  /// No description provided for @ordersPaymentTotalBelowPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Order total cannot be less than amount already paid.'**
+  String get ordersPaymentTotalBelowPaid;
+
+  /// No description provided for @ordersPaymentSheetSavedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments'**
+  String get ordersPaymentSheetSavedTitle;
+
+  /// No description provided for @ordersPaymentHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment history'**
+  String get ordersPaymentHistoryTitle;
+
+  /// No description provided for @ordersEditConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes?'**
+  String get ordersEditConfirmTitle;
+
+  /// No description provided for @ordersEditConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Update this order with your changes?'**
+  String get ordersEditConfirmBody;
+
+  /// No description provided for @ordersStatusChangeConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change status?'**
+  String get ordersStatusChangeConfirmTitle;
+
+  /// No description provided for @ordersStatusChangeConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Change order status to {status}?'**
+  String ordersStatusChangeConfirmBody(String status);
+
+  /// No description provided for @ordersCancelOrderConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this order?'**
+  String get ordersCancelOrderConfirmTitle;
+
+  /// No description provided for @ordersCancelOrderConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Type the customer name to confirm cancellation.'**
+  String get ordersCancelOrderConfirmBody;
+
+  /// No description provided for @ordersDetailEditCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get ordersDetailEditCta;
+
   /// No description provided for @ordersComposerDeliveryDateTitle.
   ///
   /// In en, this message translates to:
@@ -4712,6 +4814,48 @@ abstract class AppLocalizations {
   /// **'Trial shops: up to 2 users. Paid shops: up to 5 users. The owner account cannot be deleted.'**
   String get settingsUsersLimitsBody;
 
+  /// No description provided for @settingsUsersLimitsBodyTrial.
+  ///
+  /// In en, this message translates to:
+  /// **'Trial: up to {max} users. {count} in use. The owner account cannot be deleted.'**
+  String settingsUsersLimitsBodyTrial(int max, int count);
+
+  /// No description provided for @settingsUsersLimitsBodyPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {max} users for this shop. {count} in use. The owner account cannot be deleted.'**
+  String settingsUsersLimitsBodyPaid(int max, int count);
+
+  /// No description provided for @settingsUsersAtLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'User limit reached ({count} of {max}).'**
+  String settingsUsersAtLimit(int count, int max);
+
+  /// No description provided for @settingsUsersNeedOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay online and signed in with the server to manage users.'**
+  String get settingsUsersNeedOnline;
+
+  /// No description provided for @settingsUsersOfflineCacheNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline — showing the last saved team list. Connect to refresh or add users.'**
+  String get settingsUsersOfflineCacheNote;
+
+  /// No description provided for @devPortalOfflineCacheNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline — showing last saved data. Connect to refresh or make changes.'**
+  String get devPortalOfflineCacheNote;
+
+  /// No description provided for @settingsUsersTileNeedApiSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with the server to manage users'**
+  String get settingsUsersTileNeedApiSession;
+
   /// No description provided for @settingsUsersAddCta.
   ///
   /// In en, this message translates to:
@@ -4721,7 +4865,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsUsersAddDisabledHint.
   ///
   /// In en, this message translates to:
-  /// **'User management will connect to the server.'**
+  /// **'Sign in with the server and stay online to add or remove users.'**
   String get settingsUsersAddDisabledHint;
 
   /// No description provided for @settingsUsersListTitle.
@@ -5435,6 +5579,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Days'**
   String get devPortalShopExtendDaysLabel;
+
+  /// No description provided for @devPortalShopSetMaxUsersCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Set user limit…'**
+  String get devPortalShopSetMaxUsersCta;
+
+  /// No description provided for @devPortalShopSetMaxUsersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'User limit (paid shop)'**
+  String get devPortalShopSetMaxUsersTitle;
+
+  /// No description provided for @devPortalShopSetMaxUsersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum active users including the owner (1–20). Cannot be less than current users.'**
+  String get devPortalShopSetMaxUsersHint;
+
+  /// No description provided for @devPortalShopMaxUsersLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Max users'**
+  String get devPortalShopMaxUsersLabel;
+
+  /// No description provided for @devPortalShopRowMaxUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Limit: {max} users ({count} in use)'**
+  String devPortalShopRowMaxUsers(int max, int count);
+
+  /// No description provided for @devPortalShopTrialUserLimitNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Trial: 2 users (fixed)'**
+  String get devPortalShopTrialUserLimitNote;
 
   /// No description provided for @devPortalShopActionOk.
   ///

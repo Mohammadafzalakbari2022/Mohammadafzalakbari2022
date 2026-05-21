@@ -5,7 +5,10 @@ import 'package:pride_v3/core/api/pride_api_billing.dart';
 import 'package:pride_v3/core/api/pride_api_config.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
+import '../../core/persistence/api_offline_cache_storage.dart';
+import '../../core/persistence/shared_preferences_provider.dart';
 import '../../shell/shell_sync_providers.dart';
+import 'developer_portal_screen.dart';
 import 'developer_portal_code_share.dart';
 
 /// Developer portal: Hesab Pay profile + payment claim inbox.
@@ -25,6 +28,7 @@ class _DeveloperPortalBillingTabState
   bool _saving = false;
   String? _error;
   bool _published = false;
+  bool _showingOfflineCache = false;
 
   final _accountName = TextEditingController();
   final _accountNumber = TextEditingController();
@@ -122,32 +126,54 @@ class _DeveloperPortalBillingTabState
       setState(() {
         _loading = false;
         _error = widget.l10n.devPortalStubAction;
+        _showingOfflineCache = false;
       });
       return;
     }
-    if (!ref.read(connectivityOnlineProvider)) {
+    final online = ref.read(connectivityOnlineProvider);
+    final prefs = ref.read(sharedPreferencesProvider);
+    final cached = ApiOfflineCacheStorage.readAdminBilling(prefs);
+
+    if (cached != null) {
+      _applyBilling(cached);
       setState(() {
         _loading = false;
-        _error = widget.l10n.devPortalAdviceOfflineBody;
+        _error = null;
+        _showingOfflineCache = !online;
       });
+    }
+
+    if (!online) {
+      if (cached == null && mounted) {
+        setState(() {
+          _loading = false;
+          _error = widget.l10n.devPortalAdviceOfflineBody;
+          _showingOfflineCache = false;
+        });
+      }
       return;
     }
+
     final token = _token();
     if (token == null) {
       setState(() {
         _loading = false;
         _error = widget.l10n.devPortalAdminAuditNeedSignIn;
+        _showingOfflineCache = cached != null;
       });
       return;
     }
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
+    if (cached == null) {
+      setState(() {
+        _loading = true;
+        _error = null;
+      });
+    }
     final r = await getPrideApiAdminBillingInfo(accessToken: token);
     if (!mounted) return;
     if (r.ok && r.data != null) {
       _applyBilling(r.data!);
+      await ApiOfflineCacheStorage.saveAdminBilling(prefs, r.data!);
     } else {
       final err = r.error ?? '';
       // Legacy API: missing row — still show the form so the developer can save.
@@ -157,11 +183,15 @@ class _DeveloperPortalBillingTabState
           _error = widget.l10n.devPortalBillingLoadError(
             err.isEmpty ? 'HTTP' : err,
           );
+          _showingOfflineCache = cached != null;
         });
         return;
       }
     }
-    setState(() => _loading = false);
+    setState(() {
+      _loading = false;
+      _showingOfflineCache = false;
+    });
     await _loadClaims();
   }
 
@@ -333,6 +363,7 @@ class _DeveloperPortalBillingTabState
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          if (_showingOfflineCache) DevPortalOfflineCacheBanner(l10n: l10n),
           Text(
             l10n.devPortalBillingIntro,
             style: Theme.of(context).textTheme.bodyMedium,

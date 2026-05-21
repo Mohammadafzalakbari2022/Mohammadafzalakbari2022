@@ -195,36 +195,23 @@ class _CatalogFullscreenViewerState extends ConsumerState<CatalogFullscreenViewe
                   top: false,
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            item.designName,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall
-                                ?.copyWith(color: Colors.white),
-                          ),
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: FilledButton.tonal(
+                        onPressed: () => _showDescriptionSheet(
+                          context,
+                          l10n,
+                          designName: item.designName,
+                          designerLine: designerLine,
+                          notes: hasNotes ? item.notes : null,
                         ),
-                        const SizedBox(width: 8),
-                        FilledButton.tonal(
-                          onPressed: () => _showDescriptionSheet(
-                            context,
-                            l10n,
-                            designName: item.designName,
-                            designerLine: designerLine,
-                            notes: hasNotes ? item.notes : null,
-                          ),
-                          style: FilledButton.styleFrom(
-                            visualDensity: VisualDensity.compact,
-                            foregroundColor: Colors.white,
-                            backgroundColor: Colors.white24,
-                          ),
-                          child: Text(l10n.catalogViewDescription),
+                        style: FilledButton.styleFrom(
+                          visualDensity: VisualDensity.compact,
+                          foregroundColor: Colors.white,
+                          backgroundColor: Colors.white24,
                         ),
-                      ],
+                        child: Text(l10n.catalogViewDescription),
+                      ),
                     ),
                   ),
                 ),

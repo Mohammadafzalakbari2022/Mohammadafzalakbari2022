@@ -12,6 +12,7 @@ Future<int?> showOrderPaymentAmountSheet(
   required String title,
   String? hint,
   bool signed = false,
+  int? maxAmountMinor,
 }) {
   return showModalBottomSheet<int?>(
     context: context,
@@ -29,6 +30,7 @@ Future<int?> showOrderPaymentAmountSheet(
           title: title,
           hint: hint,
           signed: signed,
+          maxAmountMinor: maxAmountMinor,
         ),
       );
     },
@@ -41,12 +43,14 @@ class _OrderPaymentAmountBody extends StatefulWidget {
     required this.title,
     this.hint,
     required this.signed,
+    this.maxAmountMinor,
   });
 
   final AppLocalizations l10n;
   final String title;
   final String? hint;
   final bool signed;
+  final int? maxAmountMinor;
 
   @override
   State<_OrderPaymentAmountBody> createState() =>
@@ -55,6 +59,7 @@ class _OrderPaymentAmountBody extends StatefulWidget {
 
 class _OrderPaymentAmountBodyState extends State<_OrderPaymentAmountBody> {
   final _controller = TextEditingController();
+  String? _error;
 
   @override
   void dispose() {
@@ -76,6 +81,13 @@ class _OrderPaymentAmountBodyState extends State<_OrderPaymentAmountBody> {
     } else {
       if (value <= 0) {
         Navigator.of(context).pop(null);
+        return;
+      }
+      final max = widget.maxAmountMinor;
+      if (max != null && value > max) {
+        setState(() {
+          _error = widget.l10n.ordersPaymentExceedsRemaining;
+        });
         return;
       }
     }
@@ -110,8 +122,18 @@ class _OrderPaymentAmountBodyState extends State<_OrderPaymentAmountBody> {
               signed: widget.signed,
               labelText: widget.l10n.paymentAmountLabel,
               hintText: widget.l10n.paymentAmountHint,
+              onChanged: (_) {
+                if (_error != null) setState(() => _error = null);
+              },
               onSubmitted: (_) => _submit(),
             ),
+            if (_error != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                _error!,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+            ],
             const SizedBox(height: 20),
             Row(
               children: [

@@ -13,6 +13,8 @@ model Shop {
   createdAt            DateTime           @default(now()) @map("created_at")
   lastMutationRevision Int                @default(0) @map("last_mutation_revision")
   disabledAt           DateTime?          @map("disabled_at")
+  /// Paid-shop seat cap (trial always uses fixed limit). Admin-adjustable 1–20 (`plan-04`).
+  maxUsers             Int                @default(5) @map("max_users")
 
   users                  ShopUser[]
   license                ShopLicense?

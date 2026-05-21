@@ -39,6 +39,7 @@ Future<OrderComposerFabricResult?> showOrderComposerFabricSheet({
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
+    showDragHandle: true,
     builder: (ctx) => _OrderComposerFabricSheet(
       initialName: initialName,
       initialColor: initialColor,
@@ -193,146 +194,159 @@ class _OrderComposerFabricSheetState
     final l10n = AppLocalizations.of(context)!;
     final namesAsync = ref.watch(fabricNamesStreamProvider);
     final colorsAsync = ref.watch(fabricColorsStreamProvider);
-    final keyboard = MediaQuery.viewInsetsOf(context).bottom;
+    final pad = MediaQuery.paddingOf(context);
+    final viewInsets = MediaQuery.viewInsetsOf(context).bottom;
 
-    return DraggableScrollableSheet(
-      expand: false,
-      initialChildSize: 0.55,
-      minChildSize: 0.4,
-      maxChildSize: 0.9,
-      builder: (context, scrollController) {
-        return Material(
-          child: Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.fromLTRB(8, 8, 8, keyboard),
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.close),
-                    ),
-                    Expanded(
-                      child: Text(
-                        l10n.ordersComposerFabricSheetTitle,
-                        style: Theme.of(context).textTheme.titleLarge,
+    return Padding(
+      padding: EdgeInsets.only(bottom: viewInsets),
+      child: DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.55,
+        minChildSize: 0.4,
+        maxChildSize: 0.92,
+        builder: (context, scrollController) {
+          return Material(
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.close),
                       ),
-                    ),
-                    FilledButton(
-                      onPressed: _save,
-                      child: Text(l10n.saveCta),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: ListView(
-                  controller: scrollController,
-                  padding: EdgeInsets.fromLTRB(16, 8, 16, 24 + keyboard),
-                  children: [
-                    Text(
-                      l10n.ordersComposerFabricNameLabel,
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                    const SizedBox(height: 8),
-                    _presetChips(
-                      async: namesAsync,
-                      selectedId: _namePresetId,
-                      onSelect: _selectName,
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: _nameCtrl,
-                      decoration: InputDecoration(
-                        labelText: l10n.ordersComposerFabricNameLabel,
-                        hintText: l10n.ordersComposerFabricNameHint,
-                        border: const OutlineInputBorder(),
-                        isDense: true,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      l10n.ordersComposerFabricColorLabel,
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                    const SizedBox(height: 8),
-                    _presetChips(
-                      async: colorsAsync,
-                      selectedId: _colorPresetId,
-                      onSelect: _selectColor,
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: _colorCtrl,
-                      decoration: InputDecoration(
-                        labelText: l10n.ordersComposerFabricColorLabel,
-                        hintText: l10n.ordersComposerFabricColorHint,
-                        border: const OutlineInputBorder(),
-                        isDense: true,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Card(
-                      clipBehavior: Clip.antiAlias,
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.tag_outlined,
-                                  size: 20,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurfaceVariant,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  l10n.ordersComposerFabricIdLabel,
-                                  style:
-                                      Theme.of(context).textTheme.titleSmall,
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              _fabricId.trim().isEmpty
-                                  ? l10n.ordersComposerFabricIdHint
-                                  : _fabricId,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.w700,
-                                    letterSpacing: 2,
-                                    color: _fabricId.trim().isEmpty
-                                        ? Theme.of(context)
-                                            .colorScheme
-                                            .onSurfaceVariant
-                                        : null,
-                                  ),
-                            ),
-                          ],
+                      Expanded(
+                        child: Text(
+                          l10n.ordersComposerFabricSheetTitle,
+                          style: Theme.of(context).textTheme.titleLarge,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    Align(
-                      alignment: AlignmentDirectional.centerStart,
-                      child: TextButton(
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: ListView(
+                    controller: scrollController,
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                    children: [
+                      Text(
+                        l10n.ordersComposerFabricNameLabel,
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
+                      const SizedBox(height: 8),
+                      _presetChips(
+                        async: namesAsync,
+                        selectedId: _namePresetId,
+                        onSelect: _selectName,
+                      ),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: _nameCtrl,
+                        scrollPadding: const EdgeInsets.only(bottom: 120),
+                        decoration: InputDecoration(
+                          labelText: l10n.ordersComposerFabricNameLabel,
+                          hintText: l10n.ordersComposerFabricNameHint,
+                          border: const OutlineInputBorder(),
+                          isDense: true,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        l10n.ordersComposerFabricColorLabel,
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
+                      const SizedBox(height: 8),
+                      _presetChips(
+                        async: colorsAsync,
+                        selectedId: _colorPresetId,
+                        onSelect: _selectColor,
+                      ),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: _colorCtrl,
+                        scrollPadding: const EdgeInsets.only(bottom: 120),
+                        decoration: InputDecoration(
+                          labelText: l10n.ordersComposerFabricColorLabel,
+                          hintText: l10n.ordersComposerFabricColorHint,
+                          border: const OutlineInputBorder(),
+                          isDense: true,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Card(
+                        clipBehavior: Clip.antiAlias,
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.tag_outlined,
+                                    size: 20,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    l10n.ordersComposerFabricIdLabel,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleSmall,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                _fabricId.trim().isEmpty
+                                    ? l10n.ordersComposerFabricIdHint
+                                    : _fabricId,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                      letterSpacing: 2,
+                                      color: _fabricId.trim().isEmpty
+                                          ? Theme.of(context)
+                                              .colorScheme
+                                              .onSurfaceVariant
+                                          : null,
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(16, 8, 16, 16 + pad.bottom),
+                  child: Row(
+                    children: [
+                      TextButton(
                         onPressed: _clear,
                         child: Text(l10n.ordersComposerFabricClearCta),
                       ),
-                    ),
-                  ],
+                      const Spacer(),
+                      FilledButton(
+                        onPressed: _save,
+                        child: Text(l10n.saveCta),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-        );
-      },
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }

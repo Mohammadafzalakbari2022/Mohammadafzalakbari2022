@@ -28,6 +28,8 @@
   "loginUsernameLabel": "Username",
   "loginUsernameHint": "Your shop login name",
   "loginPasswordLabel": "Password",
+  "loginPasswordShowA11y": "Show password",
+  "loginPasswordHideA11y": "Hide password",
   "loginSignInCta": "Sign in",
   "loginForgotPasswordCta": "Forgot password?",
   "loginForgotPasswordTitle": "Reset password",
@@ -700,6 +702,26 @@
   "ordersComposerTotalHint": "Example: 1500",
   "ordersComposerPaidLabel": "Initial paid (AFN)",
   "ordersComposerPaidHint": "Example: 500",
+  "ordersComposerDueLabel": "Due",
+  "ordersComposerPaymentSheetTitle": "Payment",
+  "ordersComposerPaymentInitialOnSaveHint": "Initial payment is recorded when you save the order.",
+  "ordersPaymentInitialExceedsTotal": "Initial payment cannot exceed the order total.",
+  "ordersPaymentExceedsRemaining": "Payment cannot exceed the remaining balance.",
+  "ordersPaymentTotalBelowPaid": "Order total cannot be less than amount already paid.",
+  "ordersPaymentSheetSavedTitle": "Payments",
+  "ordersPaymentHistoryTitle": "Payment history",
+  "ordersEditConfirmTitle": "Save changes?",
+  "ordersEditConfirmBody": "Update this order with your changes?",
+  "ordersStatusChangeConfirmTitle": "Change status?",
+  "ordersStatusChangeConfirmBody": "Change order status to {status}?",
+  "@ordersStatusChangeConfirmBody": {
+    "placeholders": {
+      "status": { "type": "String" }
+    }
+  },
+  "ordersCancelOrderConfirmTitle": "Cancel this order?",
+  "ordersCancelOrderConfirmBody": "Type the customer name to confirm cancellation.",
+  "ordersDetailEditCta": "Edit",
   "ordersComposerDeliveryDateTitle": "Delivery date",
   "ordersComposerDeliveryDateUnset": "Select delivery date",
   "ordersComposerSaveCta": "Save order",
@@ -1110,8 +1132,33 @@
   },
   "settingsUsersLimitsTitle": "User limits",
   "settingsUsersLimitsBody": "Trial shops: up to 2 users. Paid shops: up to 5 users. The owner account cannot be deleted.",
+  "settingsUsersLimitsBodyTrial": "Trial: up to {max} users. {count} in use. The owner account cannot be deleted.",
+  "@settingsUsersLimitsBodyTrial": {
+    "placeholders": {
+      "max": { "type": "int" },
+      "count": { "type": "int" }
+    }
+  },
+  "settingsUsersLimitsBodyPaid": "Up to {max} users for this shop. {count} in use. The owner account cannot be deleted.",
+  "@settingsUsersLimitsBodyPaid": {
+    "placeholders": {
+      "max": { "type": "int" },
+      "count": { "type": "int" }
+    }
+  },
+  "settingsUsersAtLimit": "User limit reached ({count} of {max}).",
+  "@settingsUsersAtLimit": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "max": { "type": "int" }
+    }
+  },
+  "settingsUsersNeedOnline": "Stay online and signed in with the server to manage users.",
+  "settingsUsersOfflineCacheNote": "Offline — showing the last saved team list. Connect to refresh or add users.",
+  "devPortalOfflineCacheNote": "Offline — showing last saved data. Connect to refresh or make changes.",
+  "settingsUsersTileNeedApiSession": "Sign in with the server to manage users",
   "settingsUsersAddCta": "Add user",
-  "settingsUsersAddDisabledHint": "User management will connect to the server.",
+  "settingsUsersAddDisabledHint": "Sign in with the server and stay online to add or remove users.",
   "settingsUsersListTitle": "Team",
   "settingsUsersOwnerRowTitle": "Shop owner",
   "settingsUsersOwnerRowSubtitle": "Full access",
@@ -1324,6 +1371,18 @@
   "devPortalShopExtendTitle": "Extend license",
   "devPortalShopExtendHint": "Days to add from today or current expiry (whichever is later).",
   "devPortalShopExtendDaysLabel": "Days",
+  "devPortalShopSetMaxUsersCta": "Set user limit…",
+  "devPortalShopSetMaxUsersTitle": "User limit (paid shop)",
+  "devPortalShopSetMaxUsersHint": "Maximum active users including the owner (1–20). Cannot be less than current users.",
+  "devPortalShopMaxUsersLabel": "Max users",
+  "devPortalShopRowMaxUsers": "Limit: {max} users ({count} in use)",
+  "@devPortalShopRowMaxUsers": {
+    "placeholders": {
+      "max": { "type": "int" },
+      "count": { "type": "int" }
+    }
+  },
+  "devPortalShopTrialUserLimitNote": "Trial: 2 users (fixed)",
   "devPortalShopActionOk": "Done.",
   "devPortalShopPushTestCta": "Test push…",
   "devPortalShopPushTitle": "Test push notification",

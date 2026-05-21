@@ -533,6 +533,51 @@ Future<({bool ok, String? error})> postPrideApiAdminEnableShop({
   }
 }
 
+Future<({bool ok, int? maxUsers, String? error})> postPrideApiAdminSetShopMaxUsers({
+  required String accessToken,
+  required String shopId,
+  required int maxUsers,
+  Duration timeout = const Duration(seconds: 20),
+}) async {
+  final base = PrideApiConfig.normalizedBase;
+  if (base == null) {
+    return (ok: false, maxUsers: null, error: 'API_BASE_URL not set');
+  }
+  try {
+    final response = await http
+        .post(
+          Uri.parse('$base/admin/shops/$shopId/max-users'),
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json; charset=utf-8',
+            'Authorization': 'Bearer $accessToken',
+          },
+          body: jsonEncode({'max_users': maxUsers}),
+        )
+        .timeout(timeout);
+    if (response.statusCode == 200) {
+      try {
+        final decoded = jsonDecode(response.body);
+        if (decoded is Map<String, dynamic>) {
+          final mu = decoded['max_users'];
+          if (mu is int) return (ok: true, maxUsers: mu, error: null);
+          if (mu is num) {
+            return (ok: true, maxUsers: mu.toInt(), error: null);
+          }
+        }
+      } catch (_) {}
+      return (ok: true, maxUsers: maxUsers, error: null);
+    }
+    return (
+      ok: false,
+      maxUsers: null,
+      error: _extractErr(response.body) ?? 'HTTP ${response.statusCode}',
+    );
+  } on Exception catch (e) {
+    return (ok: false, maxUsers: null, error: e.toString());
+  }
+}
+
 Future<({bool ok, String? error})> postPrideApiAdminExtendShopLicense({
   required String accessToken,
   required String shopId,

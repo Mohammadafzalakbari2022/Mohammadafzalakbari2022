@@ -5,6 +5,9 @@ import 'package:pride_v3/core/api/pride_api_shop.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../auth/auth_providers.dart';
+import '../../core/persistence/api_offline_cache_storage.dart';
+import '../../core/persistence/shared_preferences_provider.dart';
+import '../../shell/shell_sync_providers.dart';
 
 /// Users management when API is connected (`plan-15` / `plan-04`).
 class SettingsUsersScreen extends ConsumerStatefulWidget {
@@ -17,8 +20,10 @@ class SettingsUsersScreen extends ConsumerStatefulWidget {
 
 class _SettingsUsersScreenState extends ConsumerState<SettingsUsersScreen> {
   List<Map<String, dynamic>> _users = [];
+  Map<String, dynamic>? _limits;
   String? _loadError;
   bool _loading = true;
+  bool _showingOfflineCache = false;
 
   @override
   void initState() {
@@ -31,35 +36,111 @@ class _SettingsUsersScreenState extends ConsumerState<SettingsUsersScreen> {
       setState(() {
         _loading = false;
         _loadError = null;
+        _limits = null;
+        _users = [];
+        _showingOfflineCache = false;
       });
       return;
     }
-    final token = ref.read(authSessionProvider).accessToken;
-    if (token == null || token.isEmpty) {
+    final auth = ref.read(authSessionProvider);
+    final token = auth.accessToken;
+    final shopId = auth.shopId?.trim() ?? '';
+    if (token == null || token.isEmpty || shopId.isEmpty) {
       setState(() {
         _loading = false;
         _loadError = null;
+        _limits = null;
+        _users = [];
+        _showingOfflineCache = false;
       });
       return;
     }
-    setState(() {
-      _loading = true;
-      _loadError = null;
-    });
-    final result = await fetchShopUsers(accessToken: token);
+
+    final online = ref.read(connectivityOnlineProvider);
+    final prefs = ref.read(sharedPreferencesProvider);
+    final cached = ApiOfflineCacheStorage.readShopUsers(prefs, shopId);
+
+    if (cached != null) {
+      setState(() {
+        _users = cached.users;
+        _limits = cached.limits;
+        _loadError = null;
+        _loading = false;
+        _showingOfflineCache = !online;
+      });
+    }
+
+    if (!online) {
+      if (cached == null && mounted) {
+        setState(() {
+          _loading = false;
+          _users = [];
+          _limits = null;
+          _showingOfflineCache = false;
+        });
+      }
+      return;
+    }
+
+    if (cached == null) {
+      setState(() {
+        _loading = true;
+        _loadError = null;
+      });
+    }
+
+    final limitsResult = await fetchShopUserLimits(accessToken: token);
+    final usersResult = await fetchShopUsers(accessToken: token);
     if (!mounted) return;
-    if (result is PrideApiShopUsersFailure) {
+    if (usersResult is PrideApiShopUsersFailure) {
       setState(() {
         _loading = false;
-        _loadError = result.message;
+        _loadError = usersResult.message;
+        _showingOfflineCache = cached != null;
       });
       return;
     }
-    final ok = result as PrideApiShopUsersOk;
+    final ok = usersResult as PrideApiShopUsersOk;
+    Map<String, dynamic>? limits;
+    if (limitsResult is PrideApiShopUserLimitsOk) {
+      limits = limitsResult.limits;
+    }
+    await ApiOfflineCacheStorage.saveShopUsers(
+      prefs,
+      shopId,
+      users: ok.users,
+      limits: limits,
+    );
     setState(() {
       _loading = false;
       _users = ok.users;
+      _limits = limits;
+      _loadError = null;
+      _showingOfflineCache = false;
     });
+  }
+
+  bool get _canAddFromLimits {
+    final lim = _limits;
+    if (lim == null) return false;
+    return lim['can_add'] == true;
+  }
+
+  String _limitsBody(AppLocalizations l10n) {
+    final lim = _limits;
+    if (lim == null) return l10n.settingsUsersLimitsBody;
+    final max = _intFrom(lim['max_users']) ?? 0;
+    final count = _intFrom(lim['active_count']) ?? 0;
+    if (lim['is_trial'] == true) {
+      return l10n.settingsUsersLimitsBodyTrial(max, count);
+    }
+    return l10n.settingsUsersLimitsBodyPaid(max, count);
+  }
+
+  int? _intFrom(dynamic v) {
+    if (v is int) return v;
+    if (v is num) return v.toInt();
+    return int.tryParse('$v');
   }
 
   Future<void> _showAddDialog(AppLocalizations l10n) async {
@@ -196,14 +277,24 @@ class _SettingsUsersScreenState extends ConsumerState<SettingsUsersScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final api = PrideApiConfig.isConfigured;
+    final online = ref.watch(connectivityOnlineProvider);
     final session = ref.watch(authSessionProvider);
     final canManageUsers = session.isShopOwner;
     final tokenReady =
         session.hasApiSession && (session.accessToken?.isNotEmpty == true);
+    final tokenReadyForList = api && tokenReady;
+    final ready = tokenReadyForList && online;
+    final showAdd = ready && canManageUsers && _canAddFromLimits;
+    final atLimit = ready &&
+        canManageUsers &&
+        !_canAddFromLimits &&
+        _limits != null &&
+        (_intFrom(_limits!['active_count']) ?? 0) >=
+            (_intFrom(_limits!['max_users']) ?? 0);
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.settingsUsersTitle)),
-      floatingActionButton: api && canManageUsers && tokenReady
+      floatingActionButton: showAdd
           ? FloatingActionButton.extended(
               onPressed: () => _showAddDialog(l10n),
               icon: const Icon(Icons.person_add_alt_1),
@@ -224,23 +315,70 @@ class _SettingsUsersScreenState extends ConsumerState<SettingsUsersScreen> {
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                   const SizedBox(height: 8),
-                  Text(l10n.settingsUsersLimitsBody),
+                  Text(_limitsBody(l10n)),
                 ],
               ),
             ),
           ),
           const SizedBox(height: 16),
-          if (!api) ...[
-            Text(
-              l10n.settingsUsersAddDisabledHint,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ] else if (!tokenReady) ...[
+          if (!api || !tokenReady) ...[
             Text(
               l10n.settingsUsersAddDisabledHint,
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ] else ...[
+            if (_showingOfflineCache || (!online && _users.isNotEmpty)) ...[
+              Card(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.wifi_off_outlined,
+                        size: 20,
+                        color: Theme.of(context).colorScheme.outline,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          l10n.settingsUsersOfflineCacheNote,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+            ] else if (!online && _users.isEmpty && !_loading) ...[
+              Text(
+                l10n.settingsUsersNeedOnline,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 16),
+            ],
+            if (canManageUsers && atLimit) ...[
+              Text(
+                l10n.settingsUsersAtLimit(
+                  _intFrom(_limits!['active_count']) ?? 0,
+                  _intFrom(_limits!['max_users']) ?? 0,
+                ),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+              ),
+              const SizedBox(height: 8),
+            ],
+            if (canManageUsers) ...[
+              FilledButton.icon(
+                onPressed: showAdd ? () => _showAddDialog(l10n) : null,
+                icon: const Icon(Icons.person_add_alt_1),
+                label: Text(l10n.settingsUsersAddCta),
+              ),
+              const SizedBox(height: 16),
+            ],
             Row(
               children: [
                 Text(
@@ -272,6 +410,24 @@ class _SettingsUsersScreenState extends ConsumerState<SettingsUsersScreen> {
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
                 ),
               )
+            else if (_users.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.group_outlined,
+                      size: 48,
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      l10n.settingsUsersEmptyRowSubtitle,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
+              )
             else ...[
               if (!canManageUsers)
                 Padding(
@@ -289,7 +445,7 @@ class _SettingsUsersScreenState extends ConsumerState<SettingsUsersScreen> {
                       _UserTile(
                         row: _users[i],
                         isOwnerViewer: canManageUsers,
-                        onDelete: canManageUsers
+                        onDelete: canManageUsers && ready
                             ? () => _confirmDelete(
                                   l10n,
                                   _users[i]['id']! as String,

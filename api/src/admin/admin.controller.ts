@@ -235,6 +235,21 @@ export class AdminController {
     return this.admin.enableShop(req.user.sub, shopId);
   }
 
+  /** `POST /admin/shops/:shopId/max-users` — paid shop seat cap 1–20 (`plan-04`). */
+  @Post('shops/:shopId/max-users')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  async setShopMaxUsers(
+    @Req() req: Request & { user: PrideAccessPayload },
+    @Param('shopId') shopId: string,
+    @Body() body: { max_users?: unknown },
+  ) {
+    if (!this.admin.isDeveloper(req.user)) {
+      throw new ForbiddenException();
+    }
+    return this.admin.setShopMaxUsers(req.user.sub, shopId, body?.max_users);
+  }
+
   /** `POST /admin/shops/:shopId/extend-license` — extend paid window (`plan-05`). */
   @Post('shops/:shopId/extend-license')
   @HttpCode(HttpStatus.OK)

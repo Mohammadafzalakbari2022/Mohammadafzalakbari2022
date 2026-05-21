@@ -1,6 +1,7 @@
 import { AdminService } from './admin.service';
 import type { PasswordResetService } from '../shop/password-reset.service';
 import type { ShopRegistryService } from '../shop/shop-registry.service';
+import type { ShopUserLimitsService } from '../shop/shop-user-limits.service';
 import type { PrismaService } from '../prisma/prisma.service';
 
 describe('AdminService', () => {
@@ -12,6 +13,7 @@ describe('AdminService', () => {
       {} as PrismaService,
       {} as PasswordResetService,
       {} as ShopRegistryService,
+      {} as ShopUserLimitsService,
     );
 
   afterEach(() => {

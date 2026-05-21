@@ -107,6 +107,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginPasswordLabel => 'Password';
 
   @override
+  String get loginPasswordShowA11y => 'Show password';
+
+  @override
+  String get loginPasswordHideA11y => 'Hide password';
+
+  @override
   String get loginSignInCta => 'Sign in';
 
   @override
@@ -1607,6 +1613,58 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ordersComposerPaidHint => 'Example: 500';
 
   @override
+  String get ordersComposerDueLabel => 'Due';
+
+  @override
+  String get ordersComposerPaymentSheetTitle => 'Payment';
+
+  @override
+  String get ordersComposerPaymentInitialOnSaveHint =>
+      'Initial payment is recorded when you save the order.';
+
+  @override
+  String get ordersPaymentInitialExceedsTotal =>
+      'Initial payment cannot exceed the order total.';
+
+  @override
+  String get ordersPaymentExceedsRemaining =>
+      'Payment cannot exceed the remaining balance.';
+
+  @override
+  String get ordersPaymentTotalBelowPaid =>
+      'Order total cannot be less than amount already paid.';
+
+  @override
+  String get ordersPaymentSheetSavedTitle => 'Payments';
+
+  @override
+  String get ordersPaymentHistoryTitle => 'Payment history';
+
+  @override
+  String get ordersEditConfirmTitle => 'Save changes?';
+
+  @override
+  String get ordersEditConfirmBody => 'Update this order with your changes?';
+
+  @override
+  String get ordersStatusChangeConfirmTitle => 'Change status?';
+
+  @override
+  String ordersStatusChangeConfirmBody(String status) {
+    return 'Change order status to $status?';
+  }
+
+  @override
+  String get ordersCancelOrderConfirmTitle => 'Cancel this order?';
+
+  @override
+  String get ordersCancelOrderConfirmBody =>
+      'Type the customer name to confirm cancellation.';
+
+  @override
+  String get ordersDetailEditCta => 'Edit';
+
+  @override
   String get ordersComposerDeliveryDateTitle => 'Delivery date';
 
   @override
@@ -2558,11 +2616,42 @@ class AppLocalizationsEn extends AppLocalizations {
       'Trial shops: up to 2 users. Paid shops: up to 5 users. The owner account cannot be deleted.';
 
   @override
+  String settingsUsersLimitsBodyTrial(int max, int count) {
+    return 'Trial: up to $max users. $count in use. The owner account cannot be deleted.';
+  }
+
+  @override
+  String settingsUsersLimitsBodyPaid(int max, int count) {
+    return 'Up to $max users for this shop. $count in use. The owner account cannot be deleted.';
+  }
+
+  @override
+  String settingsUsersAtLimit(int count, int max) {
+    return 'User limit reached ($count of $max).';
+  }
+
+  @override
+  String get settingsUsersNeedOnline =>
+      'Stay online and signed in with the server to manage users.';
+
+  @override
+  String get settingsUsersOfflineCacheNote =>
+      'Offline — showing the last saved team list. Connect to refresh or add users.';
+
+  @override
+  String get devPortalOfflineCacheNote =>
+      'Offline — showing last saved data. Connect to refresh or make changes.';
+
+  @override
+  String get settingsUsersTileNeedApiSession =>
+      'Sign in with the server to manage users';
+
+  @override
   String get settingsUsersAddCta => 'Add user';
 
   @override
   String get settingsUsersAddDisabledHint =>
-      'User management will connect to the server.';
+      'Sign in with the server and stay online to add or remove users.';
 
   @override
   String get settingsUsersListTitle => 'Team';
@@ -2985,6 +3074,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get devPortalShopExtendDaysLabel => 'Days';
+
+  @override
+  String get devPortalShopSetMaxUsersCta => 'Set user limit…';
+
+  @override
+  String get devPortalShopSetMaxUsersTitle => 'User limit (paid shop)';
+
+  @override
+  String get devPortalShopSetMaxUsersHint =>
+      'Maximum active users including the owner (1–20). Cannot be less than current users.';
+
+  @override
+  String get devPortalShopMaxUsersLabel => 'Max users';
+
+  @override
+  String devPortalShopRowMaxUsers(int max, int count) {
+    return 'Limit: $max users ($count in use)';
+  }
+
+  @override
+  String get devPortalShopTrialUserLimitNote => 'Trial: 2 users (fixed)';
 
   @override
   String get devPortalShopActionOk => 'Done.';

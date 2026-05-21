@@ -33,21 +33,19 @@ import '../catalog/catalog_item_image.dart';
 import 'order_detail_hero_card.dart';
 import 'order_detail_share_actions.dart';
 import 'order_invoice_share.dart';
-import 'order_payment_amount_sheet.dart';
+import 'order_payment_sheet.dart';
 import 'order_status_label.dart';
 import 'order_customer_fabric_panel.dart';
 import 'order_style_figures_panel.dart';
+import 'order_detail_edit_actions.dart';
+import 'order_detail_edit_helpers.dart';
+import 'order_payment_rules.dart';
 
 /// Order details with collapsible sections (plan-12); data from local stream.
 class OrderDetailScreen extends ConsumerWidget {
   const OrderDetailScreen({super.key, required this.orderId});
 
   final String orderId;
-
-  bool _isTerminal(OrderLocalStatus status) {
-    return status == OrderLocalStatus.delivered ||
-        status == OrderLocalStatus.cancelled;
-  }
 
   Future<void> _deleteOrder(
     BuildContext context,
@@ -73,7 +71,7 @@ class OrderDetailScreen extends ConsumerWidget {
       l10n: l10n,
       title: l10n.orderDeleteConfirmTitle,
       explanation: l10n.orderDeleteConfirmBody,
-      expectedName: o.displayOrderNo,
+      expectedName: o.customerName.trim(),
     );
     if (!ok || !context.mounted) return;
 
@@ -142,6 +140,8 @@ class OrderDetailScreen extends ConsumerWidget {
     if (ok != true || !context.mounted) return;
     final text = controller.text;
     if (text == o.internalNotes) return;
+    final confirmed = await confirmOrderFieldEdit(context, l10n);
+    if (!context.mounted || !confirmed) return;
     final repo = await ref.read(orderListRepositoryProvider.future);
     await repo.updateOrderInternalNotes(
       orderInternalId: o.internalId,
@@ -183,11 +183,8 @@ class OrderDetailScreen extends ConsumerWidget {
                 title: Text(l10n.ordersDetailChangeStatus),
                 subtitle: Text(l10n.ordersDetailChangeStatusSubtitle),
               ),
-              for (final s in <OrderLocalStatus>[
-                OrderLocalStatus.ready,
-                OrderLocalStatus.delivered,
-                OrderLocalStatus.cancelled,
-              ])
+              for (final s in OrderLocalStatus.values)
+                if (s != current)
                 ListTile(
                   title: Text(orderStatusLabel(s, l10n)),
                   trailing: s == current ? const Icon(Icons.check) : null,
@@ -242,9 +239,9 @@ class OrderDetailScreen extends ConsumerWidget {
         final o = found;
         final snapshotAsync =
             ref.watch(orderMeasurementSnapshotProvider(orderId));
-        final statusLocked = _isTerminal(o.status);
         final editBlockedByLicense = ref.watch(licenseEditingBlockedProvider);
-        final changeStatusEnabled = !statusLocked && !editBlockedByLicense;
+        final changeStatusEnabled = !editBlockedByLicense;
+        final canEdit = !editBlockedByLicense;
         final asyncPayments = ref.watch(paymentsForOrderProvider(o.internalId));
         return Scaffold(
           appBar: AppBar(
@@ -343,9 +340,7 @@ class OrderDetailScreen extends ConsumerWidget {
                 title: l10n.ordersDetailChangeStatus,
                 subtitle: changeStatusEnabled
                     ? l10n.ordersDetailChangeStatusSubtitle
-                    : statusLocked
-                        ? l10n.ordersDetailLockedHint
-                        : l10n.licenseReadOnlyHint,
+                    : l10n.licenseReadOnlyHint,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -361,6 +356,23 @@ class OrderDetailScreen extends ConsumerWidget {
                               if (!context.mounted) return;
                               if (picked == null || picked == o.status) {
                                 return;
+                              }
+
+                              if (picked == OrderLocalStatus.cancelled) {
+                                final cancelOk =
+                                    await confirmOrderCancelByCustomerName(
+                                  context,
+                                  l10n,
+                                  o.customerName,
+                                );
+                                if (!context.mounted || !cancelOk) return;
+                              } else {
+                                final statusOk = await confirmOrderStatusChange(
+                                  context,
+                                  l10n,
+                                  orderStatusLabel(picked, l10n),
+                                );
+                                if (!context.mounted || !statusOk) return;
                               }
 
                               final repo = await ref.read(
@@ -433,17 +445,6 @@ class OrderDetailScreen extends ConsumerWidget {
                           : null,
                       child: Text(l10n.ordersDetailChangeStatus),
                     ),
-                    if (statusLocked) ...[
-                      const SizedBox(height: 10),
-                      Text(
-                        l10n.ordersDetailLockedStillInternalNotes,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant,
-                            ),
-                      ),
-                    ],
                   ],
                 ),
               ),
@@ -451,6 +452,12 @@ class OrderDetailScreen extends ConsumerWidget {
                 title: l10n.ordersDetailSectionCustomer,
                 subtitle: o.customerName,
                 initiallyExpanded: true,
+                trailing: orderDetailEditTrailing(
+                  l10n: l10n,
+                  onPressed: canEdit
+                      ? () => orderDetailEditCustomer(context, ref, l10n, o)
+                      : null,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -472,6 +479,13 @@ class OrderDetailScreen extends ConsumerWidget {
                 subtitle: o.sourceMeasurementProfileLabel.isNotEmpty
                     ? o.sourceMeasurementProfileLabel
                     : null,
+                trailing: orderDetailEditTrailing(
+                  l10n: l10n,
+                  onPressed: canEdit
+                      ? () =>
+                          orderDetailEditMeasurements(context, ref, l10n, o)
+                      : null,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -532,6 +546,12 @@ class OrderDetailScreen extends ConsumerWidget {
                 PrideCarvedSection(
                   title: l10n.orderDetailCatalogDesignTitle,
                   subtitle: o.catalogDesignNameSnapshot.trim(),
+                  trailing: orderDetailEditTrailing(
+                    l10n: l10n,
+                    onPressed: canEdit
+                        ? () => orderDetailEditStyle(context, ref, l10n, o)
+                        : null,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -567,22 +587,70 @@ class OrderDetailScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-              if (o.styleName.trim().isNotEmpty ||
-                  o.styleSummary.trim().isNotEmpty ||
-                  o.styleSelectionJson.trim().isNotEmpty)
-                PrideCarvedSection(
-                  title: l10n.ordersDetailSectionStyle,
-                  subtitle: o.styleName.trim().isNotEmpty
-                      ? o.styleName.trim()
+              PrideCarvedSection(
+                title: l10n.ordersDetailSectionStyle,
+                subtitle: o.styleName.trim().isNotEmpty
+                    ? o.styleName.trim()
+                    : l10n.ordersComposerStyleRequired,
+                trailing: orderDetailEditTrailing(
+                  l10n: l10n,
+                  onPressed: canEdit
+                      ? () => orderDetailEditStyle(context, ref, l10n, o)
                       : null,
-                  child: OrderStyleFiguresPanel(order: o),
                 ),
-              if (o.hasCustomerFabric)
-                PrideCarvedSection(
-                  title: l10n.orderDetailFabricTitle,
-                  subtitle: orderCustomerFabricSummaryLine(l10n, o),
-                  child: OrderCustomerFabricPanel(order: o),
+                child: (o.styleName.trim().isNotEmpty ||
+                        o.styleSummary.trim().isNotEmpty ||
+                        o.styleSelectionJson.trim().isNotEmpty)
+                    ? OrderStyleFiguresPanel(order: o)
+                    : Text(
+                        l10n.ordersDetailSnapshotEmpty,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+              ),
+              PrideCarvedSection(
+                title: l10n.orderDetailFabricTitle,
+                subtitle: o.hasCustomerFabric
+                    ? orderCustomerFabricSummaryLine(l10n, o)
+                    : l10n.ordersComposerFabricUnset,
+                trailing: orderDetailEditTrailing(
+                  l10n: l10n,
+                  onPressed: canEdit
+                      ? () => orderDetailEditFabric(context, ref, l10n, o)
+                      : null,
                 ),
+                child: o.hasCustomerFabric
+                    ? OrderCustomerFabricPanel(order: o)
+                    : Text(
+                        l10n.ordersDetailSnapshotEmpty,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+              ),
+              PrideCarvedSection(
+                title: l10n.ordersComposerDeliveryDateTitle,
+                subtitle: AppCalendarFormat.mediumDate(
+                  l10n,
+                  calendar,
+                  o.deliveryDate,
+                  locale,
+                ),
+                trailing: orderDetailEditTrailing(
+                  l10n: l10n,
+                  onPressed: canEdit
+                      ? () =>
+                          orderDetailEditDeliveryDate(context, ref, l10n, o)
+                      : null,
+                ),
+                child: _OrderDetailInfoRow(
+                  icon: Icons.event_outlined,
+                  label: l10n.ordersComposerDeliveryDateTitle,
+                  value: AppCalendarFormat.mediumDate(
+                    l10n,
+                    calendar,
+                    o.deliveryDate,
+                    locale,
+                  ),
+                ),
+              ),
               PrideCarvedSection(
                 title: l10n.ordersDetailSectionInternalNotes,
                 subtitle: o.internalNotes.trim().isEmpty
@@ -598,7 +666,7 @@ class OrderDetailScreen extends ConsumerWidget {
                           : o.internalNotes,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
-                    if (!editBlockedByLicense) ...[
+                    if (canEdit) ...[
                       const SizedBox(height: 12),
                       Align(
                         alignment: AlignmentDirectional.centerStart,
@@ -622,181 +690,31 @@ class OrderDetailScreen extends ConsumerWidget {
               ),
               PrideCarvedSection(
                 title: l10n.ordersDetailSectionPayments,
-                subtitle: formatMoney(o.remainingAmountMinor),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _TotalsCard(
-                      totalMinor: o.totalAmountMinor,
-                      paidMinor: o.paidAmountMinor,
-                      l10n: l10n,
-                      formatMoney: formatMoney,
+                subtitle: l10n.ordersComposerPaymentSummary(
+                  formatMoney(o.totalAmountMinor),
+                  formatMoney(o.paidAmountMinor),
+                  formatMoney(
+                    OrderPaymentRules.remainingMinor(
+                      o.totalAmountMinor,
+                      o.paidAmountMinor,
                     ),
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        FilledButton.icon(
-                          style: prideLedgerTonalButtonStyle(context),
-                          onPressed: editBlockedByLicense
-                              ? null
-                              : () async {
-                                  final amount =
-                                      await showOrderPaymentAmountSheet(
-                                    context,
-                                    l10n,
-                                    title: l10n.addPaymentCta,
-                                    signed: false,
-                                  );
-                                  if (!context.mounted) return;
-                                  if (amount == null) return;
-                                  final paymentId = const Uuid().v4();
-                                  final repo = await ref.read(
-                                    paymentRepositoryProvider.future,
-                                  );
-                                  await repo.addPayment(
-                                    shopId: o.shopId,
-                                    orderInternalId: o.internalId,
-                                    amountMinor: amount,
-                                    method: 'cash',
-                                    isAdjustment: false,
-                                    internalId: paymentId,
-                                  );
-                                  recordSyncOutboxMutation(
-                                    ref,
-                                    kind: SyncOutboxKinds.paymentAppend,
-                                    entityRef: paymentId,
-                                    shopId: o.shopId,
-                                    payloadJson: jsonEncode({
-                                      'order_internal_id': o.internalId,
-                                      'amount_minor': amount,
-                                      'method': 'cash',
-                                      'is_adjustment': false,
-                                      'created_at': DateTime.now()
-                                          .toUtc()
-                                          .toIso8601String(),
-                                    }),
-                                  );
-                                  if (!context.mounted) return;
-                                  showAppFeedback(
-                                    context,
-                                    ref,
-                                    kind: AppFeedbackKind.success,
-                                    message: l10n.paymentAdded,
-                                  );
-                                },
-                          icon: const Icon(Icons.add_card_outlined),
-                          label: Text(l10n.addPaymentCta),
-                        ),
-                        FilledButton.icon(
-                          style: prideButtonStyle(
-                            context,
-                            PrideButtonVariant.warning,
-                          ),
-                          onPressed: editBlockedByLicense
-                              ? null
-                              : () async {
-                                  final amount =
-                                      await showOrderPaymentAmountSheet(
-                                    context,
-                                    l10n,
-                                    title: l10n.addAdjustmentCta,
-                                    hint: l10n.paymentAdjustmentHint,
-                                    signed: true,
-                                  );
-                                  if (!context.mounted) return;
-                                  if (amount == null) return;
-                                  final paymentId = const Uuid().v4();
-                                  final repo = await ref.read(
-                                    paymentRepositoryProvider.future,
-                                  );
-                                  await repo.addPayment(
-                                    shopId: o.shopId,
-                                    orderInternalId: o.internalId,
-                                    amountMinor: amount,
-                                    method: 'adjustment',
-                                    isAdjustment: true,
-                                    internalId: paymentId,
-                                  );
-                                  recordSyncOutboxMutation(
-                                    ref,
-                                    kind: SyncOutboxKinds.paymentAppend,
-                                    entityRef: paymentId,
-                                    shopId: o.shopId,
-                                    payloadJson: jsonEncode({
-                                      'order_internal_id': o.internalId,
-                                      'amount_minor': amount,
-                                      'method': 'adjustment',
-                                      'is_adjustment': true,
-                                      'created_at': DateTime.now()
-                                          .toUtc()
-                                          .toIso8601String(),
-                                    }),
-                                  );
-                                  if (!context.mounted) return;
-                                  showAppFeedback(
-                                    context,
-                                    ref,
-                                    kind: AppFeedbackKind.success,
-                                    message: l10n.paymentAdjustmentAdded,
-                                  );
-                                },
-                          icon: const Icon(Icons.tune_outlined),
-                          label: Text(l10n.addAdjustmentCta),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    asyncPayments.when(
-                      data: (payments) {
-                        if (payments.isEmpty) {
-                          final scheme = Theme.of(context).colorScheme;
-                          return Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Icon(
-                                Icons.payments_outlined,
-                                color: scheme.secondary,
-                                size: 22,
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  l10n.paymentsEmpty,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
-                                      ?.copyWith(
-                                        color: scheme.onSurfaceVariant,
-                                      ),
-                                ),
-                              ),
-                            ],
-                          );
-                        }
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            for (var i = 0; i < payments.length; i++) ...[
-                              if (i > 0) const SizedBox(height: 8),
-                              _OrderDetailPaymentRow(
-                                payment: payments[i],
-                                l10n: l10n,
-                                calendar: calendar,
-                                locale: locale,
-                              ),
-                            ],
-                          ],
-                        );
-                      },
-                      loading: () => const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 16),
-                        child: Center(child: CircularProgressIndicator()),
-                      ),
-                      error: (e, _) => Text('$e'),
-                    ),
-                  ],
+                  ),
+                ),
+                trailing: orderDetailEditTrailing(
+                  l10n: l10n,
+                  onPressed: canEdit
+                      ? () => showOrderPaymentSavedSheet(
+                            context: context,
+                            ref: ref,
+                            order: o,
+                          )
+                      : null,
+                ),
+                child: _TotalsCard(
+                  totalMinor: o.totalAmountMinor,
+                  paidMinor: o.paidAmountMinor,
+                  l10n: l10n,
+                  formatMoney: formatMoney,
                 ),
               ),
               PrideCarvedSection(
@@ -1145,85 +1063,6 @@ class _OrderDetailMeasurementRow extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _OrderDetailPaymentRow extends StatelessWidget {
-  const _OrderDetailPaymentRow({
-    required this.payment,
-    required this.l10n,
-    required this.calendar,
-    required this.locale,
-  });
-
-  final PaymentSummary payment;
-  final AppLocalizations l10n;
-  final DateCalendarSystem calendar;
-  final String locale;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: scheme.surfaceContainerLowest,
-        border: Border.all(
-          color: scheme.outlineVariant.withValues(alpha: 0.75),
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(
-              payment.isAdjustment
-                  ? Icons.tune_outlined
-                  : Icons.payments_outlined,
-              size: 22,
-              color: scheme.primary,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Wrap(
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    spacing: 8,
-                    runSpacing: 4,
-                    children: [
-                      Text(
-                        l10n.paymentAmount(payment.amountMinor.toString()),
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      if (payment.isAdjustment)
-                        Chip(
-                          label: Text(l10n.paymentLedgerAdjustmentTag),
-                          visualDensity: VisualDensity.compact,
-                          materialTapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap,
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '${payment.method} · ${AppCalendarFormat.dateTimeMedium(l10n, calendar, payment.createdAt, locale)}',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: scheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

@@ -493,6 +493,163 @@ class IsarOrderRepository implements OrderListRepository {
     });
   }
 
+  Future<void> _deleteMeasurementSnapshotsForOrder(
+    Isar isar,
+    String orderInternalId,
+  ) async {
+    final headers = await isar.orderMeasurementSnapshotEntitys
+        .filter()
+        .orderInternalIdEqualTo(orderInternalId)
+        .findAll();
+    for (final h in headers) {
+      await isar.orderMeasurementSnapshotItemEntitys
+          .filter()
+          .snapshotInternalIdEqualTo(h.internalId)
+          .deleteAll();
+    }
+    await isar.orderMeasurementSnapshotEntitys
+        .filter()
+        .orderInternalIdEqualTo(orderInternalId)
+        .deleteAll();
+  }
+
+  @override
+  Future<void> updateOrderDetails({
+    required String orderInternalId,
+    String? customerInternalId,
+    DateTime? deliveryDate,
+    int? totalAmountMinor,
+    String? measurementsSnapshot,
+    String? sourceMeasurementProfileId,
+    String? sourceMeasurementProfileLabel,
+    List<OrderMeasurementSnapshotItemInput>? measurementSnapshotItems,
+    String? styleName,
+    String? styleNameInternalId,
+    String? styleSelectionJson,
+    String? styleSummary,
+    String? catalogItemInternalId,
+    String? catalogDesignNameSnapshot,
+    String? catalogDesignerShopNameSnapshot,
+    String? catalogSourceImagePath,
+    String? catalogSourceThumbnailPath,
+    String? fabricNameSnapshot,
+    String? fabricColorSnapshot,
+    String? fabricIdSnapshot,
+    String? fabricNamePresetInternalId,
+    String? fabricColorPresetInternalId,
+    String? internalNotes,
+  }) async {
+    final existing =
+        await _isar.orderEntitys.getByInternalId(orderInternalId);
+    if (existing == null) return;
+
+    if (totalAmountMinor != null) {
+      final payments = await _isar.paymentEntitys
+          .filter()
+          .orderInternalIdEqualTo(orderInternalId)
+          .findAll();
+      final paidMinor =
+          payments.fold<int>(0, (sum, p) => sum + p.amountMinor);
+      if (totalAmountMinor <= 0 || totalAmountMinor < paidMinor) {
+        throw StateError('order_total_below_paid');
+      }
+    }
+
+    String? resolvedImagePath;
+    String? resolvedThumbPath;
+    if (catalogDesignNameSnapshot != null &&
+        catalogDesignNameSnapshot.trim().isNotEmpty &&
+        catalogSourceImagePath != null &&
+        catalogSourceImagePath.isNotEmpty) {
+      final copied = await copyCatalogPathsToOrderSnapshot(
+        orderInternalId: orderInternalId,
+        imagePath: catalogSourceImagePath,
+        thumbnailPath: catalogSourceThumbnailPath,
+      );
+      if (copied != null) {
+        resolvedImagePath = copied.imagePath;
+        resolvedThumbPath = copied.thumbnailPath;
+      }
+    }
+
+    final now = DateTime.now();
+    await _isar.writeTxn(() async {
+      final e = await _isar.orderEntitys.getByInternalId(orderInternalId);
+      if (e == null) return;
+
+      if (customerInternalId != null) {
+        e.customerInternalId = customerInternalId;
+      }
+      if (deliveryDate != null) e.deliveryDate = deliveryDate;
+      if (totalAmountMinor != null) e.totalAmountMinor = totalAmountMinor;
+      if (measurementsSnapshot != null) {
+        e.measurementsSnapshot = measurementsSnapshot;
+      }
+      if (sourceMeasurementProfileId != null) {
+        e.sourceMeasurementProfileId = sourceMeasurementProfileId;
+      }
+      if (sourceMeasurementProfileLabel != null) {
+        e.sourceMeasurementProfileLabel = sourceMeasurementProfileLabel;
+      }
+      if (styleName != null) e.styleName = styleName.trim();
+      if (styleNameInternalId != null) {
+        e.styleNameInternalId = styleNameInternalId;
+      }
+      if (styleSelectionJson != null) {
+        e.styleSelectionJson = styleSelectionJson;
+      }
+      if (styleSummary != null) e.styleSummary = styleSummary;
+      if (catalogItemInternalId != null) {
+        e.catalogItemInternalId = catalogItemInternalId;
+      }
+      if (catalogDesignNameSnapshot != null) {
+        e.catalogDesignNameSnapshot = catalogDesignNameSnapshot.trim();
+      }
+      if (catalogDesignerShopNameSnapshot != null) {
+        e.catalogDesignerShopNameSnapshot =
+            catalogDesignerShopNameSnapshot.trim();
+      }
+      if (resolvedImagePath != null) {
+        e.catalogImagePathSnapshot = resolvedImagePath;
+      }
+      if (resolvedThumbPath != null) {
+        e.catalogThumbnailPathSnapshot = resolvedThumbPath;
+      }
+      if (fabricNameSnapshot != null) {
+        e.fabricNameSnapshot = fabricNameSnapshot.trim();
+      }
+      if (fabricColorSnapshot != null) {
+        e.fabricColorSnapshot = fabricColorSnapshot.trim();
+      }
+      if (fabricIdSnapshot != null) {
+        e.fabricIdSnapshot = fabricIdSnapshot.trim();
+      }
+      if (fabricNamePresetInternalId != null) {
+        e.fabricNamePresetInternalId = fabricNamePresetInternalId;
+      }
+      if (fabricColorPresetInternalId != null) {
+        e.fabricColorPresetInternalId = fabricColorPresetInternalId;
+      }
+      if (internalNotes != null) e.internalNotes = internalNotes;
+
+      e.updatedAt = now;
+      await _isar.orderEntitys.putByInternalId(e);
+
+      if (measurementSnapshotItems != null) {
+        await _deleteMeasurementSnapshotsForOrder(_isar, orderInternalId);
+        if (measurementSnapshotItems.isNotEmpty) {
+          await _insertSnapshotInTxn(
+            isar: _isar,
+            shopId: e.shopId,
+            orderInternalId: orderInternalId,
+            sourceMeasurementProfileId: e.sourceMeasurementProfileId,
+            items: measurementSnapshotItems,
+          );
+        }
+      }
+    });
+  }
+
   @override
   Future<void> softDeleteOrder(String orderInternalId) async {
     await _isar.writeTxn(() async {

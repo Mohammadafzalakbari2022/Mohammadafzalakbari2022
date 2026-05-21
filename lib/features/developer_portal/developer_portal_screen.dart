@@ -6,6 +6,8 @@ import 'package:pride_v3/core/api/pride_api_config.dart';
 import 'package:pride_v3/core/api/pride_api_health.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
+import '../../core/persistence/api_offline_cache_storage.dart';
+import '../../core/persistence/shared_preferences_provider.dart';
 import '../../shell/shell_sync_providers.dart';
 import 'developer_portal_account_tab.dart';
 import 'developer_portal_codes_tab.dart';
@@ -62,6 +64,40 @@ class DeveloperPortalScreen extends ConsumerWidget {
                   const DeveloperPortalDiagnosticsTab(),
                   const DeveloperPortalAccountTab(),
                 ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class DevPortalOfflineCacheBanner extends StatelessWidget {
+  const DevPortalOfflineCacheBanner({super.key, required this.l10n});
+
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              Icons.wifi_off_outlined,
+              size: 20,
+              color: Theme.of(context).colorScheme.outline,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                l10n.devPortalOfflineCacheNote,
+                style: Theme.of(context).textTheme.bodySmall,
               ),
             ),
           ],
@@ -135,9 +171,23 @@ class _OverviewTabState extends ConsumerState<_OverviewTab> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _refreshHealth());
   }
 
+  bool _showingOfflineStats = false;
+
   Future<void> _refreshHealth() async {
     if (!PrideApiConfig.isConfigured) return;
-    if (!ref.read(connectivityOnlineProvider)) return;
+    final online = ref.read(connectivityOnlineProvider);
+    final prefs = ref.read(sharedPreferencesProvider);
+    final cachedStats = ApiOfflineCacheStorage.readAdminStats(prefs);
+    if (!online) {
+      if (!mounted) return;
+      setState(() {
+        _health = null;
+        _audit = null;
+        _stats = cachedStats;
+        _showingOfflineStats = cachedStats != null;
+      });
+      return;
+    }
     final result = await pingPrideApiHealth();
     if (!mounted) return;
     setState(() => _health = result);
@@ -147,16 +197,21 @@ class _OverviewTabState extends ConsumerState<_OverviewTab> {
       if (!mounted) return;
       setState(() {
         _audit = null;
-        _stats = null;
+        _stats = cachedStats;
+        _showingOfflineStats = cachedStats != null;
       });
       return;
     }
     final audit = await getPrideApiAdminAuditLog(accessToken: token);
     final stats = await getPrideApiAdminStats(accessToken: token);
     if (!mounted) return;
+    if (stats.ok && stats.data != null) {
+      await ApiOfflineCacheStorage.saveAdminStats(prefs, stats.data!);
+    }
     setState(() {
       _audit = audit;
-      _stats = stats.ok ? stats.data : null;
+      _stats = stats.ok ? stats.data : cachedStats;
+      _showingOfflineStats = false;
     });
   }
 
@@ -234,6 +289,8 @@ class _OverviewTabState extends ConsumerState<_OverviewTab> {
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(16),
         children: [
+          if (_showingOfflineStats)
+            DevPortalOfflineCacheBanner(l10n: widget.l10n),
           if (PrideApiConfig.isConfigured) ...[
             Text(
               widget.l10n.devPortalApiHealthPrompt,
@@ -326,6 +383,7 @@ class _DevPortalShopsTabState extends ConsumerState<_DevPortalShopsTab> {
   bool _loading = true;
   String? _error;
   List<Map<String, dynamic>> _rows = const [];
+  bool _showingOfflineCache = false;
 
   String _formatIsoDate(String? raw) {
     if (raw == null || raw.isEmpty || raw == 'null') return '—';
@@ -370,6 +428,71 @@ class _DevPortalShopsTabState extends ConsumerState<_DevPortalShopsTab> {
     final r = await postPrideApiAdminEnableShop(
       accessToken: token,
       shopId: shopId,
+    );
+    if (!mounted) return;
+    if (!r.ok) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(r.error ?? 'HTTP')),
+      );
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(widget.l10n.devPortalShopActionOk)),
+    );
+    await _load();
+  }
+
+  Future<void> _setMaxUsers(
+    String shopId, {
+    required int currentMax,
+    required int userCount,
+  }) async {
+    final ctrl = TextEditingController(text: '$currentMax');
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(widget.l10n.devPortalShopSetMaxUsersTitle),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(widget.l10n.devPortalShopSetMaxUsersHint),
+            const SizedBox(height: 8),
+            Text(
+              widget.l10n.devPortalShopRowMaxUsers(currentMax, userCount),
+              style: Theme.of(ctx).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: ctrl,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: widget.l10n.devPortalShopMaxUsersLabel,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(MaterialLocalizations.of(ctx).cancelButtonLabel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(widget.l10n.saveCta),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    final next = int.tryParse(ctrl.text.trim()) ?? 0;
+    if (next < 1 || next > 20) return;
+    final token = ref.read(authSessionProvider).accessToken;
+    if (token == null) return;
+    final r = await postPrideApiAdminSetShopMaxUsers(
+      accessToken: token,
+      shopId: shopId,
+      maxUsers: next,
     );
     if (!mounted) return;
     if (!r.ok) {
@@ -504,45 +627,68 @@ class _DevPortalShopsTabState extends ConsumerState<_DevPortalShopsTab> {
         _loading = false;
         _error = widget.l10n.devPortalStubAction;
         _rows = const [];
+        _showingOfflineCache = false;
       });
       return;
     }
-    if (!ref.read(connectivityOnlineProvider)) {
+    final online = ref.read(connectivityOnlineProvider);
+    final prefs = ref.read(sharedPreferencesProvider);
+    final cached = ApiOfflineCacheStorage.readAdminShops(prefs);
+
+    if (cached != null) {
       setState(() {
+        _rows = cached;
         _loading = false;
-        _error = widget.l10n.devPortalAdviceOfflineBody;
-        _rows = const [];
+        _error = null;
+        _showingOfflineCache = !online;
       });
+    }
+
+    if (!online) {
+      if (cached == null && mounted) {
+        setState(() {
+          _loading = false;
+          _error = widget.l10n.devPortalAdviceOfflineBody;
+          _rows = const [];
+          _showingOfflineCache = false;
+        });
+      }
       return;
     }
+
     final auth = ref.read(authSessionProvider);
     final token = auth.accessToken;
     if (!auth.hasApiSession || token == null) {
       setState(() {
         _loading = false;
         _error = widget.l10n.devPortalAdminAuditNeedSignIn;
-        _rows = const [];
+        _rows = cached ?? const [];
+        _showingOfflineCache = false;
       });
       return;
     }
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
+    if (cached == null) {
+      setState(() {
+        _loading = true;
+        _error = null;
+      });
+    }
     final r = await getPrideApiAdminShops(accessToken: token);
     if (!mounted) return;
     if (!r.ok) {
       setState(() {
         _loading = false;
         _error = widget.l10n.devPortalShopsLoadError(r.error ?? 'HTTP');
-        _rows = const [];
+        _showingOfflineCache = cached != null;
       });
       return;
     }
+    await ApiOfflineCacheStorage.saveAdminShops(prefs, r.shops);
     setState(() {
       _loading = false;
       _error = null;
       _rows = r.shops;
+      _showingOfflineCache = false;
     });
   }
 
@@ -578,10 +724,14 @@ class _DevPortalShopsTabState extends ConsumerState<_DevPortalShopsTab> {
       child: ListView.separated(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(16),
-        itemCount: _rows.length,
+        itemCount: _rows.length + (_showingOfflineCache ? 1 : 0),
         separatorBuilder: (context, index) => const SizedBox(height: 8),
         itemBuilder: (context, i) {
-          final m = _rows[i];
+          if (_showingOfflineCache && i == 0) {
+            return DevPortalOfflineCacheBanner(l10n: widget.l10n);
+          }
+          final rowIndex = _showingOfflineCache ? i - 1 : i;
+          final m = _rows[rowIndex];
           final id = '${m['id'] ?? ''}';
           final name = '${m['name'] ?? ''}';
           final uc = m['user_count'];
@@ -595,6 +745,16 @@ class _DevPortalShopsTabState extends ConsumerState<_DevPortalShopsTab> {
               '$disabledRaw'.trim().isNotEmpty &&
               '$disabledRaw' != 'null';
           final users = _shopUsers(m);
+          final licStatus = '${m['license_status'] ?? ''}';
+          final isPaidActive = licStatus == 'active';
+          final storedMax = m['max_users'];
+          final effectiveMax = m['effective_max_users'];
+          final maxUsers = effectiveMax is int
+              ? effectiveMax
+              : int.tryParse('$effectiveMax') ??
+                  (storedMax is int
+                      ? storedMax
+                      : int.tryParse('$storedMax') ?? 5);
           return Card(
             clipBehavior: Clip.antiAlias,
             child: ExpansionTile(
@@ -612,6 +772,12 @@ class _DevPortalShopsTabState extends ConsumerState<_DevPortalShopsTab> {
                     await _enableShop(id);
                   } else if (v == 'extend') {
                     await _extendLicense(id);
+                  } else if (v == 'max_users') {
+                    await _setMaxUsers(
+                      id,
+                      currentMax: maxUsers,
+                      userCount: count,
+                    );
                   } else if (v == 'push') {
                     await _pushTest(id, name.isEmpty ? id : name);
                   }
@@ -631,6 +797,11 @@ class _DevPortalShopsTabState extends ConsumerState<_DevPortalShopsTab> {
                     value: 'extend',
                     child: Text(widget.l10n.devPortalShopExtendCta),
                   ),
+                  if (isPaidActive)
+                    PopupMenuItem(
+                      value: 'max_users',
+                      child: Text(widget.l10n.devPortalShopSetMaxUsersCta),
+                    ),
                   PopupMenuItem(
                     value: 'push',
                     child: Text(widget.l10n.devPortalShopPushTestCta),
@@ -641,6 +812,7 @@ class _DevPortalShopsTabState extends ConsumerState<_DevPortalShopsTab> {
               ),
               subtitle: Text(
                 '$id · ${widget.l10n.devPortalShopRowUsers(count)}\n'
+                '${isPaidActive ? widget.l10n.devPortalShopRowMaxUsers(maxUsers, count) : widget.l10n.devPortalShopTrialUserLimitNote}\n'
                 '${widget.l10n.devPortalShopSignedUp(created)}\n'
                 '$lic · $exp'
                 '${trial != '—' ? '\n${widget.l10n.devPortalShopTrialStarted(trial)}' : ''}'
@@ -708,6 +880,7 @@ class _DevPortalResetsTabState extends ConsumerState<_DevPortalResetsTab> {
   bool _loading = true;
   String? _error;
   List<Map<String, dynamic>> _rows = const [];
+  bool _showingOfflineCache = false;
 
   Future<void> _load() async {
     if (!PrideApiConfig.isConfigured) {
@@ -715,45 +888,68 @@ class _DevPortalResetsTabState extends ConsumerState<_DevPortalResetsTab> {
         _loading = false;
         _error = widget.l10n.devPortalStubAction;
         _rows = const [];
+        _showingOfflineCache = false;
       });
       return;
     }
-    if (!ref.read(connectivityOnlineProvider)) {
+    final online = ref.read(connectivityOnlineProvider);
+    final prefs = ref.read(sharedPreferencesProvider);
+    final cached = ApiOfflineCacheStorage.readAdminPasswordResets(prefs);
+
+    if (cached != null) {
       setState(() {
+        _rows = cached;
         _loading = false;
-        _error = widget.l10n.devPortalAdviceOfflineBody;
-        _rows = const [];
+        _error = null;
+        _showingOfflineCache = !online;
       });
+    }
+
+    if (!online) {
+      if (cached == null && mounted) {
+        setState(() {
+          _loading = false;
+          _error = widget.l10n.devPortalAdviceOfflineBody;
+          _rows = const [];
+          _showingOfflineCache = false;
+        });
+      }
       return;
     }
+
     final auth = ref.read(authSessionProvider);
     final token = auth.accessToken;
     if (!auth.hasApiSession || token == null) {
       setState(() {
         _loading = false;
         _error = widget.l10n.devPortalAdminAuditNeedSignIn;
-        _rows = const [];
+        _rows = cached ?? const [];
+        _showingOfflineCache = false;
       });
       return;
     }
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
+    if (cached == null) {
+      setState(() {
+        _loading = true;
+        _error = null;
+      });
+    }
     final r = await getPrideApiAdminPasswordResetRequests(accessToken: token);
     if (!mounted) return;
     if (!r.ok) {
       setState(() {
         _loading = false;
         _error = widget.l10n.devPortalResetsLoadError(r.error ?? 'HTTP');
-        _rows = const [];
+        _showingOfflineCache = cached != null;
       });
       return;
     }
+    await ApiOfflineCacheStorage.saveAdminPasswordResets(prefs, r.rows);
     setState(() {
       _loading = false;
       _error = null;
       _rows = r.rows;
+      _showingOfflineCache = false;
     });
   }
 
@@ -850,10 +1046,14 @@ class _DevPortalResetsTabState extends ConsumerState<_DevPortalResetsTab> {
       child: ListView.separated(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(16),
-        itemCount: _rows.length,
+        itemCount: _rows.length + (_showingOfflineCache ? 1 : 0),
         separatorBuilder: (context, index) => const SizedBox(height: 8),
         itemBuilder: (context, i) {
-          final m = _rows[i];
+          if (_showingOfflineCache && i == 0) {
+            return DevPortalOfflineCacheBanner(l10n: widget.l10n);
+          }
+          final rowIndex = _showingOfflineCache ? i - 1 : i;
+          final m = _rows[rowIndex];
           final username = '${m['username'] ?? ''}';
           final shopId = '${m['shop_id'] ?? ''}';
           final created = '${m['created_at'] ?? ''}';

@@ -33,7 +33,7 @@ This file applies **only to this repository**. Humans and automated agents must 
 
 12. **Payments** — **Append-only** ledger; reversals are new rows, not silent edits.
 
-13. **Orders UX** — List = filters + table, **no row quick actions**; detail screen owns status changes and confirmations. Delivered/cancelled: lock customer/style/measurements but **payments can still be added**.
+13. **Orders UX** — List = filters + table, **no row quick actions**; detail screen owns status changes and confirmations. Saved orders are **editable on all statuses** (including delivered/cancelled). Payments: append-only ledger; total editable when `newTotal ≥ paid`. Confirmations: type **customer name** to delete or cancel an order; simple dialog for other edits and status changes (no owner password on orders).
 
 14. **One module at a time** — Small, reviewable changes. After meaningful edits: **`flutter analyze`** (and tests when they exist).
 

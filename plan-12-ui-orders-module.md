@@ -66,20 +66,10 @@ Change status flow:
   - show global action feedback bar (success)
   - create in-app notification for all shop users
 
-### Editing lock rule (selected)
-If status is Delivered or Cancelled:
-- lock editing for:
-  - customer link changes
-  - delivery date
-  - style
-  - measurement snapshot
-- allow:
-  - viewing all data
-  - adding payment entries (selected: payments can be added after delivery/cancel)
-  - adding internal notes (optional)
-
-If you want the strictest consistency:
-- allow status revert only with owner password (optional later).
+### Editing rule (selected; implemented in client)
+- **All statuses** (including Delivered and Cancelled) allow editing customer, delivery, measurements, style, fabric, internal notes, order total, and status (fix mistaken delivery/cancel).
+- **Payments** remain append-only; edit total only if `newTotal ≥ sum(payments)`; new payments cannot exceed remaining due.
+- **Confirmations:** delete order or set status to Cancelled → user types **customer name**; other field edits → simple confirm dialog; other status changes → confirm message. **No owner password** on order flows.
 
 ## Payment ledger UI (append-only)
 - List of payments (date/time, amount, method, created_by)
@@ -95,7 +85,7 @@ If you want the strictest consistency:
 ## Definition of Done
 - Orders list is fast and clear in RTL/LTR
 - No row quick actions (details only)
-- Delivered/Cancelled lock works consistently
-- Status change confirmation uses global dialog design + owner password confirmation
+- Full edit on all statuses works consistently
+- Status/delete confirmations use customer-name typing or simple dialog (no owner password)
 - Payments behave as append-only ledger
 

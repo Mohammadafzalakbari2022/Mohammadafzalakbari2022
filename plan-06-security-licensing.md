@@ -26,8 +26,8 @@ Client UI must not be the enforcement point.
 - API denies sync push/pull (or restricts) when expired, per your business rules
 
 ### 2b) Subscription-enforced user limits (selected)
-- Trial shops: **max 2 users**
-- Paid shops: **max 5 users**
+- Trial shops: **max 2 users** (fixed)
+- Paid shops: **max `shops.max_users`** per shop (default **5**; developer portal can set **1–20**)
 - Enforcement must be server-side (API), not only UI.
 
 Owner-only account management (selected)

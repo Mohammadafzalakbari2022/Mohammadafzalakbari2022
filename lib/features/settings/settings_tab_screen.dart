@@ -246,14 +246,16 @@ class SettingsTabScreen extends ConsumerWidget {
               leading: Icons.group_outlined,
               iconColor: prideSettingsIconColor(7),
               title: l10n.settingsUsersTitle,
-              subtitle: apiOn
+              subtitle: apiOn && auth.hasApiSession
                   ? (effectiveOwner
                       ? l10n.settingsUsersSubtitleOwner
                       : l10n.settingsUsersSubtitleTeam)
-                  : (isOwnerDev
-                      ? l10n.settingsUsersSubtitleOwner
-                      : l10n.settingsOwnerOnly),
-              enabled: apiOn ? auth.authenticated : isOwnerDev,
+                  : (apiOn
+                      ? l10n.settingsUsersTileNeedApiSession
+                      : (isOwnerDev
+                          ? l10n.settingsUsersSubtitleOwner
+                          : l10n.settingsOwnerOnly)),
+              enabled: apiOn && auth.hasApiSession,
               onTap: () => context.push('/app/settings/users'),
             ),
           ],

@@ -13,14 +13,14 @@ import type { Request } from 'express';
 
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import type { PrideAccessPayload } from '../auth/jwt-payload.interface';
-import { LicenseService } from '../license/license.service';
 import { ShopRegistryService } from './shop-registry.service';
+import { ShopUserLimitsService } from './shop-user-limits.service';
 
 @Controller('shop')
 export class ShopUsersController {
   constructor(
     private readonly registry: ShopRegistryService,
-    private readonly license: LicenseService,
+    private readonly userLimits: ShopUserLimitsService,
   ) {}
 
   private ownerOrThrow(req: Request): PrideAccessPayload {
@@ -29,13 +29,12 @@ export class ShopUsersController {
     return u;
   }
 
-  private async assertCanAddUser(shopId: string): Promise<void> {
-    const st = (await this.license.getStatusForShop(shopId)).status;
-    if (st === 'expired') throw new ForbiddenException('license expired');
-    const max = st === 'trial_active' ? 2 : 5;
-    if ((await this.registry.countActiveUsers(shopId)) >= max) {
-      throw new ForbiddenException(`user limit reached (${max})`);
-    }
+  @Get('user-limits')
+  @UseGuards(JwtAuthGuard)
+  async limits(@Req() req: Request) {
+    const u = (req as Request & { user?: PrideAccessPayload }).user;
+    if (!u?.shop_id) throw new ForbiddenException('unauthorized');
+    return this.userLimits.getLimitsForShop(u.shop_id, u.is_shop_owner);
   }
 
   @Get('users')
@@ -59,7 +58,7 @@ export class ShopUsersController {
     @Body() body: { username?: string; password?: string },
   ) {
     const u = this.ownerOrThrow(req);
-    await this.assertCanAddUser(u.shop_id);
+    await this.userLimits.assertCanAddUser(u.shop_id);
     const created = await this.registry.addMemberUser(
       u.shop_id,
       body.username ?? '',

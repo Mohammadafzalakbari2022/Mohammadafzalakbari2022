@@ -7,6 +7,7 @@ import { PasswordResetService } from './password-reset.service';
 import { ShopBootstrapController } from './shop-bootstrap.controller';
 import { ShopRegistryService } from './shop-registry.service';
 import { ShopUsersController } from './shop-users.controller';
+import { ShopUserLimitsService } from './shop-user-limits.service';
 
 @Module({
   imports: [LicenseModule],
@@ -15,7 +16,17 @@ import { ShopUsersController } from './shop-users.controller';
     ShopUsersController,
     DevicesController,
   ],
-  providers: [ShopRegistryService, LoginResponseFactory, PasswordResetService],
-  exports: [ShopRegistryService, LoginResponseFactory, PasswordResetService],
+  providers: [
+    ShopRegistryService,
+    ShopUserLimitsService,
+    LoginResponseFactory,
+    PasswordResetService,
+  ],
+  exports: [
+    ShopRegistryService,
+    ShopUserLimitsService,
+    LoginResponseFactory,
+    PasswordResetService,
+  ],
 })
 export class ShopModule {}

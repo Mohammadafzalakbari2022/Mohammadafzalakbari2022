@@ -43,6 +43,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _createOwnerPass = TextEditingController();
   bool _busy = false;
   bool _busyCreate = false;
+  bool _passwordVisible = false;
+  bool _createOwnerPassVisible = false;
   String? _signInError;
   String? _createError;
 
@@ -423,12 +425,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _password,
-                  obscureText: true,
+                  obscureText: !_passwordVisible,
                   textInputAction: TextInputAction.done,
                   onFieldSubmitted: (_) => _signIn(l10n),
                   decoration: InputDecoration(
                     labelText: l10n.loginPasswordLabel,
                     border: const OutlineInputBorder(),
+                    suffixIcon: IconButton(
+                      tooltip: _passwordVisible
+                          ? l10n.loginPasswordHideA11y
+                          : l10n.loginPasswordShowA11y,
+                      onPressed: (_busy || _busyCreate)
+                          ? null
+                          : () => setState(
+                                () => _passwordVisible = !_passwordVisible,
+                              ),
+                      icon: Icon(
+                        _passwordVisible
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
+                      ),
+                    ),
                   ),
                   validator: (v) {
                     if ((v ?? '').isEmpty) {
@@ -495,11 +512,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             const SizedBox(height: 12),
                             TextField(
                               controller: _createOwnerPass,
-                              obscureText: true,
+                              obscureText: !_createOwnerPassVisible,
                               decoration: InputDecoration(
                                 labelText:
                                     l10n.loginShopCreateOwnerPasswordLabel,
                                 border: const OutlineInputBorder(),
+                                suffixIcon: IconButton(
+                                  tooltip: _createOwnerPassVisible
+                                      ? l10n.loginPasswordHideA11y
+                                      : l10n.loginPasswordShowA11y,
+                                  onPressed: (_busyCreate || _busy)
+                                      ? null
+                                      : () => setState(
+                                            () => _createOwnerPassVisible =
+                                                !_createOwnerPassVisible,
+                                          ),
+                                  icon: Icon(
+                                    _createOwnerPassVisible
+                                        ? Icons.visibility_off_outlined
+                                        : Icons.visibility_outlined,
+                                  ),
+                                ),
                               ),
                             ),
                             const SizedBox(height: 16),

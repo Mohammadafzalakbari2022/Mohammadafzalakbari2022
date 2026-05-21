@@ -33,6 +33,18 @@ class MemoryOrderRepository implements OrderListRepository {
     String? internalNotes,
     int? paidAmountMinor,
     DateTime? updatedAt,
+    String? customerInternalId,
+    String? customerName,
+    String? customerPhone,
+    DateTime? deliveryDate,
+    int? totalAmountMinor,
+    String? measurementsSnapshot,
+    String? sourceMeasurementProfileId,
+    String? sourceMeasurementProfileLabel,
+    String? styleName,
+    String? styleNameInternalId,
+    String? styleSelectionJson,
+    String? styleSummary,
     String? catalogItemInternalId,
     String? catalogDesignNameSnapshot,
     String? catalogDesignerShopNameSnapshot,
@@ -48,17 +60,19 @@ class MemoryOrderRepository implements OrderListRepository {
       shopId: o.shopId,
       internalId: o.internalId,
       displayOrderNo: o.displayOrderNo,
-      customerInternalId: o.customerInternalId,
-      customerName: o.customerName,
-      customerPhone: o.customerPhone,
-      measurementsSnapshot: o.measurementsSnapshot,
+      customerInternalId: customerInternalId ?? o.customerInternalId,
+      customerName: customerName ?? o.customerName,
+      customerPhone: customerPhone ?? o.customerPhone,
+      measurementsSnapshot: measurementsSnapshot ?? o.measurementsSnapshot,
       internalNotes: internalNotes ?? o.internalNotes,
-      sourceMeasurementProfileId: o.sourceMeasurementProfileId,
-      sourceMeasurementProfileLabel: o.sourceMeasurementProfileLabel,
-      styleName: o.styleName,
-      styleNameInternalId: o.styleNameInternalId,
-      styleSelectionJson: o.styleSelectionJson,
-      styleSummary: o.styleSummary,
+      sourceMeasurementProfileId:
+          sourceMeasurementProfileId ?? o.sourceMeasurementProfileId,
+      sourceMeasurementProfileLabel: sourceMeasurementProfileLabel ??
+          o.sourceMeasurementProfileLabel,
+      styleName: styleName ?? o.styleName,
+      styleNameInternalId: styleNameInternalId ?? o.styleNameInternalId,
+      styleSelectionJson: styleSelectionJson ?? o.styleSelectionJson,
+      styleSummary: styleSummary ?? o.styleSummary,
       catalogItemInternalId:
           catalogItemInternalId ?? o.catalogItemInternalId,
       catalogDesignNameSnapshot:
@@ -77,10 +91,10 @@ class MemoryOrderRepository implements OrderListRepository {
       fabricColorPresetInternalId:
           fabricColorPresetInternalId ?? o.fabricColorPresetInternalId,
       status: status ?? o.status,
-      deliveryDate: o.deliveryDate,
+      deliveryDate: deliveryDate ?? o.deliveryDate,
       createdAt: o.createdAt,
       updatedAt: updatedAt ?? o.updatedAt,
-      totalAmountMinor: o.totalAmountMinor,
+      totalAmountMinor: totalAmountMinor ?? o.totalAmountMinor,
       paidAmountMinor: paidAmountMinor ?? o.paidAmountMinor,
     );
   }
@@ -381,6 +395,127 @@ class MemoryOrderRepository implements OrderListRepository {
         return;
       }
     }
+  }
+
+  @override
+  Future<void> updateOrderDetails({
+    required String orderInternalId,
+    String? customerInternalId,
+    DateTime? deliveryDate,
+    int? totalAmountMinor,
+    String? measurementsSnapshot,
+    String? sourceMeasurementProfileId,
+    String? sourceMeasurementProfileLabel,
+    List<OrderMeasurementSnapshotItemInput>? measurementSnapshotItems,
+    String? styleName,
+    String? styleNameInternalId,
+    String? styleSelectionJson,
+    String? styleSummary,
+    String? catalogItemInternalId,
+    String? catalogDesignNameSnapshot,
+    String? catalogDesignerShopNameSnapshot,
+    String? catalogSourceImagePath,
+    String? catalogSourceThumbnailPath,
+    String? fabricNameSnapshot,
+    String? fabricColorSnapshot,
+    String? fabricIdSnapshot,
+    String? fabricNamePresetInternalId,
+    String? fabricColorPresetInternalId,
+    String? internalNotes,
+  }) async {
+    for (var i = 0; i < _orders.length; i++) {
+      final o = _orders[i];
+      if (o.internalId != orderInternalId) continue;
+
+      if (totalAmountMinor != null &&
+          (totalAmountMinor <= 0 || totalAmountMinor < o.paidAmountMinor)) {
+        throw StateError('order_total_below_paid');
+      }
+
+      String? resolvedImagePath;
+      String? resolvedThumbPath;
+      if (catalogDesignNameSnapshot != null &&
+          catalogDesignNameSnapshot.trim().isNotEmpty &&
+          catalogSourceImagePath != null &&
+          catalogSourceImagePath.isNotEmpty) {
+        final copied = await copyCatalogPathsToOrderSnapshot(
+          orderInternalId: orderInternalId,
+          imagePath: catalogSourceImagePath,
+          thumbnailPath: catalogSourceThumbnailPath,
+        );
+        if (copied != null) {
+          resolvedImagePath = copied.imagePath;
+          resolvedThumbPath = copied.thumbnailPath;
+        }
+      }
+
+      final cid = customerInternalId ?? o.customerInternalId;
+      _orders[i] = _copyOrder(
+        o,
+        customerInternalId: customerInternalId,
+        customerName: customerInternalId != null
+            ? _resolveCustomerName(cid)
+            : null,
+        customerPhone: customerInternalId != null
+            ? _resolveCustomerPhone(cid)
+            : null,
+        deliveryDate: deliveryDate,
+        totalAmountMinor: totalAmountMinor,
+        measurementsSnapshot: measurementsSnapshot,
+        sourceMeasurementProfileId: sourceMeasurementProfileId,
+        sourceMeasurementProfileLabel: sourceMeasurementProfileLabel,
+        styleName: styleName,
+        styleNameInternalId: styleNameInternalId,
+        styleSelectionJson: styleSelectionJson,
+        styleSummary: styleSummary,
+        catalogItemInternalId: catalogItemInternalId,
+        catalogDesignNameSnapshot: catalogDesignNameSnapshot,
+        catalogDesignerShopNameSnapshot: catalogDesignerShopNameSnapshot,
+        catalogImagePathSnapshot: resolvedImagePath,
+        catalogThumbnailPathSnapshot: resolvedThumbPath,
+        fabricNameSnapshot: fabricNameSnapshot,
+        fabricColorSnapshot: fabricColorSnapshot,
+        fabricIdSnapshot: fabricIdSnapshot,
+        fabricNamePresetInternalId: fabricNamePresetInternalId,
+        fabricColorPresetInternalId: fabricColorPresetInternalId,
+        internalNotes: internalNotes,
+        updatedAt: DateTime.now(),
+      );
+
+      if (measurementSnapshotItems != null) {
+        _measurementSnapshotsByOrder.remove(orderInternalId);
+        if (measurementSnapshotItems.isNotEmpty) {
+          final snapId = _uuid.v4();
+          _measurementSnapshotsByOrder[orderInternalId] =
+              OrderMeasurementSnapshotView(
+            orderInternalId: orderInternalId,
+            snapshotInternalId: snapId,
+            sourceMeasurementProfileId: sourceMeasurementProfileId,
+            createdAt: DateTime.now(),
+            items: [
+              for (final it in measurementSnapshotItems)
+                OrderMeasurementSnapshotItemView(
+                  measurementTypeInternalId: it.measurementTypeInternalId,
+                  typeName: it.typeName,
+                  value: it.value,
+                  unitCode: it.unitCode,
+                  sortOrder: it.sortOrder,
+                ),
+            ],
+          );
+        }
+        _emitSnapshots();
+      }
+      _emitOrders();
+      return;
+    }
+  }
+
+  String? _resolveCustomerPhone(String customerInternalId) {
+    for (final o in _orders) {
+      if (o.customerInternalId == customerInternalId) return o.customerPhone;
+    }
+    return null;
   }
 
   @override

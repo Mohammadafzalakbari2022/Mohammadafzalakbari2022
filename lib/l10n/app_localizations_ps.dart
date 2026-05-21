@@ -103,6 +103,12 @@ class AppLocalizationsPs extends AppLocalizations {
   String get loginPasswordLabel => 'پاسورډ';
 
   @override
+  String get loginPasswordShowA11y => 'پاسورډ ښکاره کړئ';
+
+  @override
+  String get loginPasswordHideA11y => 'پاسورډ پټ کړئ';
+
+  @override
   String get loginSignInCta => 'ننوتل';
 
   @override
@@ -1593,6 +1599,58 @@ class AppLocalizationsPs extends AppLocalizations {
   String get ordersComposerPaidHint => 'بېلګه: 500';
 
   @override
+  String get ordersComposerDueLabel => 'Due';
+
+  @override
+  String get ordersComposerPaymentSheetTitle => 'Payment';
+
+  @override
+  String get ordersComposerPaymentInitialOnSaveHint =>
+      'Initial payment is recorded when you save the order.';
+
+  @override
+  String get ordersPaymentInitialExceedsTotal =>
+      'Initial payment cannot exceed the order total.';
+
+  @override
+  String get ordersPaymentExceedsRemaining =>
+      'Payment cannot exceed the remaining balance.';
+
+  @override
+  String get ordersPaymentTotalBelowPaid =>
+      'Order total cannot be less than amount already paid.';
+
+  @override
+  String get ordersPaymentSheetSavedTitle => 'Payments';
+
+  @override
+  String get ordersPaymentHistoryTitle => 'Payment history';
+
+  @override
+  String get ordersEditConfirmTitle => 'Save changes?';
+
+  @override
+  String get ordersEditConfirmBody => 'Update this order with your changes?';
+
+  @override
+  String get ordersStatusChangeConfirmTitle => 'Change status?';
+
+  @override
+  String ordersStatusChangeConfirmBody(String status) {
+    return 'Change order status to $status?';
+  }
+
+  @override
+  String get ordersCancelOrderConfirmTitle => 'Cancel this order?';
+
+  @override
+  String get ordersCancelOrderConfirmBody =>
+      'Type the customer name to confirm cancellation.';
+
+  @override
+  String get ordersDetailEditCta => 'Edit';
+
+  @override
   String get ordersComposerDeliveryDateTitle => 'د تحویلي نیټه';
 
   @override
@@ -2533,6 +2591,37 @@ class AppLocalizationsPs extends AppLocalizations {
       'ازمایښتې هټۍ: تر ۲ کارنو. ورکړل شوې هټۍ: تر ۵ کارنو. د مالک حساب نشي ړنګېدلی.';
 
   @override
+  String settingsUsersLimitsBodyTrial(int max, int count) {
+    return 'ازمایښت: تر $max کارنو. $count فعال. د مالک حساب نشي ړنګېدلی.';
+  }
+
+  @override
+  String settingsUsersLimitsBodyPaid(int max, int count) {
+    return 'د دې هټۍ لپاره تر $max کارنو. $count فعال. د مالک حساب نشي ړنګېدلی.';
+  }
+
+  @override
+  String settingsUsersAtLimit(int count, int max) {
+    return 'د کارونو حد ته ورسېدل ($count له $max).';
+  }
+
+  @override
+  String get settingsUsersNeedOnline =>
+      'د کارونو اداره لپاره آنلاین اوسئ او له سرور سره ننوځئ.';
+
+  @override
+  String get settingsUsersOfflineCacheNote =>
+      'آفلاین — وروستی خوندي لیست ښودل کیږي. د تازه کولو لپاره آنلاین اوسئ.';
+
+  @override
+  String get devPortalOfflineCacheNote =>
+      'آفلاین — وروستي خوندي معلومات ښودل کیږي. د تازه کولو لپاره آنلاین اوسئ.';
+
+  @override
+  String get settingsUsersTileNeedApiSession =>
+      'د کارونو اداره لپاره له سرور سره ننوځئ';
+
+  @override
   String get settingsUsersAddCta => 'کارن زیاتول';
 
   @override
@@ -2959,6 +3048,27 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get devPortalShopExtendDaysLabel => 'ورځې';
+
+  @override
+  String get devPortalShopSetMaxUsersCta => 'د کارونو حد ټاکل…';
+
+  @override
+  String get devPortalShopSetMaxUsersTitle => 'د کارونو حد (ورکړل شوې هټۍ)';
+
+  @override
+  String get devPortalShopSetMaxUsersHint =>
+      'د مالک په ګډون فعال کارونکي (۱–۲۰). له اوسني کارونو څخه کم نشي.';
+
+  @override
+  String get devPortalShopMaxUsersLabel => 'اعظمي کارونکي';
+
+  @override
+  String devPortalShopRowMaxUsers(int max, int count) {
+    return 'حد: $max کارونکي ($count فعال)';
+  }
+
+  @override
+  String get devPortalShopTrialUserLimitNote => 'ازمایښت: ۲ کارونکي (ثابت)';
 
   @override
   String get devPortalShopActionOk => 'ترسره شو.';

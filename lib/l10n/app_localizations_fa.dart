@@ -106,6 +106,12 @@ class AppLocalizationsFa extends AppLocalizations {
   String get loginPasswordLabel => 'رمز عبور';
 
   @override
+  String get loginPasswordShowA11y => 'نمایش رمز عبور';
+
+  @override
+  String get loginPasswordHideA11y => 'پنهان کردن رمز عبور';
+
+  @override
   String get loginSignInCta => 'ورود';
 
   @override
@@ -1599,6 +1605,58 @@ class AppLocalizationsFa extends AppLocalizations {
   String get ordersComposerPaidHint => 'مثال: 500';
 
   @override
+  String get ordersComposerDueLabel => 'Due';
+
+  @override
+  String get ordersComposerPaymentSheetTitle => 'Payment';
+
+  @override
+  String get ordersComposerPaymentInitialOnSaveHint =>
+      'Initial payment is recorded when you save the order.';
+
+  @override
+  String get ordersPaymentInitialExceedsTotal =>
+      'Initial payment cannot exceed the order total.';
+
+  @override
+  String get ordersPaymentExceedsRemaining =>
+      'Payment cannot exceed the remaining balance.';
+
+  @override
+  String get ordersPaymentTotalBelowPaid =>
+      'Order total cannot be less than amount already paid.';
+
+  @override
+  String get ordersPaymentSheetSavedTitle => 'Payments';
+
+  @override
+  String get ordersPaymentHistoryTitle => 'Payment history';
+
+  @override
+  String get ordersEditConfirmTitle => 'Save changes?';
+
+  @override
+  String get ordersEditConfirmBody => 'Update this order with your changes?';
+
+  @override
+  String get ordersStatusChangeConfirmTitle => 'Change status?';
+
+  @override
+  String ordersStatusChangeConfirmBody(String status) {
+    return 'Change order status to $status?';
+  }
+
+  @override
+  String get ordersCancelOrderConfirmTitle => 'Cancel this order?';
+
+  @override
+  String get ordersCancelOrderConfirmBody =>
+      'Type the customer name to confirm cancellation.';
+
+  @override
+  String get ordersDetailEditCta => 'Edit';
+
+  @override
   String get ordersComposerDeliveryDateTitle => 'تاریخ تحویل';
 
   @override
@@ -2541,6 +2599,37 @@ class AppLocalizationsFa extends AppLocalizations {
       'فروشگاه آزمایشی: حداکثر ۲ کاربر. فروشگاه پرداخت‌شده: حداکثر ۵ کاربر. حساب مالک حذف نمی‌شود.';
 
   @override
+  String settingsUsersLimitsBodyTrial(int max, int count) {
+    return 'آزمایشی: حداکثر $max کاربر. $count فعال. حساب مالک حذف نمی‌شود.';
+  }
+
+  @override
+  String settingsUsersLimitsBodyPaid(int max, int count) {
+    return 'حداکثر $max کاربر برای این فروشگاه. $count فعال. حساب مالک حذف نمی‌شود.';
+  }
+
+  @override
+  String settingsUsersAtLimit(int count, int max) {
+    return 'به حد کاربر رسیده‌اید ($count از $max).';
+  }
+
+  @override
+  String get settingsUsersNeedOnline =>
+      'برای مدیریت کاربران آنلاین بمانید و با سرور وارد شوید.';
+
+  @override
+  String get settingsUsersOfflineCacheNote =>
+      'آفلاین — نمایش آخرین فهرست ذخیره‌شده. برای به‌روزرسانی آنلاین شوید.';
+
+  @override
+  String get devPortalOfflineCacheNote =>
+      'آفلاین — نمایش آخرین دادهٔ ذخیره‌شده. برای به‌روزرسانی آنلاین شوید.';
+
+  @override
+  String get settingsUsersTileNeedApiSession =>
+      'برای مدیریت کاربران با سرور وارد شوید';
+
+  @override
   String get settingsUsersAddCta => 'افزودن کاربر';
 
   @override
@@ -2965,6 +3054,27 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get devPortalShopExtendDaysLabel => 'روز';
+
+  @override
+  String get devPortalShopSetMaxUsersCta => 'تعیین حد کاربر…';
+
+  @override
+  String get devPortalShopSetMaxUsersTitle => 'حد کاربر (فروشگاه پرداخت‌شده)';
+
+  @override
+  String get devPortalShopSetMaxUsersHint =>
+      'حداکثر کاربران فعال شامل مالک (۱–۲۰). نمی‌تواند کمتر از کاربران فعلی باشد.';
+
+  @override
+  String get devPortalShopMaxUsersLabel => 'حداکثر کاربران';
+
+  @override
+  String devPortalShopRowMaxUsers(int max, int count) {
+    return 'حد: $max کاربر ($count فعال)';
+  }
+
+  @override
+  String get devPortalShopTrialUserLimitNote => 'آزمایشی: ۲ کاربر (ثابت)';
 
   @override
   String get devPortalShopActionOk => 'انجام شد.';

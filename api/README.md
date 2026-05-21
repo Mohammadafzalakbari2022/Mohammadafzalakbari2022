@@ -37,7 +37,8 @@
 - `POST /shop/create` — body `{ "shop_name", "owner_username", "owner_password" }`; creates **Postgres** shop + owner + trial license; response same as login.
 - `POST /shop/join` — same body and response as `POST /auth/login` (shop bootstrap for an existing shop; `plan-04`).
 - `GET /shop/users` — **Bearer JWT** required; any shop member may list users (read-only in app for non-owners).
-- `POST /shop/users`, `DELETE /shop/users/:userId` — **Bearer JWT** required; **owner only**; trial max **2** users, paid max **5** (`plan-04`).
+- `GET /shop/user-limits` — cap, active count, `can_add` (owner only for add).
+- `POST /shop/users`, `DELETE /shop/users/:userId` — **Bearer JWT** required; **owner only**; trial max **2** users; paid max **`shops.max_users`** (default **5**, admin **1–20** via `POST /admin/shops/:shopId/max-users`) (`plan-04`).
 - `POST /auth/change-password` — **Bearer JWT** required; body `{ "current_password", "new_password" }` for the signed-in user.
 - `GET /admin/me` — **Bearer JWT** required; body `{ "is_developer": boolean }` (`plan-18`). Developer access if JWT `sub` is listed in **`PRIDE_DEVELOPER_IDS`** (comma-separated `shop_users.id`) **or** `shop_id|username` matches an entry in **`PRIDE_DEVELOPER_USERS`** (comma-separated).
 - `POST /admin/me/password` — **Bearer JWT**; body `{ "current_password", "new_password" }`; **developer only**; changes the signed-in user’s password (username unchanged).

@@ -6,7 +6,10 @@ import 'package:pride_v3/core/api/pride_api_config.dart';
 import 'package:pride_v3/core/widgets/pride_numeric_text_field.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
+import '../../core/persistence/api_offline_cache_storage.dart';
+import '../../core/persistence/shared_preferences_provider.dart';
 import '../../shell/shell_sync_providers.dart';
+import 'developer_portal_screen.dart';
 import 'developer_portal_code_share.dart';
 
 /// Activation codes list + create (`plan-18`).
@@ -24,6 +27,7 @@ class _DeveloperPortalCodesTabState extends ConsumerState<DeveloperPortalCodesTa
   bool _loading = true;
   String? _error;
   List<Map<String, dynamic>> _rows = const [];
+  bool _showingOfflineCache = false;
 
   Future<void> _load() async {
     if (!PrideApiConfig.isConfigured) {
@@ -31,45 +35,68 @@ class _DeveloperPortalCodesTabState extends ConsumerState<DeveloperPortalCodesTa
         _loading = false;
         _error = widget.l10n.devPortalStubAction;
         _rows = const [];
+        _showingOfflineCache = false;
       });
       return;
     }
-    if (!ref.read(connectivityOnlineProvider)) {
+    final online = ref.read(connectivityOnlineProvider);
+    final prefs = ref.read(sharedPreferencesProvider);
+    final cached = ApiOfflineCacheStorage.readAdminActivationCodes(prefs);
+
+    if (cached != null) {
       setState(() {
+        _rows = cached;
         _loading = false;
-        _error = widget.l10n.devPortalAdviceOfflineBody;
-        _rows = const [];
+        _error = null;
+        _showingOfflineCache = !online;
       });
+    }
+
+    if (!online) {
+      if (cached == null && mounted) {
+        setState(() {
+          _loading = false;
+          _error = widget.l10n.devPortalAdviceOfflineBody;
+          _rows = const [];
+          _showingOfflineCache = false;
+        });
+      }
       return;
     }
+
     final auth = ref.read(authSessionProvider);
     final token = auth.accessToken;
     if (!auth.hasApiSession || token == null) {
       setState(() {
         _loading = false;
         _error = widget.l10n.devPortalAdminAuditNeedSignIn;
-        _rows = const [];
+        _rows = cached ?? const [];
+        _showingOfflineCache = false;
       });
       return;
     }
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
+    if (cached == null) {
+      setState(() {
+        _loading = true;
+        _error = null;
+      });
+    }
     final r = await getPrideApiAdminActivationCodes(accessToken: token);
     if (!mounted) return;
     if (!r.ok) {
       setState(() {
         _loading = false;
         _error = widget.l10n.devPortalCodesLoadError(r.error ?? 'HTTP');
-        _rows = const [];
+        _showingOfflineCache = cached != null;
       });
       return;
     }
+    await ApiOfflineCacheStorage.saveAdminActivationCodes(prefs, r.rows);
     setState(() {
       _loading = false;
       _error = null;
       _rows = r.rows;
+      _showingOfflineCache = false;
     });
   }
 
@@ -216,13 +243,14 @@ class _DeveloperPortalCodesTabState extends ConsumerState<DeveloperPortalCodesTa
     }
     return Column(
       children: [
+        if (_showingOfflineCache) DevPortalOfflineCacheBanner(l10n: widget.l10n),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
           child: Row(
             children: [
               Expanded(
                 child: FilledButton.icon(
-                  onPressed: _create,
+                  onPressed: _showingOfflineCache ? null : _create,
                   icon: const Icon(Icons.add),
                   label: Text(widget.l10n.devPortalCodesCreateCta),
                 ),

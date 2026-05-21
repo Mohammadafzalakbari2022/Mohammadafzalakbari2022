@@ -131,6 +131,55 @@ final class PrideApiShopUsersFailure extends PrideApiShopUsersResult {
   final int? statusCode;
 }
 
+sealed class PrideApiShopUserLimitsResult {
+  const PrideApiShopUserLimitsResult();
+}
+
+final class PrideApiShopUserLimitsOk extends PrideApiShopUserLimitsResult {
+  const PrideApiShopUserLimitsOk(this.limits);
+
+  final Map<String, dynamic> limits;
+}
+
+final class PrideApiShopUserLimitsFailure extends PrideApiShopUserLimitsResult {
+  const PrideApiShopUserLimitsFailure(this.message, {this.statusCode});
+
+  final String message;
+  final int? statusCode;
+}
+
+Future<PrideApiShopUserLimitsResult> fetchShopUserLimits({
+  required String accessToken,
+  Duration timeout = const Duration(seconds: 25),
+}) async {
+  final base = PrideApiConfig.normalizedBase;
+  if (base == null) {
+    return const PrideApiShopUserLimitsFailure('API_BASE_URL not set');
+  }
+  final uri = Uri.parse('$base/shop/user-limits');
+  try {
+    final response = await http
+        .get(uri, headers: _jsonHeaders(accessToken))
+        .timeout(timeout);
+    if (response.statusCode == 200) {
+      final decoded = jsonDecode(response.body);
+      if (decoded is! Map<String, dynamic>) {
+        return PrideApiShopUserLimitsFailure(
+          'Unexpected response',
+          statusCode: response.statusCode,
+        );
+      }
+      return PrideApiShopUserLimitsOk(decoded);
+    }
+    return PrideApiShopUserLimitsFailure(
+      _extractErr(response.body) ?? 'HTTP ${response.statusCode}',
+      statusCode: response.statusCode,
+    );
+  } on Exception catch (e) {
+    return PrideApiShopUserLimitsFailure(e.toString());
+  }
+}
+
 Future<PrideApiShopUsersResult> fetchShopUsers({
   required String accessToken,
   Duration timeout = const Duration(seconds: 25),

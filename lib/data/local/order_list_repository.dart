@@ -74,6 +74,33 @@ abstract class OrderListRepository {
     required String internalNotes,
   });
 
+  /// Patch order fields after save (all statuses). Null params are left unchanged.
+  Future<void> updateOrderDetails({
+    required String orderInternalId,
+    String? customerInternalId,
+    DateTime? deliveryDate,
+    int? totalAmountMinor,
+    String? measurementsSnapshot,
+    String? sourceMeasurementProfileId,
+    String? sourceMeasurementProfileLabel,
+    List<OrderMeasurementSnapshotItemInput>? measurementSnapshotItems,
+    String? styleName,
+    String? styleNameInternalId,
+    String? styleSelectionJson,
+    String? styleSummary,
+    String? catalogItemInternalId,
+    String? catalogDesignNameSnapshot,
+    String? catalogDesignerShopNameSnapshot,
+    String? catalogSourceImagePath,
+    String? catalogSourceThumbnailPath,
+    String? fabricNameSnapshot,
+    String? fabricColorSnapshot,
+    String? fabricIdSnapshot,
+    String? fabricNamePresetInternalId,
+    String? fabricColorPresetInternalId,
+    String? internalNotes,
+  });
+
   /// Apply one row from `GET /sync/pull` (`plan-03` / phase-1b).
   ///
   /// When [serverUpdatedAt] is set and the local row is newer, upserts are skipped

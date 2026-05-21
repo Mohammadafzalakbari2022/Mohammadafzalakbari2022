@@ -13,7 +13,6 @@ import 'package:pride_v3/core/widgets/pride_action_buttons.dart';
 import 'package:pride_v3/core/formatting/digit_normalizer.dart';
 import 'package:pride_v3/core/widgets/pride_close_button.dart';
 import 'package:pride_v3/core/widgets/pride_form_bottom_bar.dart';
-import 'package:pride_v3/core/widgets/pride_money_field.dart';
 import 'package:pride_v3/core/widgets/pride_alert_dialog.dart';
 import 'package:pride_v3/core/printing/thermal_print_order.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
@@ -38,6 +37,7 @@ import 'order_composer_progress_header.dart';
 import 'order_composer_fabric_sheet.dart';
 import 'order_composer_style_sheet.dart';
 import 'order_invoice_share.dart';
+import 'order_payment_sheet.dart';
 import 'order_status_label.dart';
 
 class OrderComposerScreen extends ConsumerStatefulWidget {
@@ -180,6 +180,21 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       _catalogDesignerShopName = result.catalogDesignerShopName;
       _catalogImagePath = result.catalogImagePath;
       _catalogThumbnailPath = result.catalogThumbnailPath;
+    });
+  }
+
+  Future<void> _openPaymentSheet(BuildContext context) async {
+    final total = tryParseMoneyAmount(_totalController.text) ?? 0;
+    final paid = tryParseMoneyAmount(_paidController.text) ?? 0;
+    final result = await showOrderPaymentDraftSheet(
+      context: context,
+      initialTotalMinor: total,
+      initialPaidMinor: paid,
+    );
+    if (!mounted || result == null) return;
+    setState(() {
+      _totalController.text = result.totalMinor.toString();
+      _paidController.text = result.initialPaidMinor.toString();
     });
   }
 
@@ -811,18 +826,6 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     );
   }
 
-  Widget _summaryRow(String label, String value) {
-    return Row(
-      children: [
-        Expanded(
-          child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
-        ),
-        const SizedBox(width: 12),
-        Flexible(child: Text(value, textAlign: TextAlign.end)),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -1060,76 +1063,26 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
               final paymentOk = total > 0 && paid >= 0 && paid <= total;
               return Card(
                 clipBehavior: Clip.antiAlias,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      ListTile(
-                        title: Text(l10n.ordersComposerPaymentTitle),
-                        subtitle: Text(paymentSubtitle),
-                        leading: PrideColoredLeading(
-                          icon: Icons.payments_outlined,
-                          color: Theme.of(context)
-                              .extension<PrideActionColors>()!
-                              .payment,
-                        ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ListTile(
+                      title: Text(l10n.ordersComposerPaymentTitle),
+                      subtitle: Text(paymentSubtitle),
+                      leading: PrideColoredLeading(
+                        icon: Icons.payments_outlined,
+                        color: Theme.of(context)
+                            .extension<PrideActionColors>()!
+                            .payment,
                       ),
-                      Visibility(
-                        visible: !paymentOk,
-                        maintainState: true,
-                        maintainAnimation: true,
-                        maintainSize: true,
-                        child: _composerRequiredHint(
-                          l10n.ordersComposerPaymentRequired,
-                        ),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => _openPaymentSheet(context),
+                    ),
+                    if (!paymentOk)
+                      _composerRequiredHint(
+                        l10n.ordersComposerPaymentRequired,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Column(
-                          children: [
-                            PrideMoneyField(
-                              controller: _totalController,
-                              labelText: l10n.ordersComposerTotalLabel,
-                              hintText: l10n.ordersComposerTotalHint,
-                              textInputAction: TextInputAction.next,
-                            ),
-                            const SizedBox(height: 12),
-                            PrideMoneyField(
-                              controller: _paidController,
-                              labelText: l10n.ordersComposerPaidLabel,
-                              hintText: l10n.ordersComposerPaidHint,
-                            ),
-                            const SizedBox(height: 12),
-                            Card(
-                              clipBehavior: Clip.antiAlias,
-                              child: Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: Column(
-                                  children: [
-                                    _summaryRow(
-                                      l10n.paymentTotal,
-                                      _money(l10n, total),
-                                    ),
-                                    const SizedBox(height: 6),
-                                    _summaryRow(
-                                      l10n.paymentPaid,
-                                      _money(l10n, paid),
-                                    ),
-                                    const SizedBox(height: 6),
-                                    _summaryRow(
-                                      l10n.paymentRemaining,
-                                      _money(l10n, remaining),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                  ],
                 ),
               );
             },

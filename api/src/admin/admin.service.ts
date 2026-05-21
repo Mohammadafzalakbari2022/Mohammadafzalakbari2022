@@ -10,7 +10,10 @@ import { randomBytes, randomUUID } from 'crypto';
 import type { PrideAccessPayload } from '../auth/jwt-payload.interface';
 import { licenseStatusDtoFromRow } from '../license/license-status.helper';
 import { PrismaService } from '../prisma/prisma.service';
+import type { LicenseSnapshotStatus } from '../license/license.types';
 import { PasswordResetService } from '../shop/password-reset.service';
+import { resolveMaxUsers } from '../shop/shop-user-limits.helper';
+import { ShopUserLimitsService } from '../shop/shop-user-limits.service';
 import { ShopRegistryService } from '../shop/shop-registry.service';
 
 /** Comma-separated JWT `sub` values that count as developer (`plan-18`). */
@@ -20,6 +23,7 @@ export class AdminService {
     private readonly prisma: PrismaService,
     private readonly passwordResets: PasswordResetService,
     private readonly shopRegistry: ShopRegistryService,
+    private readonly shopUserLimits: ShopUserLimitsService,
   ) {}
 
   isDeveloperSub(sub: string): boolean {
@@ -139,6 +143,8 @@ export class AdminService {
       license_expires_at: string | null;
       trial_started_at: string | null;
       disabled_at: string | null;
+      max_users: number;
+      effective_max_users: number;
       users: Array<{
         id: string;
         username: string;
@@ -165,6 +171,8 @@ export class AdminService {
       license_expires_at: string | null;
       trial_started_at: string | null;
       disabled_at: string | null;
+      max_users: number;
+      effective_max_users: number;
       users: Array<{
         id: string;
         username: string;
@@ -179,15 +187,18 @@ export class AdminService {
       let license_status = 'none';
       let license_expires_at: string | null = null;
       let trial_started_at: string | null = null;
+      let effectiveStatus: LicenseSnapshotStatus = 'expired';
       if (s.license) {
         const dto = licenseStatusDtoFromRow(
           { statusStored: s.license.statusStored, expiresAt: s.license.expiresAt },
           now,
         );
         license_status = dto.status;
+        effectiveStatus = dto.status;
         license_expires_at = dto.expires_at;
         trial_started_at = s.license.trialStartedAt?.toISOString() ?? null;
       }
+      const effectiveMax = resolveMaxUsers(effectiveStatus, s.maxUsers);
       out.push({
         id: s.id,
         name: s.name,
@@ -197,6 +208,8 @@ export class AdminService {
         license_expires_at,
         trial_started_at,
         disabled_at: s.disabledAt?.toISOString() ?? null,
+        max_users: s.maxUsers,
+        effective_max_users: effectiveMax,
         users: s.users.map((u) => ({
           id: u.id,
           username: u.username,
@@ -326,6 +339,18 @@ export class AdminService {
     });
     await this.appendAudit(developerSub, 'shop.enable', { shop_id: shopId });
     return { ok: true };
+  }
+
+  async setShopMaxUsers(developerSub: string, shopId: string, maxUsersRaw: unknown) {
+    const next = await this.shopUserLimits.setPaidShopMaxUsers(
+      shopId,
+      Number(maxUsersRaw),
+    );
+    await this.appendAudit(developerSub, 'shop.set_max_users', {
+      shop_id: shopId,
+      max_users: next,
+    });
+    return { ok: true, max_users: next };
   }
 
   async extendShopLicense(

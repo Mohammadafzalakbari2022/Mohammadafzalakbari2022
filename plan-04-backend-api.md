@@ -66,9 +66,11 @@ Owner rule (selected):
 Owner/admin of the shop manages users from inside the app.
 
 Endpoints (authenticated; must enforce shop scope + limits):
+- `GET /shop/user-limits` (cap, active count, `can_add`)
 - `POST /shop/users` (create user: username + password)
 - `GET /shop/users` (list users)
 - `DELETE /shop/users/:userId` (remove user)
+- `POST /admin/shops/:shopId/max-users` (developer: set paid shop cap 1–20)
 
 Access rule (selected):
 - Only the **shop owner/admin** account can manage users (create/list/remove).
@@ -77,8 +79,9 @@ Access rule (selected):
 - Ownership transfer is not supported (owner is permanent for the shop).
 
 User limits (server-side enforcement):
-- trial_active: max **2** users
-- active (paid): max **5** users
+- trial_active: max **2** users (fixed; ignores `shops.max_users`)
+- active (paid): max **`shops.max_users`** (default **5**, admin-adjustable **1–20** via `POST /admin/shops/:shopId/max-users`)
+- `GET /shop/user-limits` — current cap, active count, and whether owner can add
 
 Password reset (selected)
 - No SMS/email password reset.
