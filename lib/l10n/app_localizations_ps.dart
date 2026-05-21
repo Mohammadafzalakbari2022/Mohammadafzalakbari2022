@@ -1627,6 +1627,27 @@ class AppLocalizationsPs extends AppLocalizations {
   String get ordersPaymentHistoryTitle => 'Payment history';
 
   @override
+  String get ordersPaymentSignedHint =>
+      'مثبت ولیکئ زیاتولو لپاره. د دې ساحې څخه کمولو لپاره منفي (لکه -500).';
+
+  @override
+  String ordersPaymentDepositLabel(int n) {
+    return 'ورکړه $n';
+  }
+
+  @override
+  String get ordersPaymentNextPaymentLabel => 'راتلونکې ورکړه';
+
+  @override
+  String get ordersPaymentRecordCta => 'ثبت';
+
+  @override
+  String get ordersPaymentNegativeInvalid => 'پیسې صفر څخه لږې نشي.';
+
+  @override
+  String get ordersPaymentNextMustBePositive => 'راتلونکې ورکړه باید مثبت وي.';
+
+  @override
   String get ordersEditConfirmTitle => 'بدلونونه خوندي شي؟';
 
   @override

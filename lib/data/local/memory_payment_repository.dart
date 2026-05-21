@@ -56,6 +56,31 @@ class MemoryPaymentRepository implements PaymentRepository {
   }
 
   @override
+  Future<void> updatePayment({
+    required String internalId,
+    required int amountMinor,
+    String? method,
+  }) async {
+    if (amountMinor < 0) {
+      throw StateError('payment_amount_negative');
+    }
+    final idx = _payments.indexWhere((p) => p.internalId == internalId);
+    if (idx == -1) throw StateError('payment_not_found');
+    final prev = _payments[idx];
+    _orders.applyPaymentDelta(prev.orderInternalId, -prev.amountMinor);
+    _payments[idx] = PaymentSummary(
+      internalId: prev.internalId,
+      orderInternalId: prev.orderInternalId,
+      amountMinor: amountMinor,
+      method: method ?? prev.method,
+      isAdjustment: prev.isAdjustment,
+      createdAt: prev.createdAt,
+    );
+    _orders.applyPaymentDelta(prev.orderInternalId, amountMinor);
+    _controller.add(const []);
+  }
+
+  @override
   Future<void> mergeRemotePayment({
     required String shopId,
     required String internalId,

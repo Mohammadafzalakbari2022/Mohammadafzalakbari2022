@@ -10,7 +10,6 @@ import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
 import 'package:pride_v3/app/app_theme.dart';
 import 'package:pride_v3/core/feedback/app_feedback.dart';
 import 'package:pride_v3/core/widgets/pride_action_buttons.dart';
-import 'package:pride_v3/core/formatting/digit_normalizer.dart';
 import 'package:pride_v3/core/widgets/pride_close_button.dart';
 import 'package:pride_v3/core/widgets/pride_form_bottom_bar.dart';
 import 'package:pride_v3/core/widgets/pride_alert_dialog.dart';
@@ -37,6 +36,7 @@ import 'order_composer_progress_header.dart';
 import 'order_composer_fabric_sheet.dart';
 import 'order_composer_style_sheet.dart';
 import 'order_invoice_share.dart';
+import 'order_payment_rules.dart';
 import 'order_payment_sheet.dart';
 import 'order_status_label.dart';
 
@@ -102,9 +102,29 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     super.dispose();
   }
 
+  int get _composerTotalMinor =>
+      OrderPaymentRules.resolveFieldAmount(
+        currentMinor: 0,
+        raw: _totalController.text,
+        allowEmpty: true,
+      ) ??
+      0;
+
+  int get _composerPaidMinor =>
+      OrderPaymentRules.resolveFieldAmount(
+        currentMinor: 0,
+        raw: _paidController.text,
+        allowEmpty: true,
+      ) ??
+      0;
+
   bool get _canSave {
-    final total = tryParseMoneyAmount(_totalController.text);
-    final paid = tryParseMoneyAmount(_paidController.text) ?? 0;
+    final total = OrderPaymentRules.resolveFieldAmount(
+      currentMinor: 0,
+      raw: _totalController.text,
+      allowEmpty: true,
+    );
+    final paid = _composerPaidMinor;
     if (_selectedCustomerId == null) return false;
     if (_measurementsController.text.trim().isEmpty) return false;
     if (_styleName.trim().isEmpty) return false;
@@ -184,8 +204,8 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
   }
 
   Future<void> _openPaymentSheet(BuildContext context) async {
-    final total = tryParseMoneyAmount(_totalController.text) ?? 0;
-    final paid = tryParseMoneyAmount(_paidController.text) ?? 0;
+    final total = _composerTotalMinor;
+    final paid = _composerPaidMinor;
     final result = await showOrderPaymentDraftSheet(
       context: context,
       initialTotalMinor: total,
@@ -533,8 +553,11 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     }
 
     final customerId = _selectedCustomerId!;
-    final totalMinor = tryParseMoneyAmount(_totalController.text)!;
-    final paidMinor = tryParseMoneyAmount(_paidController.text) ?? 0;
+    final totalMinor = OrderPaymentRules.resolveFieldAmount(
+      currentMinor: 0,
+      raw: _totalController.text,
+    )!;
+    final paidMinor = _composerPaidMinor;
     final deliveryDate = _deliveryDate!;
 
     final shopId =
@@ -759,9 +782,15 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
         ),
       );
     }
-    final total = tryParseMoneyAmount(_totalController.text);
-    final paid = tryParseMoneyAmount(_paidController.text) ?? 0;
-    if (total == null || total <= 0 || paid < 0 || paid > total) {
+    final total = OrderPaymentRules.resolveFieldAmount(
+      currentMinor: 0,
+      raw: _totalController.text,
+      allowEmpty: true,
+    );
+    final paid = _composerPaidMinor;
+    if (total == null ||
+        total <= 0 ||
+        !OrderPaymentRules.isValidInitialPay(total, paid)) {
       missing.add(
         PrideAlertDialogBullet(
           icon: Icons.payments_outlined,
@@ -878,9 +907,10 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
           ListenableBuilder(
             listenable: _paymentFieldsListenable,
             builder: (context, _) {
-              final total = tryParseMoneyAmount(_totalController.text) ?? 0;
-              final paid = tryParseMoneyAmount(_paidController.text) ?? 0;
-              final paymentOk = total > 0 && paid >= 0 && paid <= total;
+              final total = _composerTotalMinor;
+              final paid = _composerPaidMinor;
+              final paymentOk =
+                  total > 0 && OrderPaymentRules.isValidInitialPay(total, paid);
               return OrderComposerProgressHeader(
                 l10n: l10n,
                 customerDone: _selectedCustomerId != null,
@@ -1050,9 +1080,9 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
           ListenableBuilder(
             listenable: _paymentFieldsListenable,
             builder: (context, _) {
-              final total = tryParseMoneyAmount(_totalController.text) ?? 0;
-              final paid = tryParseMoneyAmount(_paidController.text) ?? 0;
-              final remaining = total - paid;
+              final total = _composerTotalMinor;
+              final paid = _composerPaidMinor;
+              final remaining = OrderPaymentRules.remainingMinor(total, paid);
               final paymentSubtitle = total <= 0
                   ? l10n.ordersComposerPaymentRequired
                   : l10n.ordersComposerPaymentSummary(

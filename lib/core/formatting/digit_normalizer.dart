@@ -38,3 +38,11 @@ int? tryParseMoneyAmount(String? raw) {
   if (normalized.isEmpty) return null;
   return int.tryParse(normalized);
 }
+
+/// Parses signed money (Western / Persian / Arabic-Indic digits, optional leading `-`).
+int? tryParseSignedMoneyAmount(String? raw) {
+  if (raw == null) return null;
+  final normalized = normalizeWesternDigits(raw.trim());
+  if (normalized.isEmpty) return null;
+  return int.tryParse(normalized);
+}

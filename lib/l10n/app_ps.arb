@@ -840,6 +840,19 @@
   "ordersPaymentInitialExceedsTotal": "لومړنۍ ورکړه د امر ټولې بېلې څخه زیاته نشي.",
   "ordersPaymentExceedsRemaining": "ورکړه د پاتې پیسو څخه زیاته نشي.",
   "ordersPaymentTotalBelowPaid": "د امر ټوله بېله له ورکړل شوي پیسو څخه لږه نشي.",
+  "ordersPaymentSignedHint": "مثبت ولیکئ زیاتولو لپاره. د دې ساحې څخه کمولو لپاره منفي (لکه -500).",
+  "ordersPaymentDepositLabel": "ورکړه {n}",
+  "@ordersPaymentDepositLabel": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "ordersPaymentNextPaymentLabel": "راتلونکې ورکړه",
+  "ordersPaymentRecordCta": "ثبت",
+  "ordersPaymentNegativeInvalid": "پیسې صفر څخه لږې نشي.",
+  "ordersPaymentNextMustBePositive": "راتلونکې ورکړه باید مثبت وي.",
   "ordersEditConfirmTitle": "بدلونونه خوندي شي؟",
   "ordersEditConfirmBody": "دا امر ستاسو بدلونونو سره تازه شي؟",
   "ordersStatusChangeConfirmTitle": "حالت بدل شي؟",

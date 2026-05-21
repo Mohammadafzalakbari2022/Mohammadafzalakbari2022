@@ -84,6 +84,25 @@ class IsarPaymentRepository implements PaymentRepository {
   }
 
   @override
+  Future<void> updatePayment({
+    required String internalId,
+    required int amountMinor,
+    String? method,
+  }) async {
+    if (amountMinor < 0) {
+      throw StateError('payment_amount_negative');
+    }
+    await _isar.writeTxn(() async {
+      final e = await _isar.paymentEntitys.getByInternalId(internalId);
+      if (e == null) throw StateError('payment_not_found');
+      e
+        ..amountMinor = amountMinor
+        ..method = method ?? e.method;
+      await _isar.paymentEntitys.putByInternalId(e);
+    });
+  }
+
+  @override
   Future<void> mergeRemotePayment({
     required String shopId,
     required String internalId,

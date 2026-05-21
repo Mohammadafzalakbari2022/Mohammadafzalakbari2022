@@ -4,9 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:pride_v3/app/app_theme.dart';
-import 'package:pride_v3/core/calendar/app_calendar_format.dart';
-import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
-import 'package:pride_v3/core/calendar/date_calendar_system.dart';
 import 'package:pride_v3/core/feedback/app_feedback.dart';
 import 'package:pride_v3/core/formatting/digit_normalizer.dart';
 import 'package:pride_v3/core/widgets/pride_money_field.dart';
@@ -20,7 +17,6 @@ import '../../data/providers/local_data_providers.dart';
 import '../../licensing/license_providers.dart';
 import '../../shell/shell_sync_providers.dart';
 import 'order_detail_edit_helpers.dart';
-import 'order_payment_amount_sheet.dart';
 import 'order_payment_rules.dart';
 
 class OrderPaymentDraftResult {
@@ -64,6 +60,19 @@ Future<void> showOrderPaymentSavedSheet({
   );
 }
 
+/// Shared hint under signed money fields.
+Widget orderPaymentSignedHint(BuildContext context, AppLocalizations l10n) {
+  return Padding(
+    padding: const EdgeInsets.only(top: 8),
+    child: Text(
+      l10n.ordersPaymentSignedHint,
+      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+    ),
+  );
+}
+
 class _OrderPaymentDraftSheet extends StatefulWidget {
   const _OrderPaymentDraftSheet({
     required this.initialTotalMinor,
@@ -80,11 +89,15 @@ class _OrderPaymentDraftSheet extends StatefulWidget {
 class _OrderPaymentDraftSheetState extends State<_OrderPaymentDraftSheet> {
   late final TextEditingController _totalCtrl;
   late final TextEditingController _paidCtrl;
+  late final int _totalBaseline;
+  late final int _paidBaseline;
   String? _error;
 
   @override
   void initState() {
     super.initState();
+    _totalBaseline = widget.initialTotalMinor;
+    _paidBaseline = widget.initialPaidMinor;
     _totalCtrl = TextEditingController(
       text: widget.initialTotalMinor > 0
           ? widget.initialTotalMinor.toString()
@@ -101,6 +114,20 @@ class _OrderPaymentDraftSheetState extends State<_OrderPaymentDraftSheet> {
 
   void _revalidate() => setState(() => _error = null);
 
+  int? get _resolvedTotal => OrderPaymentRules.resolveFieldAmount(
+        currentMinor: _totalBaseline,
+        raw: _totalCtrl.text,
+        allowEmpty: true,
+      );
+
+  int get _resolvedPaid =>
+      OrderPaymentRules.resolveFieldAmount(
+        currentMinor: _paidBaseline,
+        raw: _paidCtrl.text,
+        allowEmpty: true,
+      ) ??
+      0;
+
   @override
   void dispose() {
     _totalCtrl
@@ -113,12 +140,18 @@ class _OrderPaymentDraftSheetState extends State<_OrderPaymentDraftSheet> {
   }
 
   void _save() {
-    final total = tryParseMoneyAmount(_totalCtrl.text);
-    final paid = tryParseMoneyAmount(_paidCtrl.text) ?? 0;
-    if (total == null || !OrderPaymentRules.isValidInitialPay(total, paid)) {
+    final l10n = AppLocalizations.of(context)!;
+    final total = _resolvedTotal;
+    final paid = _resolvedPaid;
+    if (total == null) {
+      setState(() => _error = l10n.ordersComposerPaymentRequired);
+      return;
+    }
+    if (!OrderPaymentRules.isValidInitialPay(total, paid)) {
       setState(() {
-        _error = AppLocalizations.of(context)!
-            .ordersPaymentInitialExceedsTotal;
+        _error = paid > total
+            ? l10n.ordersPaymentInitialExceedsTotal
+            : l10n.ordersPaymentNegativeInvalid;
       });
       return;
     }
@@ -134,10 +167,11 @@ class _OrderPaymentDraftSheetState extends State<_OrderPaymentDraftSheet> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final viewInsets = MediaQuery.viewInsetsOf(context).bottom;
-    final total = tryParseMoneyAmount(_totalCtrl.text) ?? 0;
-    final paid = tryParseMoneyAmount(_paidCtrl.text) ?? 0;
+    final total = _resolvedTotal ?? 0;
+    final paid = _resolvedPaid;
     final due = OrderPaymentRules.remainingMinor(total, paid);
-    final valid = OrderPaymentRules.isValidInitialPay(total, paid);
+    final valid =
+        _resolvedTotal != null && OrderPaymentRules.isValidInitialPay(total, paid);
 
     return Padding(
       padding: EdgeInsets.only(bottom: viewInsets),
@@ -174,6 +208,7 @@ class _OrderPaymentDraftSheetState extends State<_OrderPaymentDraftSheet> {
                     children: [
                       PrideMoneyField(
                         controller: _totalCtrl,
+                        signed: true,
                         labelText: l10n.ordersComposerTotalLabel,
                         hintText: l10n.ordersComposerTotalHint,
                         textInputAction: TextInputAction.next,
@@ -181,16 +216,11 @@ class _OrderPaymentDraftSheetState extends State<_OrderPaymentDraftSheet> {
                       const SizedBox(height: 12),
                       PrideMoneyField(
                         controller: _paidCtrl,
+                        signed: true,
                         labelText: l10n.ordersComposerPaidLabel,
                         hintText: l10n.ordersComposerPaidHint,
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        l10n.ordersComposerPaymentInitialOnSaveHint,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
-                      ),
+                      orderPaymentSignedHint(context, l10n),
                       if (_error != null) ...[
                         const SizedBox(height: 8),
                         Text(
@@ -251,82 +281,105 @@ class _OrderPaymentSavedSheet extends ConsumerStatefulWidget {
 }
 
 class _OrderPaymentSavedSheetState extends ConsumerState<_OrderPaymentSavedSheet> {
+  bool _editing = false;
   late final TextEditingController _totalCtrl;
+  final TextEditingController _nextCtrl = TextEditingController();
+  final Map<String, TextEditingController> _depositCtrls = {};
+  final Map<String, int> _depositBaselines = {};
+  int _totalBaseline = 0;
   String? _error;
+  String _lastSyncKey = '';
 
   @override
   void initState() {
     super.initState();
-    _totalCtrl = TextEditingController(
-      text: widget.order.totalAmountMinor.toString(),
-    );
+    _totalCtrl = TextEditingController();
+    _totalCtrl.addListener(_onFieldChanged);
+    _nextCtrl.addListener(_onFieldChanged);
   }
+
+  void _onFieldChanged() => setState(() => _error = null);
 
   @override
   void dispose() {
-    _totalCtrl.dispose();
+    _totalCtrl
+      ..removeListener(_onFieldChanged)
+      ..dispose();
+    _nextCtrl
+      ..removeListener(_onFieldChanged)
+      ..dispose();
+    _disposeDepositCtrls();
     super.dispose();
   }
 
-  Future<void> _saveTotalIfChanged(OrderSummary o) async {
-    final l10n = AppLocalizations.of(context)!;
-    final parsed = tryParseMoneyAmount(_totalCtrl.text);
-    if (parsed == null || parsed == o.totalAmountMinor) return;
-    if (!OrderPaymentRules.canSetOrderTotal(parsed, o.paidAmountMinor)) {
-      setState(() {
-        _error = AppLocalizations.of(context)!.ordersPaymentTotalBelowPaid;
-      });
-      return;
+  void _disposeDepositCtrls() {
+    for (final c in _depositCtrls.values) {
+      c.dispose();
     }
-    if (ref.read(licenseEditingBlockedProvider)) {
-      showAppFeedback(
-        context,
-        ref,
-        kind: AppFeedbackKind.error,
-        message: licenseWriteBlockedMessage(
-          ref.read(licenseNotifierProvider),
-          l10n,
-        ),
-      );
-      return;
-    }
-    final confirmed = await confirmOrderFieldEdit(context, l10n);
-    if (!mounted || !confirmed) return;
-    final repo = await ref.read(orderListRepositoryProvider.future);
-    try {
-      await repo.updateOrderDetails(
-        orderInternalId: o.internalId,
-        totalAmountMinor: parsed,
-      );
-    } on StateError {
-      if (!mounted) return;
-      setState(() {
-        _error = AppLocalizations.of(context)!.ordersPaymentTotalBelowPaid;
-      });
-      return;
-    }
-    recordSyncOutboxMutation(
-      ref,
-      kind: SyncOutboxKinds.orderUpdate,
-      entityRef: o.internalId,
-      shopId: o.shopId,
-      payloadJson: jsonEncode({
-        'total_amount_minor': parsed,
-        'updated_at': DateTime.now().toUtc().toIso8601String(),
-      }),
-    );
-    if (!mounted) return;
-    setState(() => _error = null);
-    showAppFeedback(
-      context,
-      ref,
-      kind: AppFeedbackKind.success,
-      message: AppLocalizations.of(context)!.ordersComposerSaved,
-    );
+    _depositCtrls.clear();
+    _depositBaselines.clear();
   }
 
-  Future<void> _addPayment(OrderSummary o, {required bool adjustment}) async {
-    final l10n = AppLocalizations.of(context)!;
+  List<PaymentSummary> _sortedDeposits(List<PaymentSummary> payments) {
+    final list = [...payments]..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    return list;
+  }
+
+  void _ensureDepositControllers(List<PaymentSummary> sorted) {
+    final ids = sorted.map((p) => p.internalId).toList();
+    for (final id in _depositCtrls.keys.toList()) {
+      if (!ids.contains(id)) {
+        _depositCtrls[id]!.dispose();
+        _depositCtrls.remove(id);
+        _depositBaselines.remove(id);
+      }
+    }
+    for (var i = 0; i < sorted.length; i++) {
+      final p = sorted[i];
+      _depositBaselines[p.internalId] = p.amountMinor;
+      final existing = _depositCtrls[p.internalId];
+      if (existing == null) {
+        final c = TextEditingController(text: p.amountMinor.toString());
+        c.addListener(_onFieldChanged);
+        _depositCtrls[p.internalId] = c;
+      } else if (!_editing) {
+        existing.text = p.amountMinor.toString();
+      }
+    }
+  }
+
+  String _syncKey(OrderSummary o, List<PaymentSummary> sorted) {
+    final parts = sorted
+        .map((p) => '${p.internalId}:${p.amountMinor}')
+        .join('|');
+    return '${o.internalId}:${o.totalAmountMinor}:$parts';
+  }
+
+  void _syncViewState(OrderSummary o, List<PaymentSummary> sorted) {
+    _totalBaseline = o.totalAmountMinor;
+    if (!_editing) {
+      _totalCtrl.text = o.totalAmountMinor.toString();
+      _nextCtrl.clear();
+    }
+    _ensureDepositControllers(sorted);
+    if (!_editing) {
+      for (final p in sorted) {
+        _depositCtrls[p.internalId]?.text = p.amountMinor.toString();
+      }
+    }
+  }
+
+  void _scheduleSyncIfNeeded(OrderSummary o, List<PaymentSummary> sorted) {
+    final key = _syncKey(o, sorted);
+    if (key == _lastSyncKey) return;
+    _lastSyncKey = key;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _syncViewState(o, sorted);
+    });
+  }
+
+  Future<bool> _guardWrite(AppLocalizations l10n) async {
     if (ref.read(licenseEditingBlockedProvider)) {
       showAppFeedback(
         context,
@@ -337,40 +390,92 @@ class _OrderPaymentSavedSheetState extends ConsumerState<_OrderPaymentSavedSheet
           l10n,
         ),
       );
+      return false;
+    }
+    return true;
+  }
+
+  Future<void> _startEdit(AppLocalizations l10n) async {
+    final confirmed = await confirmOrderFieldEdit(context, l10n);
+    if (!mounted || !confirmed) return;
+    setState(() {
+      _editing = true;
+      _error = null;
+      _totalBaseline = int.tryParse(_totalCtrl.text) ??
+          widget.order.totalAmountMinor;
+      for (final entry in _depositCtrls.entries) {
+        final baseline = _depositBaselines[entry.key] ?? 0;
+        _depositBaselines[entry.key] = baseline;
+        entry.value.text = baseline.toString();
+      }
+    });
+  }
+
+  void _cancelEdit(OrderSummary o, List<PaymentSummary> sorted) {
+    setState(() {
+      _editing = false;
+      _error = null;
+      _lastSyncKey = '';
+      _totalCtrl.text = o.totalAmountMinor.toString();
+      _totalBaseline = o.totalAmountMinor;
+      for (final p in sorted) {
+        _depositBaselines[p.internalId] = p.amountMinor;
+        _depositCtrls[p.internalId]?.text = p.amountMinor.toString();
+      }
+      _nextCtrl.clear();
+    });
+  }
+
+  int? _resolveTotalFromField() => OrderPaymentRules.resolveFieldAmount(
+        currentMinor: _totalBaseline,
+        raw: _totalCtrl.text,
+      );
+
+  List<int> _resolveDepositAmounts(List<PaymentSummary> sorted) {
+    final amounts = <int>[];
+    for (final p in sorted) {
+      final ctrl = _depositCtrls[p.internalId];
+      if (ctrl == null) continue;
+      final baseline = _depositBaselines[p.internalId] ?? p.amountMinor;
+      final resolved = OrderPaymentRules.resolveFieldAmount(
+        currentMinor: baseline,
+        raw: ctrl.text,
+      );
+      if (resolved == null) return const [];
+      amounts.add(resolved);
+    }
+    return amounts;
+  }
+
+  Future<void> _recordNextPayment(OrderSummary o) async {
+    final l10n = AppLocalizations.of(context)!;
+    if (!await _guardWrite(l10n)) return;
+
+    final raw = _nextCtrl.text.trim();
+    if (raw.isEmpty) return;
+
+    final parsed = tryParseSignedMoneyAmount(raw);
+    if (parsed == null || parsed <= 0) {
+      setState(() => _error = l10n.ordersPaymentNextMustBePositive);
       return;
     }
-    final remaining = o.remainingAmountMinor;
-    final amount = await showOrderPaymentAmountSheet(
-      context,
-      l10n,
-      title: adjustment ? l10n.addAdjustmentCta : l10n.addPaymentCta,
-      hint: adjustment ? l10n.paymentAdjustmentHint : null,
-      signed: adjustment,
-      maxAmountMinor: adjustment ? null : remaining,
-    );
-    if (!mounted || amount == null) return;
-    if (!OrderPaymentRules.canAppendPayment(
+    if (!OrderPaymentRules.canRecordNextPayment(
       totalMinor: o.totalAmountMinor,
       paidMinor: o.paidAmountMinor,
-      amountMinor: amount,
-      isAdjustment: adjustment,
+      nextPaymentMinor: parsed,
     )) {
-      showAppFeedback(
-        context,
-        ref,
-        kind: AppFeedbackKind.error,
-        message: l10n.ordersPaymentExceedsRemaining,
-      );
+      setState(() => _error = l10n.ordersPaymentExceedsRemaining);
       return;
     }
+
     final paymentId = const Uuid().v4();
     final repo = await ref.read(paymentRepositoryProvider.future);
     await repo.addPayment(
       shopId: o.shopId,
       orderInternalId: o.internalId,
-      amountMinor: amount,
-      method: adjustment ? 'adjustment' : 'cash',
-      isAdjustment: adjustment,
+      amountMinor: parsed,
+      method: 'cash',
+      isAdjustment: false,
       internalId: paymentId,
     );
     recordSyncOutboxMutation(
@@ -380,26 +485,117 @@ class _OrderPaymentSavedSheetState extends ConsumerState<_OrderPaymentSavedSheet
       shopId: o.shopId,
       payloadJson: jsonEncode({
         'order_internal_id': o.internalId,
-        'amount_minor': amount,
-        'method': adjustment ? 'adjustment' : 'cash',
-        'is_adjustment': adjustment,
+        'amount_minor': parsed,
+        'method': 'cash',
+        'is_adjustment': false,
         'created_at': DateTime.now().toUtc().toIso8601String(),
       }),
     );
     if (!mounted) return;
+    _nextCtrl.clear();
     showAppFeedback(
       context,
       ref,
       kind: AppFeedbackKind.success,
-      message: adjustment ? l10n.paymentAdjustmentAdded : l10n.paymentAdded,
+      message: l10n.paymentAdded,
+    );
+  }
+
+  Future<void> _saveEdit(OrderSummary o, List<PaymentSummary> sorted) async {
+    final l10n = AppLocalizations.of(context)!;
+    if (!await _guardWrite(l10n)) return;
+
+    final newTotal = _resolveTotalFromField();
+    if (newTotal == null) {
+      setState(() => _error = l10n.ordersPaymentNegativeInvalid);
+      return;
+    }
+
+    final depositAmounts = _resolveDepositAmounts(sorted);
+    if (depositAmounts.length != sorted.length) {
+      setState(() => _error = l10n.ordersPaymentNegativeInvalid);
+      return;
+    }
+
+    if (!OrderPaymentRules.validatePaymentState(
+      totalMinor: newTotal,
+      depositAmountsMinor: depositAmounts,
+    )) {
+      setState(() {
+        _error = !OrderPaymentRules.canSetOrderTotal(newTotal, depositAmounts.fold(0, (a, b) => a + b))
+            ? l10n.ordersPaymentTotalBelowPaid
+            : l10n.ordersPaymentInitialExceedsTotal;
+      });
+      return;
+    }
+
+    final ordersRepo = await ref.read(orderListRepositoryProvider.future);
+    final paymentsRepo = await ref.read(paymentRepositoryProvider.future);
+
+    if (newTotal != o.totalAmountMinor) {
+      try {
+        await ordersRepo.updateOrderDetails(
+          orderInternalId: o.internalId,
+          totalAmountMinor: newTotal,
+        );
+      } on StateError {
+        if (!mounted) return;
+        setState(() => _error = l10n.ordersPaymentTotalBelowPaid);
+        return;
+      }
+      recordSyncOutboxMutation(
+        ref,
+        kind: SyncOutboxKinds.orderUpdate,
+        entityRef: o.internalId,
+        shopId: o.shopId,
+        payloadJson: jsonEncode({
+          'total_amount_minor': newTotal,
+          'updated_at': DateTime.now().toUtc().toIso8601String(),
+        }),
+      );
+    }
+
+    for (var i = 0; i < sorted.length; i++) {
+      final p = sorted[i];
+      final amount = depositAmounts[i];
+      if (amount == p.amountMinor) continue;
+      await paymentsRepo.updatePayment(
+        internalId: p.internalId,
+        amountMinor: amount,
+      );
+      recordSyncOutboxMutation(
+        ref,
+        kind: SyncOutboxKinds.paymentUpdate,
+        entityRef: p.internalId,
+        shopId: o.shopId,
+        payloadJson: jsonEncode({
+          'order_internal_id': o.internalId,
+          'amount_minor': amount,
+          'method': p.method,
+          'is_adjustment': p.isAdjustment,
+          'created_at': p.createdAt.toUtc().toIso8601String(),
+          'updated_at': DateTime.now().toUtc().toIso8601String(),
+        }),
+      );
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _editing = false;
+      _error = null;
+      _lastSyncKey = '';
+    });
+    showAppFeedback(
+      context,
+      ref,
+      kind: AppFeedbackKind.success,
+      message: l10n.ordersComposerSaved,
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final locale = Localizations.localeOf(context).toString();
-    final calendar = ref.watch(dateCalendarSystemProvider);
     final viewInsets = MediaQuery.viewInsetsOf(context).bottom;
     final asyncPayments =
         ref.watch(paymentsForOrderProvider(widget.order.internalId));
@@ -407,19 +603,30 @@ class _OrderPaymentSavedSheetState extends ConsumerState<_OrderPaymentSavedSheet
     return asyncPayments.when(
       data: (payments) {
         final orders = ref.watch(ordersListStreamProvider).valueOrNull ?? [];
-        OrderSummary? o;
+        var order = widget.order;
         for (final row in orders) {
           if (row.internalId == widget.order.internalId) {
-            o = row;
+            order = row;
             break;
           }
         }
-        o ??= widget.order;
-        final paid = o.paidAmountMinor;
-        final due = OrderPaymentRules.remainingMinor(
-          o.totalAmountMinor,
-          paid,
-        );
+        final sorted = _sortedDeposits(payments);
+        _scheduleSyncIfNeeded(order, sorted);
+
+        final previewTotal = _editing
+            ? (_resolveTotalFromField() ?? order.totalAmountMinor)
+            : order.totalAmountMinor;
+        final previewDeposits = _editing
+            ? _resolveDepositAmounts(sorted)
+            : sorted.map((p) => p.amountMinor).toList();
+        final previewPaid = previewDeposits.isEmpty && !_editing
+            ? order.paidAmountMinor
+            : previewDeposits.fold<int>(0, (s, a) => s + a);
+        final previewDue =
+            OrderPaymentRules.remainingMinor(previewTotal, previewPaid);
+
+        final due = order.remainingAmountMinor;
+        final canRecord = !_editing && due > 0;
 
         return Padding(
           padding: EdgeInsets.only(bottom: viewInsets),
@@ -442,7 +649,9 @@ class _OrderPaymentSavedSheetState extends ConsumerState<_OrderPaymentSavedSheet
                           ),
                           Expanded(
                             child: Text(
-                              l10n.ordersPaymentSheetSavedTitle,
+                              _editing
+                                  ? '${l10n.ordersPaymentSheetSavedTitle} — ${l10n.editCta}'
+                                  : l10n.ordersPaymentSheetSavedTitle,
                               style: Theme.of(context).textTheme.titleLarge,
                             ),
                           ),
@@ -456,9 +665,32 @@ class _OrderPaymentSavedSheetState extends ConsumerState<_OrderPaymentSavedSheet
                         children: [
                           PrideMoneyField(
                             controller: _totalCtrl,
+                            signed: _editing,
+                            enabled: _editing,
                             labelText: l10n.ordersComposerTotalLabel,
                             hintText: l10n.ordersComposerTotalHint,
                           ),
+                          if (_editing) orderPaymentSignedHint(context, l10n),
+                          const SizedBox(height: 12),
+                          for (var i = 0; i < sorted.length; i++) ...[
+                            if (i > 0) const SizedBox(height: 12),
+                            PrideMoneyField(
+                              controller: _depositCtrls[sorted[i].internalId]!,
+                              signed: _editing,
+                              enabled: _editing,
+                              labelText: l10n.ordersPaymentDepositLabel(i + 1),
+                            ),
+                          ],
+                          if (canRecord) ...[
+                            const SizedBox(height: 12),
+                            PrideMoneyField(
+                              controller: _nextCtrl,
+                              signed: true,
+                              labelText: l10n.ordersPaymentNextPaymentLabel,
+                              hintText: l10n.ordersComposerPaidHint,
+                            ),
+                            orderPaymentSignedHint(context, l10n),
+                          ],
                           if (_error != null) ...[
                             const SizedBox(height: 8),
                             Text(
@@ -468,34 +700,13 @@ class _OrderPaymentSavedSheetState extends ConsumerState<_OrderPaymentSavedSheet
                               ),
                             ),
                           ],
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 16),
                           _DueSummaryCard(
                             l10n: l10n,
-                            total: o!.totalAmountMinor,
-                            paid: paid,
-                            due: due,
+                            total: previewTotal,
+                            paid: previewPaid,
+                            due: previewDue,
                           ),
-                          const SizedBox(height: 16),
-                          Text(
-                            l10n.ordersPaymentHistoryTitle,
-                            style: Theme.of(context).textTheme.titleSmall,
-                          ),
-                          const SizedBox(height: 8),
-                          if (payments.isEmpty)
-                            Text(
-                              l10n.paymentsEmpty,
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            )
-                          else
-                            for (var i = 0; i < payments.length; i++) ...[
-                              if (i > 0) const SizedBox(height: 8),
-                              _PaymentHistoryRow(
-                                payment: payments[i],
-                                l10n: l10n,
-                                calendar: calendar,
-                                locale: locale,
-                              ),
-                            ],
                         ],
                       ),
                     ),
@@ -506,42 +717,42 @@ class _OrderPaymentSavedSheetState extends ConsumerState<_OrderPaymentSavedSheet
                         16,
                         16 + MediaQuery.paddingOf(context).bottom,
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: [
-                              FilledButton.icon(
-                                style: prideLedgerTonalButtonStyle(context),
-                                onPressed: o.remainingAmountMinor > 0
-                                    ? () => _addPayment(o!, adjustment: false)
-                                    : null,
-                                icon: const Icon(Icons.add_card_outlined),
-                                label: Text(l10n.addPaymentCta),
-                              ),
-                              FilledButton.icon(
-                                style: prideButtonStyle(
-                                  context,
-                                  PrideButtonVariant.warning,
+                      child: _editing
+                          ? Row(
+                              children: [
+                                TextButton(
+                                  onPressed: () => _cancelEdit(order, sorted),
+                                  child: Text(
+                                    MaterialLocalizations.of(context)
+                                        .cancelButtonLabel,
+                                  ),
                                 ),
-                                onPressed: () =>
-                                    _addPayment(o!, adjustment: true),
-                                icon: const Icon(Icons.tune_outlined),
-                                label: Text(l10n.addAdjustmentCta),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          FilledButton(
-                            onPressed: () async {
-                              await _saveTotalIfChanged(o!);
-                            },
-                            child: Text(l10n.saveCta),
-                          ),
-                        ],
-                      ),
+                                const Spacer(),
+                                FilledButton(
+                                  onPressed: () => _saveEdit(order, sorted),
+                                  child: Text(l10n.saveCta),
+                                ),
+                              ],
+                            )
+                          : Row(
+                              children: [
+                                if (canRecord)
+                                  FilledButton(
+                                    style: prideLedgerTonalButtonStyle(context),
+                                    onPressed: () => _recordNextPayment(order),
+                                    child: Text(l10n.ordersPaymentRecordCta),
+                                  ),
+                                const Spacer(),
+                                FilledButton(
+                                  style: prideButtonStyle(
+                                    context,
+                                    PrideButtonVariant.edit,
+                                  ),
+                                  onPressed: () => _startEdit(l10n),
+                                  child: Text(l10n.editCta),
+                                ),
+                              ],
+                            ),
                     ),
                   ],
                 ),
@@ -626,71 +837,6 @@ class _DueSummaryCard extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _PaymentHistoryRow extends StatelessWidget {
-  const _PaymentHistoryRow({
-    required this.payment,
-    required this.l10n,
-    required this.calendar,
-    required this.locale,
-  });
-
-  final PaymentSummary payment;
-  final AppLocalizations l10n;
-  final DateCalendarSystem calendar;
-  final String locale;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: scheme.surfaceContainerLowest,
-        border: Border.all(
-          color: scheme.outlineVariant.withValues(alpha: 0.75),
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(
-              payment.isAdjustment
-                  ? Icons.tune_outlined
-                  : Icons.payments_outlined,
-              size: 22,
-              color: scheme.primary,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l10n.paymentAmount(payment.amountMinor.toString()),
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '${payment.method} · ${AppCalendarFormat.dateTimeMedium(l10n, calendar, payment.createdAt, locale)}',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: scheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

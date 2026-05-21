@@ -14,6 +14,12 @@ abstract class PaymentRepository {
     String? internalId,
   });
 
+  Future<void> updatePayment({
+    required String internalId,
+    required int amountMinor,
+    String? method,
+  });
+
   /// Apply one row from `GET /sync/pull` (`plan-03`).
   Future<void> mergeRemotePayment({
     required String shopId,

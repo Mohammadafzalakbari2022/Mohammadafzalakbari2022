@@ -1633,6 +1633,28 @@ class AppLocalizationsFa extends AppLocalizations {
   String get ordersPaymentHistoryTitle => 'Payment history';
 
   @override
+  String get ordersPaymentSignedHint =>
+      'برای افزودن عدد مثبت وارد کنید. برای کسر از این فیلد منفی بزنید (مثلاً -500).';
+
+  @override
+  String ordersPaymentDepositLabel(int n) {
+    return 'پرداخت $n';
+  }
+
+  @override
+  String get ordersPaymentNextPaymentLabel => 'پرداخت بعدی';
+
+  @override
+  String get ordersPaymentRecordCta => 'ثبت';
+
+  @override
+  String get ordersPaymentNegativeInvalid => 'مبلغ نمی‌تواند کمتر از صفر شود.';
+
+  @override
+  String get ordersPaymentNextMustBePositive =>
+      'پرداخت بعدی باید مبلغ مثبت باشد.';
+
+  @override
   String get ordersEditConfirmTitle => 'تغییرات ذخیره شود؟';
 
   @override

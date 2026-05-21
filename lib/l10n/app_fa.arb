@@ -840,6 +840,19 @@
   "ordersPaymentInitialExceedsTotal": "پرداخت اولیه نمی‌تواند از جمع سفارش بیشتر باشد.",
   "ordersPaymentExceedsRemaining": "پرداخت نمی‌تواند از مانده بیشتر باشد.",
   "ordersPaymentTotalBelowPaid": "جمع سفارش نمی‌تواند از مبلغ پرداخت‌شده کمتر باشد.",
+  "ordersPaymentSignedHint": "برای افزودن عدد مثبت وارد کنید. برای کسر از این فیلد منفی بزنید (مثلاً -500).",
+  "ordersPaymentDepositLabel": "پرداخت {n}",
+  "@ordersPaymentDepositLabel": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "ordersPaymentNextPaymentLabel": "پرداخت بعدی",
+  "ordersPaymentRecordCta": "ثبت",
+  "ordersPaymentNegativeInvalid": "مبلغ نمی‌تواند کمتر از صفر شود.",
+  "ordersPaymentNextMustBePositive": "پرداخت بعدی باید مبلغ مثبت باشد.",
   "ordersEditConfirmTitle": "تغییرات ذخیره شود؟",
   "ordersEditConfirmBody": "این سفارش با تغییرات شما به‌روزرسانی شود؟",
   "ordersStatusChangeConfirmTitle": "وضعیت تغییر کند؟",

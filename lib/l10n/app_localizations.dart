@@ -3056,6 +3056,42 @@ abstract class AppLocalizations {
   /// **'Payment history'**
   String get ordersPaymentHistoryTitle;
 
+  /// No description provided for @ordersPaymentSignedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type a positive amount to add or set. Type a minus amount (e.g. -500) to deduct from this field.'**
+  String get ordersPaymentSignedHint;
+
+  /// No description provided for @ordersPaymentDepositLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit {n}'**
+  String ordersPaymentDepositLabel(int n);
+
+  /// No description provided for @ordersPaymentNextPaymentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Next payment'**
+  String get ordersPaymentNextPaymentLabel;
+
+  /// No description provided for @ordersPaymentRecordCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Record'**
+  String get ordersPaymentRecordCta;
+
+  /// No description provided for @ordersPaymentNegativeInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount cannot go below zero.'**
+  String get ordersPaymentNegativeInvalid;
+
+  /// No description provided for @ordersPaymentNextMustBePositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Next payment must be a positive amount.'**
+  String get ordersPaymentNextMustBePositive;
+
   /// No description provided for @ordersEditConfirmTitle.
   ///
   /// In en, this message translates to:

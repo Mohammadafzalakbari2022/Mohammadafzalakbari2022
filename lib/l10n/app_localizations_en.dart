@@ -1641,6 +1641,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ordersPaymentHistoryTitle => 'Payment history';
 
   @override
+  String get ordersPaymentSignedHint =>
+      'Type a positive amount to add or set. Type a minus amount (e.g. -500) to deduct from this field.';
+
+  @override
+  String ordersPaymentDepositLabel(int n) {
+    return 'Deposit $n';
+  }
+
+  @override
+  String get ordersPaymentNextPaymentLabel => 'Next payment';
+
+  @override
+  String get ordersPaymentRecordCta => 'Record';
+
+  @override
+  String get ordersPaymentNegativeInvalid => 'Amount cannot go below zero.';
+
+  @override
+  String get ordersPaymentNextMustBePositive =>
+      'Next payment must be a positive amount.';
+
+  @override
   String get ordersEditConfirmTitle => 'Save changes?';
 
   @override

@@ -710,6 +710,19 @@
   "ordersPaymentTotalBelowPaid": "Order total cannot be less than amount already paid.",
   "ordersPaymentSheetSavedTitle": "Payments",
   "ordersPaymentHistoryTitle": "Payment history",
+  "ordersPaymentSignedHint": "Type a positive amount to add or set. Type a minus amount (e.g. -500) to deduct from this field.",
+  "ordersPaymentDepositLabel": "Deposit {n}",
+  "@ordersPaymentDepositLabel": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "ordersPaymentNextPaymentLabel": "Next payment",
+  "ordersPaymentRecordCta": "Record",
+  "ordersPaymentNegativeInvalid": "Amount cannot go below zero.",
+  "ordersPaymentNextMustBePositive": "Next payment must be a positive amount.",
   "ordersEditConfirmTitle": "Save changes?",
   "ordersEditConfirmBody": "Update this order with your changes?",
   "ordersDetailEditCustomerTitle": "Edit customer",
