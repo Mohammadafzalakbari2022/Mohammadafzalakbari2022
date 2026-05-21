@@ -8,8 +8,6 @@ import 'package:pride_v3/core/feedback/app_feedback.dart';
 import 'package:pride_v3/core/formatting/digit_normalizer.dart';
 import 'package:pride_v3/core/widgets/pride_money_field.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
-import 'package:uuid/uuid.dart';
-
 import '../../data/local/order_summary.dart';
 import '../../data/local/payment_summary.dart';
 import '../../data/local/sync_outbox_kinds.dart';
@@ -17,6 +15,7 @@ import '../../data/providers/local_data_providers.dart';
 import '../../licensing/license_providers.dart';
 import '../../shell/shell_sync_providers.dart';
 import 'order_detail_edit_helpers.dart';
+import 'order_payment_mutations.dart';
 import 'order_payment_rules.dart';
 
 class OrderPaymentDraftResult {
@@ -89,15 +88,11 @@ class _OrderPaymentDraftSheet extends StatefulWidget {
 class _OrderPaymentDraftSheetState extends State<_OrderPaymentDraftSheet> {
   late final TextEditingController _totalCtrl;
   late final TextEditingController _paidCtrl;
-  late final int _totalBaseline;
-  late final int _paidBaseline;
   String? _error;
 
   @override
   void initState() {
     super.initState();
-    _totalBaseline = widget.initialTotalMinor;
-    _paidBaseline = widget.initialPaidMinor;
     _totalCtrl = TextEditingController(
       text: widget.initialTotalMinor > 0
           ? widget.initialTotalMinor.toString()
@@ -114,19 +109,19 @@ class _OrderPaymentDraftSheetState extends State<_OrderPaymentDraftSheet> {
 
   void _revalidate() => setState(() => _error = null);
 
-  int? get _resolvedTotal => OrderPaymentRules.resolveFieldAmount(
-        currentMinor: _totalBaseline,
-        raw: _totalCtrl.text,
-        allowEmpty: true,
-      );
+  int? get _parsedTotal => tryParseMoneyAmount(_totalCtrl.text);
 
-  int get _resolvedPaid =>
-      OrderPaymentRules.resolveFieldAmount(
-        currentMinor: _paidBaseline,
-        raw: _paidCtrl.text,
-        allowEmpty: true,
-      ) ??
-      0;
+  int get _parsedPaid => tryParseMoneyAmount(_paidCtrl.text) ?? 0;
+
+  void _applyPaidInFull() {
+    final total = _parsedTotal;
+    if (total == null || total <= 0) return;
+    setState(() => _paidCtrl.text = total.toString());
+  }
+
+  void _applyNothingPaid() {
+    setState(() => _paidCtrl.text = '0');
+  }
 
   @override
   void dispose() {
@@ -141,17 +136,15 @@ class _OrderPaymentDraftSheetState extends State<_OrderPaymentDraftSheet> {
 
   void _save() {
     final l10n = AppLocalizations.of(context)!;
-    final total = _resolvedTotal;
-    final paid = _resolvedPaid;
+    final total = _parsedTotal;
+    final paid = _parsedPaid;
     if (total == null) {
       setState(() => _error = l10n.ordersComposerPaymentRequired);
       return;
     }
     if (!OrderPaymentRules.isValidInitialPay(total, paid)) {
       setState(() {
-        _error = paid > total
-            ? l10n.ordersPaymentInitialExceedsTotal
-            : l10n.ordersPaymentNegativeInvalid;
+        _error = l10n.ordersPaymentInitialExceedsTotal;
       });
       return;
     }
@@ -167,11 +160,11 @@ class _OrderPaymentDraftSheetState extends State<_OrderPaymentDraftSheet> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final viewInsets = MediaQuery.viewInsetsOf(context).bottom;
-    final total = _resolvedTotal ?? 0;
-    final paid = _resolvedPaid;
+    final total = _parsedTotal ?? 0;
+    final paid = _parsedPaid;
     final due = OrderPaymentRules.remainingMinor(total, paid);
     final valid =
-        _resolvedTotal != null && OrderPaymentRules.isValidInitialPay(total, paid);
+        _parsedTotal != null && OrderPaymentRules.isValidInitialPay(total, paid);
 
     return Padding(
       padding: EdgeInsets.only(bottom: viewInsets),
@@ -208,19 +201,42 @@ class _OrderPaymentDraftSheetState extends State<_OrderPaymentDraftSheet> {
                     children: [
                       PrideMoneyField(
                         controller: _totalCtrl,
-                        signed: true,
-                        labelText: l10n.ordersComposerTotalLabel,
-                        hintText: l10n.ordersComposerTotalHint,
+                        labelText: l10n.ordersComposerPriceLabel,
+                        hintText: l10n.ordersComposerPriceHint,
                         textInputAction: TextInputAction.next,
                       ),
                       const SizedBox(height: 12),
                       PrideMoneyField(
                         controller: _paidCtrl,
-                        signed: true,
-                        labelText: l10n.ordersComposerPaidLabel,
-                        hintText: l10n.ordersComposerPaidHint,
+                        labelText: l10n.ordersComposerReceivedNowLabel,
+                        hintText: l10n.ordersComposerReceivedNowHint,
                       ),
-                      orderPaymentSignedHint(context, l10n),
+                      const SizedBox(height: 10),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          ActionChip(
+                            avatar: const Icon(Icons.check_circle_outline, size: 20),
+                            label: Text(l10n.ordersComposerPaidInFullCta),
+                            onPressed: _parsedTotal != null && _parsedTotal! > 0
+                                ? _applyPaidInFull
+                                : null,
+                          ),
+                          ActionChip(
+                            avatar: const Icon(Icons.money_off_outlined, size: 20),
+                            label: Text(l10n.ordersComposerNothingPaidCta),
+                            onPressed: _applyNothingPaid,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        l10n.ordersComposerNewOrderPaymentHint,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                      ),
                       if (_error != null) ...[
                         const SizedBox(height: 8),
                         Text(
@@ -236,6 +252,7 @@ class _OrderPaymentDraftSheetState extends State<_OrderPaymentDraftSheet> {
                         total: total,
                         paid: paid,
                         due: due,
+                        emphasizeDue: true,
                       ),
                     ],
                   ),
@@ -454,7 +471,7 @@ class _OrderPaymentSavedSheetState extends ConsumerState<_OrderPaymentSavedSheet
     final raw = _nextCtrl.text.trim();
     if (raw.isEmpty) return;
 
-    final parsed = tryParseSignedMoneyAmount(raw);
+    final parsed = tryParseMoneyAmount(raw);
     if (parsed == null || parsed <= 0) {
       setState(() => _error = l10n.ordersPaymentNextMustBePositive);
       return;
@@ -468,28 +485,22 @@ class _OrderPaymentSavedSheetState extends ConsumerState<_OrderPaymentSavedSheet
       return;
     }
 
-    final paymentId = const Uuid().v4();
     final repo = await ref.read(paymentRepositoryProvider.future);
-    await repo.addPayment(
+    final paymentId = await OrderPaymentMutations.persistAppend(
+      repo: repo,
       shopId: o.shopId,
       orderInternalId: o.internalId,
       amountMinor: parsed,
-      method: 'cash',
-      isAdjustment: false,
-      internalId: paymentId,
     );
     recordSyncOutboxMutation(
       ref,
       kind: SyncOutboxKinds.paymentAppend,
       entityRef: paymentId,
       shopId: o.shopId,
-      payloadJson: jsonEncode({
-        'order_internal_id': o.internalId,
-        'amount_minor': parsed,
-        'method': 'cash',
-        'is_adjustment': false,
-        'created_at': DateTime.now().toUtc().toIso8601String(),
-      }),
+      payloadJson: OrderPaymentMutations.appendPayloadJson(
+        orderInternalId: o.internalId,
+        amountMinor: parsed,
+      ),
     );
     if (!mounted) return;
     _nextCtrl.clear();
@@ -559,7 +570,8 @@ class _OrderPaymentSavedSheetState extends ConsumerState<_OrderPaymentSavedSheet
       final p = sorted[i];
       final amount = depositAmounts[i];
       if (amount == p.amountMinor) continue;
-      await paymentsRepo.updatePayment(
+      await OrderPaymentMutations.persistUpdate(
+        repo: paymentsRepo,
         internalId: p.internalId,
         amountMinor: amount,
       );
@@ -568,14 +580,13 @@ class _OrderPaymentSavedSheetState extends ConsumerState<_OrderPaymentSavedSheet
         kind: SyncOutboxKinds.paymentUpdate,
         entityRef: p.internalId,
         shopId: o.shopId,
-        payloadJson: jsonEncode({
-          'order_internal_id': o.internalId,
-          'amount_minor': amount,
-          'method': p.method,
-          'is_adjustment': p.isAdjustment,
-          'created_at': p.createdAt.toUtc().toIso8601String(),
-          'updated_at': DateTime.now().toUtc().toIso8601String(),
-        }),
+        payloadJson: OrderPaymentMutations.updatePayloadJson(
+          orderInternalId: o.internalId,
+          amountMinor: amount,
+          method: p.method,
+          isAdjustment: p.isAdjustment,
+          createdAt: p.createdAt,
+        ),
       );
     }
 
@@ -650,7 +661,7 @@ class _OrderPaymentSavedSheetState extends ConsumerState<_OrderPaymentSavedSheet
                           Expanded(
                             child: Text(
                               _editing
-                                  ? '${l10n.ordersPaymentSheetSavedTitle} — ${l10n.editCta}'
+                                  ? l10n.ordersPaymentSheetEditTitle
                                   : l10n.ordersPaymentSheetSavedTitle,
                               style: Theme.of(context).textTheme.titleLarge,
                             ),
@@ -779,12 +790,14 @@ class _DueSummaryCard extends StatelessWidget {
     required this.total,
     required this.paid,
     required this.due,
+    this.emphasizeDue = false,
   });
 
   final AppLocalizations l10n;
   final int total;
   final int paid;
   final int due;
+  final bool emphasizeDue;
 
   @override
   Widget build(BuildContext context) {
@@ -803,9 +816,12 @@ class _DueSummaryCard extends StatelessWidget {
             const SizedBox(height: 6),
             _row(
               theme,
-              l10n.ordersComposerDueLabel,
+              emphasizeDue && due > 0
+                  ? l10n.ordersComposerStillOwedLabel
+                  : l10n.ordersComposerDueLabel,
               money(due),
               emphasize: due > 0,
+              large: emphasizeDue && due > 0,
             ),
           ],
         ),
@@ -818,20 +834,24 @@ class _DueSummaryCard extends StatelessWidget {
     String label,
     String value, {
     bool emphasize = false,
+    bool large = false,
   }) {
     return Row(
       children: [
         Expanded(
           child: Text(
             label,
-            style: theme.textTheme.bodyMedium?.copyWith(
+            style: (large ? theme.textTheme.titleSmall : theme.textTheme.bodyMedium)
+                ?.copyWith(
               fontWeight: FontWeight.w600,
+              color: emphasize ? theme.colorScheme.error : null,
             ),
           ),
         ),
         Text(
           value,
-          style: theme.textTheme.titleSmall?.copyWith(
+          style: (large ? theme.textTheme.titleLarge : theme.textTheme.titleSmall)
+              ?.copyWith(
             fontWeight: FontWeight.w800,
             color: emphasize ? theme.colorScheme.error : null,
           ),

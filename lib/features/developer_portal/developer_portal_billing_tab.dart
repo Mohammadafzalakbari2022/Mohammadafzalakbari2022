@@ -8,6 +8,7 @@ import 'package:pride_v3/l10n/app_localizations.dart';
 import '../../core/persistence/api_offline_cache_storage.dart';
 import '../../core/persistence/shared_preferences_provider.dart';
 import '../../shell/shell_sync_providers.dart';
+import '../subscription/hesab_pay_payment_link_section.dart';
 import 'developer_portal_screen.dart';
 import 'developer_portal_code_share.dart';
 
@@ -60,11 +61,17 @@ class _DeveloperPortalBillingTabState
   @override
   void initState() {
     super.initState();
+    _paymentLink.addListener(_onPaymentLinkChanged);
     _load();
+  }
+
+  void _onPaymentLinkChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
+    _paymentLink.removeListener(_onPaymentLinkChanged);
     _accountName.dispose();
     _accountNumber.dispose();
     _merchantId.dispose();
@@ -362,59 +369,62 @@ class _DeveloperPortalBillingTabState
     if (_loading) {
       return const Center(child: CircularProgressIndicator());
     }
-    if (_error != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(_error!, textAlign: TextAlign.center),
-              const SizedBox(height: 12),
-              FilledButton(
-                onPressed: _load,
-                child: Text(l10n.devPortalRetryCta),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
 
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          if (_error != null)
+            Card(
+              color: Theme.of(context).colorScheme.errorContainer,
+              margin: const EdgeInsets.only(bottom: 12),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      _error!,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onErrorContainer,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: TextButton(
+                        onPressed: _load,
+                        child: Text(l10n.devPortalRetryCta),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           if (_showingOfflineCache) DevPortalOfflineCacheBanner(l10n: l10n),
           Text(
             l10n.devPortalBillingIntro,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 16),
-          Text(
-            l10n.devPortalBillingProfileTitle,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
           SwitchListTile(
+            contentPadding: EdgeInsets.zero,
             title: Text(l10n.devPortalBillingPublished),
             value: _published,
             onChanged: (v) => setState(() => _published = v),
           ),
+          const SizedBox(height: 8),
+          _paymentLinkSection(context, l10n),
+          const SizedBox(height: 16),
+          Text(
+            l10n.devPortalBillingProfileTitle,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 8),
           _field(l10n.devPortalBillingAccountName, _accountName),
           _field(l10n.devPortalBillingAccountNumber, _accountNumber),
           _field(l10n.devPortalBillingMerchantId, _merchantId),
-          _field(l10n.devPortalBillingPaymentLink, _paymentLink),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Text(
-              l10n.devPortalBillingPaymentLinkHint,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ),
-          _field(l10n.devPortalBillingPaymentLinkLabelEn, _linkLabelEn),
-          _field(l10n.devPortalBillingPaymentLinkLabelFa, _linkLabelFa),
-          _field(l10n.devPortalBillingPaymentLinkLabelPs, _linkLabelPs),
           _field(l10n.devPortalBillingPrice1Year, _price1, keyboard: TextInputType.number),
           _field(l10n.devPortalBillingPrice2Year, _price2, keyboard: TextInputType.number),
           _field(l10n.devPortalBillingPriceLifetime, _priceLife, keyboard: TextInputType.number),
@@ -431,7 +441,7 @@ class _DeveloperPortalBillingTabState
           _field(l10n.devPortalBillingTelegram, _telegram),
           _field(l10n.devPortalBillingPhone, _phone),
           FilledButton.icon(
-            onPressed: _saving ? null : _save,
+            onPressed: _saving || _error != null ? null : _save,
             icon: _saving
                 ? const SizedBox(
                     width: 18,
@@ -513,6 +523,84 @@ class _DeveloperPortalBillingTabState
     );
   }
 
+  Widget _paymentLinkSection(BuildContext context, AppLocalizations l10n) {
+    final link = _paymentLink.text.trim();
+    final hasLink = link.startsWith('http://') || link.startsWith('https://');
+    final previewLabel = _linkLabelEn.text.trim().isNotEmpty
+        ? _linkLabelEn.text.trim()
+        : l10n.subscriptionBillingPaymentLinkDefaultLabel;
+
+    return Card(
+      elevation: 0,
+      color: Theme.of(context).colorScheme.primaryContainer.withValues(
+            alpha: 0.35,
+          ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.link,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.devPortalBillingPaymentLinkSectionTitle,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        l10n.devPortalBillingPaymentLinkSectionBody,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _field(
+              l10n.devPortalBillingPaymentLink,
+              _paymentLink,
+              keyboard: TextInputType.url,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Text(
+                l10n.devPortalBillingPaymentLinkHint,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+            _field(l10n.devPortalBillingPaymentLinkLabelEn, _linkLabelEn),
+            _field(l10n.devPortalBillingPaymentLinkLabelFa, _linkLabelFa),
+            _field(l10n.devPortalBillingPaymentLinkLabelPs, _linkLabelPs),
+            if (hasLink) ...[
+              const SizedBox(height: 8),
+              Text(
+                l10n.devPortalBillingPaymentLinkPreviewTitle,
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              const SizedBox(height: 8),
+              HesabPayPaymentLinkSection(
+                paymentLink: link,
+                linkLabel: previewLabel,
+                l10n: l10n,
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _field(
     String label,
     TextEditingController ctrl, {
@@ -528,6 +616,8 @@ class _DeveloperPortalBillingTabState
         decoration: InputDecoration(
           labelText: label,
           border: const OutlineInputBorder(),
+          filled: true,
+          fillColor: Theme.of(context).colorScheme.surface,
         ),
       ),
     );

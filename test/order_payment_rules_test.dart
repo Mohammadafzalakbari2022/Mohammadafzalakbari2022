@@ -95,46 +95,5 @@ void main() {
       );
     });
 
-    test('canAppendPayment normal', () {
-      expect(
-        OrderPaymentRules.canAppendPayment(
-          totalMinor: 1000,
-          paidMinor: 300,
-          amountMinor: 700,
-          isAdjustment: false,
-        ),
-        isTrue,
-      );
-      expect(
-        OrderPaymentRules.canAppendPayment(
-          totalMinor: 1000,
-          paidMinor: 300,
-          amountMinor: 701,
-          isAdjustment: false,
-        ),
-        isFalse,
-      );
-    });
-
-    test('canAppendPayment adjustment', () {
-      expect(
-        OrderPaymentRules.canAppendPayment(
-          totalMinor: 1000,
-          paidMinor: 1000,
-          amountMinor: -100,
-          isAdjustment: true,
-        ),
-        isTrue,
-      );
-      expect(
-        OrderPaymentRules.canAppendPayment(
-          totalMinor: 1000,
-          paidMinor: 900,
-          amountMinor: 200,
-          isAdjustment: true,
-        ),
-        isFalse,
-      );
-    });
   });
 }

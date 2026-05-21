@@ -1613,7 +1613,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ordersComposerPaidHint => 'Example: 500';
 
   @override
+  String get ordersComposerPriceLabel => 'How much is the order? (AFN)';
+
+  @override
+  String get ordersComposerPriceHint => 'Example: 5000';
+
+  @override
+  String get ordersComposerReceivedNowLabel =>
+      'How much did the customer pay now? (AFN)';
+
+  @override
+  String get ordersComposerReceivedNowHint => '0 if nothing yet';
+
+  @override
+  String get ordersComposerNewOrderPaymentHint =>
+      'Enter numbers only. Tap “Paid in full” if they paid everything today.';
+
+  @override
+  String get ordersComposerPaidInFullCta => 'Paid in full';
+
+  @override
+  String get ordersComposerNothingPaidCta => 'Nothing yet';
+
+  @override
   String get ordersComposerDueLabel => 'Due';
+
+  @override
+  String get ordersComposerStillOwedLabel => 'Still owed';
 
   @override
   String get ordersComposerPaymentSheetTitle => 'Payment';
@@ -1638,7 +1664,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ordersPaymentSheetSavedTitle => 'Payments';
 
   @override
+  String get ordersPaymentSheetEditTitle => 'Edit payments';
+
+  @override
   String get ordersPaymentHistoryTitle => 'Payment history';
+
+  @override
+  String get paymentMethodCash => 'Cash';
 
   @override
   String get ordersPaymentSignedHint =>
@@ -2471,6 +2503,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get devPortalBillingPublished => 'Published (visible to shops)';
+
+  @override
+  String get devPortalBillingPaymentLinkSectionTitle =>
+      'Hesab Pay payment link';
+
+  @override
+  String get devPortalBillingPaymentLinkSectionBody =>
+      'App users see a QR code and button under Settings → Subscription when Published is on. Paste the full HTTPS link from Hesab Pay.';
+
+  @override
+  String get devPortalBillingPaymentLinkPreviewTitle =>
+      'Preview (what shops see)';
 
   @override
   String get devPortalBillingAccountName => 'Account name';

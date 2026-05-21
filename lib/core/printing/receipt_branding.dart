@@ -7,6 +7,7 @@ import 'receipt_line_wrap.dart';
 class ReceiptBranding {
   const ReceiptBranding({
     required this.shopDisplayName,
+    this.shopPhoneRaw,
     this.shopPhoneLine,
     required this.addressLines,
     required this.thankYouLines,
@@ -14,6 +15,9 @@ class ReceiptBranding {
   });
 
   final String shopDisplayName;
+
+  /// Digits / E.164 as entered in shop profile (no label prefix).
+  final String? shopPhoneRaw;
   final String? shopPhoneLine;
   final List<String> addressLines;
   final List<String> thankYouLines;
@@ -48,6 +52,7 @@ class ReceiptBranding {
 
     return ReceiptBranding(
       shopDisplayName: shopDisplayName,
+      shopPhoneRaw: phoneRaw,
       shopPhoneLine: shopPhoneLine,
       addressLines: addressLines,
       thankYouLines: thankYouLines,

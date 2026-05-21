@@ -1605,14 +1605,39 @@ class AppLocalizationsFa extends AppLocalizations {
   String get ordersComposerPaidHint => 'مثال: 500';
 
   @override
+  String get ordersComposerPriceLabel => 'قیمت کار چقدر است؟ (افغانی)';
+
+  @override
+  String get ordersComposerPriceHint => 'مثال: 5000';
+
+  @override
+  String get ordersComposerReceivedNowLabel => 'مشتری الان چقدر داد؟ (افغانی)';
+
+  @override
+  String get ordersComposerReceivedNowHint => '۰ اگر هنوز نداده';
+
+  @override
+  String get ordersComposerNewOrderPaymentHint =>
+      'فقط عدد بنویسید. اگر همه را گرفتید «تمام پرداخت» را بزنید.';
+
+  @override
+  String get ordersComposerPaidInFullCta => 'تمام پرداخت';
+
+  @override
+  String get ordersComposerNothingPaidCta => 'هنوز نداده';
+
+  @override
   String get ordersComposerDueLabel => 'مانده';
 
   @override
-  String get ordersComposerPaymentSheetTitle => 'Payment';
+  String get ordersComposerStillOwedLabel => 'باقی‌مانده';
+
+  @override
+  String get ordersComposerPaymentSheetTitle => 'پرداخت';
 
   @override
   String get ordersComposerPaymentInitialOnSaveHint =>
-      'Initial payment is recorded when you save the order.';
+      'وقتی سفارش را ذخیره می‌کنید، پولی که مشتری داد ثبت می‌شود.';
 
   @override
   String get ordersPaymentInitialExceedsTotal =>
@@ -1627,10 +1652,16 @@ class AppLocalizationsFa extends AppLocalizations {
       'جمع سفارش نمی‌تواند از مبلغ پرداخت‌شده کمتر باشد.';
 
   @override
-  String get ordersPaymentSheetSavedTitle => 'Payments';
+  String get ordersPaymentSheetSavedTitle => 'پرداخت‌ها';
 
   @override
-  String get ordersPaymentHistoryTitle => 'Payment history';
+  String get ordersPaymentSheetEditTitle => 'ویرایش پرداخت‌ها';
+
+  @override
+  String get ordersPaymentHistoryTitle => 'سابقه پرداخت‌ها';
+
+  @override
+  String get paymentMethodCash => 'نقد';
 
   @override
   String get ordersPaymentSignedHint =>
@@ -2459,6 +2490,17 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get devPortalBillingPublished => 'منتشر شده (برای دکان‌ها)';
+
+  @override
+  String get devPortalBillingPaymentLinkSectionTitle => 'لینک پرداخت حساب پی';
+
+  @override
+  String get devPortalBillingPaymentLinkSectionBody =>
+      'کاربران برنامه در تنظیمات → اشتراک QR و دکمه را می‌بینند وقتی «منتشر شده» روشن است. لینک کامل HTTPS از حساب پی را بچسبانید.';
+
+  @override
+  String get devPortalBillingPaymentLinkPreviewTitle =>
+      'پیش‌نمایش (آنچه دکان می‌بیند)';
 
   @override
   String get devPortalBillingAccountName => 'نام حساب';

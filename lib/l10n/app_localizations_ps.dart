@@ -1599,14 +1599,40 @@ class AppLocalizationsPs extends AppLocalizations {
   String get ordersComposerPaidHint => 'بېلګه: 500';
 
   @override
+  String get ordersComposerPriceLabel => 'کار څومره دی؟ (افغانی)';
+
+  @override
+  String get ordersComposerPriceHint => 'بېلګه: 5000';
+
+  @override
+  String get ordersComposerReceivedNowLabel =>
+      'پیرودونکي اوس څومره ورکړل؟ (افغانی)';
+
+  @override
+  String get ordersComposerReceivedNowHint => '۰ که لا نه وي ورکړي';
+
+  @override
+  String get ordersComposerNewOrderPaymentHint =>
+      'یوازې عدد ولیکئ. که ټول ورکړي «بشپړه ورکړه» ووهئ.';
+
+  @override
+  String get ordersComposerPaidInFullCta => 'بشپړه ورکړه';
+
+  @override
+  String get ordersComposerNothingPaidCta => 'لا نه دی ورکړی';
+
+  @override
   String get ordersComposerDueLabel => 'پاتې';
 
   @override
-  String get ordersComposerPaymentSheetTitle => 'Payment';
+  String get ordersComposerStillOwedLabel => 'پاتې پیسې';
+
+  @override
+  String get ordersComposerPaymentSheetTitle => 'ورکړه';
 
   @override
   String get ordersComposerPaymentInitialOnSaveHint =>
-      'Initial payment is recorded when you save the order.';
+      'کله چې امر خوندي کوئ، هغه پیسې چې پیرودونکي ورکړي ثبتېږي.';
 
   @override
   String get ordersPaymentInitialExceedsTotal =>
@@ -1621,10 +1647,16 @@ class AppLocalizationsPs extends AppLocalizations {
       'د امر ټوله بېله له ورکړل شوي پیسو څخه لږه نشي.';
 
   @override
-  String get ordersPaymentSheetSavedTitle => 'Payments';
+  String get ordersPaymentSheetSavedTitle => 'ورکړې';
 
   @override
-  String get ordersPaymentHistoryTitle => 'Payment history';
+  String get ordersPaymentSheetEditTitle => 'د ورکړو سمون';
+
+  @override
+  String get ordersPaymentHistoryTitle => 'د ورکړو تاریخچه';
+
+  @override
+  String get paymentMethodCash => 'نغدي';
 
   @override
   String get ordersPaymentSignedHint =>
@@ -2448,6 +2480,17 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get devPortalBillingPublished => 'خپور شوی (د هټیو لپاره)';
+
+  @override
+  String get devPortalBillingPaymentLinkSectionTitle => 'د حساب پی تادیې لینک';
+
+  @override
+  String get devPortalBillingPaymentLinkSectionBody =>
+      'کاروونکي په تنظیمات → ګډون کې QR او تڼۍ ګوري کله چې «خپور شوی» فعال وي. بشپړ HTTPS لینک له حساب پی پېښ کړئ.';
+
+  @override
+  String get devPortalBillingPaymentLinkPreviewTitle =>
+      'مخکتنه (هغه څه چې هټۍ ګوري)';
 
   @override
   String get devPortalBillingAccountName => 'د حساب نوم';

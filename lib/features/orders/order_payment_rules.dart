@@ -52,19 +52,4 @@ abstract final class OrderPaymentRules {
   }) =>
       nextPaymentMinor > 0 &&
       paidMinor + nextPaymentMinor <= totalMinor;
-
-  /// Legacy append/adjustment check (reports/tests).
-  static bool canAppendPayment({
-    required int totalMinor,
-    required int paidMinor,
-    required int amountMinor,
-    required bool isAdjustment,
-  }) {
-    if (totalMinor <= 0) return false;
-    if (!isAdjustment) {
-      return amountMinor > 0 && paidMinor + amountMinor <= totalMinor;
-    }
-    final projected = paidMinor + amountMinor;
-    return projected >= 0 && projected <= totalMinor;
-  }
 }

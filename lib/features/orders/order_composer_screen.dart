@@ -15,7 +15,6 @@ import 'package:pride_v3/core/widgets/pride_form_bottom_bar.dart';
 import 'package:pride_v3/core/widgets/pride_alert_dialog.dart';
 import 'package:pride_v3/core/printing/thermal_print_order.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../auth/auth_providers.dart';
 import '../customers/new_customer_screen.dart';
@@ -36,6 +35,9 @@ import 'order_composer_progress_header.dart';
 import 'order_composer_fabric_sheet.dart';
 import 'order_composer_style_sheet.dart';
 import 'order_invoice_share.dart';
+import 'package:pride_v3/core/formatting/digit_normalizer.dart';
+
+import 'order_payment_mutations.dart';
 import 'order_payment_rules.dart';
 import 'order_payment_sheet.dart';
 import 'order_status_label.dart';
@@ -103,27 +105,13 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
   }
 
   int get _composerTotalMinor =>
-      OrderPaymentRules.resolveFieldAmount(
-        currentMinor: 0,
-        raw: _totalController.text,
-        allowEmpty: true,
-      ) ??
-      0;
+      tryParseMoneyAmount(_totalController.text) ?? 0;
 
   int get _composerPaidMinor =>
-      OrderPaymentRules.resolveFieldAmount(
-        currentMinor: 0,
-        raw: _paidController.text,
-        allowEmpty: true,
-      ) ??
-      0;
+      tryParseMoneyAmount(_paidController.text) ?? 0;
 
   bool get _canSave {
-    final total = OrderPaymentRules.resolveFieldAmount(
-      currentMinor: 0,
-      raw: _totalController.text,
-      allowEmpty: true,
-    );
+    final total = tryParseMoneyAmount(_totalController.text);
     final paid = _composerPaidMinor;
     if (_selectedCustomerId == null) return false;
     if (_measurementsController.text.trim().isEmpty) return false;
@@ -553,10 +541,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     }
 
     final customerId = _selectedCustomerId!;
-    final totalMinor = OrderPaymentRules.resolveFieldAmount(
-      currentMinor: 0,
-      raw: _totalController.text,
-    )!;
+    final totalMinor = tryParseMoneyAmount(_totalController.text)!;
     final paidMinor = _composerPaidMinor;
     final deliveryDate = _deliveryDate!;
 
@@ -699,27 +684,21 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     );
 
     if (paidMinor > 0) {
-      final paymentId = const Uuid().v4();
-      await paymentsRepo.addPayment(
+      final paymentId = await OrderPaymentMutations.persistAppend(
+        repo: paymentsRepo,
         shopId: shopId,
         orderInternalId: orderId,
         amountMinor: paidMinor,
-        method: 'cash',
-        isAdjustment: false,
-        internalId: paymentId,
       );
       recordSyncOutboxMutation(
         ref,
         kind: SyncOutboxKinds.paymentAppend,
         entityRef: paymentId,
         shopId: shopId,
-        payloadJson: jsonEncode({
-          'order_internal_id': orderId,
-          'amount_minor': paidMinor,
-          'method': 'cash',
-          'is_adjustment': false,
-          'created_at': DateTime.now().toUtc().toIso8601String(),
-        }),
+        payloadJson: OrderPaymentMutations.appendPayloadJson(
+          orderInternalId: orderId,
+          amountMinor: paidMinor,
+        ),
       );
     }
 
@@ -782,11 +761,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
         ),
       );
     }
-    final total = OrderPaymentRules.resolveFieldAmount(
-      currentMinor: 0,
-      raw: _totalController.text,
-      allowEmpty: true,
-    );
+    final total = tryParseMoneyAmount(_totalController.text);
     final paid = _composerPaidMinor;
     if (total == null ||
         total <= 0 ||
@@ -1085,11 +1060,9 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
               final remaining = OrderPaymentRules.remainingMinor(total, paid);
               final paymentSubtitle = total <= 0
                   ? l10n.ordersComposerPaymentRequired
-                  : l10n.ordersComposerPaymentSummary(
-                      _money(l10n, total),
-                      _money(l10n, paid),
-                      _money(l10n, remaining),
-                    );
+                  : remaining > 0
+                      ? '${_money(l10n, total)} · ${l10n.ordersComposerStillOwedLabel}: ${_money(l10n, remaining)}'
+                      : '${_money(l10n, total)} · ${l10n.paymentPaid}: ${_money(l10n, paid)}';
               final paymentOk = total > 0 && paid >= 0 && paid <= total;
               return Card(
                 clipBehavior: Clip.antiAlias,

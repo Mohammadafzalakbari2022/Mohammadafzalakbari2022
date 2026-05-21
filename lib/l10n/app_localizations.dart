@@ -3008,11 +3008,59 @@ abstract class AppLocalizations {
   /// **'Example: 500'**
   String get ordersComposerPaidHint;
 
+  /// No description provided for @ordersComposerPriceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'How much is the order? (AFN)'**
+  String get ordersComposerPriceLabel;
+
+  /// No description provided for @ordersComposerPriceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: 5000'**
+  String get ordersComposerPriceHint;
+
+  /// No description provided for @ordersComposerReceivedNowLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'How much did the customer pay now? (AFN)'**
+  String get ordersComposerReceivedNowLabel;
+
+  /// No description provided for @ordersComposerReceivedNowHint.
+  ///
+  /// In en, this message translates to:
+  /// **'0 if nothing yet'**
+  String get ordersComposerReceivedNowHint;
+
+  /// No description provided for @ordersComposerNewOrderPaymentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter numbers only. Tap “Paid in full” if they paid everything today.'**
+  String get ordersComposerNewOrderPaymentHint;
+
+  /// No description provided for @ordersComposerPaidInFullCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid in full'**
+  String get ordersComposerPaidInFullCta;
+
+  /// No description provided for @ordersComposerNothingPaidCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing yet'**
+  String get ordersComposerNothingPaidCta;
+
   /// No description provided for @ordersComposerDueLabel.
   ///
   /// In en, this message translates to:
   /// **'Due'**
   String get ordersComposerDueLabel;
+
+  /// No description provided for @ordersComposerStillOwedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Still owed'**
+  String get ordersComposerStillOwedLabel;
 
   /// No description provided for @ordersComposerPaymentSheetTitle.
   ///
@@ -3050,11 +3098,23 @@ abstract class AppLocalizations {
   /// **'Payments'**
   String get ordersPaymentSheetSavedTitle;
 
+  /// No description provided for @ordersPaymentSheetEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit payments'**
+  String get ordersPaymentSheetEditTitle;
+
   /// No description provided for @ordersPaymentHistoryTitle.
   ///
   /// In en, this message translates to:
   /// **'Payment history'**
   String get ordersPaymentHistoryTitle;
+
+  /// No description provided for @paymentMethodCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get paymentMethodCash;
 
   /// No description provided for @ordersPaymentSignedHint.
   ///
@@ -4548,6 +4608,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Published (visible to shops)'**
   String get devPortalBillingPublished;
+
+  /// No description provided for @devPortalBillingPaymentLinkSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hesab Pay payment link'**
+  String get devPortalBillingPaymentLinkSectionTitle;
+
+  /// No description provided for @devPortalBillingPaymentLinkSectionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'App users see a QR code and button under Settings → Subscription when Published is on. Paste the full HTTPS link from Hesab Pay.'**
+  String get devPortalBillingPaymentLinkSectionBody;
+
+  /// No description provided for @devPortalBillingPaymentLinkPreviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview (what shops see)'**
+  String get devPortalBillingPaymentLinkPreviewTitle;
 
   /// No description provided for @devPortalBillingAccountName.
   ///

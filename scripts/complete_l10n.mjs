@@ -25,6 +25,13 @@ function stringKeys(arb) {
 
 /** Dari fixes (keys still identical to English). */
 const faFixes = {
+  ordersComposerPaymentSheetTitle: 'پرداخت',
+  ordersComposerPaymentInitialOnSaveHint:
+    'وقتی سفارش را ذخیره می‌کنید، پولی که مشتری داد ثبت می‌شود.',
+  ordersPaymentSheetSavedTitle: 'پرداخت‌ها',
+  ordersPaymentSheetEditTitle: 'ویرایش پرداخت‌ها',
+  ordersPaymentHistoryTitle: 'سابقه پرداخت‌ها',
+  paymentMethodCash: 'نقد',
   reportsUnpaidFilteredEmpty: 'هیچ سفارش پرداخت‌نشده‌ای با این فیلتر مطابقت ندارد.',
   reportsUnpaidFilterSection: 'پنجره تحویل',
   reportsUnpaidFilterAll: 'همه',
@@ -393,6 +400,13 @@ const psTranslations = {
   ordersComposerPaymentRequired: 'ټولې بېلې ولیکئ (اړین)',
   ordersComposerPaymentSummary:
     'ټول {total} • ورکړل شوی {paid} • پاتې {remaining}',
+  ordersComposerPaymentSheetTitle: 'ورکړه',
+  ordersComposerPaymentInitialOnSaveHint:
+    'کله چې امر خوندي کوئ، هغه پیسې چې پیرودونکي ورکړي ثبتېږي.',
+  ordersPaymentSheetSavedTitle: 'ورکړې',
+  ordersPaymentSheetEditTitle: 'د ورکړو سمون',
+  ordersPaymentHistoryTitle: 'د ورکړو تاریخچه',
+  paymentMethodCash: 'نغدي',
   ordersComposerTotalLabel: 'ټوله بېله (افغانی)',
   ordersComposerTotalHint: 'بېلګه: 150000',
   ordersComposerPaidLabel: 'لومړنۍ ورکړه (افغانی)',
