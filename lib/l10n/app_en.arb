@@ -712,6 +712,18 @@
   "ordersPaymentHistoryTitle": "Payment history",
   "ordersEditConfirmTitle": "Save changes?",
   "ordersEditConfirmBody": "Update this order with your changes?",
+  "ordersDetailEditCustomerTitle": "Edit customer",
+  "ordersDetailCustomerPickFromList": "Choose from list",
+  "ordersDetailCustomerHistoryTitle": "Customer change history",
+  "ordersDetailCustomerHistoryChange": "Was {fromName} ({fromPhone}) → now {toName} ({toPhone})",
+  "@ordersDetailCustomerHistoryChange": {
+    "placeholders": {
+      "fromName": { "type": "String" },
+      "fromPhone": { "type": "String" },
+      "toName": { "type": "String" },
+      "toPhone": { "type": "String" }
+    }
+  },
   "ordersStatusChangeConfirmTitle": "Change status?",
   "ordersStatusChangeConfirmBody": "Change order status to {status}?",
   "@ordersStatusChangeConfirmBody": {
@@ -1153,6 +1165,14 @@
       "max": { "type": "int" }
     }
   },
+  "settingsUsersLimitsLoadFailed": "Could not load user limits: {error}. Tap Retry or try Add user (the server will enforce limits).",
+  "@settingsUsersLimitsLoadFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "settingsUsersLicenseExpired": "Your shop license has expired. Renew or activate before adding users.",
+  "settingsUsersNotOwnerBanner": "Signed in as a team member. Only the shop owner account can add or remove users.",
   "settingsUsersNeedOnline": "Stay online and signed in with the server to manage users.",
   "settingsUsersOfflineCacheNote": "Offline — showing the last saved team list. Connect to refresh or add users.",
   "devPortalOfflineCacheNote": "Offline — showing last saved data. Connect to refresh or make changes.",

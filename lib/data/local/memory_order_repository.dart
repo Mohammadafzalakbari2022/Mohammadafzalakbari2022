@@ -9,6 +9,7 @@ import 'order_list_repository.dart';
 import 'order_measurement_snapshot_item_input.dart';
 import 'order_measurement_snapshot_view.dart';
 import 'order_style_snapshot_view.dart';
+import 'order_customer_history.dart';
 import 'order_summary.dart';
 import 'seed_data.dart';
 import 'catalog/catalog_order_snapshot.dart';
@@ -36,6 +37,7 @@ class MemoryOrderRepository implements OrderListRepository {
     String? customerInternalId,
     String? customerName,
     String? customerPhone,
+    List<OrderCustomerHistoryEntry>? customerChangeHistory,
     DateTime? deliveryDate,
     int? totalAmountMinor,
     String? measurementsSnapshot,
@@ -63,6 +65,8 @@ class MemoryOrderRepository implements OrderListRepository {
       customerInternalId: customerInternalId ?? o.customerInternalId,
       customerName: customerName ?? o.customerName,
       customerPhone: customerPhone ?? o.customerPhone,
+      customerChangeHistory:
+          customerChangeHistory ?? o.customerChangeHistory,
       measurementsSnapshot: measurementsSnapshot ?? o.measurementsSnapshot,
       internalNotes: internalNotes ?? o.internalNotes,
       sourceMeasurementProfileId:
@@ -401,6 +405,8 @@ class MemoryOrderRepository implements OrderListRepository {
   Future<void> updateOrderDetails({
     required String orderInternalId,
     String? customerInternalId,
+    String? customerSnapshotName,
+    String? customerSnapshotPhone,
     DateTime? deliveryDate,
     int? totalAmountMinor,
     String? measurementsSnapshot,
@@ -450,15 +456,39 @@ class MemoryOrderRepository implements OrderListRepository {
       }
 
       final cid = customerInternalId ?? o.customerInternalId;
+      final fromName = o.customerName;
+      final fromPhone = o.customerPhone;
+      final toName = customerSnapshotName?.trim().isNotEmpty ?? false
+          ? customerSnapshotName!.trim()
+          : (customerInternalId != null
+              ? _resolveCustomerName(cid)
+              : o.customerName);
+      final toPhone = customerSnapshotPhone != null
+          ? (customerSnapshotPhone.trim().isEmpty
+              ? null
+              : customerSnapshotPhone.trim())
+          : (customerInternalId != null
+              ? _resolveCustomerPhone(cid)
+              : o.customerPhone);
+      List<OrderCustomerHistoryEntry>? history;
+      if (customerInternalId != null ||
+          customerSnapshotName != null ||
+          customerSnapshotPhone != null) {
+        history = appendOrderCustomerHistory(
+          existing: o.customerChangeHistory,
+          fromName: fromName,
+          fromPhone: fromPhone,
+          toName: toName,
+          toPhone: toPhone,
+          changedAt: DateTime.now(),
+        );
+      }
       _orders[i] = _copyOrder(
         o,
         customerInternalId: customerInternalId,
-        customerName: customerInternalId != null
-            ? _resolveCustomerName(cid)
-            : null,
-        customerPhone: customerInternalId != null
-            ? _resolveCustomerPhone(cid)
-            : null,
+        customerName: toName,
+        customerPhone: toPhone,
+        customerChangeHistory: history,
         deliveryDate: deliveryDate,
         totalAmountMinor: totalAmountMinor,
         measurementsSnapshot: measurementsSnapshot,

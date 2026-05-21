@@ -15,6 +15,15 @@ class OrderEntity {
   @Index()
   late String customerInternalId;
 
+  /// Frozen customer name for this order (display + history).
+  String customerNameSnapshot = '';
+
+  /// Frozen customer phone for this order.
+  String customerPhoneSnapshot = '';
+
+  /// JSON array of [OrderCustomerHistoryEntry] when name/phone changes after save.
+  String customerChangeHistoryJson = '';
+
   @Index()
   late String displayOrderNo;
 

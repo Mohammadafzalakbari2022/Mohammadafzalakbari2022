@@ -4,14 +4,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pride_v3/core/calendar/app_calendar_format.dart';
-import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../auth/auth_providers.dart';
 import '../../data/providers/local_data_providers.dart';
 
-/// Full-screen catalog image with pinch-zoom; description on demand.
+/// Full-screen catalog image with pinch-zoom.
 class CatalogFullscreenViewer extends ConsumerStatefulWidget {
   const CatalogFullscreenViewer({super.key, required this.itemId});
 
@@ -44,59 +42,9 @@ class _CatalogFullscreenViewerState extends ConsumerState<CatalogFullscreenViewe
     _transformController.value = Matrix4.identity();
   }
 
-  Future<void> _showDescriptionSheet(
-    BuildContext context,
-    AppLocalizations l10n, {
-    required String designName,
-    required String designerLine,
-    String? notes,
-  }) async {
-    await showModalBottomSheet<void>(
-      context: context,
-      showDragHandle: true,
-      builder: (ctx) {
-        final body = (notes != null && notes.trim().isNotEmpty)
-            ? notes.trim()
-            : l10n.catalogNoDescription;
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  l10n.catalogDescriptionSheetTitle,
-                  style: Theme.of(ctx).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  designName,
-                  style: Theme.of(ctx).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  designerLine,
-                  style: Theme.of(ctx).textTheme.bodySmall,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  body,
-                  style: Theme.of(ctx).textTheme.bodyLarge,
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final locale = Localizations.localeOf(context).toString();
-    final calendar = ref.watch(dateCalendarSystemProvider);
     final myShopId = ref.watch(effectiveShopIdProvider);
     final itemAsync = ref.watch(catalogItemDetailProvider(widget.itemId));
 
@@ -122,14 +70,17 @@ class _CatalogFullscreenViewerState extends ConsumerState<CatalogFullscreenViewe
         actions: [
           itemAsync.maybeWhen(
             data: (item) {
-              if (item == null || item.shopId != myShopId) {
-                return const SizedBox.shrink();
-              }
+              if (item == null) return const SizedBox.shrink();
+              final isOwnShop = item.shopId == myShopId;
               return IconButton(
-                tooltip: l10n.catalogViewerManageA11y,
-                icon: const Icon(Icons.tune_outlined),
+                tooltip: isOwnShop
+                    ? l10n.catalogViewerManageA11y
+                    : l10n.catalogDetailTitle,
+                icon: Icon(
+                  isOwnShop ? Icons.tune_outlined : Icons.info_outline,
+                ),
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  if (isOwnShop) Navigator.of(context).pop();
                   context.push('/app/catalog/${widget.itemId}');
                 },
               );
@@ -163,60 +114,16 @@ class _CatalogFullscreenViewerState extends ConsumerState<CatalogFullscreenViewe
             );
           }
 
-          final designerLine = l10n.catalogDesignerAndDate(
-            item.designerShopName,
-            AppCalendarFormat.mediumDate(
-              l10n,
-              calendar,
-              item.createdAt,
-              locale,
+          return GestureDetector(
+            onDoubleTap: _resetZoom,
+            child: InteractiveViewer(
+              transformationController: _transformController,
+              minScale: 0.5,
+              maxScale: 5,
+              child: Center(
+                child: _FullscreenImage(path: item.imagePath),
+              ),
             ),
-          );
-          final hasNotes = item.notes != null && item.notes!.trim().isNotEmpty;
-
-          return Column(
-            children: [
-              Expanded(
-                child: GestureDetector(
-                  onDoubleTap: _resetZoom,
-                  child: InteractiveViewer(
-                    transformationController: _transformController,
-                    minScale: 0.5,
-                    maxScale: 5,
-                    child: Center(
-                      child: _FullscreenImage(path: item.imagePath),
-                    ),
-                  ),
-                ),
-              ),
-              Material(
-                color: Colors.black87,
-                child: SafeArea(
-                  top: false,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: FilledButton.tonal(
-                        onPressed: () => _showDescriptionSheet(
-                          context,
-                          l10n,
-                          designName: item.designName,
-                          designerLine: designerLine,
-                          notes: hasNotes ? item.notes : null,
-                        ),
-                        style: FilledButton.styleFrom(
-                          visualDensity: VisualDensity.compact,
-                          foregroundColor: Colors.white,
-                          backgroundColor: Colors.white24,
-                        ),
-                        child: Text(l10n.catalogViewDescription),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
           );
         },
       ),

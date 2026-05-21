@@ -16,7 +16,9 @@ export class FcmPushService implements OnModuleInit {
   onModuleInit(): void {
     const raw = process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.trim();
     if (!raw) {
-      this.log.warn('FIREBASE_SERVICE_ACCOUNT_JSON not set — FCM delivery disabled.');
+      this.log.log(
+        'FCM: FIREBASE_SERVICE_ACCOUNT_JSON not set (optional) — push delivery disabled.',
+      );
       return;
     }
     try {

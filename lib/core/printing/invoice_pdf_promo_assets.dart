@@ -30,11 +30,11 @@ Future<InvoicePdfPromoAssets> loadInvoicePdfPromoAssets() async {
     ),
     googlePlayProvider: await _loadAssetProvider(
       _kGooglePlayBadgeAsset,
-      maxHeightPx: 13,
+      maxHeightPx: 18,
     ),
     appStoreProvider: await _loadAssetProvider(
       _kAppStoreBadgeAsset,
-      maxHeightPx: 13,
+      maxHeightPx: 18,
     ),
   );
 }
@@ -65,7 +65,7 @@ Future<pw.ImageProvider?> _loadAssetProvider(
 /// Fallback store icons when badge PNGs are missing from the bundle.
 pw.Widget buildInvoiceStoreBadgeFallback({
   required bool isGooglePlay,
-  double size = 13,
+  double size = 18,
 }) {
   return pw.SizedBox(
     width: size,

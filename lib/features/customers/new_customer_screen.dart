@@ -129,7 +129,7 @@ class _NewCustomerScreenState extends ConsumerState<NewCustomerScreen> {
       );
       final returnTo =
           GoRouterState.of(context).uri.queryParameters['returnTo'];
-      if (returnTo == 'orderComposer') {
+      if (returnTo == 'orderComposer' || returnTo == 'orderDetailCustomerEdit') {
         context.pop(
           NewCustomerForOrderResult(
             internalId: id,
@@ -153,18 +153,20 @@ class _NewCustomerScreenState extends ConsumerState<NewCustomerScreen> {
     final returnTo =
         GoRouterState.of(context).uri.queryParameters['returnTo'];
     final fromOrderComposer = returnTo == 'orderComposer';
+    final fromOrderDetailEdit = returnTo == 'orderDetailCustomerEdit';
+    final fromOrderFlow = fromOrderComposer || fromOrderDetailEdit;
     return Scaffold(
       appBar: AppBar(
         leading: PrideCloseIconButton(
           onPressed: _saving ? null : () => context.pop(),
         ),
         title: Text(
-          fromOrderComposer
+          fromOrderFlow
               ? l10n.ordersComposerCustomerTitle
               : l10n.customersAddCta,
         ),
         actions: [
-          if (fromOrderComposer)
+          if (fromOrderFlow)
             IconButton(
               icon: const Icon(Icons.search),
               tooltip: l10n.customersSearchHint,

@@ -471,6 +471,31 @@ class OrderDetailScreen extends ConsumerWidget {
                       label: l10n.customerPhoneLabel,
                       value: o.customerPhone ?? l10n.customersPhoneMissing,
                     ),
+                    if (o.customerChangeHistory.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        l10n.ordersDetailCustomerHistoryTitle,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
+                            ),
+                      ),
+                      const SizedBox(height: 6),
+                      for (final h in o.customerChangeHistory)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 6),
+                          child: Text(
+                            l10n.ordersDetailCustomerHistoryChange(
+                              h.fromName,
+                              h.fromPhone ?? l10n.customersPhoneMissing,
+                              h.toName,
+                              h.toPhone ?? l10n.customersPhoneMissing,
+                            ),
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ),
+                    ],
                   ],
                 ),
               ),

@@ -836,6 +836,34 @@
   "ordersComposerTotalHint": "مثال: 1500",
   "ordersComposerPaidLabel": "پرداخت اولیه (افغانی)",
   "ordersComposerPaidHint": "مثال: 500",
+  "ordersComposerDueLabel": "مانده",
+  "ordersPaymentInitialExceedsTotal": "پرداخت اولیه نمی‌تواند از جمع سفارش بیشتر باشد.",
+  "ordersPaymentExceedsRemaining": "پرداخت نمی‌تواند از مانده بیشتر باشد.",
+  "ordersPaymentTotalBelowPaid": "جمع سفارش نمی‌تواند از مبلغ پرداخت‌شده کمتر باشد.",
+  "ordersEditConfirmTitle": "تغییرات ذخیره شود؟",
+  "ordersEditConfirmBody": "این سفارش با تغییرات شما به‌روزرسانی شود؟",
+  "ordersStatusChangeConfirmTitle": "وضعیت تغییر کند؟",
+  "ordersStatusChangeConfirmBody": "وضعیت سفارش به {status} تغییر کند؟",
+  "@ordersStatusChangeConfirmBody": {
+    "placeholders": {
+      "status": { "type": "String" }
+    }
+  },
+  "ordersCancelOrderConfirmTitle": "این سفارش لغو شود؟",
+  "ordersCancelOrderConfirmBody": "برای تأیید لغو، نام مشتری را تایپ کنید.",
+  "ordersDetailEditCta": "ویرایش",
+  "ordersDetailEditCustomerTitle": "ویرایش مشتری",
+  "ordersDetailCustomerPickFromList": "انتخاب از فهرست",
+  "ordersDetailCustomerHistoryTitle": "تاریخچهٔ تغییر مشتری",
+  "ordersDetailCustomerHistoryChange": "قبلاً {fromName} ({fromPhone}) → اکنون {toName} ({toPhone})",
+  "@ordersDetailCustomerHistoryChange": {
+    "placeholders": {
+      "fromName": { "type": "String" },
+      "fromPhone": { "type": "String" },
+      "toName": { "type": "String" },
+      "toPhone": { "type": "String" }
+    }
+  },
   "ordersComposerDeliveryDateTitle": "تاریخ تحویل",
   "ordersComposerDeliveryDateUnset": "تاریخ تحویل را انتخاب کنید",
   "ordersComposerSaveCta": "ذخیره سفارش",
@@ -1223,6 +1251,9 @@
   "settingsUsersLimitsBodyTrial": "آزمایشی: حداکثر {max} کاربر. {count} فعال. حساب مالک حذف نمی‌شود.",
   "settingsUsersLimitsBodyPaid": "حداکثر {max} کاربر برای این فروشگاه. {count} فعال. حساب مالک حذف نمی‌شود.",
   "settingsUsersAtLimit": "به حد کاربر رسیده‌اید ({count} از {max}).",
+  "settingsUsersLimitsLoadFailed": "بارگذاری محدودیت کاربران ناموفق بود: {error}. «تلاش مجدد» بزنید یا «افزودن کاربر» را امتحان کنید (سرور محدودیت را اعمال می‌کند).",
+  "settingsUsersLicenseExpired": "مجوز فروشگاه منقضی شده است. قبل از افزودن کاربر، تمدید یا فعال‌سازی کنید.",
+  "settingsUsersNotOwnerBanner": "به‌عنوان عضو تیم وارد شده‌اید. فقط حساب مالک فروشگاه می‌تواند کاربر اضافه یا حذف کند.",
   "settingsUsersNeedOnline": "برای مدیریت کاربران آنلاین بمانید و با سرور وارد شوید.",
   "settingsUsersTileNeedApiSession": "برای مدیریت کاربران با سرور وارد شوید",
   "settingsUsersAddDisabledHint": "برای افزودن یا حذف کاربران با سرور وارد شوید و آنلاین بمانید.",
@@ -1549,7 +1580,7 @@
   "receiptPhoneLabel": "تلفن",
   "receiptDeliveryLabel": "تحویل",
   "receiptStatusLabel": "وضعیت",
-  "receiptMeasurementsLabel": "اندازه‌گیری",
+  "receiptMeasurementsLabel": "اندازه",
   "invoicePridePromoLine": "این فاکتور با برنامهٔ افغان پراید تهیه و ارسال شده است",
   "receiptStyleLabel": "یادداشت استایل",
   "receiptFabricLabel": "پارچه مشتری",

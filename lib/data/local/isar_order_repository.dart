@@ -16,6 +16,7 @@ import 'entities/order_style_snapshot_entity.dart';
 import 'entities/order_style_snapshot_figure_entity.dart';
 import 'order_measurement_snapshot_view.dart';
 import 'order_style_snapshot_view.dart';
+import 'order_customer_history.dart';
 import 'order_summary.dart';
 import 'seed_data.dart';
 import 'catalog/catalog_order_snapshot.dart';
@@ -292,14 +293,19 @@ class IsarOrderRepository implements OrderListRepository {
           .orderInternalIdEqualTo(o.internalId)
           .findAll();
       final paidMinor = payments.fold<int>(0, (sum, p) => sum + p.amountMinor);
+      final snapName = o.customerNameSnapshot.trim();
+      final snapPhone = o.customerPhoneSnapshot.trim();
       list.add(
         OrderSummary(
           shopId: o.shopId,
           internalId: o.internalId,
           displayOrderNo: o.displayOrderNo,
           customerInternalId: o.customerInternalId,
-          customerName: c?.name ?? '—',
-          customerPhone: c?.phone,
+          customerName:
+              snapName.isNotEmpty ? snapName : (c?.name ?? '—'),
+          customerPhone: snapPhone.isNotEmpty ? snapPhone : c?.phone,
+          customerChangeHistory:
+              parseOrderCustomerHistoryJson(o.customerChangeHistoryJson),
           measurementsSnapshot: o.measurementsSnapshot,
           internalNotes: o.internalNotes,
           sourceMeasurementProfileId: o.sourceMeasurementProfileId,
@@ -419,10 +425,23 @@ class IsarOrderRepository implements OrderListRepository {
         .count();
     final displayOrderNo = (count + 1).toString().padLeft(8, '0');
 
+    final customerRow = await _isar.customerEntitys
+        .filter()
+        .internalIdEqualTo(customerInternalId)
+        .findFirst();
+    final resolvedName = (customerSnapshotName?.trim().isNotEmpty ?? false)
+        ? customerSnapshotName!.trim()
+        : (customerRow?.name ?? '');
+    final resolvedPhone = customerSnapshotPhone?.trim().isNotEmpty ?? false
+        ? customerSnapshotPhone!.trim()
+        : (customerRow?.phone ?? '');
+
     final e = OrderEntity()
       ..internalId = internalId
       ..shopId = shopId
       ..customerInternalId = customerInternalId
+      ..customerNameSnapshot = resolvedName
+      ..customerPhoneSnapshot = resolvedPhone
       ..displayOrderNo = displayOrderNo
       ..statusIndex = OrderLocalStatus.newOrder.code
       ..deliveryDate = deliveryDate
@@ -517,6 +536,8 @@ class IsarOrderRepository implements OrderListRepository {
   Future<void> updateOrderDetails({
     required String orderInternalId,
     String? customerInternalId,
+    String? customerSnapshotName,
+    String? customerSnapshotPhone,
     DateTime? deliveryDate,
     int? totalAmountMinor,
     String? measurementsSnapshot,
@@ -579,6 +600,46 @@ class IsarOrderRepository implements OrderListRepository {
 
       if (customerInternalId != null) {
         e.customerInternalId = customerInternalId;
+      }
+      if (customerInternalId != null ||
+          customerSnapshotName != null ||
+          customerSnapshotPhone != null) {
+        final fromName = e.customerNameSnapshot.trim().isNotEmpty
+            ? e.customerNameSnapshot.trim()
+            : (await _isar.customerEntitys
+                    .filter()
+                    .internalIdEqualTo(e.customerInternalId)
+                    .findFirst())
+                ?.name ??
+                '';
+        final fromPhone = e.customerPhoneSnapshot.trim().isNotEmpty
+            ? e.customerPhoneSnapshot.trim()
+            : (await _isar.customerEntitys
+                    .filter()
+                    .internalIdEqualTo(e.customerInternalId)
+                    .findFirst())
+                ?.phone;
+        final toName = customerSnapshotName?.trim().isNotEmpty ?? false
+            ? customerSnapshotName!.trim()
+            : fromName;
+        final toPhone = customerSnapshotPhone != null
+            ? customerSnapshotPhone.trim()
+            : (fromPhone ?? '');
+        final history = parseOrderCustomerHistoryJson(
+          e.customerChangeHistoryJson,
+        );
+        final updatedHistory = appendOrderCustomerHistory(
+          existing: history,
+          fromName: fromName,
+          fromPhone: fromPhone,
+          toName: toName,
+          toPhone: toPhone.isEmpty ? null : toPhone,
+          changedAt: now,
+        );
+        e.customerChangeHistoryJson =
+            encodeOrderCustomerHistory(updatedHistory);
+        e.customerNameSnapshot = toName;
+        e.customerPhoneSnapshot = toPhone;
       }
       if (deliveryDate != null) e.deliveryDate = deliveryDate;
       if (totalAmountMinor != null) e.totalAmountMinor = totalAmountMinor;
@@ -840,6 +901,28 @@ class IsarOrderRepository implements OrderListRepository {
     final updatedAt =
         syncPullDateTime(m, const ['updated_at', 'updatedAt']) ?? now;
 
+    final customerNameSnapshot = syncPullString(
+          m,
+          const ['customer_snapshot_name', 'customerNameSnapshot'],
+        ) ??
+        existing?.customerNameSnapshot ??
+        '';
+    final customerPhoneSnapshot = syncPullString(
+          m,
+          const ['customer_snapshot_phone', 'customerPhoneSnapshot'],
+        ) ??
+        existing?.customerPhoneSnapshot ??
+        '';
+    final customerChangeHistoryJson = syncPullString(
+          m,
+          const [
+            'customer_change_history_json',
+            'customerChangeHistoryJson',
+          ],
+        ) ??
+        existing?.customerChangeHistoryJson ??
+        '';
+
     await _isar.writeTxn(() async {
       OrderEntity e;
       if (existing == null) {
@@ -880,6 +963,9 @@ class IsarOrderRepository implements OrderListRepository {
           ..fabricIdSnapshot = fabricIdSnapshot
           ..fabricNamePresetInternalId = fabricNamePresetInternalId
           ..fabricColorPresetInternalId = fabricColorPresetInternalId
+          ..customerNameSnapshot = customerNameSnapshot
+          ..customerPhoneSnapshot = customerPhoneSnapshot
+          ..customerChangeHistoryJson = customerChangeHistoryJson
           ..deletedAt = null;
       } else {
         final row = await _isar.orderEntitys.getByInternalId(internalId);
@@ -931,6 +1017,15 @@ class IsarOrderRepository implements OrderListRepository {
               fabricNamePresetInternalId ?? e.fabricNamePresetInternalId
           ..fabricColorPresetInternalId =
               fabricColorPresetInternalId ?? e.fabricColorPresetInternalId
+          ..customerNameSnapshot = customerNameSnapshot.isNotEmpty
+              ? customerNameSnapshot
+              : e.customerNameSnapshot
+          ..customerPhoneSnapshot = customerPhoneSnapshot.isNotEmpty
+              ? customerPhoneSnapshot
+              : e.customerPhoneSnapshot
+          ..customerChangeHistoryJson = customerChangeHistoryJson.isNotEmpty
+              ? customerChangeHistoryJson
+              : e.customerChangeHistoryJson
           ..deletedAt = null;
         e.createdAt ??= createdAt;
       }

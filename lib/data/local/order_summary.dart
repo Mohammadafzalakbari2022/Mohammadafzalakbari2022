@@ -1,4 +1,5 @@
 import 'entities/order_status.dart';
+import 'order_customer_history.dart';
 
 /// Row for orders list (plan-12).
 class OrderSummary {
@@ -9,6 +10,7 @@ class OrderSummary {
     required this.customerInternalId,
     required this.customerName,
     this.customerPhone,
+    this.customerChangeHistory = const [],
     this.measurementsSnapshot = '',
     this.internalNotes = '',
     this.sourceMeasurementProfileId,
@@ -41,6 +43,7 @@ class OrderSummary {
   final String customerInternalId;
   final String customerName;
   final String? customerPhone;
+  final List<OrderCustomerHistoryEntry> customerChangeHistory;
   final String measurementsSnapshot;
   final String internalNotes;
   final String? sourceMeasurementProfileId;

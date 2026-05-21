@@ -247,7 +247,7 @@ class SettingsTabScreen extends ConsumerWidget {
               iconColor: prideSettingsIconColor(7),
               title: l10n.settingsUsersTitle,
               subtitle: apiOn && auth.hasApiSession
-                  ? (effectiveOwner
+                  ? (auth.isShopOwner
                       ? l10n.settingsUsersSubtitleOwner
                       : l10n.settingsUsersSubtitleTeam)
                   : (apiOn

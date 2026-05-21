@@ -22,6 +22,7 @@ class _SettingsUsersScreenState extends ConsumerState<SettingsUsersScreen> {
   List<Map<String, dynamic>> _users = [];
   Map<String, dynamic>? _limits;
   String? _loadError;
+  String? _limitsLoadError;
   bool _loading = true;
   bool _showingOfflineCache = false;
 
@@ -36,6 +37,7 @@ class _SettingsUsersScreenState extends ConsumerState<SettingsUsersScreen> {
       setState(() {
         _loading = false;
         _loadError = null;
+        _limitsLoadError = null;
         _limits = null;
         _users = [];
         _showingOfflineCache = false;
@@ -49,6 +51,7 @@ class _SettingsUsersScreenState extends ConsumerState<SettingsUsersScreen> {
       setState(() {
         _loading = false;
         _loadError = null;
+        _limitsLoadError = null;
         _limits = null;
         _users = [];
         _showingOfflineCache = false;
@@ -65,6 +68,7 @@ class _SettingsUsersScreenState extends ConsumerState<SettingsUsersScreen> {
         _users = cached.users;
         _limits = cached.limits;
         _loadError = null;
+        _limitsLoadError = null;
         _loading = false;
         _showingOfflineCache = !online;
       });
@@ -76,6 +80,7 @@ class _SettingsUsersScreenState extends ConsumerState<SettingsUsersScreen> {
           _loading = false;
           _users = [];
           _limits = null;
+          _limitsLoadError = null;
           _showingOfflineCache = false;
         });
       }
@@ -86,6 +91,7 @@ class _SettingsUsersScreenState extends ConsumerState<SettingsUsersScreen> {
       setState(() {
         _loading = true;
         _loadError = null;
+        _limitsLoadError = null;
       });
     }
 
@@ -96,14 +102,20 @@ class _SettingsUsersScreenState extends ConsumerState<SettingsUsersScreen> {
       setState(() {
         _loading = false;
         _loadError = usersResult.message;
+        _limitsLoadError = limitsResult is PrideApiShopUserLimitsFailure
+            ? limitsResult.message
+            : null;
         _showingOfflineCache = cached != null;
       });
       return;
     }
     final ok = usersResult as PrideApiShopUsersOk;
     Map<String, dynamic>? limits;
+    String? limitsErr;
     if (limitsResult is PrideApiShopUserLimitsOk) {
       limits = limitsResult.limits;
+    } else if (limitsResult is PrideApiShopUserLimitsFailure) {
+      limitsErr = limitsResult.message;
     }
     await ApiOfflineCacheStorage.saveShopUsers(
       prefs,
@@ -116,14 +128,30 @@ class _SettingsUsersScreenState extends ConsumerState<SettingsUsersScreen> {
       _users = ok.users;
       _limits = limits;
       _loadError = null;
+      _limitsLoadError = limitsErr;
       _showingOfflineCache = false;
     });
   }
 
-  bool get _canAddFromLimits {
+  bool _boolFrom(dynamic v) => v == true;
+
+  /// Owner may add when server says so, or when limits could not be loaded (server enforces).
+  bool _canAddUser({
+    required bool isOwner,
+    required bool online,
+    required bool tokenReady,
+  }) {
+    if (!isOwner || !tokenReady || !online) return false;
+    final lim = _limits;
+    if (lim != null) return _boolFrom(lim['can_add']);
+    return _users.length < 5;
+  }
+
+  bool _licenseExpired() {
     final lim = _limits;
     if (lim == null) return false;
-    return lim['can_add'] == true;
+    return lim['license_status'] == 'expired' ||
+        (_intFrom(lim['max_users']) ?? 1) <= 0;
   }
 
   String _limitsBody(AppLocalizations l10n) {
@@ -279,16 +307,22 @@ class _SettingsUsersScreenState extends ConsumerState<SettingsUsersScreen> {
     final api = PrideApiConfig.isConfigured;
     final online = ref.watch(connectivityOnlineProvider);
     final session = ref.watch(authSessionProvider);
-    final canManageUsers = session.isShopOwner;
+    final isOwner = session.isShopOwner;
     final tokenReady =
         session.hasApiSession && (session.accessToken?.isNotEmpty == true);
     final tokenReadyForList = api && tokenReady;
     final ready = tokenReadyForList && online;
-    final showAdd = ready && canManageUsers && _canAddFromLimits;
+    final canAdd = _canAddUser(
+      isOwner: isOwner,
+      online: online,
+      tokenReady: tokenReadyForList,
+    );
+    final showAdd = ready && canAdd;
     final atLimit = ready &&
-        canManageUsers &&
-        !_canAddFromLimits &&
+        isOwner &&
         _limits != null &&
+        !canAdd &&
+        !_licenseExpired() &&
         (_intFrom(_limits!['active_count']) ?? 0) >=
             (_intFrom(_limits!['max_users']) ?? 0);
 
@@ -320,12 +354,72 @@ class _SettingsUsersScreenState extends ConsumerState<SettingsUsersScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           if (!api || !tokenReady) ...[
             Text(
               l10n.settingsUsersAddDisabledHint,
               style: Theme.of(context).textTheme.bodySmall,
             ),
+          ] else if (!isOwner) ...[
+            Card(
+              color: Theme.of(context).colorScheme.secondaryContainer,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      size: 20,
+                      color: Theme.of(context).colorScheme.onSecondaryContainer,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        l10n.settingsUsersNotOwnerBanner,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSecondaryContainer,
+                            ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ] else if (!online) ...[
+            Text(
+              l10n.settingsUsersNeedOnline,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ] else if (_licenseExpired()) ...[
+            Text(
+              l10n.settingsUsersLicenseExpired,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+            ),
+          ] else if (_limitsLoadError != null) ...[
+            Text(
+              l10n.settingsUsersLimitsLoadFailed(_limitsLoadError!),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+            ),
+            const SizedBox(height: 8),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton.icon(
+                onPressed: _loading ? null : _load,
+                icon: const Icon(Icons.refresh),
+                label: Text(l10n.settingsUsersRetryCta),
+              ),
+            ),
+          ],
+          const SizedBox(height: 16),
+          if (!api || !tokenReady) ...[
+            const SizedBox.shrink(),
           ] else ...[
             if (_showingOfflineCache || (!online && _users.isNotEmpty)) ...[
               Card(
@@ -359,7 +453,7 @@ class _SettingsUsersScreenState extends ConsumerState<SettingsUsersScreen> {
               ),
               const SizedBox(height: 16),
             ],
-            if (canManageUsers && atLimit) ...[
+            if (isOwner && atLimit) ...[
               Text(
                 l10n.settingsUsersAtLimit(
                   _intFrom(_limits!['active_count']) ?? 0,
@@ -371,7 +465,7 @@ class _SettingsUsersScreenState extends ConsumerState<SettingsUsersScreen> {
               ),
               const SizedBox(height: 8),
             ],
-            if (canManageUsers) ...[
+            if (isOwner) ...[
               FilledButton.icon(
                 onPressed: showAdd ? () => _showAddDialog(l10n) : null,
                 icon: const Icon(Icons.person_add_alt_1),
@@ -386,7 +480,7 @@ class _SettingsUsersScreenState extends ConsumerState<SettingsUsersScreen> {
                   style: Theme.of(context).textTheme.titleSmall,
                 ),
                 const Spacer(),
-                if (_loadError != null)
+                if (_loadError != null || _limitsLoadError != null)
                   TextButton.icon(
                     onPressed: _loading ? null : _load,
                     icon: const Icon(Icons.refresh),
@@ -429,7 +523,7 @@ class _SettingsUsersScreenState extends ConsumerState<SettingsUsersScreen> {
                 ),
               )
             else ...[
-              if (!canManageUsers)
+              if (!isOwner)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Text(
@@ -444,8 +538,8 @@ class _SettingsUsersScreenState extends ConsumerState<SettingsUsersScreen> {
                       if (i > 0) const Divider(height: 1),
                       _UserTile(
                         row: _users[i],
-                        isOwnerViewer: canManageUsers,
-                        onDelete: canManageUsers && ready
+                        isOwnerViewer: isOwner,
+                        onDelete: isOwner && ready
                             ? () => _confirmDelete(
                                   l10n,
                                   _users[i]['id']! as String,

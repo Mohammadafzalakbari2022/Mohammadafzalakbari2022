@@ -5,16 +5,18 @@ import 'package:pdf/widgets.dart' as pw;
 import '../../data/local/catalog/catalog_image_ref.dart';
 import '../../data/local/order_style_snapshot_view.dart';
 import '../../data/local/order_summary.dart';
+import '../../data/local/style/order_style_figures_resolver.dart';
+import '../../data/local/style_figure_summary.dart';
 import 'style_figure_raster.dart';
 
-/// Max style figure thumbnails on the invoice design rail.
-const int kInvoicePdfMaxStyleFigures = 6;
+/// Max style figure thumbnails on the invoice.
+const int kInvoicePdfMaxStyleFigures = 8;
 
-const int kInvoicePdfStyleFigurePx = 36;
-const int kInvoicePdfCatalogMaxWidthPx = 100;
-const int kInvoicePdfCatalogMaxHeightPx = 90;
+const int kInvoicePdfStyleFigurePx = 52;
+const int kInvoicePdfCatalogMaxWidthPx = 200;
+const int kInvoicePdfCatalogMaxHeightPx = 155;
 
-/// Raster images for the PDF side design rail (style figures + catalog).
+/// Raster images for style figures and catalog design on the invoice.
 class InvoicePdfDesignRail {
   const InvoicePdfDesignRail({
     this.figureProviders = const [],
@@ -31,17 +33,32 @@ class InvoicePdfDesignRail {
 Future<InvoicePdfDesignRail> loadInvoicePdfDesignRail({
   required OrderSummary order,
   OrderStyleSnapshotView? styleSnap,
+  List<StyleFigureSummary> catalogFigures = const [],
 }) async {
   final figureProviders = <pw.ImageProvider>[];
-  final figures = styleSnap?.figures ?? [];
-  if (figures.isNotEmpty) {
-    final sorted = List<OrderStyleSnapshotFigureView>.from(figures)
+
+  final snapFigures = styleSnap?.figures ?? [];
+  if (snapFigures.isNotEmpty) {
+    final sorted = List<OrderStyleSnapshotFigureView>.from(snapFigures)
       ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
     for (final f in sorted.take(kInvoicePdfMaxStyleFigures)) {
       final ref = f.imageRefSnapshot.trim();
       if (ref.isEmpty) continue;
       final raster = await loadStyleFigureRaster(
         imageRef: ref,
+        maxWidthPx: kInvoicePdfStyleFigurePx,
+      );
+      final provider = _rasterToProvider(raster);
+      if (provider != null) figureProviders.add(provider);
+    }
+  } else {
+    final selected = resolveOrderStyleFigures(
+      styleSelectionJson: order.styleSelectionJson,
+      allFigures: catalogFigures,
+    );
+    for (final figure in selected.take(kInvoicePdfMaxStyleFigures)) {
+      final raster = await loadStyleFigureRaster(
+        imageRef: figure.imageRef,
         maxWidthPx: kInvoicePdfStyleFigurePx,
       );
       final provider = _rasterToProvider(raster);
@@ -63,10 +80,10 @@ Future<InvoicePdfDesignRail> loadInvoicePdfDesignRail({
 }
 
 String? _catalogPathForInvoice(OrderSummary order) {
-  final thumb = order.catalogThumbnailPathSnapshot?.trim();
-  if (thumb != null && thumb.isNotEmpty) return thumb;
   final image = order.catalogImagePathSnapshot?.trim();
   if (image != null && image.isNotEmpty) return image;
+  final thumb = order.catalogThumbnailPathSnapshot?.trim();
+  if (thumb != null && thumb.isNotEmpty) return thumb;
   return null;
 }
 
@@ -94,9 +111,11 @@ img.Image _fitCatalogRaster(img.Image decoded) {
   if (scale >= 1) return decoded;
 
   final targetW = (w * scale).round().clamp(1, kInvoicePdfCatalogMaxWidthPx);
+  final targetH = (h * scale).round().clamp(1, kInvoicePdfCatalogMaxHeightPx);
   return img.copyResize(
     decoded,
     width: targetW,
+    height: targetH,
     interpolation: img.Interpolation.linear,
   );
 }

@@ -49,6 +49,28 @@ to create the first shop and owner, then sign in from the Flutter app.
 **Optional env (Dashboard):** `PRIDE_DEVELOPER_IDS`, `PRIDE_AUTH_SEED`, and any future flags
 documented in [`api/.env.example`](.env.example).
 
+### Render logs — normal vs failed
+
+A **successful** deploy ends with:
+
+- `Nest application successfully started`
+- `Your service is live` and your URL (e.g. `https://pride-v3.onrender.com`)
+
+These lines are **not** errors:
+
+- `FCM: FIREBASE_SERVICE_ACCOUNT_JSON not set (optional) — push delivery disabled.` — push
+  notifications only; login, sync, and billing work without it. To enable FCM, add
+  **`FIREBASE_SERVICE_ACCOUNT_JSON`** in Render → **Environment** (full Firebase service
+  account JSON, one line).
+- `Seeded shop "…"` / `Operator seed: user "…" already exists` — idempotent
+  **`PRIDE_AUTH_SEED`** / **`PRIDE_OPERATOR_SEED`** bootstrap.
+
+Confirm the API: `GET /health` → `200` and `{"status":"ok","service":"pride-api"}`.
+
+A **failed** deploy usually shows **`ERROR`** or exits during **Build** / **Pre-deploy**
+(e.g. `sh: nest: not found`, Prisma `P1001` / migration errors) — not the route-mapping
+`LOG` block at startup.
+
 ### Option B — Render-managed Postgres
 
 Add a `databases` entry to `render.yaml` and wire `DATABASE_URL` with `fromDatabase`

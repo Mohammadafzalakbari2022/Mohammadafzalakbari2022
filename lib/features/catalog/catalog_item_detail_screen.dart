@@ -239,6 +239,22 @@ class CatalogItemDetailScreen extends ConsumerWidget {
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 16),
+              Text(
+                l10n.catalogDescriptionSheetTitle,
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                item.notes != null && item.notes!.trim().isNotEmpty
+                    ? item.notes!.trim()
+                    : l10n.catalogNoDescription,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: item.notes != null && item.notes!.trim().isNotEmpty
+                          ? null
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+              const SizedBox(height: 16),
               if (!isOwnShop)
                 Card(
                   child: ListTile(

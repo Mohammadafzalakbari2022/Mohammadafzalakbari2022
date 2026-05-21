@@ -47,113 +47,128 @@ const OrderEntitySchema = CollectionSchema(
       name: r'createdAt',
       type: IsarType.dateTime,
     ),
-    r'customerInternalId': PropertySchema(
+    r'customerChangeHistoryJson': PropertySchema(
       id: 6,
+      name: r'customerChangeHistoryJson',
+      type: IsarType.string,
+    ),
+    r'customerInternalId': PropertySchema(
+      id: 7,
       name: r'customerInternalId',
       type: IsarType.string,
     ),
+    r'customerNameSnapshot': PropertySchema(
+      id: 8,
+      name: r'customerNameSnapshot',
+      type: IsarType.string,
+    ),
+    r'customerPhoneSnapshot': PropertySchema(
+      id: 9,
+      name: r'customerPhoneSnapshot',
+      type: IsarType.string,
+    ),
     r'deletedAt': PropertySchema(
-      id: 7,
+      id: 10,
       name: r'deletedAt',
       type: IsarType.dateTime,
     ),
     r'deliveryDate': PropertySchema(
-      id: 8,
+      id: 11,
       name: r'deliveryDate',
       type: IsarType.dateTime,
     ),
     r'displayOrderNo': PropertySchema(
-      id: 9,
+      id: 12,
       name: r'displayOrderNo',
       type: IsarType.string,
     ),
     r'fabricColorPresetInternalId': PropertySchema(
-      id: 10,
+      id: 13,
       name: r'fabricColorPresetInternalId',
       type: IsarType.string,
     ),
     r'fabricColorSnapshot': PropertySchema(
-      id: 11,
+      id: 14,
       name: r'fabricColorSnapshot',
       type: IsarType.string,
     ),
     r'fabricIdSnapshot': PropertySchema(
-      id: 12,
+      id: 15,
       name: r'fabricIdSnapshot',
       type: IsarType.string,
     ),
     r'fabricNamePresetInternalId': PropertySchema(
-      id: 13,
+      id: 16,
       name: r'fabricNamePresetInternalId',
       type: IsarType.string,
     ),
     r'fabricNameSnapshot': PropertySchema(
-      id: 14,
+      id: 17,
       name: r'fabricNameSnapshot',
       type: IsarType.string,
     ),
     r'internalId': PropertySchema(
-      id: 15,
+      id: 18,
       name: r'internalId',
       type: IsarType.string,
     ),
     r'internalNotes': PropertySchema(
-      id: 16,
+      id: 19,
       name: r'internalNotes',
       type: IsarType.string,
     ),
     r'measurementsSnapshot': PropertySchema(
-      id: 17,
+      id: 20,
       name: r'measurementsSnapshot',
       type: IsarType.string,
     ),
     r'shopId': PropertySchema(
-      id: 18,
+      id: 21,
       name: r'shopId',
       type: IsarType.string,
     ),
     r'sourceMeasurementProfileId': PropertySchema(
-      id: 19,
+      id: 22,
       name: r'sourceMeasurementProfileId',
       type: IsarType.string,
     ),
     r'sourceMeasurementProfileLabel': PropertySchema(
-      id: 20,
+      id: 23,
       name: r'sourceMeasurementProfileLabel',
       type: IsarType.string,
     ),
     r'statusIndex': PropertySchema(
-      id: 21,
+      id: 24,
       name: r'statusIndex',
       type: IsarType.long,
     ),
     r'styleName': PropertySchema(
-      id: 22,
+      id: 25,
       name: r'styleName',
       type: IsarType.string,
     ),
     r'styleNameInternalId': PropertySchema(
-      id: 23,
+      id: 26,
       name: r'styleNameInternalId',
       type: IsarType.string,
     ),
     r'styleSelectionJson': PropertySchema(
-      id: 24,
+      id: 27,
       name: r'styleSelectionJson',
       type: IsarType.string,
     ),
     r'styleSummary': PropertySchema(
-      id: 25,
+      id: 28,
       name: r'styleSummary',
       type: IsarType.string,
     ),
     r'totalAmountMinor': PropertySchema(
-      id: 26,
+      id: 29,
       name: r'totalAmountMinor',
       type: IsarType.long,
     ),
     r'updatedAt': PropertySchema(
-      id: 27,
+      id: 30,
       name: r'updatedAt',
       type: IsarType.dateTime,
     )
@@ -303,7 +318,10 @@ int _orderEntityEstimateSize(
       bytesCount += 3 + value.length * 3;
     }
   }
+  bytesCount += 3 + object.customerChangeHistoryJson.length * 3;
   bytesCount += 3 + object.customerInternalId.length * 3;
+  bytesCount += 3 + object.customerNameSnapshot.length * 3;
+  bytesCount += 3 + object.customerPhoneSnapshot.length * 3;
   bytesCount += 3 + object.displayOrderNo.length * 3;
   {
     final value = object.fabricColorPresetInternalId;
@@ -355,28 +373,31 @@ void _orderEntitySerialize(
   writer.writeString(offsets[3], object.catalogItemInternalId);
   writer.writeString(offsets[4], object.catalogThumbnailPathSnapshot);
   writer.writeDateTime(offsets[5], object.createdAt);
-  writer.writeString(offsets[6], object.customerInternalId);
-  writer.writeDateTime(offsets[7], object.deletedAt);
-  writer.writeDateTime(offsets[8], object.deliveryDate);
-  writer.writeString(offsets[9], object.displayOrderNo);
-  writer.writeString(offsets[10], object.fabricColorPresetInternalId);
-  writer.writeString(offsets[11], object.fabricColorSnapshot);
-  writer.writeString(offsets[12], object.fabricIdSnapshot);
-  writer.writeString(offsets[13], object.fabricNamePresetInternalId);
-  writer.writeString(offsets[14], object.fabricNameSnapshot);
-  writer.writeString(offsets[15], object.internalId);
-  writer.writeString(offsets[16], object.internalNotes);
-  writer.writeString(offsets[17], object.measurementsSnapshot);
-  writer.writeString(offsets[18], object.shopId);
-  writer.writeString(offsets[19], object.sourceMeasurementProfileId);
-  writer.writeString(offsets[20], object.sourceMeasurementProfileLabel);
-  writer.writeLong(offsets[21], object.statusIndex);
-  writer.writeString(offsets[22], object.styleName);
-  writer.writeString(offsets[23], object.styleNameInternalId);
-  writer.writeString(offsets[24], object.styleSelectionJson);
-  writer.writeString(offsets[25], object.styleSummary);
-  writer.writeLong(offsets[26], object.totalAmountMinor);
-  writer.writeDateTime(offsets[27], object.updatedAt);
+  writer.writeString(offsets[6], object.customerChangeHistoryJson);
+  writer.writeString(offsets[7], object.customerInternalId);
+  writer.writeString(offsets[8], object.customerNameSnapshot);
+  writer.writeString(offsets[9], object.customerPhoneSnapshot);
+  writer.writeDateTime(offsets[10], object.deletedAt);
+  writer.writeDateTime(offsets[11], object.deliveryDate);
+  writer.writeString(offsets[12], object.displayOrderNo);
+  writer.writeString(offsets[13], object.fabricColorPresetInternalId);
+  writer.writeString(offsets[14], object.fabricColorSnapshot);
+  writer.writeString(offsets[15], object.fabricIdSnapshot);
+  writer.writeString(offsets[16], object.fabricNamePresetInternalId);
+  writer.writeString(offsets[17], object.fabricNameSnapshot);
+  writer.writeString(offsets[18], object.internalId);
+  writer.writeString(offsets[19], object.internalNotes);
+  writer.writeString(offsets[20], object.measurementsSnapshot);
+  writer.writeString(offsets[21], object.shopId);
+  writer.writeString(offsets[22], object.sourceMeasurementProfileId);
+  writer.writeString(offsets[23], object.sourceMeasurementProfileLabel);
+  writer.writeLong(offsets[24], object.statusIndex);
+  writer.writeString(offsets[25], object.styleName);
+  writer.writeString(offsets[26], object.styleNameInternalId);
+  writer.writeString(offsets[27], object.styleSelectionJson);
+  writer.writeString(offsets[28], object.styleSummary);
+  writer.writeLong(offsets[29], object.totalAmountMinor);
+  writer.writeDateTime(offsets[30], object.updatedAt);
 }
 
 OrderEntity _orderEntityDeserialize(
@@ -392,29 +413,32 @@ OrderEntity _orderEntityDeserialize(
   object.catalogItemInternalId = reader.readStringOrNull(offsets[3]);
   object.catalogThumbnailPathSnapshot = reader.readStringOrNull(offsets[4]);
   object.createdAt = reader.readDateTimeOrNull(offsets[5]);
-  object.customerInternalId = reader.readString(offsets[6]);
-  object.deletedAt = reader.readDateTimeOrNull(offsets[7]);
-  object.deliveryDate = reader.readDateTime(offsets[8]);
-  object.displayOrderNo = reader.readString(offsets[9]);
-  object.fabricColorPresetInternalId = reader.readStringOrNull(offsets[10]);
-  object.fabricColorSnapshot = reader.readString(offsets[11]);
-  object.fabricIdSnapshot = reader.readString(offsets[12]);
-  object.fabricNamePresetInternalId = reader.readStringOrNull(offsets[13]);
-  object.fabricNameSnapshot = reader.readString(offsets[14]);
+  object.customerChangeHistoryJson = reader.readString(offsets[6]);
+  object.customerInternalId = reader.readString(offsets[7]);
+  object.customerNameSnapshot = reader.readString(offsets[8]);
+  object.customerPhoneSnapshot = reader.readString(offsets[9]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[10]);
+  object.deliveryDate = reader.readDateTime(offsets[11]);
+  object.displayOrderNo = reader.readString(offsets[12]);
+  object.fabricColorPresetInternalId = reader.readStringOrNull(offsets[13]);
+  object.fabricColorSnapshot = reader.readString(offsets[14]);
+  object.fabricIdSnapshot = reader.readString(offsets[15]);
+  object.fabricNamePresetInternalId = reader.readStringOrNull(offsets[16]);
+  object.fabricNameSnapshot = reader.readString(offsets[17]);
   object.id = id;
-  object.internalId = reader.readString(offsets[15]);
-  object.internalNotes = reader.readString(offsets[16]);
-  object.measurementsSnapshot = reader.readString(offsets[17]);
-  object.shopId = reader.readString(offsets[18]);
-  object.sourceMeasurementProfileId = reader.readStringOrNull(offsets[19]);
-  object.sourceMeasurementProfileLabel = reader.readString(offsets[20]);
-  object.statusIndex = reader.readLong(offsets[21]);
-  object.styleName = reader.readString(offsets[22]);
-  object.styleNameInternalId = reader.readStringOrNull(offsets[23]);
-  object.styleSelectionJson = reader.readString(offsets[24]);
-  object.styleSummary = reader.readString(offsets[25]);
-  object.totalAmountMinor = reader.readLong(offsets[26]);
-  object.updatedAt = reader.readDateTime(offsets[27]);
+  object.internalId = reader.readString(offsets[18]);
+  object.internalNotes = reader.readString(offsets[19]);
+  object.measurementsSnapshot = reader.readString(offsets[20]);
+  object.shopId = reader.readString(offsets[21]);
+  object.sourceMeasurementProfileId = reader.readStringOrNull(offsets[22]);
+  object.sourceMeasurementProfileLabel = reader.readString(offsets[23]);
+  object.statusIndex = reader.readLong(offsets[24]);
+  object.styleName = reader.readString(offsets[25]);
+  object.styleNameInternalId = reader.readStringOrNull(offsets[26]);
+  object.styleSelectionJson = reader.readString(offsets[27]);
+  object.styleSummary = reader.readString(offsets[28]);
+  object.totalAmountMinor = reader.readLong(offsets[29]);
+  object.updatedAt = reader.readDateTime(offsets[30]);
   return object;
 }
 
@@ -440,15 +464,15 @@ P _orderEntityDeserializeProp<P>(
     case 6:
       return (reader.readString(offset)) as P;
     case 7:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 8:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 9:
       return (reader.readString(offset)) as P;
     case 10:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 11:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTime(offset)) as P;
     case 12:
       return (reader.readString(offset)) as P;
     case 13:
@@ -458,28 +482,34 @@ P _orderEntityDeserializeProp<P>(
     case 15:
       return (reader.readString(offset)) as P;
     case 16:
-      return (reader.readString(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 17:
       return (reader.readString(offset)) as P;
     case 18:
       return (reader.readString(offset)) as P;
     case 19:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 20:
       return (reader.readString(offset)) as P;
     case 21:
-      return (reader.readLong(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 22:
-      return (reader.readString(offset)) as P;
-    case 23:
       return (reader.readStringOrNull(offset)) as P;
-    case 24:
+    case 23:
       return (reader.readString(offset)) as P;
+    case 24:
+      return (reader.readLong(offset)) as P;
     case 25:
       return (reader.readString(offset)) as P;
     case 26:
-      return (reader.readLong(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 27:
+      return (reader.readString(offset)) as P;
+    case 28:
+      return (reader.readString(offset)) as P;
+    case 29:
+      return (reader.readLong(offset)) as P;
+    case 30:
       return (reader.readDateTime(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -2031,6 +2061,144 @@ extension OrderEntityQueryFilter
   }
 
   QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      customerChangeHistoryJsonEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'customerChangeHistoryJson',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      customerChangeHistoryJsonGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'customerChangeHistoryJson',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      customerChangeHistoryJsonLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'customerChangeHistoryJson',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      customerChangeHistoryJsonBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'customerChangeHistoryJson',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      customerChangeHistoryJsonStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'customerChangeHistoryJson',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      customerChangeHistoryJsonEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'customerChangeHistoryJson',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      customerChangeHistoryJsonContains(String value,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'customerChangeHistoryJson',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      customerChangeHistoryJsonMatches(String pattern,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'customerChangeHistoryJson',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      customerChangeHistoryJsonIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'customerChangeHistoryJson',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      customerChangeHistoryJsonIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'customerChangeHistoryJson',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
       customerInternalIdEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -2161,6 +2329,279 @@ extension OrderEntityQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'customerInternalId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      customerNameSnapshotEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'customerNameSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      customerNameSnapshotGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'customerNameSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      customerNameSnapshotLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'customerNameSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      customerNameSnapshotBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'customerNameSnapshot',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      customerNameSnapshotStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'customerNameSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      customerNameSnapshotEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'customerNameSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      customerNameSnapshotContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'customerNameSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      customerNameSnapshotMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'customerNameSnapshot',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      customerNameSnapshotIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'customerNameSnapshot',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      customerNameSnapshotIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'customerNameSnapshot',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      customerPhoneSnapshotEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'customerPhoneSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      customerPhoneSnapshotGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'customerPhoneSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      customerPhoneSnapshotLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'customerPhoneSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      customerPhoneSnapshotBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'customerPhoneSnapshot',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      customerPhoneSnapshotStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'customerPhoneSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      customerPhoneSnapshotEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'customerPhoneSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      customerPhoneSnapshotContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'customerPhoneSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      customerPhoneSnapshotMatches(String pattern,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'customerPhoneSnapshot',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      customerPhoneSnapshotIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'customerPhoneSnapshot',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterFilterCondition>
+      customerPhoneSnapshotIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'customerPhoneSnapshot',
         value: '',
       ));
     });
@@ -4863,6 +5304,20 @@ extension OrderEntityQuerySortBy
   }
 
   QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      sortByCustomerChangeHistoryJson() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerChangeHistoryJson', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      sortByCustomerChangeHistoryJsonDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerChangeHistoryJson', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
       sortByCustomerInternalId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'customerInternalId', Sort.asc);
@@ -4873,6 +5328,34 @@ extension OrderEntityQuerySortBy
       sortByCustomerInternalIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'customerInternalId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      sortByCustomerNameSnapshot() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerNameSnapshot', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      sortByCustomerNameSnapshotDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerNameSnapshot', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      sortByCustomerPhoneSnapshot() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerPhoneSnapshot', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      sortByCustomerPhoneSnapshotDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerPhoneSnapshot', Sort.desc);
     });
   }
 
@@ -5240,6 +5723,20 @@ extension OrderEntityQuerySortThenBy
   }
 
   QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      thenByCustomerChangeHistoryJson() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerChangeHistoryJson', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      thenByCustomerChangeHistoryJsonDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerChangeHistoryJson', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
       thenByCustomerInternalId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'customerInternalId', Sort.asc);
@@ -5250,6 +5747,34 @@ extension OrderEntityQuerySortThenBy
       thenByCustomerInternalIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'customerInternalId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      thenByCustomerNameSnapshot() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerNameSnapshot', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      thenByCustomerNameSnapshotDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerNameSnapshot', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      thenByCustomerPhoneSnapshot() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerPhoneSnapshot', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QAfterSortBy>
+      thenByCustomerPhoneSnapshotDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerPhoneSnapshot', Sort.desc);
     });
   }
 
@@ -5593,9 +6118,33 @@ extension OrderEntityQueryWhereDistinct
   }
 
   QueryBuilder<OrderEntity, OrderEntity, QDistinct>
+      distinctByCustomerChangeHistoryJson({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'customerChangeHistoryJson',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QDistinct>
       distinctByCustomerInternalId({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'customerInternalId',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QDistinct>
+      distinctByCustomerNameSnapshot({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'customerNameSnapshot',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<OrderEntity, OrderEntity, QDistinct>
+      distinctByCustomerPhoneSnapshot({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'customerPhoneSnapshot',
           caseSensitive: caseSensitive);
     });
   }
@@ -5806,9 +6355,30 @@ extension OrderEntityQueryProperty
   }
 
   QueryBuilder<OrderEntity, String, QQueryOperations>
+      customerChangeHistoryJsonProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'customerChangeHistoryJson');
+    });
+  }
+
+  QueryBuilder<OrderEntity, String, QQueryOperations>
       customerInternalIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'customerInternalId');
+    });
+  }
+
+  QueryBuilder<OrderEntity, String, QQueryOperations>
+      customerNameSnapshotProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'customerNameSnapshot');
+    });
+  }
+
+  QueryBuilder<OrderEntity, String, QQueryOperations>
+      customerPhoneSnapshotProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'customerPhoneSnapshot');
     });
   }
 

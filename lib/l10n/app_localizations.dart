@@ -3068,6 +3068,35 @@ abstract class AppLocalizations {
   /// **'Update this order with your changes?'**
   String get ordersEditConfirmBody;
 
+  /// No description provided for @ordersDetailEditCustomerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit customer'**
+  String get ordersDetailEditCustomerTitle;
+
+  /// No description provided for @ordersDetailCustomerPickFromList.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from list'**
+  String get ordersDetailCustomerPickFromList;
+
+  /// No description provided for @ordersDetailCustomerHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer change history'**
+  String get ordersDetailCustomerHistoryTitle;
+
+  /// No description provided for @ordersDetailCustomerHistoryChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Was {fromName} ({fromPhone}) → now {toName} ({toPhone})'**
+  String ordersDetailCustomerHistoryChange(
+    String fromName,
+    String fromPhone,
+    String toName,
+    String toPhone,
+  );
+
   /// No description provided for @ordersStatusChangeConfirmTitle.
   ///
   /// In en, this message translates to:
@@ -4831,6 +4860,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'User limit reached ({count} of {max}).'**
   String settingsUsersAtLimit(int count, int max);
+
+  /// No description provided for @settingsUsersLimitsLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load user limits: {error}. Tap Retry or try Add user (the server will enforce limits).'**
+  String settingsUsersLimitsLoadFailed(String error);
+
+  /// No description provided for @settingsUsersLicenseExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Your shop license has expired. Renew or activate before adding users.'**
+  String get settingsUsersLicenseExpired;
+
+  /// No description provided for @settingsUsersNotOwnerBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in as a team member. Only the shop owner account can add or remove users.'**
+  String get settingsUsersNotOwnerBanner;
 
   /// No description provided for @settingsUsersNeedOnline.
   ///

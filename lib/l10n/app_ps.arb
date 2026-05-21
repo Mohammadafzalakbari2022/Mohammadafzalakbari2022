@@ -836,6 +836,34 @@
   "ordersComposerTotalHint": "بېلګه: 1500",
   "ordersComposerPaidLabel": "لومړنۍ ورکړه (افغانی)",
   "ordersComposerPaidHint": "بېلګه: 500",
+  "ordersComposerDueLabel": "پاتې",
+  "ordersPaymentInitialExceedsTotal": "لومړنۍ ورکړه د امر ټولې بېلې څخه زیاته نشي.",
+  "ordersPaymentExceedsRemaining": "ورکړه د پاتې پیسو څخه زیاته نشي.",
+  "ordersPaymentTotalBelowPaid": "د امر ټوله بېله له ورکړل شوي پیسو څخه لږه نشي.",
+  "ordersEditConfirmTitle": "بدلونونه خوندي شي؟",
+  "ordersEditConfirmBody": "دا امر ستاسو بدلونونو سره تازه شي؟",
+  "ordersStatusChangeConfirmTitle": "حالت بدل شي؟",
+  "ordersStatusChangeConfirmBody": "د امر حالت {status} ته بدل شي؟",
+  "@ordersStatusChangeConfirmBody": {
+    "placeholders": {
+      "status": { "type": "String" }
+    }
+  },
+  "ordersCancelOrderConfirmTitle": "دا امر لغوه شي؟",
+  "ordersCancelOrderConfirmBody": "د لغوه کولو تایید لپاره د پیرودونکي نوم ولیکئ.",
+  "ordersDetailEditCta": "سمون",
+  "ordersDetailEditCustomerTitle": "پیرودونکی سمول",
+  "ordersDetailCustomerPickFromList": "له لیست څخه غوره کړئ",
+  "ordersDetailCustomerHistoryTitle": "د پیرودونکي د بدلون تاریخچه",
+  "ordersDetailCustomerHistoryChange": "مخکې {fromName} ({fromPhone}) → اوس {toName} ({toPhone})",
+  "@ordersDetailCustomerHistoryChange": {
+    "placeholders": {
+      "fromName": { "type": "String" },
+      "fromPhone": { "type": "String" },
+      "toName": { "type": "String" },
+      "toPhone": { "type": "String" }
+    }
+  },
   "ordersComposerDeliveryDateTitle": "د تحویلي نیټه",
   "ordersComposerDeliveryDateUnset": "د تحویلي نیټه وټاکئ",
   "ordersComposerSaveCta": "امر خوندي کړئ",
@@ -1223,6 +1251,9 @@
   "settingsUsersLimitsBodyTrial": "ازمایښت: تر {max} کارنو. {count} فعال. د مالک حساب نشي ړنګېدلی.",
   "settingsUsersLimitsBodyPaid": "د دې هټۍ لپاره تر {max} کارنو. {count} فعال. د مالک حساب نشي ړنګېدلی.",
   "settingsUsersAtLimit": "د کارونو حد ته ورسېدل ({count} له {max}).",
+  "settingsUsersLimitsLoadFailed": "د کارونو حدونه نه راغلل: {error}. بیا هڅه وکړئ یا «کارن زیات کړئ» وازمویئ (سرور به حدونه تطبیق کړي).",
+  "settingsUsersLicenseExpired": "د هټۍ جواز پای ته رسېدلی. مخکې له کارونو زیاتولو څخه بیا فعال کړئ.",
+  "settingsUsersNotOwnerBanner": "د ټیم غړي په توګه ننوتلي یاست. یوازې د هټۍ مالک حساب کارن زیاتولی یا لرې کولی شي.",
   "settingsUsersNeedOnline": "د کارونو اداره لپاره آنلاین اوسئ او له سرور سره ننوځئ.",
   "settingsUsersTileNeedApiSession": "د کارونو اداره لپاره له سرور سره ننوځئ",
   "settingsUsersAddDisabledHint": "د کارونو زیاتولو یا لرې کولو لپاره له سرور سره ننوځئ او آنلاین اوسئ.",
@@ -1549,7 +1580,7 @@
   "receiptPhoneLabel": "تلیفون",
   "receiptDeliveryLabel": "تحویلي",
   "receiptStatusLabel": "حالت",
-  "receiptMeasurementsLabel": "پیمانې",
+  "receiptMeasurementsLabel": "پیمان",
   "invoicePridePromoLine": "دا فاکتور د افغان پراید له لارې جوړ او لیږل شوی دی",
   "receiptStyleLabel": "د سټایل یادښتونه",
   "receiptFabricLabel": "د پیرودونکي کپړه",

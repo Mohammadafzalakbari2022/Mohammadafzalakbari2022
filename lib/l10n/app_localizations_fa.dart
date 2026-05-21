@@ -1605,7 +1605,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get ordersComposerPaidHint => 'مثال: 500';
 
   @override
-  String get ordersComposerDueLabel => 'Due';
+  String get ordersComposerDueLabel => 'مانده';
 
   @override
   String get ordersComposerPaymentSheetTitle => 'Payment';
@@ -1616,15 +1616,15 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get ordersPaymentInitialExceedsTotal =>
-      'Initial payment cannot exceed the order total.';
+      'پرداخت اولیه نمی‌تواند از جمع سفارش بیشتر باشد.';
 
   @override
   String get ordersPaymentExceedsRemaining =>
-      'Payment cannot exceed the remaining balance.';
+      'پرداخت نمی‌تواند از مانده بیشتر باشد.';
 
   @override
   String get ordersPaymentTotalBelowPaid =>
-      'Order total cannot be less than amount already paid.';
+      'جمع سفارش نمی‌تواند از مبلغ پرداخت‌شده کمتر باشد.';
 
   @override
   String get ordersPaymentSheetSavedTitle => 'Payments';
@@ -1633,28 +1633,48 @@ class AppLocalizationsFa extends AppLocalizations {
   String get ordersPaymentHistoryTitle => 'Payment history';
 
   @override
-  String get ordersEditConfirmTitle => 'Save changes?';
+  String get ordersEditConfirmTitle => 'تغییرات ذخیره شود؟';
 
   @override
-  String get ordersEditConfirmBody => 'Update this order with your changes?';
+  String get ordersEditConfirmBody =>
+      'این سفارش با تغییرات شما به‌روزرسانی شود؟';
 
   @override
-  String get ordersStatusChangeConfirmTitle => 'Change status?';
+  String get ordersDetailEditCustomerTitle => 'ویرایش مشتری';
 
   @override
-  String ordersStatusChangeConfirmBody(String status) {
-    return 'Change order status to $status?';
+  String get ordersDetailCustomerPickFromList => 'انتخاب از فهرست';
+
+  @override
+  String get ordersDetailCustomerHistoryTitle => 'تاریخچهٔ تغییر مشتری';
+
+  @override
+  String ordersDetailCustomerHistoryChange(
+    String fromName,
+    String fromPhone,
+    String toName,
+    String toPhone,
+  ) {
+    return 'قبلاً $fromName ($fromPhone) → اکنون $toName ($toPhone)';
   }
 
   @override
-  String get ordersCancelOrderConfirmTitle => 'Cancel this order?';
+  String get ordersStatusChangeConfirmTitle => 'وضعیت تغییر کند؟';
+
+  @override
+  String ordersStatusChangeConfirmBody(String status) {
+    return 'وضعیت سفارش به $status تغییر کند؟';
+  }
+
+  @override
+  String get ordersCancelOrderConfirmTitle => 'این سفارش لغو شود؟';
 
   @override
   String get ordersCancelOrderConfirmBody =>
-      'Type the customer name to confirm cancellation.';
+      'برای تأیید لغو، نام مشتری را تایپ کنید.';
 
   @override
-  String get ordersDetailEditCta => 'Edit';
+  String get ordersDetailEditCta => 'ویرایش';
 
   @override
   String get ordersComposerDeliveryDateTitle => 'تاریخ تحویل';
@@ -2614,6 +2634,19 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String settingsUsersLimitsLoadFailed(String error) {
+    return 'بارگذاری محدودیت کاربران ناموفق بود: $error. «تلاش مجدد» بزنید یا «افزودن کاربر» را امتحان کنید (سرور محدودیت را اعمال می‌کند).';
+  }
+
+  @override
+  String get settingsUsersLicenseExpired =>
+      'مجوز فروشگاه منقضی شده است. قبل از افزودن کاربر، تمدید یا فعال‌سازی کنید.';
+
+  @override
+  String get settingsUsersNotOwnerBanner =>
+      'به‌عنوان عضو تیم وارد شده‌اید. فقط حساب مالک فروشگاه می‌تواند کاربر اضافه یا حذف کند.';
+
+  @override
   String get settingsUsersNeedOnline =>
       'برای مدیریت کاربران آنلاین بمانید و با سرور وارد شوید.';
 
@@ -3431,7 +3464,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get receiptStatusLabel => 'وضعیت';
 
   @override
-  String get receiptMeasurementsLabel => 'اندازه‌گیری';
+  String get receiptMeasurementsLabel => 'اندازه';
 
   @override
   String get invoicePridePromoLine =>

@@ -1599,7 +1599,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get ordersComposerPaidHint => 'بېلګه: 500';
 
   @override
-  String get ordersComposerDueLabel => 'Due';
+  String get ordersComposerDueLabel => 'پاتې';
 
   @override
   String get ordersComposerPaymentSheetTitle => 'Payment';
@@ -1610,15 +1610,15 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get ordersPaymentInitialExceedsTotal =>
-      'Initial payment cannot exceed the order total.';
+      'لومړنۍ ورکړه د امر ټولې بېلې څخه زیاته نشي.';
 
   @override
   String get ordersPaymentExceedsRemaining =>
-      'Payment cannot exceed the remaining balance.';
+      'ورکړه د پاتې پیسو څخه زیاته نشي.';
 
   @override
   String get ordersPaymentTotalBelowPaid =>
-      'Order total cannot be less than amount already paid.';
+      'د امر ټوله بېله له ورکړل شوي پیسو څخه لږه نشي.';
 
   @override
   String get ordersPaymentSheetSavedTitle => 'Payments';
@@ -1627,28 +1627,47 @@ class AppLocalizationsPs extends AppLocalizations {
   String get ordersPaymentHistoryTitle => 'Payment history';
 
   @override
-  String get ordersEditConfirmTitle => 'Save changes?';
+  String get ordersEditConfirmTitle => 'بدلونونه خوندي شي؟';
 
   @override
-  String get ordersEditConfirmBody => 'Update this order with your changes?';
+  String get ordersEditConfirmBody => 'دا امر ستاسو بدلونونو سره تازه شي؟';
 
   @override
-  String get ordersStatusChangeConfirmTitle => 'Change status?';
+  String get ordersDetailEditCustomerTitle => 'پیرودونکی سمول';
 
   @override
-  String ordersStatusChangeConfirmBody(String status) {
-    return 'Change order status to $status?';
+  String get ordersDetailCustomerPickFromList => 'له لیست څخه غوره کړئ';
+
+  @override
+  String get ordersDetailCustomerHistoryTitle => 'د پیرودونکي د بدلون تاریخچه';
+
+  @override
+  String ordersDetailCustomerHistoryChange(
+    String fromName,
+    String fromPhone,
+    String toName,
+    String toPhone,
+  ) {
+    return 'مخکې $fromName ($fromPhone) → اوس $toName ($toPhone)';
   }
 
   @override
-  String get ordersCancelOrderConfirmTitle => 'Cancel this order?';
+  String get ordersStatusChangeConfirmTitle => 'حالت بدل شي؟';
+
+  @override
+  String ordersStatusChangeConfirmBody(String status) {
+    return 'د امر حالت $status ته بدل شي؟';
+  }
+
+  @override
+  String get ordersCancelOrderConfirmTitle => 'دا امر لغوه شي؟';
 
   @override
   String get ordersCancelOrderConfirmBody =>
-      'Type the customer name to confirm cancellation.';
+      'د لغوه کولو تایید لپاره د پیرودونکي نوم ولیکئ.';
 
   @override
-  String get ordersDetailEditCta => 'Edit';
+  String get ordersDetailEditCta => 'سمون';
 
   @override
   String get ordersComposerDeliveryDateTitle => 'د تحویلي نیټه';
@@ -2606,6 +2625,19 @@ class AppLocalizationsPs extends AppLocalizations {
   }
 
   @override
+  String settingsUsersLimitsLoadFailed(String error) {
+    return 'د کارونو حدونه نه راغلل: $error. بیا هڅه وکړئ یا «کارن زیات کړئ» وازمویئ (سرور به حدونه تطبیق کړي).';
+  }
+
+  @override
+  String get settingsUsersLicenseExpired =>
+      'د هټۍ جواز پای ته رسېدلی. مخکې له کارونو زیاتولو څخه بیا فعال کړئ.';
+
+  @override
+  String get settingsUsersNotOwnerBanner =>
+      'د ټیم غړي په توګه ننوتلي یاست. یوازې د هټۍ مالک حساب کارن زیاتولی یا لرې کولی شي.';
+
+  @override
   String get settingsUsersNeedOnline =>
       'د کارونو اداره لپاره آنلاین اوسئ او له سرور سره ننوځئ.';
 
@@ -3424,7 +3456,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get receiptStatusLabel => 'حالت';
 
   @override
-  String get receiptMeasurementsLabel => 'پیمانې';
+  String get receiptMeasurementsLabel => 'پیمان';
 
   @override
   String get invoicePridePromoLine =>

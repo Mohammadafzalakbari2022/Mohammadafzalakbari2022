@@ -1647,6 +1647,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ordersEditConfirmBody => 'Update this order with your changes?';
 
   @override
+  String get ordersDetailEditCustomerTitle => 'Edit customer';
+
+  @override
+  String get ordersDetailCustomerPickFromList => 'Choose from list';
+
+  @override
+  String get ordersDetailCustomerHistoryTitle => 'Customer change history';
+
+  @override
+  String ordersDetailCustomerHistoryChange(
+    String fromName,
+    String fromPhone,
+    String toName,
+    String toPhone,
+  ) {
+    return 'Was $fromName ($fromPhone) → now $toName ($toPhone)';
+  }
+
+  @override
   String get ordersStatusChangeConfirmTitle => 'Change status?';
 
   @override
@@ -2629,6 +2648,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String settingsUsersAtLimit(int count, int max) {
     return 'User limit reached ($count of $max).';
   }
+
+  @override
+  String settingsUsersLimitsLoadFailed(String error) {
+    return 'Could not load user limits: $error. Tap Retry or try Add user (the server will enforce limits).';
+  }
+
+  @override
+  String get settingsUsersLicenseExpired =>
+      'Your shop license has expired. Renew or activate before adding users.';
+
+  @override
+  String get settingsUsersNotOwnerBanner =>
+      'Signed in as a team member. Only the shop owner account can add or remove users.';
 
   @override
   String get settingsUsersNeedOnline =>

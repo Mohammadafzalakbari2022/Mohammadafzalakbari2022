@@ -56,9 +56,15 @@ Future<void> shareOrderInvoice({
 
     final styleSnap =
         ref.read(orderStyleSnapshotProvider(order.internalId)).valueOrNull;
+    final measurementSnap = ref
+        .read(orderMeasurementSnapshotProvider(order.internalId))
+        .valueOrNull;
+    final catalogFigures =
+        ref.read(styleAllFiguresStreamProvider).valueOrNull ?? const [];
     final designRail = await loadInvoicePdfDesignRail(
       order: order,
       styleSnap: styleSnap,
+      catalogFigures: catalogFigures,
     );
     final promoAssets = await loadInvoicePdfPromoAssets();
 
@@ -72,6 +78,7 @@ Future<void> shareOrderInvoice({
       textDirection: textDirection,
       designRail: designRail,
       promoAssets: promoAssets,
+      measurementSnap: measurementSnap,
     );
 
     final rawPhone = order.customerPhone?.trim();

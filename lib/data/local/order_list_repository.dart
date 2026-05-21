@@ -78,6 +78,8 @@ abstract class OrderListRepository {
   Future<void> updateOrderDetails({
     required String orderInternalId,
     String? customerInternalId,
+    String? customerSnapshotName,
+    String? customerSnapshotPhone,
     DateTime? deliveryDate,
     int? totalAmountMinor,
     String? measurementsSnapshot,

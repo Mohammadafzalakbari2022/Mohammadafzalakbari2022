@@ -17,8 +17,8 @@ import '../../data/local/sync_outbox_kinds.dart';
 import '../../data/providers/local_data_providers.dart';
 import '../../licensing/license_providers.dart';
 import '../../shell/shell_sync_providers.dart';
-import 'order_composer_customer_picker.dart';
 import 'order_composer_fabric_sheet.dart';
+import 'order_detail_customer_edit_sheet.dart';
 import 'order_composer_measurements_sheet.dart';
 import 'order_composer_style_sheet.dart';
 import 'order_detail_edit_helpers.dart';
@@ -95,19 +95,40 @@ Future<void> orderDetailEditCustomer(
   AppLocalizations l10n,
   OrderSummary o,
 ) async {
-  final customers =
-      ref.read(customersListStreamProvider).valueOrNull ?? const [];
-  final picked = await showOrderComposerCustomerPicker(
+  var customers = ref.read(customersListStreamProvider).valueOrNull;
+  if (customers == null) {
+    await ref.read(customersListStreamProvider.future);
+    if (!context.mounted) return;
+    customers = ref.read(customersListStreamProvider).valueOrNull;
+  }
+  final list = customers ?? const [];
+
+  final edited = await showOrderDetailCustomerEditSheet(
     context: context,
-    customers: customers,
     l10n: l10n,
-    selectedId: o.customerInternalId,
+    order: o,
+    customers: list,
   );
-  if (!context.mounted || picked == null) return;
-  if (picked.internalId == o.customerInternalId) return;
+  if (!context.mounted || edited == null) return;
+
+  final sameId = edited.customerInternalId == o.customerInternalId;
+  final sameName = edited.name.trim() == o.customerName.trim();
+  final samePhone = (edited.phone ?? '').trim() ==
+      (o.customerPhone ?? '').trim();
+  if (sameId && sameName && samePhone) return;
+
   if (!context.mounted) return;
   final repo = await ref.read(orderListRepositoryProvider.future);
   if (!context.mounted) return;
+
+  final payload = <String, dynamic>{
+    'customer_internal_id': edited.customerInternalId,
+    'customer_snapshot_name': edited.name.trim(),
+    if (edited.phone != null && edited.phone!.trim().isNotEmpty)
+      'customer_snapshot_phone': edited.phone!.trim(),
+    'updated_at': DateTime.now().toUtc().toIso8601String(),
+  };
+
   await _applyOrderUpdate(
     context,
     ref,
@@ -115,9 +136,11 @@ Future<void> orderDetailEditCustomer(
     o,
     patch: () => repo.updateOrderDetails(
       orderInternalId: o.internalId,
-      customerInternalId: picked.internalId,
+      customerInternalId: edited.customerInternalId,
+      customerSnapshotName: edited.name,
+      customerSnapshotPhone: edited.phone ?? '',
     ),
-    syncPayload: {'customer_internal_id': picked.internalId},
+    syncPayload: payload,
   );
 }
 
