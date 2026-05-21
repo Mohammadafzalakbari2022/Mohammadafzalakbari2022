@@ -33,6 +33,10 @@ class _DeveloperPortalBillingTabState
   final _accountName = TextEditingController();
   final _accountNumber = TextEditingController();
   final _merchantId = TextEditingController();
+  final _paymentLink = TextEditingController();
+  final _linkLabelEn = TextEditingController();
+  final _linkLabelFa = TextEditingController();
+  final _linkLabelPs = TextEditingController();
   final _price1 = TextEditingController();
   final _price2 = TextEditingController();
   final _priceLife = TextEditingController();
@@ -64,6 +68,10 @@ class _DeveloperPortalBillingTabState
     _accountName.dispose();
     _accountNumber.dispose();
     _merchantId.dispose();
+    _paymentLink.dispose();
+    _linkLabelEn.dispose();
+    _linkLabelFa.dispose();
+    _linkLabelPs.dispose();
     _price1.dispose();
     _price2.dispose();
     _priceLife.dispose();
@@ -96,18 +104,12 @@ class _DeveloperPortalBillingTabState
       };
 
   void _applyBilling(Map<String, dynamic> d) {
-    _published = d['is_published'] == true;
-    _accountName.text = '${d['hesab_pay_account_name'] ?? ''}';
-    _accountNumber.text = '${d['hesab_pay_account_number'] ?? ''}';
-    _merchantId.text = '${d['hesab_pay_merchant_id'] ?? ''}';
-    _price1.text = d['price_1_year_afn']?.toString() ?? '';
-    _price2.text = d['price_2_year_afn']?.toString() ?? '';
-    _priceLife.text = d['price_lifetime_afn']?.toString() ?? '';
-    _whatsapp.text = '${d['whatsapp_e164'] ?? ''}';
-    _telegram.text = '${d['telegram_handle'] ?? ''}';
-    _phone.text = '${d['direct_phone_e164'] ?? ''}';
-
-    void fillLocales(String key, TextEditingController en, fa, ps) {
+    void fillLocales(
+      String key,
+      TextEditingController en,
+      TextEditingController fa,
+      TextEditingController ps,
+    ) {
       final all = d['${key}_all'];
       if (all is Map) {
         en.text = '${all['en'] ?? ''}';
@@ -115,6 +117,24 @@ class _DeveloperPortalBillingTabState
         ps.text = '${all['ps'] ?? ''}';
       }
     }
+
+    _published = d['is_published'] == true;
+    _accountName.text = '${d['hesab_pay_account_name'] ?? ''}';
+    _accountNumber.text = '${d['hesab_pay_account_number'] ?? ''}';
+    _merchantId.text = '${d['hesab_pay_merchant_id'] ?? ''}';
+    _paymentLink.text = '${d['hesab_pay_payment_link'] ?? ''}';
+    fillLocales(
+      'hesab_pay_payment_link_label',
+      _linkLabelEn,
+      _linkLabelFa,
+      _linkLabelPs,
+    );
+    _price1.text = d['price_1_year_afn']?.toString() ?? '';
+    _price2.text = d['price_2_year_afn']?.toString() ?? '';
+    _priceLife.text = d['price_lifetime_afn']?.toString() ?? '';
+    _whatsapp.text = '${d['whatsapp_e164'] ?? ''}';
+    _telegram.text = '${d['telegram_handle'] ?? ''}';
+    _phone.text = '${d['direct_phone_e164'] ?? ''}';
 
     fillLocales('payment_steps', _payEn, _payFa, _payPs);
     fillLocales('activation_delivery_steps', _actEn, _actFa, _actPs);
@@ -226,6 +246,9 @@ class _DeveloperPortalBillingTabState
       'hesab_pay_account_name': _accountName.text.trim(),
       'hesab_pay_account_number': _accountNumber.text.trim(),
       'hesab_pay_merchant_id': _merchantId.text.trim(),
+      'hesab_pay_payment_link': _paymentLink.text.trim(),
+      'hesab_pay_payment_link_label':
+          _localeMap(_linkLabelEn, _linkLabelFa, _linkLabelPs),
       'price_1_year_afn': parsePrice(_price1),
       'price_2_year_afn': parsePrice(_price2),
       'price_lifetime_afn': parsePrice(_priceLife),
@@ -381,6 +404,17 @@ class _DeveloperPortalBillingTabState
           _field(l10n.devPortalBillingAccountName, _accountName),
           _field(l10n.devPortalBillingAccountNumber, _accountNumber),
           _field(l10n.devPortalBillingMerchantId, _merchantId),
+          _field(l10n.devPortalBillingPaymentLink, _paymentLink),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Text(
+              l10n.devPortalBillingPaymentLinkHint,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
+          _field(l10n.devPortalBillingPaymentLinkLabelEn, _linkLabelEn),
+          _field(l10n.devPortalBillingPaymentLinkLabelFa, _linkLabelFa),
+          _field(l10n.devPortalBillingPaymentLinkLabelPs, _linkLabelPs),
           _field(l10n.devPortalBillingPrice1Year, _price1, keyboard: TextInputType.number),
           _field(l10n.devPortalBillingPrice2Year, _price2, keyboard: TextInputType.number),
           _field(l10n.devPortalBillingPriceLifetime, _priceLife, keyboard: TextInputType.number),

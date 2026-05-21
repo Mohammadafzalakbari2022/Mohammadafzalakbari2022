@@ -130,6 +130,8 @@ model SubscriptionBillingConfig {
   hesabPayAccountName     String?  @map("hesab_pay_account_name")
   hesabPayAccountNumber   String?  @map("hesab_pay_account_number")
   hesabPayMerchantId      String?  @map("hesab_pay_merchant_id")
+  hesabPayPaymentLink     String?  @map("hesab_pay_payment_link")
+  hesabPayPaymentLinkLabel Json    @default("{}") @map("hesab_pay_payment_link_label")
   price1YearAfn           Int?     @map("price_1_year_afn")
   price2YearAfn           Int?     @map("price_2_year_afn")
   priceLifetimeAfn        Int?     @map("price_lifetime_afn")

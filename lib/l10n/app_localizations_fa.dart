@@ -2310,6 +2310,20 @@ class AppLocalizationsFa extends AppLocalizations {
   String get subscriptionBillingHesabPayTitle => 'پرداخت با حساب پی';
 
   @override
+  String get subscriptionBillingPaymentLinkTitle => 'اسکن یا لمس برای پرداخت';
+
+  @override
+  String get subscriptionBillingPaymentLinkDefaultLabel =>
+      'باز کردن لینک پرداخت حساب پی';
+
+  @override
+  String get subscriptionBillingCopyPaymentLink => 'کپی لینک پرداخت';
+
+  @override
+  String get subscriptionBillingPaymentLinkOpenFailed =>
+      'لینک پرداخت روی این دستگاه باز نشد.';
+
+  @override
   String get subscriptionBillingCashTitle => 'پرداخت نقدی';
 
   @override
@@ -2432,6 +2446,22 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get devPortalBillingMerchantId => 'شناسه مرچنت / مرجع';
+
+  @override
+  String get devPortalBillingPaymentLink => 'لینک پرداخت حساب پی (HTTPS)';
+
+  @override
+  String get devPortalBillingPaymentLinkHint =>
+      'لینک کامل از حساب پی. فروشگاه‌ها QR و این آدرس را می‌بینند.';
+
+  @override
+  String get devPortalBillingPaymentLinkLabelEn => 'نام دکمه لینک (انگلیسی)';
+
+  @override
+  String get devPortalBillingPaymentLinkLabelFa => 'نام دکمه لینک (دری)';
+
+  @override
+  String get devPortalBillingPaymentLinkLabelPs => 'نام دکمه لینک (پشتو)';
 
   @override
   String get devPortalBillingPrice1Year => 'قیمت ۱ سال (افغانی)';

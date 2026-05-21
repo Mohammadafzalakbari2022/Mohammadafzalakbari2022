@@ -97,6 +97,12 @@ export class BillingService {
       hesab_pay_account_name: row.hesabPayAccountName,
       hesab_pay_account_number: row.hesabPayAccountNumber,
       hesab_pay_merchant_id: row.hesabPayMerchantId,
+      hesab_pay_payment_link: row.hesabPayPaymentLink,
+      hesab_pay_payment_link_label: pickLocaleText(
+        row.hesabPayPaymentLinkLabel,
+        locale,
+      ),
+      hesab_pay_payment_link_label_all: row.hesabPayPaymentLinkLabel,
       price_1_year_afn: row.price1YearAfn,
       price_2_year_afn: row.price2YearAfn,
       price_lifetime_afn: row.priceLifetimeAfn,
@@ -141,6 +147,9 @@ export class BillingService {
       hesab_pay_account_name: null,
       hesab_pay_account_number: null,
       hesab_pay_merchant_id: null,
+      hesab_pay_payment_link: null,
+      hesab_pay_payment_link_label: '',
+      hesab_pay_payment_link_label_all: {},
       price_1_year_afn: null,
       price_2_year_afn: null,
       price_lifetime_afn: null,
@@ -196,6 +205,10 @@ export class BillingService {
       'cash_payment_note',
       existing?.cashPaymentNote,
     );
+    const paymentLinkLabel = parseJsonLocales(
+      'hesab_pay_payment_link_label',
+      existing?.hesabPayPaymentLinkLabel,
+    );
 
     const strOrNull = (key: string, prev: string | null | undefined) => {
       if (body[key] === undefined) return prev ?? null;
@@ -217,6 +230,22 @@ export class BillingService {
         ? (existing?.isPublished ?? false)
         : Boolean(body.is_published);
 
+    const paymentLink = strOrNull(
+      'hesab_pay_payment_link',
+      existing?.hesabPayPaymentLink,
+    );
+    if (paymentLink != null) {
+      const lower = paymentLink.toLowerCase();
+      if (
+        !lower.startsWith('https://') &&
+        !lower.startsWith('http://')
+      ) {
+        throw new BadRequestException(
+          'hesab_pay_payment_link must start with http:// or https://',
+        );
+      }
+    }
+
     const row = await this.prisma.subscriptionBillingConfig.upsert({
       where: { id: BILLING_CONFIG_ID },
       create: {
@@ -224,6 +253,8 @@ export class BillingService {
         hesabPayAccountName: strOrNull('hesab_pay_account_name', null),
         hesabPayAccountNumber: strOrNull('hesab_pay_account_number', null),
         hesabPayMerchantId: strOrNull('hesab_pay_merchant_id', null),
+        hesabPayPaymentLink: paymentLink,
+        hesabPayPaymentLinkLabel: paymentLinkLabel,
         price1YearAfn: intOrNull('price_1_year_afn', null),
         price2YearAfn: intOrNull('price_2_year_afn', null),
         priceLifetimeAfn: intOrNull('price_lifetime_afn', null),
@@ -249,6 +280,8 @@ export class BillingService {
           'hesab_pay_merchant_id',
           existing?.hesabPayMerchantId,
         ),
+        hesabPayPaymentLink: paymentLink,
+        hesabPayPaymentLinkLabel: paymentLinkLabel,
         price1YearAfn: intOrNull('price_1_year_afn', existing?.price1YearAfn),
         price2YearAfn: intOrNull('price_2_year_afn', existing?.price2YearAfn),
         priceLifetimeAfn: intOrNull(

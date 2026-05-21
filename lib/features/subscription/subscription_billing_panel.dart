@@ -9,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../shell/shell_sync_providers.dart';
 import 'billing_info_cache.dart';
+import 'hesab_pay_payment_link_section.dart';
 
 /// Hesab Pay instructions + owner payment claims on the subscription screen.
 class SubscriptionBillingPanel extends ConsumerStatefulWidget {
@@ -245,6 +246,15 @@ class _SubscriptionBillingPanelState
           ),
           const SizedBox(height: 16),
           _sectionTitle(context, l10n.subscriptionBillingHesabPayTitle),
+          if ('${billing['hesab_pay_payment_link'] ?? ''}'.trim().isNotEmpty) ...[
+            const SizedBox(height: 8),
+            HesabPayPaymentLinkSection(
+              paymentLink: '${billing['hesab_pay_payment_link']}'.trim(),
+              linkLabel: '${billing['hesab_pay_payment_link_label'] ?? ''}',
+              l10n: l10n,
+            ),
+            const SizedBox(height: 12),
+          ],
           if (billing['hesab_pay_account_name'] != null)
             Text('${billing['hesab_pay_account_name']}'),
           if (billing['hesab_pay_account_number'] != null) ...[

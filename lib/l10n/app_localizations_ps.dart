@@ -2300,6 +2300,20 @@ class AppLocalizationsPs extends AppLocalizations {
   String get subscriptionBillingHesabPayTitle => 'د حساب پی له لارې تادیه';
 
   @override
+  String get subscriptionBillingPaymentLinkTitle => 'سکین یا ټک وکړئ';
+
+  @override
+  String get subscriptionBillingPaymentLinkDefaultLabel =>
+      'د حساب پی تادیې لینک خلاص کړئ';
+
+  @override
+  String get subscriptionBillingCopyPaymentLink => 'د تادیې لینک کاپي';
+
+  @override
+  String get subscriptionBillingPaymentLinkOpenFailed =>
+      'په دې وسیله کې د تادیې لینک نه خلاصېد.';
+
+  @override
   String get subscriptionBillingCashTitle => 'نغدي تادیه';
 
   @override
@@ -2422,6 +2436,22 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get devPortalBillingMerchantId => 'مرچنت / مرجع پېژند';
+
+  @override
+  String get devPortalBillingPaymentLink => 'د حساب پی تادیې لینک (HTTPS)';
+
+  @override
+  String get devPortalBillingPaymentLinkHint =>
+      'بشپړ لینک له حساب پی. هټۍ QR او دا پته ګوري.';
+
+  @override
+  String get devPortalBillingPaymentLinkLabelEn => 'د لینک د تڼۍ نوم (انګلیسي)';
+
+  @override
+  String get devPortalBillingPaymentLinkLabelFa => 'د لینک د تڼۍ نوم (دري)';
+
+  @override
+  String get devPortalBillingPaymentLinkLabelPs => 'د لینک د تڼۍ نوم (پښتو)';
 
   @override
   String get devPortalBillingPrice1Year => 'بیه ۱ کال (افغانۍ)';

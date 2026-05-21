@@ -4285,6 +4285,30 @@ abstract class AppLocalizations {
   /// **'Pay with Hesab Pay'**
   String get subscriptionBillingHesabPayTitle;
 
+  /// No description provided for @subscriptionBillingPaymentLinkTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan or tap to pay'**
+  String get subscriptionBillingPaymentLinkTitle;
+
+  /// No description provided for @subscriptionBillingPaymentLinkDefaultLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Hesab Pay payment link'**
+  String get subscriptionBillingPaymentLinkDefaultLabel;
+
+  /// No description provided for @subscriptionBillingCopyPaymentLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy payment link'**
+  String get subscriptionBillingCopyPaymentLink;
+
+  /// No description provided for @subscriptionBillingPaymentLinkOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the payment link on this device.'**
+  String get subscriptionBillingPaymentLinkOpenFailed;
+
   /// No description provided for @subscriptionBillingCashTitle.
   ///
   /// In en, this message translates to:
@@ -4468,7 +4492,7 @@ abstract class AppLocalizations {
   /// No description provided for @devPortalBillingIntro.
   ///
   /// In en, this message translates to:
-  /// **'Set Hesab Pay account details, prices (AFN), and payment steps in each language. Turn on Published so every shop sees them under Settings → Subscription. Review payment claims below and approve to create activation codes.'**
+  /// **'Set Hesab Pay account details, payment link (QR + button for shops), prices (AFN), and payment steps in each language. Copy-paste templates: docs/BILLING_DEVELOPER_PORTAL_COPY_EN.md. Turn on Published so shops see them under Settings → Subscription. Review payment claims below.'**
   String get devPortalBillingIntro;
 
   /// No description provided for @devPortalBillingLoadError.
@@ -4506,6 +4530,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Merchant / reference ID'**
   String get devPortalBillingMerchantId;
+
+  /// No description provided for @devPortalBillingPaymentLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Hesab Pay payment link (HTTPS URL)'**
+  String get devPortalBillingPaymentLink;
+
+  /// No description provided for @devPortalBillingPaymentLinkHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Full link from Hesab Pay. Shops see a QR code and open this URL.'**
+  String get devPortalBillingPaymentLinkHint;
+
+  /// No description provided for @devPortalBillingPaymentLinkLabelEn.
+  ///
+  /// In en, this message translates to:
+  /// **'Link button name (English)'**
+  String get devPortalBillingPaymentLinkLabelEn;
+
+  /// No description provided for @devPortalBillingPaymentLinkLabelFa.
+  ///
+  /// In en, this message translates to:
+  /// **'Link button name (Dari)'**
+  String get devPortalBillingPaymentLinkLabelFa;
+
+  /// No description provided for @devPortalBillingPaymentLinkLabelPs.
+  ///
+  /// In en, this message translates to:
+  /// **'Link button name (Pashto)'**
+  String get devPortalBillingPaymentLinkLabelPs;
 
   /// No description provided for @devPortalBillingPrice1Year.
   ///

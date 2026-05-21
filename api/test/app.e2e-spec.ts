@@ -642,6 +642,8 @@ describe('AppController (e2e)', () => {
             is_published: true,
             hesab_pay_account_name: 'Afghan Pride',
             hesab_pay_account_number: '0700123456',
+            hesab_pay_payment_link: 'https://hesab.example/pay/pride',
+            hesab_pay_payment_link_label: { en: 'Pay with Hesab Pay' },
             price_1_year_afn: 5000,
             payment_steps: { en: 'Pay at Hesab Pay center.' },
           })
@@ -654,6 +656,12 @@ describe('AppController (e2e)', () => {
           .expect((res) => {
             expect(res.body.is_published).toBe(true);
             expect(res.body.hesab_pay_account_number).toBe('0700123456');
+            expect(res.body.hesab_pay_payment_link).toBe(
+              'https://hesab.example/pay/pride',
+            );
+            expect(res.body.hesab_pay_payment_link_label).toBe(
+              'Pay with Hesab Pay',
+            );
           });
 
         const claim = await request(app.getHttpServer())

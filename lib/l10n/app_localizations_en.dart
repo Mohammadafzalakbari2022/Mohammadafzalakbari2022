@@ -2321,6 +2321,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get subscriptionBillingHesabPayTitle => 'Pay with Hesab Pay';
 
   @override
+  String get subscriptionBillingPaymentLinkTitle => 'Scan or tap to pay';
+
+  @override
+  String get subscriptionBillingPaymentLinkDefaultLabel =>
+      'Open Hesab Pay payment link';
+
+  @override
+  String get subscriptionBillingCopyPaymentLink => 'Copy payment link';
+
+  @override
+  String get subscriptionBillingPaymentLinkOpenFailed =>
+      'Could not open the payment link on this device.';
+
+  @override
   String get subscriptionBillingCashTitle => 'Pay in cash';
 
   @override
@@ -2423,7 +2437,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get devPortalBillingIntro =>
-      'Set Hesab Pay account details, prices (AFN), and payment steps in each language. Turn on Published so every shop sees them under Settings → Subscription. Review payment claims below and approve to create activation codes.';
+      'Set Hesab Pay account details, payment link (QR + button for shops), prices (AFN), and payment steps in each language. Copy-paste templates: docs/BILLING_DEVELOPER_PORTAL_COPY_EN.md. Turn on Published so shops see them under Settings → Subscription. Review payment claims below.';
 
   @override
   String devPortalBillingLoadError(String error) {
@@ -2444,6 +2458,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get devPortalBillingMerchantId => 'Merchant / reference ID';
+
+  @override
+  String get devPortalBillingPaymentLink =>
+      'Hesab Pay payment link (HTTPS URL)';
+
+  @override
+  String get devPortalBillingPaymentLinkHint =>
+      'Full link from Hesab Pay. Shops see a QR code and open this URL.';
+
+  @override
+  String get devPortalBillingPaymentLinkLabelEn => 'Link button name (English)';
+
+  @override
+  String get devPortalBillingPaymentLinkLabelFa => 'Link button name (Dari)';
+
+  @override
+  String get devPortalBillingPaymentLinkLabelPs => 'Link button name (Pashto)';
 
   @override
   String get devPortalBillingPrice1Year => 'Price 1 year (AFN)';
