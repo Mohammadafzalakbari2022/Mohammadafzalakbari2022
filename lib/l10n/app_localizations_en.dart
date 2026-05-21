@@ -3455,6 +3455,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get receiptMeasurementsLabel => 'Measurements';
 
   @override
+  String get invoicePridePromoLine =>
+      'Invoice created and sent with Afghan Pride';
+
+  @override
   String get receiptStyleLabel => 'Style notes';
 
   @override
@@ -3576,6 +3580,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get orderShareWhatsappOpened => 'Invoice PDF opened in WhatsApp.';
+
+  @override
+  String get orderShareWhatsappPhoneInvalid =>
+      'Add a valid customer phone number to share the invoice on WhatsApp.';
 
   @override
   String get receiptFooterThanks => 'Thank you for your business!';

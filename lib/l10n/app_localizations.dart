@@ -6258,6 +6258,12 @@ abstract class AppLocalizations {
   /// **'Measurements'**
   String get receiptMeasurementsLabel;
 
+  /// No description provided for @invoicePridePromoLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice created and sent with Afghan Pride'**
+  String get invoicePridePromoLine;
+
   /// No description provided for @receiptStyleLabel.
   ///
   /// In en, this message translates to:
@@ -6473,6 +6479,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Invoice PDF opened in WhatsApp.'**
   String get orderShareWhatsappOpened;
+
+  /// No description provided for @orderShareWhatsappPhoneInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a valid customer phone number to share the invoice on WhatsApp.'**
+  String get orderShareWhatsappPhoneInvalid;
 
   /// No description provided for @receiptFooterThanks.
   ///

@@ -1563,6 +1563,7 @@
   "receiptDeliveryLabel": "Delivery",
   "receiptStatusLabel": "Status",
   "receiptMeasurementsLabel": "Measurements",
+  "invoicePridePromoLine": "Invoice created and sent with Afghan Pride",
   "receiptStyleLabel": "Style notes",
   "receiptFabricLabel": "Customer fabric",
   "receiptFabricNameLabel": "Fabric",
@@ -1630,6 +1631,7 @@
     }
   },
   "orderShareWhatsappOpened": "Invoice PDF opened in WhatsApp.",
+  "orderShareWhatsappPhoneInvalid": "Add a valid customer phone number to share the invoice on WhatsApp.",
   "receiptFooterThanks": "Thank you for your business!",
   "settingsDeveloperPortalCheckFailed": "Could not verify developer access. Tap to retry.",
   "settingsDeveloperPortalRetry": "Retry",

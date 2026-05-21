@@ -10,6 +10,8 @@ import '../../features/reports/report_money_format.dart';
 import '../../features/settings/shop_profile.dart';
 import '../../l10n/app_localizations.dart';
 import 'invoice_pdf_font.dart';
+import 'invoice_pdf_images.dart';
+import 'invoice_pdf_promo_assets.dart';
 import 'receipt_branding.dart';
 import 'shop_logo_raster.dart';
 
@@ -18,6 +20,8 @@ final PdfColor _kInvoiceAccent = PdfColor.fromInt(0xFF5B3FA6);
 
 final PdfColor _kInvoiceSurface = PdfColor.fromInt(0xFFF7F5FB);
 final PdfColor _kInvoiceBorder = PdfColors.grey400;
+
+const double _kSectionGap = 8;
 
 /// Builds a single-page A4 PDF invoice (RTL when [textDirection] is RTL).
 Future<Uint8List> buildOrderInvoicePdf({
@@ -28,6 +32,8 @@ Future<Uint8List> buildOrderInvoicePdf({
   required String deliveryDateText,
   required String statusText,
   required pw.TextDirection textDirection,
+  InvoicePdfDesignRail? designRail,
+  InvoicePdfPromoAssets? promoAssets,
 }) async {
   final fonts = await InvoicePdfFonts.load();
   final branding = ReceiptBranding.fromShop(
@@ -35,6 +41,8 @@ Future<Uint8List> buildOrderInvoicePdf({
     l10n: l10n,
     wrapChars: 56,
   );
+  final rail = designRail ?? const InvoicePdfDesignRail();
+  final promo = promoAssets ?? await loadInvoicePdfPromoAssets();
 
   pw.ImageProvider? logoProvider;
   final logoRaster = await loadReceiptHeaderLogoRaster(
@@ -61,112 +69,148 @@ Future<Uint8List> buildOrderInvoicePdf({
       pageFormat: PdfPageFormat.a4,
       margin: const pw.EdgeInsets.symmetric(horizontal: 40, vertical: 36),
       build: (context) {
+        final textColumn = pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+          children: [
+            _buildHeader(
+              fonts: fonts,
+              branding: branding,
+              logoProvider: logoProvider,
+              l10n: l10n,
+              orderNo: order.displayOrderNo,
+            ),
+            pw.SizedBox(height: 12),
+            _buildMetaRow(
+              fonts: fonts,
+              l10n: l10n,
+              order: order,
+              deliveryDateText: deliveryDateText,
+              statusText: statusText,
+            ),
+            if (order.measurementsSnapshot.trim().isNotEmpty) ...[
+              pw.SizedBox(height: _kSectionGap),
+              _sectionCard(
+                fonts: fonts,
+                title: l10n.receiptMeasurementsLabel,
+                child: _bodyText(fonts, order.measurementsSnapshot.trim()),
+              ),
+            ],
+            if (styleText.isNotEmpty) ...[
+              pw.SizedBox(height: _kSectionGap),
+              _sectionCard(
+                fonts: fonts,
+                title: l10n.receiptStyleLabel,
+                child: _bodyText(fonts, styleText),
+              ),
+            ],
+            if (order.hasCustomerFabric) ...[
+              pw.SizedBox(height: _kSectionGap),
+              _sectionCard(
+                fonts: fonts,
+                title: l10n.receiptFabricLabel,
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    if (order.fabricNameSnapshot.trim().isNotEmpty)
+                      _labelValue(
+                        fonts,
+                        l10n.receiptFabricNameLabel,
+                        order.fabricNameSnapshot.trim(),
+                      ),
+                    if (order.fabricColorSnapshot.trim().isNotEmpty)
+                      _labelValue(
+                        fonts,
+                        l10n.receiptFabricColorLabel,
+                        order.fabricColorSnapshot.trim(),
+                      ),
+                    if (order.fabricIdSnapshot.trim().isNotEmpty)
+                      _labelValue(
+                        fonts,
+                        l10n.receiptFabricIdLabel,
+                        order.fabricIdSnapshot.trim(),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+            if (order.catalogDesignNameSnapshot.trim().isNotEmpty) ...[
+              pw.SizedBox(height: _kSectionGap),
+              _sectionCard(
+                fonts: fonts,
+                title: l10n.invoiceCatalogDesignLabel,
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    _bodyText(fonts, order.catalogDesignNameSnapshot.trim()),
+                    if (order.catalogDesignerShopNameSnapshot
+                        .trim()
+                        .isNotEmpty) ...[
+                      pw.SizedBox(height: 4),
+                      _labelValue(
+                        fonts,
+                        l10n.invoiceCatalogDesignerLabel,
+                        order.catalogDesignerShopNameSnapshot.trim(),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+            if (order.internalNotes.trim().isNotEmpty) ...[
+              pw.SizedBox(height: _kSectionGap),
+              _sectionCard(
+                fonts: fonts,
+                title: l10n.receiptInternalNotesHeader,
+                child: _bodyText(
+                  fonts,
+                  order.internalNotes.trim(),
+                  maxLines: 6,
+                ),
+              ),
+            ],
+            pw.SizedBox(height: 12),
+            _buildPaymentSummary(
+              fonts: fonts,
+              l10n: l10n,
+              total: total,
+              paid: paid,
+              balance: balance,
+              payments: payments,
+            ),
+          ],
+        );
+
         return pw.Directionality(
           textDirection: textDirection,
           child: pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.stretch,
             children: [
-              _buildHeader(
-                fonts: fonts,
-                branding: branding,
-                logoProvider: logoProvider,
-                l10n: l10n,
-                orderNo: order.displayOrderNo,
-              ),
-              pw.SizedBox(height: 16),
-              _buildMetaRow(
-                fonts: fonts,
-                l10n: l10n,
-                order: order,
-                deliveryDateText: deliveryDateText,
-                statusText: statusText,
-              ),
-              if (order.measurementsSnapshot.trim().isNotEmpty) ...[
-                pw.SizedBox(height: 12),
-                _sectionCard(
-                  fonts: fonts,
-                  title: l10n.receiptMeasurementsLabel,
-                  child: _bodyText(fonts, order.measurementsSnapshot.trim()),
-                ),
-              ],
-              if (styleText.isNotEmpty) ...[
-                pw.SizedBox(height: 12),
-                _sectionCard(
-                  fonts: fonts,
-                  title: l10n.receiptStyleLabel,
-                  child: _bodyText(fonts, styleText),
-                ),
-              ],
-              if (order.hasCustomerFabric) ...[
-                pw.SizedBox(height: 12),
-                _sectionCard(
-                  fonts: fonts,
-                  title: l10n.receiptFabricLabel,
-                  child: pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.start,
-                    children: [
-                      if (order.fabricNameSnapshot.trim().isNotEmpty)
-                        _labelValue(
-                          fonts,
-                          l10n.receiptFabricNameLabel,
-                          order.fabricNameSnapshot.trim(),
-                        ),
-                      if (order.fabricColorSnapshot.trim().isNotEmpty)
-                        _labelValue(
-                          fonts,
-                          l10n.receiptFabricColorLabel,
-                          order.fabricColorSnapshot.trim(),
-                        ),
-                      if (order.fabricIdSnapshot.trim().isNotEmpty)
-                        _labelValue(
-                          fonts,
-                          l10n.receiptFabricIdLabel,
-                          order.fabricIdSnapshot.trim(),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
-              if (order.catalogDesignNameSnapshot.trim().isNotEmpty) ...[
-                pw.SizedBox(height: 12),
-                _sectionCard(
-                  fonts: fonts,
-                  title: l10n.invoiceCatalogDesignLabel,
-                  child: pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.start,
-                    children: [
-                      _bodyText(fonts, order.catalogDesignNameSnapshot.trim()),
-                      if (order.catalogDesignerShopNameSnapshot.trim().isNotEmpty)
-                        pw.SizedBox(height: 4),
-                      if (order.catalogDesignerShopNameSnapshot.trim().isNotEmpty)
-                        _labelValue(
-                          fonts,
-                          l10n.invoiceCatalogDesignerLabel,
-                          order.catalogDesignerShopNameSnapshot.trim(),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
-              if (order.internalNotes.trim().isNotEmpty) ...[
-                pw.SizedBox(height: 12),
-                _sectionCard(
-                  fonts: fonts,
-                  title: l10n.receiptInternalNotesHeader,
-                  child: _bodyText(fonts, order.internalNotes.trim()),
-                ),
-              ],
-              pw.SizedBox(height: 16),
-              _buildPaymentSummary(
-                fonts: fonts,
-                l10n: l10n,
-                total: total,
-                paid: paid,
-                balance: balance,
-                payments: payments,
-              ),
+              if (rail.hasContent)
+                pw.Row(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Expanded(flex: 3, child: textColumn),
+                    pw.SizedBox(width: 12),
+                    pw.SizedBox(
+                      width: 110,
+                      child: _buildDesignRail(
+                        fonts: fonts,
+                        l10n: l10n,
+                        order: order,
+                        rail: rail,
+                      ),
+                    ),
+                  ],
+                )
+              else
+                textColumn,
               pw.Spacer(),
               _buildFooter(fonts: fonts, branding: branding),
+              _buildPridePromoFooter(
+                fonts: fonts,
+                l10n: l10n,
+                promo: promo,
+              ),
             ],
           ),
         );
@@ -175,6 +219,146 @@ Future<Uint8List> buildOrderInvoicePdf({
   );
 
   return doc.save();
+}
+
+pw.Widget _buildDesignRail({
+  required InvoicePdfFontSet fonts,
+  required AppLocalizations l10n,
+  required OrderSummary order,
+  required InvoicePdfDesignRail rail,
+}) {
+  final children = <pw.Widget>[];
+
+  if (rail.figureProviders.isNotEmpty) {
+    children.add(
+      pw.Text(
+        l10n.receiptStyleLabel,
+        style: pw.TextStyle(
+          font: fonts.bold,
+          fontSize: 8,
+          color: _kInvoiceAccent,
+        ),
+      ),
+    );
+    children.add(pw.SizedBox(height: 4));
+    children.add(
+      pw.Wrap(
+        spacing: 4,
+        runSpacing: 4,
+        children: [
+          for (final provider in rail.figureProviders)
+            pw.Container(
+              width: kInvoicePdfStyleFigurePx.toDouble(),
+              height: kInvoicePdfStyleFigurePx.toDouble(),
+              decoration: pw.BoxDecoration(
+                border: pw.Border.all(color: _kInvoiceBorder, width: 0.5),
+                borderRadius: pw.BorderRadius.circular(4),
+              ),
+              padding: const pw.EdgeInsets.all(2),
+              child: pw.Image(provider, fit: pw.BoxFit.contain),
+            ),
+        ],
+      ),
+    );
+  }
+
+  if (rail.catalogProvider != null) {
+    if (children.isNotEmpty) children.add(pw.SizedBox(height: 8));
+    children.add(
+      pw.Text(
+        l10n.invoiceCatalogDesignLabel,
+        style: pw.TextStyle(
+          font: fonts.bold,
+          fontSize: 8,
+          color: _kInvoiceAccent,
+        ),
+      ),
+    );
+    children.add(pw.SizedBox(height: 4));
+    children.add(
+      pw.Container(
+        constraints: const pw.BoxConstraints(maxHeight: 90),
+        decoration: pw.BoxDecoration(
+          border: pw.Border.all(color: _kInvoiceBorder, width: 0.5),
+          borderRadius: pw.BorderRadius.circular(4),
+        ),
+        padding: const pw.EdgeInsets.all(2),
+        child: pw.Image(rail.catalogProvider!, fit: pw.BoxFit.contain),
+      ),
+    );
+    final name = order.catalogDesignNameSnapshot.trim();
+    if (name.isNotEmpty) {
+      children.add(pw.SizedBox(height: 4));
+      children.add(
+        pw.Text(
+          name,
+          style: pw.TextStyle(font: fonts.regular, fontSize: 7),
+          maxLines: 2,
+        ),
+      );
+    }
+  }
+
+  return pw.Column(
+    crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+    children: children,
+  );
+}
+
+pw.Widget _buildPridePromoFooter({
+  required InvoicePdfFontSet fonts,
+  required AppLocalizations l10n,
+  required InvoicePdfPromoAssets promo,
+}) {
+  return pw.Column(
+    children: [
+      pw.SizedBox(height: 8),
+      pw.Divider(color: _kInvoiceBorder, height: 0.5),
+      pw.SizedBox(height: 6),
+      pw.Center(
+        child: pw.Row(
+          mainAxisSize: pw.MainAxisSize.min,
+          crossAxisAlignment: pw.CrossAxisAlignment.center,
+          children: [
+            if (promo.prideIconProvider != null) ...[
+              pw.SizedBox(
+                width: 14,
+                height: 14,
+                child: pw.Image(promo.prideIconProvider!, fit: pw.BoxFit.contain),
+              ),
+              pw.SizedBox(width: 5),
+            ],
+            pw.Text(
+              l10n.invoicePridePromoLine,
+              style: pw.TextStyle(
+                font: fonts.regular,
+                fontSize: 7.5,
+                color: PdfColors.grey600,
+              ),
+              textAlign: pw.TextAlign.center,
+            ),
+            pw.SizedBox(width: 6),
+            _storeBadgeWidget(promo.googlePlayProvider, isGooglePlay: true),
+            pw.SizedBox(width: 4),
+            _storeBadgeWidget(promo.appStoreProvider, isGooglePlay: false),
+          ],
+        ),
+      ),
+    ],
+  );
+}
+
+pw.Widget _storeBadgeWidget(
+  pw.ImageProvider? provider, {
+  required bool isGooglePlay,
+}) {
+  if (provider != null) {
+    return pw.SizedBox(
+      height: 13,
+      child: pw.Image(provider, fit: pw.BoxFit.contain),
+    );
+  }
+  return buildInvoiceStoreBadgeFallback(isGooglePlay: isGooglePlay);
 }
 
 pw.Widget _buildHeader({
@@ -444,7 +628,12 @@ pw.Widget _sectionCard({
   );
 }
 
-pw.Widget _bodyText(InvoicePdfFontSet fonts, String text, {bool bold = false}) {
+pw.Widget _bodyText(
+  InvoicePdfFontSet fonts,
+  String text, {
+  bool bold = false,
+  int? maxLines,
+}) {
   return pw.Text(
     text,
     style: pw.TextStyle(
@@ -452,6 +641,7 @@ pw.Widget _bodyText(InvoicePdfFontSet fonts, String text, {bool bold = false}) {
       fontSize: 10,
       lineSpacing: 2,
     ),
+    maxLines: maxLines,
   );
 }
 

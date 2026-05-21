@@ -3431,7 +3431,11 @@ class AppLocalizationsFa extends AppLocalizations {
   String get receiptStatusLabel => 'وضعیت';
 
   @override
-  String get receiptMeasurementsLabel => 'اندازه‌ها';
+  String get receiptMeasurementsLabel => 'اندازه‌گیری';
+
+  @override
+  String get invoicePridePromoLine =>
+      'این فاکتور با برنامهٔ افغان پراید تهیه و ارسال شده است';
 
   @override
   String get receiptStyleLabel => 'یادداشت استایل';
@@ -3464,7 +3468,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get receiptBalanceLabel => 'مانده';
 
   @override
-  String get receiptPaymentsHeader => 'پرداخت‌ها';
+  String get receiptPaymentsHeader => 'پرداخت';
 
   @override
   String get receiptShopPhoneLabel => 'تلفن فروشگاه';
@@ -3555,6 +3559,10 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get orderShareWhatsappOpened => 'فاکتور PDF در واتساپ باز شد.';
+
+  @override
+  String get orderShareWhatsappPhoneInvalid =>
+      'برای ارسال فاکتور در واتساپ، شمارهٔ معتبر مشتری را وارد کنید.';
 
   @override
   String get receiptFooterThanks => 'از همکاری شما سپاسگزاریم!';

@@ -3427,6 +3427,10 @@ class AppLocalizationsPs extends AppLocalizations {
   String get receiptMeasurementsLabel => 'پیمانې';
 
   @override
+  String get invoicePridePromoLine =>
+      'دا فاکتور د افغان پراید له لارې جوړ او لیږل شوی دی';
+
+  @override
   String get receiptStyleLabel => 'د سټایل یادښتونه';
 
   @override
@@ -3457,7 +3461,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get receiptBalanceLabel => 'پاتې';
 
   @override
-  String get receiptPaymentsHeader => 'ورکړې';
+  String get receiptPaymentsHeader => 'ورکړه';
 
   @override
   String get receiptShopPhoneLabel => 'د هټۍ تلیفون';
@@ -3547,6 +3551,10 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get orderShareWhatsappOpened => 'د فاکتور PDF واتساپ کې پرانیستل شو.';
+
+  @override
+  String get orderShareWhatsappPhoneInvalid =>
+      'د واتساپ له لارې د فاکتور لیږلو لپاره د پیرودونکي سمه شمېره ولیکئ.';
 
   @override
   String get receiptFooterThanks => 'ستاسو له سوداګرۍ مننه!';
