@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 
 import { BillingModule } from '../billing/billing.module';
+import { SupportModule } from '../support/support.module';
 import { LicenseController } from './license.controller';
 import { LicenseService } from './license.service';
 
 @Module({
-  imports: [BillingModule],
+  imports: [BillingModule, SupportModule],
   controllers: [LicenseController],
   providers: [LicenseService],
   exports: [LicenseService],

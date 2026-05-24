@@ -8,6 +8,55 @@ void main() {
       expect(OrderPaymentRules.remainingMinor(1000, 1200), 0);
     });
 
+    test('effectivePaidMinor uses ledger when loaded', () {
+      expect(
+        OrderPaymentRules.effectivePaidMinor(
+          orderSummaryPaidMinor: 200,
+          paymentAmountsMinor: const [200, 300],
+        ),
+        500,
+      );
+      expect(
+        OrderPaymentRules.effectivePaidMinor(
+          orderSummaryPaidMinor: 200,
+          paymentAmountsMinor: null,
+        ),
+        200,
+      );
+      expect(
+        OrderPaymentRules.effectivePaidMinor(
+          orderSummaryPaidMinor: 200,
+          paymentAmountsMinor: const [],
+        ),
+        0,
+      );
+    });
+
+    test('paidMinorForOrder uses ledger map when loaded', () {
+      final map = OrderPaymentRules.sumPaidMinorByOrderId([
+        (orderInternalId: 'a', amountMinor: 200),
+        (orderInternalId: 'a', amountMinor: 300),
+      ]);
+      expect(
+        OrderPaymentRules.paidMinorForOrder(
+          orderSummaryPaidMinor: 200,
+          paidByOrderId: map,
+          orderInternalId: 'a',
+          paymentsLedgerLoaded: true,
+        ),
+        500,
+      );
+      expect(
+        OrderPaymentRules.paidMinorForOrder(
+          orderSummaryPaidMinor: 200,
+          paidByOrderId: map,
+          orderInternalId: 'a',
+          paymentsLedgerLoaded: false,
+        ),
+        200,
+      );
+    });
+
     test('isValidInitialPay', () {
       expect(OrderPaymentRules.isValidInitialPay(1000, 0), isTrue);
       expect(OrderPaymentRules.isValidInitialPay(1000, 500), isTrue);

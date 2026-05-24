@@ -5,41 +5,42 @@ Aligned with `plan-00-index.md`, `plan-25-implementation-backlog.md`, and `AGENT
 ## P0 — Foundation (server + client contract)
 
 - [x] **`POST /auth/login`** + Flutter login when `API_BASE_URL` is set.
-- [x] **Offline login** — local SHA-256 verifier after first online login (`lib/auth/offline_credential_storage.dart`; `plan-04`).
-- [x] **Bundled defaults** — 15 style figures + 4 catalog designs on device (`ensure_bundled_shop_defaults`, `assets/style_figures/`, `assets/catalog_seed/`).
+- [x] **Offline login** — local SHA-256 verifier after first online login.
+- [x] **Bundled defaults** — style figures + catalog designs on device.
 - [x] **Persist API session** — restore / clear paths wired.
 - [x] **JWT** + guards on protected routes.
-- [ ] **Supabase-managed RLS / optional managed auth** — not the default path; **Nest + Postgres + Prisma** is what ships (`api/prisma/`). Hosted Postgres (e.g. Supabase connection string) works as the database only.
-- [x] **`POST /shop/create`**, **`POST /shop/join`** (login-shaped until invite spec exists).
+- [ ] **Supabase-managed RLS / optional managed auth** — **excluded**; Nest + Postgres + Prisma ships.
+- [x] **`POST /shop/create`**, **`POST /shop/join`** (login-shaped; invite flow excluded).
 
 ## P1 — Licensing & users
 
-- [x] **`POST /license/redeem`** — DB-backed **`activation_codes`** + optional **`PRIDE_LEGACY_REDEEM_CODES`** (default `pilot-2026`) for dev/e2e.
+- [x] **`POST /license/redeem`**
 - [x] **Shop users** — API + Settings UI when JWT session.
 
 ## P2 — Sync (plan-03 / plan-04)
 
-- [x] **`POST /sync/push`**, **`GET /sync/pull`**, manual Sync in Settings, inbound applier for plan entity types including **`measurement_profile`** and **`catalog_item`**, outbox from UI for those entities.
-- [ ] **Conflict inspector UI** — orders use `server_updated_at` LWW skip; no dedicated merge/conflict screen yet.
+- [x] **`POST /sync/push`**, **`GET /sync/pull`**, manual Sync, inbound applier, outbox from UI.
+- [x] **Conflict inspector UI** — Settings → Sync conflicts; server returns `conflict` for stale order pushes.
 
 ## P3 — Catalog & P2P (plan-14)
 
 - [x] **Local catalog** + sync outbox for catalog items.
-- [ ] **Server public catalog feed + WebRTC P2P download** — large vertical; `GET /catalog/public` remains minimal vs full plan-14.
+- [x] **Server public catalog feed** — `GET /catalog/public/feed`, share settings, item share index, P2P signaling API; Flutter remote feed + share sync.
 
 ## P4 — Developer portal (plan-18)
 
-- [x] **`GET /admin/me`**, **`GET /admin/stats`**, **`GET/POST /admin/activation-codes`**, **`POST .../revoke`**, **`GET /admin/shops`** (with license summary), **`GET/POST` password reset queue**, **`GET /admin/audit-log`** (persisted rows), Flutter tabs wired (Overview stats + audit expansion, Codes, Shops, Resets, Diagnostics).
+- [x] Admin API + Flutter tabs wired.
 
 ## P5 — Ops & launch
 
 - [x] **CI** — Flutter + API unit + e2e where configured.
-- [x] **Deploy runbooks** — `api/DEPLOY.md`, `render.yaml`, smoke notes in `TESTING.md`.
-- [ ] **Play / App Store / Web** production checklist (`plan-21`) — signing, listings, privacy, PWA smoke (ops).
+- [x] **Deploy runbooks**
+- [ ] **Play / App Store / Web production checklist (`plan-21`)** — **excluded** (ops).
 
-## P6 — Deferred / larger scope
+## P6 — Deferred / excluded by product decision
 
-- [ ] **Server-driven push delivery** (FCM/APNs send path) — device **token registration** exists; full delivery pipeline not done.
-- [ ] **Backup bundle including catalog image binaries** (`plan-15` extension).
-- [ ] **Dashboard global search** (`plan-09`) — deferred when timeboxed.
-- [x] **Password reset request** (login → queue) + **developer resolve** + audit.
+- [ ] **Invite / QR shop join** — excluded.
+- [ ] **Dashboard global search** — excluded.
+- [x] **Server-driven push delivery (FCM)** — dispatch on new orders + notification sync + license-expiry cron; client caches token and re-registers on login (`FIREBASE_SERVICE_ACCOUNT_JSON` on API).
+- [x] **Backup bundle including catalog image binaries** — backup JSON v3.
+- [x] **Password reset request** + developer resolve + audit.

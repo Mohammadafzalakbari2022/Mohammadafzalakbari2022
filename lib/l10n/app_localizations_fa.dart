@@ -225,6 +225,22 @@ class AppLocalizationsFa extends AppLocalizations {
   String get loginShopCreateOwnerPasswordLabel => 'رمز مالک';
 
   @override
+  String get loginShopCreateWhatsappLabel => 'شماره واتساپ';
+
+  @override
+  String get loginShopCreateWhatsappHint => 'مثلاً 0700 123 456';
+
+  @override
+  String get loginShopCreateWhatsappInvalid =>
+      'شماره واتساپ یا موبایل معتبر وارد کنید.';
+
+  @override
+  String get loginShopCreateEmailLabel => 'ایمیل (اختیاری)';
+
+  @override
+  String get loginShopCreateAddressLabel => 'آدرس فروشگاه';
+
+  @override
   String get loginShopCreateCta => 'ایجاد فروشگاه و ورود';
 
   @override
@@ -233,11 +249,6 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String loginShopCreateError(String error) {
     return 'ایجاد فروشگاه ناموفق: $error';
-  }
-
-  @override
-  String modulePlaceholder(String moduleName) {
-    return '$moduleName — رابط به‌زودی.';
   }
 
   @override
@@ -309,15 +320,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get ordersNewCta => 'سفارش جدید';
 
   @override
-  String get ordersComposerPlaceholderBody => 'فرم سفارش اینجا قرار می‌گیرد.';
-
-  @override
   String get ordersDetailTitle => 'جزئیات سفارش';
-
-  @override
-  String ordersDetailPlaceholderBody(String orderId) {
-    return 'سفارش $orderId — جزئیات به‌زودی.';
-  }
 
   @override
   String get orderStatusNew => 'جدید';
@@ -1116,11 +1119,6 @@ class AppLocalizationsFa extends AppLocalizations {
   String get catalogDetailTitle => 'قلم کاتالوگ';
 
   @override
-  String catalogDetailPlaceholder(String id) {
-    return 'قلم کاتالوگ $id — صفحه جزئیات به‌زودی.';
-  }
-
-  @override
   String get settingsSectionAccountAndShop => 'حساب و فروشگاه';
 
   @override
@@ -1518,9 +1516,6 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get dateRangeToLabel => 'تا';
-
-  @override
-  String get settingsComingSoon => 'به‌زودی.';
 
   @override
   String get loading => 'در حال بارگذاری…';
@@ -2477,8 +2472,27 @@ class AppLocalizationsFa extends AppLocalizations {
   String get devPortalTabBilling => 'صورتحساب';
 
   @override
+  String get devPortalTabSupport => 'پشتیبانی';
+
+  @override
   String get devPortalBillingIntro =>
-      'مشخصات حساب پی، قیمت‌ها (افغانی) و مراحل پرداخت را به هر زبان تنظیم کنید. «منتشر شده» را روشن کنید تا همه دکان‌ها در تنظیمات → اشتراک ببینند. درخواست‌های پرداخت را بررسی و با تأیید کد فعال‌سازی بسازید.';
+      'یک تصویر تنظیمات برای دکان‌ها بارگذاری کنید (راهنمای اشتراک، QR، قیمت). «منتشر شده» را روشن کنید. درخواست‌های پرداخت را در پایین بررسی کنید.';
+
+  @override
+  String get devPortalBillingSettingsImageTitle => 'تصویر تنظیمات';
+
+  @override
+  String get devPortalBillingSettingsImagePick => 'انتخاب تصویر';
+
+  @override
+  String get devPortalBillingSettingsImageReplace => 'جایگزینی تصویر';
+
+  @override
+  String get devPortalBillingSettingsImageRemove => 'حذف تصویر';
+
+  @override
+  String get devPortalBillingSettingsImageTooLarge =>
+      'تصویر باید حداکثر ۱ مگابایت باشد. فایل کوچک‌تری انتخاب کنید.';
 
   @override
   String devPortalBillingLoadError(String error) {
@@ -2582,6 +2596,84 @@ class AppLocalizationsFa extends AppLocalizations {
   String devPortalBillingSaveError(String error) {
     return 'ذخیره ناموفق: $error';
   }
+
+  @override
+  String devPortalSupportLoadError(String error) {
+    return 'بارگذاری اطلاعات پشتیبانی ناموفق: $error';
+  }
+
+  @override
+  String get devPortalSupportPublishTitle => 'منتشر شده (برای دکان‌ها)';
+
+  @override
+  String get devPortalSupportPublishSubtitle =>
+      'در تنظیمات → درباره نمایش داده می‌شود.';
+
+  @override
+  String get devPortalSupportDeveloperName => 'نام توسعه‌دهنده';
+
+  @override
+  String get devPortalSupportDeveloperTitle => 'عنوان / نقش';
+
+  @override
+  String get devPortalSupportDeveloperBio => 'معرفی کوتاه (اختیاری)';
+
+  @override
+  String get devPortalSupportEmail => 'ایمیل پشتیبانی';
+
+  @override
+  String get devPortalSupportPhone => 'تلفن پشتیبانی';
+
+  @override
+  String get devPortalSupportWhatsapp => 'واتساپ پشتیبانی';
+
+  @override
+  String get devPortalSupportHelpVideoUrl => 'لینک ویدیوی آموزشی (HTTPS)';
+
+  @override
+  String get devPortalSupportSaveSuccess => 'اطلاعات پشتیبانی ذخیره شد.';
+
+  @override
+  String devPortalSupportSaveError(String error) {
+    return 'ذخیره ناموفق: $error';
+  }
+
+  @override
+  String get supportSectionTitle => 'راهنما و پشتیبانی';
+
+  @override
+  String get supportSectionSubtitle => 'ویدیوی آموزش و اطلاعات تماس.';
+
+  @override
+  String supportSectionSubtitleCached(String time) {
+    return 'ذخیره‌شده: $time';
+  }
+
+  @override
+  String get supportNotAvailableTitle => 'اطلاعات پشتیبانی موجود نیست';
+
+  @override
+  String get supportNotAvailableBody =>
+      'از توزیع‌کننده بخواهید در پورتال توسعه‌دهنده → پشتیبانی منتشر کند.';
+
+  @override
+  String get supportHowToVideoTitle => 'آموزش استفاده از برنامه (ویدیو)';
+
+  @override
+  String get supportDeveloperFallback => 'توسعه‌دهنده';
+
+  @override
+  String get supportEmailTitle => 'ایمیل';
+
+  @override
+  String get supportPhoneTitle => 'تلفن';
+
+  @override
+  String get supportWhatsappTitle => 'واتساپ';
+
+  @override
+  String get supportOpenLinkFailed =>
+      'باز کردن این لینک در این دستگاه ممکن نیست.';
 
   @override
   String get devPortalBillingClaimsTitle => 'درخواست‌های پرداخت';
@@ -3145,6 +3237,28 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String get devPortalShopContactHeader => 'اطلاعات تماس ثبت‌نام';
+
+  @override
+  String devPortalShopContactWhatsapp(String value) {
+    return 'واتساپ: $value';
+  }
+
+  @override
+  String devPortalShopContactEmail(String value) {
+    return 'ایمیل: $value';
+  }
+
+  @override
+  String devPortalShopContactAddress(String value) {
+    return 'آدرس: $value';
+  }
+
+  @override
+  String get devPortalShopContactMissing =>
+      'اطلاعات تماس ثبت نشده (فروشگاه قبل از این فیلدها ایجاد شده).';
+
+  @override
   String get devPortalShopUsersHeader => 'حساب‌ها';
 
   @override
@@ -3315,19 +3429,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get devPortalApiHealthUnknown => 'نامشخص — به API متصل شوید';
 
   @override
-  String get devPortalCodesStub =>
-      'کدهای فعال‌سازی: جستجو، ایجاد و لغو از API مدیریت بارگذاری می‌شود.';
-
-  @override
-  String get devPortalShopsStub =>
-      'فروشگاه‌ها و مجوزها: فهرست و جزئیات از API مدیریت بارگذاری می‌شود.';
-
-  @override
-  String get devPortalResetsStub =>
-      'درخواست‌های بازنشانی رمز: صف پشتیبانی از API مدیریت بارگذاری می‌شود.';
-
-  @override
-  String get devPortalDiagStub =>
+  String get devPortalDiagHint =>
       'برای بستهٔ کامل دستگاه از تنظیمات → همگام‌سازی و تشخیص → خروجی بستهٔ تشخیص استفاده کنید.';
 
   @override
@@ -3856,4 +3958,70 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get appGuideDashboardBody =>
       'از لبه چپ بکشید (یا آیکن منو) برای جستجو، همگام‌سازی و میانبرها.';
+
+  @override
+  String get syncConflictsTitle => 'تعارض همگام‌سازی';
+
+  @override
+  String get syncConflictsSubtitle =>
+      'سفارش‌هایی که دستگاه و سرور در آن‌ها اختلاف دارند.';
+
+  @override
+  String get syncConflictsEmpty => 'تعارض همگام‌سازی نیست.';
+
+  @override
+  String get syncConflictPullSkipped =>
+      'به‌روزرسانی سرور رد شد — نسخهٔ شما جدیدتر است.';
+
+  @override
+  String get syncConflictPushRejected =>
+      'سرور به‌روزرسانی شما را رد کرد — نسخهٔ سرور جدیدتر است.';
+
+  @override
+  String get syncConflictKeepMine => 'نگه‌داشتن نسخهٔ من';
+
+  @override
+  String get syncConflictUseServer => 'استفاده از نسخهٔ سرور';
+
+  @override
+  String get syncConflictDismiss => 'رد کردن';
+
+  @override
+  String get syncConflictLocalLabel => 'روی این دستگاه';
+
+  @override
+  String get syncConflictRemoteLabel => 'از سرور';
+
+  @override
+  String get catalogPublicFeedError =>
+      'بارگذاری طرح‌های اشتراکی ممکن نشد. اشتراک‌گذاری را فعال کنید و اتصال را بررسی کنید.';
+
+  @override
+  String get catalogP2pDownload => 'دانلود طرح';
+
+  @override
+  String get catalogP2pDownloading => 'در حال دانلود…';
+
+  @override
+  String get catalogP2pWaitingSender => 'در انتظار آنلاین شدن فرستنده…';
+
+  @override
+  String get catalogP2pDownloadDone => 'طرح در «طرح‌های من» ذخیره شد.';
+
+  @override
+  String get catalogP2pDownloadFailed =>
+      'دانلود ناموفق بود. وقتی هر دو فروشگاه آنلاین‌اند دوباره تلاش کنید.';
+
+  @override
+  String get catalogP2pWebNotSupported =>
+      'دانلود کاتالوگ در وب موجود نیست. از اپ اندروید استفاده کنید.';
+
+  @override
+  String get settingsSyncConflictsTile => 'تعارض همگام‌سازی';
+
+  @override
+  String get settingsSyncConflictsTileSubtitle => 'بررسی و حل تعارض سفارش';
+
+  @override
+  String get pushTokenAutoRegistered => 'اعلان فوری برای این دستگاه ثبت شد.';
 }

@@ -7,6 +7,37 @@ abstract final class OrderPaymentRules {
     return r < 0 ? 0 : r;
   }
 
+  /// Sum of payment rows when the ledger stream has emitted; otherwise order summary.
+  static int effectivePaidMinor({
+    required int orderSummaryPaidMinor,
+    List<int>? paymentAmountsMinor,
+  }) {
+    if (paymentAmountsMinor == null) return orderSummaryPaidMinor;
+    return paymentAmountsMinor.fold<int>(0, (sum, a) => sum + a);
+  }
+
+  /// Per-order paid totals from shop payment rows (for list tiles).
+  static Map<String, int> sumPaidMinorByOrderId(
+    Iterable<({String orderInternalId, int amountMinor})> payments,
+  ) {
+    final map = <String, int>{};
+    for (final p in payments) {
+      map[p.orderInternalId] =
+          (map[p.orderInternalId] ?? 0) + p.amountMinor;
+    }
+    return map;
+  }
+
+  static int paidMinorForOrder({
+    required int orderSummaryPaidMinor,
+    required Map<String, int> paidByOrderId,
+    required String orderInternalId,
+    required bool paymentsLedgerLoaded,
+  }) {
+    if (!paymentsLedgerLoaded) return orderSummaryPaidMinor;
+    return paidByOrderId[orderInternalId] ?? 0;
+  }
+
   static bool isValidInitialPay(int totalMinor, int initialPaidMinor) =>
       totalMinor > 0 && initialPaidMinor >= 0 && initialPaidMinor <= totalMinor;
 
@@ -44,6 +75,9 @@ abstract final class OrderPaymentRules {
     }
     return paid >= 0 && paid <= totalMinor;
   }
+
+  static int sumDepositAmountsMinor(Iterable<int> amounts) =>
+      amounts.fold<int>(0, (sum, a) => sum + a);
 
   static bool canRecordNextPayment({
     required int totalMinor,

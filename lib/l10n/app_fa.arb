@@ -98,6 +98,11 @@
       }
     }
   },
+  "devPortalShopContactHeader": "اطلاعات تماس ثبت‌نام",
+  "devPortalShopContactWhatsapp": "واتساپ: {value}",
+  "devPortalShopContactEmail": "ایمیل: {value}",
+  "devPortalShopContactAddress": "آدرس: {value}",
+  "devPortalShopContactMissing": "اطلاعات تماس ثبت نشده (فروشگاه قبل از این فیلدها ایجاد شده).",
   "devPortalShopUsersHeader": "حساب‌ها",
   "devPortalShopUserOwnerBadge": "مالک",
   "devPortalShopUserDeletedBadge": "حذف‌شده",
@@ -193,21 +198,17 @@
   "loginShopCreateNameLabel": "نام فروشگاه",
   "loginShopCreateOwnerUsernameLabel": "نام کاربری مالک",
   "loginShopCreateOwnerPasswordLabel": "رمز مالک",
+  "loginShopCreateWhatsappLabel": "شماره واتساپ",
+  "loginShopCreateWhatsappHint": "مثلاً 0700 123 456",
+  "loginShopCreateWhatsappInvalid": "شماره واتساپ یا موبایل معتبر وارد کنید.",
+  "loginShopCreateEmailLabel": "ایمیل (اختیاری)",
+  "loginShopCreateAddressLabel": "آدرس فروشگاه",
   "loginShopCreateCta": "ایجاد فروشگاه و ورود",
   "loginShopCreating": "در حال ایجاد فروشگاه…",
   "loginShopCreateError": "ایجاد فروشگاه ناموفق: {error}",
   "@loginShopCreateError": {
     "placeholders": {
       "error": {
-        "type": "String"
-      }
-    }
-  },
-  "modulePlaceholder": "{moduleName} — رابط به‌زودی.",
-  "@modulePlaceholder": {
-    "description": "Placeholder body for a shell tab",
-    "placeholders": {
-      "moduleName": {
         "type": "String"
       }
     }
@@ -234,16 +235,7 @@
   "licenseStatusExpired": "منقضی",
   "ordersNewTitle": "سفارش جدید",
   "ordersNewCta": "سفارش جدید",
-  "ordersComposerPlaceholderBody": "فرم سفارش اینجا قرار می‌گیرد.",
   "ordersDetailTitle": "جزئیات سفارش",
-  "ordersDetailPlaceholderBody": "سفارش {orderId} — جزئیات به‌زودی.",
-  "@ordersDetailPlaceholderBody": {
-    "placeholders": {
-      "orderId": {
-        "type": "String"
-      }
-    }
-  },
   "orderStatusNew": "جدید",
   "orderStatusInProgress": "در حال انجام",
   "orderStatusReady": "آماده",
@@ -632,14 +624,6 @@
   "catalogViewerManageA11y": "مدیریت طرح",
   "catalogAddDesignPlaceholder": "افزودن از دوربین / گالری فقط روی اندروید و iOS.",
   "catalogDetailTitle": "قلم کاتالوگ",
-  "catalogDetailPlaceholder": "قلم کاتالوگ {id} — صفحه جزئیات به‌زودی.",
-  "@catalogDetailPlaceholder": {
-    "placeholders": {
-      "id": {
-        "type": "String"
-      }
-    }
-  },
   "settingsSectionAccountAndShop": "حساب و فروشگاه",
   "settingsSectionUsers": "کاربران",
   "settingsSectionBackupRestore": "پشتیبان و بازیابی",
@@ -785,7 +769,6 @@
   "datePickerDayLabel": "روز",
   "dateRangeFromLabel": "از",
   "dateRangeToLabel": "تا",
-  "settingsComingSoon": "به‌زودی.",
   "loading": "در حال بارگذاری…",
   "genericError": "خطایی رخ داد.",
   "resetCta": "بازنشانی",
@@ -1192,10 +1175,54 @@
   "subscriptionBillingTelegram": "تلگرام",
   "subscriptionBillingPhone": "تلفن",
   "devPortalTabBilling": "صورتحساب",
-  "devPortalBillingIntro": "مشخصات حساب پی، قیمت‌ها (افغانی) و مراحل پرداخت را به هر زبان تنظیم کنید. «منتشر شده» را روشن کنید تا همه دکان‌ها در تنظیمات → اشتراک ببینند. درخواست‌های پرداخت را بررسی و با تأیید کد فعال‌سازی بسازید.",
+  "devPortalTabSupport": "پشتیبانی",
+  "devPortalBillingIntro": "یک تصویر تنظیمات برای دکان‌ها بارگذاری کنید (راهنمای اشتراک، QR، قیمت). «منتشر شده» را روشن کنید. درخواست‌های پرداخت را در پایین بررسی کنید.",
+  "devPortalBillingSettingsImageTitle": "تصویر تنظیمات",
+  "devPortalBillingSettingsImagePick": "انتخاب تصویر",
+  "devPortalBillingSettingsImageReplace": "جایگزینی تصویر",
+  "devPortalBillingSettingsImageRemove": "حذف تصویر",
+  "devPortalBillingSettingsImageTooLarge": "تصویر باید حداکثر ۱ مگابایت باشد. فایل کوچک‌تری انتخاب کنید.",
   "devPortalBillingLoadError": "بارگذاری مشخصات صورتحساب ناموفق: {error}",
   "devPortalBillingProfileTitle": "مشخصات حساب پی",
   "devPortalBillingPublished": "منتشر شده (برای دکان‌ها)",
+  "devPortalSupportLoadError": "بارگذاری اطلاعات پشتیبانی ناموفق: {error}",
+  "@devPortalSupportLoadError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "devPortalSupportPublishTitle": "منتشر شده (برای دکان‌ها)",
+  "devPortalSupportPublishSubtitle": "در تنظیمات → درباره نمایش داده می‌شود.",
+  "devPortalSupportDeveloperName": "نام توسعه‌دهنده",
+  "devPortalSupportDeveloperTitle": "عنوان / نقش",
+  "devPortalSupportDeveloperBio": "معرفی کوتاه (اختیاری)",
+  "devPortalSupportEmail": "ایمیل پشتیبانی",
+  "devPortalSupportPhone": "تلفن پشتیبانی",
+  "devPortalSupportWhatsapp": "واتساپ پشتیبانی",
+  "devPortalSupportHelpVideoUrl": "لینک ویدیوی آموزشی (HTTPS)",
+  "devPortalSupportSaveSuccess": "اطلاعات پشتیبانی ذخیره شد.",
+  "devPortalSupportSaveError": "ذخیره ناموفق: {error}",
+  "@devPortalSupportSaveError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "supportSectionTitle": "راهنما و پشتیبانی",
+  "supportSectionSubtitle": "ویدیوی آموزش و اطلاعات تماس.",
+  "supportSectionSubtitleCached": "ذخیره‌شده: {time}",
+  "@supportSectionSubtitleCached": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "supportNotAvailableTitle": "اطلاعات پشتیبانی موجود نیست",
+  "supportNotAvailableBody": "از توزیع‌کننده بخواهید در پورتال توسعه‌دهنده → پشتیبانی منتشر کند.",
+  "supportHowToVideoTitle": "آموزش استفاده از برنامه (ویدیو)",
+  "supportDeveloperFallback": "توسعه‌دهنده",
+  "supportEmailTitle": "ایمیل",
+  "supportPhoneTitle": "تلفن",
+  "supportWhatsappTitle": "واتساپ",
+  "supportOpenLinkFailed": "باز کردن این لینک در این دستگاه ممکن نیست.",
   "devPortalBillingPaymentLinkSectionTitle": "لینک پرداخت حساب پی",
   "devPortalBillingPaymentLinkSectionBody": "کاربران برنامه در تنظیمات → اشتراک QR و دکمه را می‌بینند وقتی «منتشر شده» روشن است. لینک کامل HTTPS از حساب پی را بچسبانید.",
   "devPortalBillingPaymentLinkPreviewTitle": "پیش‌نمایش (آنچه دکان می‌بیند)",
@@ -1515,10 +1542,7 @@
   "devPortalStatActivations": "ایجاد کد (نمونهٔ ممیزی)",
   "devPortalApiHealthTitle": "سلامت API",
   "devPortalApiHealthUnknown": "نامشخص — به API متصل شوید",
-  "devPortalCodesStub": "کدهای فعال‌سازی: جستجو، ایجاد و لغو از API مدیریت بارگذاری می‌شود.",
-  "devPortalShopsStub": "فروشگاه‌ها و مجوزها: فهرست و جزئیات از API مدیریت بارگذاری می‌شود.",
-  "devPortalResetsStub": "درخواست‌های بازنشانی رمز: صف پشتیبانی از API مدیریت بارگذاری می‌شود.",
-  "devPortalDiagStub": "برای بستهٔ کامل دستگاه از تنظیمات → همگام‌سازی و تشخیص → خروجی بستهٔ تشخیص استفاده کنید.",
+  "devPortalDiagHint": "برای بستهٔ کامل دستگاه از تنظیمات → همگام‌سازی و تشخیص → خروجی بستهٔ تشخیص استفاده کنید.",
   "devPortalDiagLocalTitle": "این دستگاه (حافظهٔ محلی)",
   "devPortalDiagLocalSubtitle": "شمارش از ذخیرهٔ محلی — وقتی API مدیریت آفلاین است مفید است.",
   "devPortalDiagCountLoading": "…",
@@ -1746,5 +1770,25 @@
   "appGuideSettingsTitle": "تنظیمات",
   "appGuideSettingsBody": "پروفایل فروشگاه، چاپگر، کتابخانه استایل و اشتراک را اینجا تنظیم کنید.",
   "appGuideDashboardTitle": "داشبورد",
-  "appGuideDashboardBody": "از لبه چپ بکشید (یا آیکن منو) برای جستجو، همگام‌سازی و میانبرها."
+  "appGuideDashboardBody": "از لبه چپ بکشید (یا آیکن منو) برای جستجو، همگام‌سازی و میانبرها.",
+  "syncConflictsTitle": "تعارض همگام‌سازی",
+  "syncConflictsSubtitle": "سفارش‌هایی که دستگاه و سرور در آن‌ها اختلاف دارند.",
+  "syncConflictsEmpty": "تعارض همگام‌سازی نیست.",
+  "syncConflictPullSkipped": "به‌روزرسانی سرور رد شد — نسخهٔ شما جدیدتر است.",
+  "syncConflictPushRejected": "سرور به‌روزرسانی شما را رد کرد — نسخهٔ سرور جدیدتر است.",
+  "syncConflictKeepMine": "نگه‌داشتن نسخهٔ من",
+  "syncConflictUseServer": "استفاده از نسخهٔ سرور",
+  "syncConflictDismiss": "رد کردن",
+  "syncConflictLocalLabel": "روی این دستگاه",
+  "syncConflictRemoteLabel": "از سرور",
+  "catalogPublicFeedError": "بارگذاری طرح‌های اشتراکی ممکن نشد. اشتراک‌گذاری را فعال کنید و اتصال را بررسی کنید.",
+  "catalogP2pDownload": "دانلود طرح",
+  "catalogP2pDownloading": "در حال دانلود…",
+  "catalogP2pWaitingSender": "در انتظار آنلاین شدن فرستنده…",
+  "catalogP2pDownloadDone": "طرح در «طرح‌های من» ذخیره شد.",
+  "catalogP2pDownloadFailed": "دانلود ناموفق بود. وقتی هر دو فروشگاه آنلاین‌اند دوباره تلاش کنید.",
+  "catalogP2pWebNotSupported": "دانلود کاتالوگ در وب موجود نیست. از اپ اندروید استفاده کنید.",
+  "settingsSyncConflictsTile": "تعارض همگام‌سازی",
+  "settingsSyncConflictsTileSubtitle": "بررسی و حل تعارض سفارش",
+  "pushTokenAutoRegistered": "اعلان فوری برای این دستگاه ثبت شد."
 }

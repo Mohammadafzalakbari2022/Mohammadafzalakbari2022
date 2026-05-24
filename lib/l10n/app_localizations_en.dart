@@ -227,6 +227,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginShopCreateOwnerPasswordLabel => 'Owner password';
 
   @override
+  String get loginShopCreateWhatsappLabel => 'WhatsApp number';
+
+  @override
+  String get loginShopCreateWhatsappHint => 'e.g. 0700 123 456';
+
+  @override
+  String get loginShopCreateWhatsappInvalid =>
+      'Enter a valid WhatsApp or mobile number.';
+
+  @override
+  String get loginShopCreateEmailLabel => 'Email (optional)';
+
+  @override
+  String get loginShopCreateAddressLabel => 'Shop address';
+
+  @override
   String get loginShopCreateCta => 'Create shop & sign in';
 
   @override
@@ -235,11 +251,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String loginShopCreateError(String error) {
     return 'Could not create shop: $error';
-  }
-
-  @override
-  String modulePlaceholder(String moduleName) {
-    return '$moduleName — UI coming soon.';
   }
 
   @override
@@ -311,15 +322,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ordersNewCta => 'New order';
 
   @override
-  String get ordersComposerPlaceholderBody => 'Order composer will go here.';
-
-  @override
   String get ordersDetailTitle => 'Order details';
-
-  @override
-  String ordersDetailPlaceholderBody(String orderId) {
-    return 'Order $orderId — details UI coming soon.';
-  }
 
   @override
   String get orderStatusNew => 'New';
@@ -1118,11 +1121,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get catalogDetailTitle => 'Catalog item';
 
   @override
-  String catalogDetailPlaceholder(String id) {
-    return 'Catalog item $id — detail screen coming soon.';
-  }
-
-  @override
   String get settingsSectionAccountAndShop => 'Account & shop';
 
   @override
@@ -1525,9 +1523,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dateRangeToLabel => 'To';
-
-  @override
-  String get settingsComingSoon => 'Coming soon.';
 
   @override
   String get loading => 'Loading…';
@@ -2490,8 +2485,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get devPortalTabBilling => 'Billing';
 
   @override
+  String get devPortalTabSupport => 'Support';
+
+  @override
   String get devPortalBillingIntro =>
-      'Set Hesab Pay account details, payment link (QR + button for shops), prices (AFN), and payment steps in each language. Copy-paste templates: docs/BILLING_DEVELOPER_PORTAL_COPY_EN.md. Turn on Published so shops see them under Settings → Subscription. Review payment claims below.';
+      'Upload one settings image for shops (subscription instructions, QR, prices). Turn on Published so shops see it under Settings → Subscription. Review payment claims below.';
+
+  @override
+  String get devPortalBillingSettingsImageTitle => 'Settings image';
+
+  @override
+  String get devPortalBillingSettingsImagePick => 'Choose image';
+
+  @override
+  String get devPortalBillingSettingsImageReplace => 'Replace image';
+
+  @override
+  String get devPortalBillingSettingsImageRemove => 'Remove image';
+
+  @override
+  String get devPortalBillingSettingsImageTooLarge =>
+      'Image must be 1 MB or less. Choose a smaller file.';
 
   @override
   String devPortalBillingLoadError(String error) {
@@ -2599,6 +2613,84 @@ class AppLocalizationsEn extends AppLocalizations {
   String devPortalBillingSaveError(String error) {
     return 'Save failed: $error';
   }
+
+  @override
+  String devPortalSupportLoadError(String error) {
+    return 'Could not load support info: $error';
+  }
+
+  @override
+  String get devPortalSupportPublishTitle => 'Published (visible to shops)';
+
+  @override
+  String get devPortalSupportPublishSubtitle => 'Shows in Settings → About.';
+
+  @override
+  String get devPortalSupportDeveloperName => 'Developer name';
+
+  @override
+  String get devPortalSupportDeveloperTitle => 'Title / role';
+
+  @override
+  String get devPortalSupportDeveloperBio => 'Short bio (optional)';
+
+  @override
+  String get devPortalSupportEmail => 'Support email';
+
+  @override
+  String get devPortalSupportPhone => 'Support phone';
+
+  @override
+  String get devPortalSupportWhatsapp => 'Support WhatsApp';
+
+  @override
+  String get devPortalSupportHelpVideoUrl => 'How-to video link (HTTPS URL)';
+
+  @override
+  String get devPortalSupportSaveSuccess => 'Support info saved.';
+
+  @override
+  String devPortalSupportSaveError(String error) {
+    return 'Save failed: $error';
+  }
+
+  @override
+  String get supportSectionTitle => 'Help & support';
+
+  @override
+  String get supportSectionSubtitle =>
+      'How to use the app and contact information.';
+
+  @override
+  String supportSectionSubtitleCached(String time) {
+    return 'Cached: $time';
+  }
+
+  @override
+  String get supportNotAvailableTitle => 'Support info not available';
+
+  @override
+  String get supportNotAvailableBody =>
+      'Ask your distributor to publish support info in Developer Portal → Support.';
+
+  @override
+  String get supportHowToVideoTitle => 'How to use the app (video)';
+
+  @override
+  String get supportDeveloperFallback => 'Developer';
+
+  @override
+  String get supportEmailTitle => 'Email';
+
+  @override
+  String get supportPhoneTitle => 'Phone';
+
+  @override
+  String get supportWhatsappTitle => 'WhatsApp';
+
+  @override
+  String get supportOpenLinkFailed =>
+      'Could not open this link on this device.';
 
   @override
   String get devPortalBillingClaimsTitle => 'Payment claims';
@@ -3167,6 +3259,28 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get devPortalShopContactHeader => 'Registration contact';
+
+  @override
+  String devPortalShopContactWhatsapp(String value) {
+    return 'WhatsApp: $value';
+  }
+
+  @override
+  String devPortalShopContactEmail(String value) {
+    return 'Email: $value';
+  }
+
+  @override
+  String devPortalShopContactAddress(String value) {
+    return 'Address: $value';
+  }
+
+  @override
+  String get devPortalShopContactMissing =>
+      'No registration contact on file (shop created before contact fields).';
+
+  @override
   String get devPortalShopUsersHeader => 'Accounts';
 
   @override
@@ -3337,19 +3451,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get devPortalApiHealthUnknown => 'Unknown — connect to the API';
 
   @override
-  String get devPortalCodesStub =>
-      'Activation codes: search, create, and revoke will load from the admin API.';
-
-  @override
-  String get devPortalShopsStub =>
-      'Shops & licenses: list and detail views will load from the admin API.';
-
-  @override
-  String get devPortalResetsStub =>
-      'Password reset requests: support queue will load from the admin API.';
-
-  @override
-  String get devPortalDiagStub =>
+  String get devPortalDiagHint =>
       'For a full device bundle, use Settings → Sync & Diagnostics → Export diagnostics bundle.';
 
   @override
@@ -3879,4 +3981,72 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get appGuideDashboardBody =>
       'Swipe from the left edge (or tap the menu icon) for search, sync, and shortcuts.';
+
+  @override
+  String get syncConflictsTitle => 'Sync conflicts';
+
+  @override
+  String get syncConflictsSubtitle =>
+      'Orders where your device and the server disagree.';
+
+  @override
+  String get syncConflictsEmpty => 'No sync conflicts.';
+
+  @override
+  String get syncConflictPullSkipped =>
+      'Server update skipped — your copy is newer.';
+
+  @override
+  String get syncConflictPushRejected =>
+      'Server rejected your update — server copy is newer.';
+
+  @override
+  String get syncConflictKeepMine => 'Keep my version';
+
+  @override
+  String get syncConflictUseServer => 'Use server version';
+
+  @override
+  String get syncConflictDismiss => 'Dismiss';
+
+  @override
+  String get syncConflictLocalLabel => 'On this device';
+
+  @override
+  String get syncConflictRemoteLabel => 'From server';
+
+  @override
+  String get catalogPublicFeedError =>
+      'Could not load shared designs. Enable sharing and check your connection.';
+
+  @override
+  String get catalogP2pDownload => 'Download design';
+
+  @override
+  String get catalogP2pDownloading => 'Downloading…';
+
+  @override
+  String get catalogP2pWaitingSender => 'Waiting for sender to be online…';
+
+  @override
+  String get catalogP2pDownloadDone => 'Design saved to My Designs.';
+
+  @override
+  String get catalogP2pDownloadFailed =>
+      'Download failed. Try again when both shops are online.';
+
+  @override
+  String get catalogP2pWebNotSupported =>
+      'Catalog download is not available on web. Use the Android app.';
+
+  @override
+  String get settingsSyncConflictsTile => 'Sync conflicts';
+
+  @override
+  String get settingsSyncConflictsTileSubtitle =>
+      'Review and resolve order conflicts';
+
+  @override
+  String get pushTokenAutoRegistered =>
+      'Push notifications registered for this device.';
 }

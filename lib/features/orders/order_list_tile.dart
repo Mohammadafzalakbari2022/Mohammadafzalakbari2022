@@ -5,6 +5,7 @@ import 'package:pride_v3/core/calendar/date_calendar_system.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../data/local/order_summary.dart';
+import 'order_payment_rules.dart';
 import 'order_status_label.dart';
 
 /// Single order row for [OrdersFilteredListBody]: styled customer name, optional
@@ -20,9 +21,13 @@ class OrderListTile extends StatelessWidget {
     required this.detailed,
     required this.onTap,
     required this.formatMoney,
+    this.paidAmountMinor,
+    this.remainingAmountMinor,
   });
 
   final OrderSummary order;
+  final int? paidAmountMinor;
+  final int? remainingAmountMinor;
   final AppLocalizations l10n;
   final String locale;
   final DateCalendarSystem calendar;
@@ -47,6 +52,10 @@ class OrderListTile extends StatelessWidget {
       order.deliveryDate,
       locale,
     );
+    final paidMinor = paidAmountMinor ?? order.paidAmountMinor;
+    final remainingMinor = remainingAmountMinor ??
+        OrderPaymentRules.remainingMinor(order.totalAmountMinor, paidMinor);
+    final isUnpaid = remainingMinor > 0;
 
     final borderRadius = BorderRadius.circular(14);
     final selectedFill = scheme.primaryContainer.withValues(alpha: 0.42);
@@ -158,8 +167,8 @@ class OrderListTile extends StatelessWidget {
                             [
                               '${l10n.customerPhoneLabel}: ${order.customerPhone ?? l10n.customersPhoneMissing}',
                               '${l10n.paymentTotal}: ${formatMoney(order.totalAmountMinor)}',
-                              '${l10n.paymentPaid}: ${formatMoney(order.paidAmountMinor)}',
-                              '${l10n.paymentRemaining}: ${formatMoney(order.remainingAmountMinor)}',
+                              '${l10n.paymentPaid}: ${formatMoney(paidMinor)}',
+                              '${l10n.paymentRemaining}: ${formatMoney(remainingMinor)}',
                             ].join(' · '),
                             style: theme.textTheme.bodySmall,
                           ),
@@ -182,8 +191,8 @@ class OrderListTile extends StatelessWidget {
                         ),
                       Chip(
                         label: Text(
-                          order.isUnpaid && !detailed
-                              ? '${orderStatusLabel(order.status, l10n)} · ${l10n.ordersRemainingChip(NumberFormat.decimalPattern().format(order.remainingAmountMinor))}'
+                          isUnpaid && !detailed
+                              ? '${orderStatusLabel(order.status, l10n)} · ${l10n.ordersRemainingChip(NumberFormat.decimalPattern().format(remainingMinor))}'
                               : orderStatusLabel(order.status, l10n),
                         ),
                         visualDensity: VisualDensity.compact,

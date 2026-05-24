@@ -478,6 +478,36 @@ abstract class AppLocalizations {
   /// **'Owner password'**
   String get loginShopCreateOwnerPasswordLabel;
 
+  /// No description provided for @loginShopCreateWhatsappLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp number'**
+  String get loginShopCreateWhatsappLabel;
+
+  /// No description provided for @loginShopCreateWhatsappHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 0700 123 456'**
+  String get loginShopCreateWhatsappHint;
+
+  /// No description provided for @loginShopCreateWhatsappInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid WhatsApp or mobile number.'**
+  String get loginShopCreateWhatsappInvalid;
+
+  /// No description provided for @loginShopCreateEmailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email (optional)'**
+  String get loginShopCreateEmailLabel;
+
+  /// No description provided for @loginShopCreateAddressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop address'**
+  String get loginShopCreateAddressLabel;
+
   /// No description provided for @loginShopCreateCta.
   ///
   /// In en, this message translates to:
@@ -495,12 +525,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not create shop: {error}'**
   String loginShopCreateError(String error);
-
-  /// Placeholder body for a shell tab
-  ///
-  /// In en, this message translates to:
-  /// **'{moduleName} — UI coming soon.'**
-  String modulePlaceholder(String moduleName);
 
   /// No description provided for @dashboardTitle.
   ///
@@ -634,23 +658,11 @@ abstract class AppLocalizations {
   /// **'New order'**
   String get ordersNewCta;
 
-  /// No description provided for @ordersComposerPlaceholderBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Order composer will go here.'**
-  String get ordersComposerPlaceholderBody;
-
   /// No description provided for @ordersDetailTitle.
   ///
   /// In en, this message translates to:
   /// **'Order details'**
   String get ordersDetailTitle;
-
-  /// No description provided for @ordersDetailPlaceholderBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Order {orderId} — details UI coming soon.'**
-  String ordersDetailPlaceholderBody(String orderId);
 
   /// No description provided for @orderStatusNew.
   ///
@@ -2110,12 +2122,6 @@ abstract class AppLocalizations {
   /// **'Catalog item'**
   String get catalogDetailTitle;
 
-  /// No description provided for @catalogDetailPlaceholder.
-  ///
-  /// In en, this message translates to:
-  /// **'Catalog item {id} — detail screen coming soon.'**
-  String catalogDetailPlaceholder(String id);
-
   /// No description provided for @settingsSectionAccountAndShop.
   ///
   /// In en, this message translates to:
@@ -2859,12 +2865,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'To'**
   String get dateRangeToLabel;
-
-  /// No description provided for @settingsComingSoon.
-  ///
-  /// In en, this message translates to:
-  /// **'Coming soon.'**
-  String get settingsComingSoon;
 
   /// No description provided for @loading.
   ///
@@ -4585,11 +4585,47 @@ abstract class AppLocalizations {
   /// **'Billing'**
   String get devPortalTabBilling;
 
+  /// No description provided for @devPortalTabSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get devPortalTabSupport;
+
   /// No description provided for @devPortalBillingIntro.
   ///
   /// In en, this message translates to:
-  /// **'Set Hesab Pay account details, payment link (QR + button for shops), prices (AFN), and payment steps in each language. Copy-paste templates: docs/BILLING_DEVELOPER_PORTAL_COPY_EN.md. Turn on Published so shops see them under Settings → Subscription. Review payment claims below.'**
+  /// **'Upload one settings image for shops (subscription instructions, QR, prices). Turn on Published so shops see it under Settings → Subscription. Review payment claims below.'**
   String get devPortalBillingIntro;
+
+  /// No description provided for @devPortalBillingSettingsImageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings image'**
+  String get devPortalBillingSettingsImageTitle;
+
+  /// No description provided for @devPortalBillingSettingsImagePick.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose image'**
+  String get devPortalBillingSettingsImagePick;
+
+  /// No description provided for @devPortalBillingSettingsImageReplace.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace image'**
+  String get devPortalBillingSettingsImageReplace;
+
+  /// No description provided for @devPortalBillingSettingsImageRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove image'**
+  String get devPortalBillingSettingsImageRemove;
+
+  /// No description provided for @devPortalBillingSettingsImageTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Image must be 1 MB or less. Choose a smaller file.'**
+  String get devPortalBillingSettingsImageTooLarge;
 
   /// No description provided for @devPortalBillingLoadError.
   ///
@@ -4782,6 +4818,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save failed: {error}'**
   String devPortalBillingSaveError(String error);
+
+  /// No description provided for @devPortalSupportLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load support info: {error}'**
+  String devPortalSupportLoadError(String error);
+
+  /// No description provided for @devPortalSupportPublishTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Published (visible to shops)'**
+  String get devPortalSupportPublishTitle;
+
+  /// No description provided for @devPortalSupportPublishSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows in Settings → About.'**
+  String get devPortalSupportPublishSubtitle;
+
+  /// No description provided for @devPortalSupportDeveloperName.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer name'**
+  String get devPortalSupportDeveloperName;
+
+  /// No description provided for @devPortalSupportDeveloperTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Title / role'**
+  String get devPortalSupportDeveloperTitle;
+
+  /// No description provided for @devPortalSupportDeveloperBio.
+  ///
+  /// In en, this message translates to:
+  /// **'Short bio (optional)'**
+  String get devPortalSupportDeveloperBio;
+
+  /// No description provided for @devPortalSupportEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Support email'**
+  String get devPortalSupportEmail;
+
+  /// No description provided for @devPortalSupportPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Support phone'**
+  String get devPortalSupportPhone;
+
+  /// No description provided for @devPortalSupportWhatsapp.
+  ///
+  /// In en, this message translates to:
+  /// **'Support WhatsApp'**
+  String get devPortalSupportWhatsapp;
+
+  /// No description provided for @devPortalSupportHelpVideoUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'How-to video link (HTTPS URL)'**
+  String get devPortalSupportHelpVideoUrl;
+
+  /// No description provided for @devPortalSupportSaveSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Support info saved.'**
+  String get devPortalSupportSaveSuccess;
+
+  /// No description provided for @devPortalSupportSaveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Save failed: {error}'**
+  String devPortalSupportSaveError(String error);
+
+  /// No description provided for @supportSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Help & support'**
+  String get supportSectionTitle;
+
+  /// No description provided for @supportSectionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How to use the app and contact information.'**
+  String get supportSectionSubtitle;
+
+  /// No description provided for @supportSectionSubtitleCached.
+  ///
+  /// In en, this message translates to:
+  /// **'Cached: {time}'**
+  String supportSectionSubtitleCached(String time);
+
+  /// No description provided for @supportNotAvailableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Support info not available'**
+  String get supportNotAvailableTitle;
+
+  /// No description provided for @supportNotAvailableBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask your distributor to publish support info in Developer Portal → Support.'**
+  String get supportNotAvailableBody;
+
+  /// No description provided for @supportHowToVideoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How to use the app (video)'**
+  String get supportHowToVideoTitle;
+
+  /// No description provided for @supportDeveloperFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer'**
+  String get supportDeveloperFallback;
+
+  /// No description provided for @supportEmailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get supportEmailTitle;
+
+  /// No description provided for @supportPhoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get supportPhoneTitle;
+
+  /// No description provided for @supportWhatsappTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp'**
+  String get supportWhatsappTitle;
+
+  /// No description provided for @supportOpenLinkFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open this link on this device.'**
+  String get supportOpenLinkFailed;
 
   /// No description provided for @devPortalBillingClaimsTitle.
   ///
@@ -5723,6 +5897,36 @@ abstract class AppLocalizations {
   /// **'Trial started: {date}'**
   String devPortalShopTrialStarted(String date);
 
+  /// No description provided for @devPortalShopContactHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration contact'**
+  String get devPortalShopContactHeader;
+
+  /// No description provided for @devPortalShopContactWhatsapp.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp: {value}'**
+  String devPortalShopContactWhatsapp(String value);
+
+  /// No description provided for @devPortalShopContactEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email: {value}'**
+  String devPortalShopContactEmail(String value);
+
+  /// No description provided for @devPortalShopContactAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Address: {value}'**
+  String devPortalShopContactAddress(String value);
+
+  /// No description provided for @devPortalShopContactMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'No registration contact on file (shop created before contact fields).'**
+  String get devPortalShopContactMissing;
+
   /// No description provided for @devPortalShopUsersHeader.
   ///
   /// In en, this message translates to:
@@ -6029,29 +6233,11 @@ abstract class AppLocalizations {
   /// **'Unknown — connect to the API'**
   String get devPortalApiHealthUnknown;
 
-  /// No description provided for @devPortalCodesStub.
-  ///
-  /// In en, this message translates to:
-  /// **'Activation codes: search, create, and revoke will load from the admin API.'**
-  String get devPortalCodesStub;
-
-  /// No description provided for @devPortalShopsStub.
-  ///
-  /// In en, this message translates to:
-  /// **'Shops & licenses: list and detail views will load from the admin API.'**
-  String get devPortalShopsStub;
-
-  /// No description provided for @devPortalResetsStub.
-  ///
-  /// In en, this message translates to:
-  /// **'Password reset requests: support queue will load from the admin API.'**
-  String get devPortalResetsStub;
-
-  /// No description provided for @devPortalDiagStub.
+  /// No description provided for @devPortalDiagHint.
   ///
   /// In en, this message translates to:
   /// **'For a full device bundle, use Settings → Sync & Diagnostics → Export diagnostics bundle.'**
-  String get devPortalDiagStub;
+  String get devPortalDiagHint;
 
   /// No description provided for @devPortalDiagLocalTitle.
   ///
@@ -7006,6 +7192,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Swipe from the left edge (or tap the menu icon) for search, sync, and shortcuts.'**
   String get appGuideDashboardBody;
+
+  /// No description provided for @syncConflictsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync conflicts'**
+  String get syncConflictsTitle;
+
+  /// No description provided for @syncConflictsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders where your device and the server disagree.'**
+  String get syncConflictsSubtitle;
+
+  /// No description provided for @syncConflictsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No sync conflicts.'**
+  String get syncConflictsEmpty;
+
+  /// No description provided for @syncConflictPullSkipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Server update skipped — your copy is newer.'**
+  String get syncConflictPullSkipped;
+
+  /// No description provided for @syncConflictPushRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Server rejected your update — server copy is newer.'**
+  String get syncConflictPushRejected;
+
+  /// No description provided for @syncConflictKeepMine.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep my version'**
+  String get syncConflictKeepMine;
+
+  /// No description provided for @syncConflictUseServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Use server version'**
+  String get syncConflictUseServer;
+
+  /// No description provided for @syncConflictDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get syncConflictDismiss;
+
+  /// No description provided for @syncConflictLocalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'On this device'**
+  String get syncConflictLocalLabel;
+
+  /// No description provided for @syncConflictRemoteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'From server'**
+  String get syncConflictRemoteLabel;
+
+  /// No description provided for @catalogPublicFeedError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load shared designs. Enable sharing and check your connection.'**
+  String get catalogPublicFeedError;
+
+  /// No description provided for @catalogP2pDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Download design'**
+  String get catalogP2pDownload;
+
+  /// No description provided for @catalogP2pDownloading.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading…'**
+  String get catalogP2pDownloading;
+
+  /// No description provided for @catalogP2pWaitingSender.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for sender to be online…'**
+  String get catalogP2pWaitingSender;
+
+  /// No description provided for @catalogP2pDownloadDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Design saved to My Designs.'**
+  String get catalogP2pDownloadDone;
+
+  /// No description provided for @catalogP2pDownloadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Download failed. Try again when both shops are online.'**
+  String get catalogP2pDownloadFailed;
+
+  /// No description provided for @catalogP2pWebNotSupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Catalog download is not available on web. Use the Android app.'**
+  String get catalogP2pWebNotSupported;
+
+  /// No description provided for @settingsSyncConflictsTile.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync conflicts'**
+  String get settingsSyncConflictsTile;
+
+  /// No description provided for @settingsSyncConflictsTileSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review and resolve order conflicts'**
+  String get settingsSyncConflictsTileSubtitle;
+
+  /// No description provided for @pushTokenAutoRegistered.
+  ///
+  /// In en, this message translates to:
+  /// **'Push notifications registered for this device.'**
+  String get pushTokenAutoRegistered;
 }
 
 class _AppLocalizationsDelegate

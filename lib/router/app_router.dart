@@ -29,6 +29,7 @@ import '../features/developer_portal/developer_portal_screen.dart';
 import '../features/settings/settings_backup_restore_screen.dart';
 import '../features/settings/settings_notifications_screen.dart';
 import '../features/settings/settings_sync_diagnostics_screen.dart';
+import '../features/settings/settings_sync_conflicts_screen.dart';
 import '../features/settings/settings_measurement_types_screen.dart';
 import '../features/settings/settings_style_screen.dart';
 import '../features/settings/settings_fabric_presets_screen.dart';
@@ -368,6 +369,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                     parentNavigatorKey: appRootNavigatorKey,
                     builder: (context, state) =>
                         const SettingsSyncDiagnosticsScreen(),
+                  ),
+                  GoRoute(
+                    path: 'sync-conflicts',
+                    parentNavigatorKey: appRootNavigatorKey,
+                    builder: (context, state) =>
+                        const SettingsSyncConflictsScreen(),
                   ),
                   GoRoute(
                     path: 'appearance-language',

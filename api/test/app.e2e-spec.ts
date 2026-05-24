@@ -7,6 +7,13 @@ import { AppModule } from './../src/app.module';
 
 jest.setTimeout(30_000);
 
+/** Required on `POST /shop/create` since shop contact fields were added. */
+const e2eShopRegistrationContact = {
+  contact_whatsapp: '93700123456',
+  contact_address: 'Kabul, Test District, Shop Street 1',
+  contact_email: 'owner@example.com',
+};
+
 describe('AppController (e2e)', () => {
   let app: INestApplication;
 
@@ -154,6 +161,7 @@ describe('AppController (e2e)', () => {
         shop_name: 'Member Shop',
         owner_username: 'memowner',
         owner_password: 'memownerpass',
+        ...e2eShopRegistrationContact,
       })
       .expect(200);
     const ownerToken = created.body.access_token as string;
@@ -196,6 +204,7 @@ describe('AppController (e2e)', () => {
         shop_name: 'Pwd Shop',
         owner_username: 'pwdowner',
         owner_password: 'oldpass1234',
+        ...e2eShopRegistrationContact,
       })
       .expect(200);
     const token = created.body.access_token as string;
@@ -223,6 +232,17 @@ describe('AppController (e2e)', () => {
       .expect(200);
   });
 
+  it('/shop/create (POST) requires contact_whatsapp and contact_address', async () => {
+    await request(app.getHttpServer())
+      .post('/shop/create')
+      .send({
+        shop_name: 'No Contact',
+        owner_username: 'ncowner',
+        owner_password: 'ncownerpass',
+      })
+      .expect(400);
+  });
+
   it('/shop/create (POST) returns JWT and /shop/users lists owner', async () => {
     const created = await request(app.getHttpServer())
       .post('/shop/create')
@@ -230,6 +250,7 @@ describe('AppController (e2e)', () => {
         shop_name: 'E2E Tailor',
         owner_username: 'e2eowner',
         owner_password: 'e2eownerpass',
+        ...e2eShopRegistrationContact,
       })
       .expect(200);
     const token = created.body.access_token as string;

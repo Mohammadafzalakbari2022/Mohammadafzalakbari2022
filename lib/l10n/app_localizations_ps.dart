@@ -222,6 +222,22 @@ class AppLocalizationsPs extends AppLocalizations {
   String get loginShopCreateOwnerPasswordLabel => 'د مالک پاسورډ';
 
   @override
+  String get loginShopCreateWhatsappLabel => 'د واټساپ شمېره';
+
+  @override
+  String get loginShopCreateWhatsappHint => 'لکه 0700 123 456';
+
+  @override
+  String get loginShopCreateWhatsappInvalid =>
+      'د واټساپ یا موبایل معتبر شمېره ولیکئ.';
+
+  @override
+  String get loginShopCreateEmailLabel => 'برېښنالیک (اختیاري)';
+
+  @override
+  String get loginShopCreateAddressLabel => 'د هټۍ پته';
+
+  @override
   String get loginShopCreateCta => 'هټۍ جوړول او ننوتل';
 
   @override
@@ -230,11 +246,6 @@ class AppLocalizationsPs extends AppLocalizations {
   @override
   String loginShopCreateError(String error) {
     return 'هټۍ نشوه جوړېدلی: $error';
-  }
-
-  @override
-  String modulePlaceholder(String moduleName) {
-    return '$moduleName — انټرفیس ژر راځي.';
   }
 
   @override
@@ -305,15 +316,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get ordersNewCta => 'نوی امر';
 
   @override
-  String get ordersComposerPlaceholderBody => 'د امر فورمه به دلته راشي.';
-
-  @override
   String get ordersDetailTitle => 'د امر جزئیات';
-
-  @override
-  String ordersDetailPlaceholderBody(String orderId) {
-    return 'امر $orderId — جزئیات ژر راځي.';
-  }
 
   @override
   String get orderStatusNew => 'نوی';
@@ -1112,11 +1115,6 @@ class AppLocalizationsPs extends AppLocalizations {
   String get catalogDetailTitle => 'د کتلاګ توکی';
 
   @override
-  String catalogDetailPlaceholder(String id) {
-    return 'کتلاګ توکی $id — جزئیات ژر راځي.';
-  }
-
-  @override
   String get settingsSectionAccountAndShop => 'حساب او هټۍ';
 
   @override
@@ -1512,9 +1510,6 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get dateRangeToLabel => 'تر';
-
-  @override
-  String get settingsComingSoon => 'ژر راځي.';
 
   @override
   String get loading => 'بارېږي…';
@@ -2467,8 +2462,27 @@ class AppLocalizationsPs extends AppLocalizations {
   String get devPortalTabBilling => 'بلینګ';
 
   @override
+  String get devPortalTabSupport => 'مرسته';
+
+  @override
   String get devPortalBillingIntro =>
-      'د حساب پی جزئیات، بیې (افغانۍ) او د تادیې ګامونه په هر ژبه ولیکئ. «خپور شوی» فعال کړئ ترڅو ټولې هټۍ یې په تنظیمات → ګډون وګوري. لاندې د تادیې غوښتنې وڅارئ او د فعالولو کوډ جوړولو لپاره ومنئ.';
+      'د پیرودونکو لپاره یو د تنظیماتو انځور پورته کړئ (ګډون، QR، بیې). «خپور شوی» فعال کړئ. لاندې د تادیې غوښتنې وڅارئ.';
+
+  @override
+  String get devPortalBillingSettingsImageTitle => 'د تنظیماتو انځور';
+
+  @override
+  String get devPortalBillingSettingsImagePick => 'انځور غوره کړئ';
+
+  @override
+  String get devPortalBillingSettingsImageReplace => 'انځور بدل کړئ';
+
+  @override
+  String get devPortalBillingSettingsImageRemove => 'انځور لرې کړئ';
+
+  @override
+  String get devPortalBillingSettingsImageTooLarge =>
+      'انځور باید تر ۱ مېګابایټ زیات نه وي. کوچنی فایل وټاکئ.';
 
   @override
   String devPortalBillingLoadError(String error) {
@@ -2572,6 +2586,83 @@ class AppLocalizationsPs extends AppLocalizations {
   String devPortalBillingSaveError(String error) {
     return 'خوندي کول ناکام: $error';
   }
+
+  @override
+  String devPortalSupportLoadError(String error) {
+    return 'د مرستې معلومات بارول ناکام: $error';
+  }
+
+  @override
+  String get devPortalSupportPublishTitle => 'خپور شوی (د هټیو لپاره)';
+
+  @override
+  String get devPortalSupportPublishSubtitle => 'په تنظیمات → په اړه کې ښکاري.';
+
+  @override
+  String get devPortalSupportDeveloperName => 'د پراختیاګر نوم';
+
+  @override
+  String get devPortalSupportDeveloperTitle => 'عنوان / رول';
+
+  @override
+  String get devPortalSupportDeveloperBio => 'لنډه پېژندنه (اختیاري)';
+
+  @override
+  String get devPortalSupportEmail => 'د مرستې ایمیل';
+
+  @override
+  String get devPortalSupportPhone => 'د مرستې تلیفون';
+
+  @override
+  String get devPortalSupportWhatsapp => 'د مرستې واټساپ';
+
+  @override
+  String get devPortalSupportHelpVideoUrl => 'د کارولو ویډیو لینک (HTTPS)';
+
+  @override
+  String get devPortalSupportSaveSuccess => 'د مرستې معلومات خوندي شول.';
+
+  @override
+  String devPortalSupportSaveError(String error) {
+    return 'خوندي کول ناکام: $error';
+  }
+
+  @override
+  String get supportSectionTitle => 'لارښود او مرسته';
+
+  @override
+  String get supportSectionSubtitle => 'د کارولو ویډیو او د اړیکې معلومات.';
+
+  @override
+  String supportSectionSubtitleCached(String time) {
+    return 'خوندي شوی: $time';
+  }
+
+  @override
+  String get supportNotAvailableTitle => 'د مرستې معلومات نشته';
+
+  @override
+  String get supportNotAvailableBody =>
+      'له توزیع کوونکي وغواړئ چې په د پراختیاګر پورټل → مرسته کې یې خپاره کړي.';
+
+  @override
+  String get supportHowToVideoTitle => 'د اپ کارولو لارښود (ویډیو)';
+
+  @override
+  String get supportDeveloperFallback => 'پراختیاګر';
+
+  @override
+  String get supportEmailTitle => 'ایمیل';
+
+  @override
+  String get supportPhoneTitle => 'تلیفون';
+
+  @override
+  String get supportWhatsappTitle => 'واټساپ';
+
+  @override
+  String get supportOpenLinkFailed =>
+      'په دې وسیله کې د لینک پرانیستل ممکن نه دي.';
 
   @override
   String get devPortalBillingClaimsTitle => 'د تادیې غوښتنې';
@@ -3138,6 +3229,28 @@ class AppLocalizationsPs extends AppLocalizations {
   }
 
   @override
+  String get devPortalShopContactHeader => 'د ثبت تماس معلومات';
+
+  @override
+  String devPortalShopContactWhatsapp(String value) {
+    return 'واټساپ: $value';
+  }
+
+  @override
+  String devPortalShopContactEmail(String value) {
+    return 'برېښنالیک: $value';
+  }
+
+  @override
+  String devPortalShopContactAddress(String value) {
+    return 'پته: $value';
+  }
+
+  @override
+  String get devPortalShopContactMissing =>
+      'د ثبت تماس معلومات نشته (هټۍ مخکې له دې برخې څخه جوړه شوې).';
+
+  @override
   String get devPortalShopUsersHeader => 'حسابونه';
 
   @override
@@ -3308,19 +3421,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get devPortalApiHealthUnknown => 'نامعلوم — API ته ونښلوئ';
 
   @override
-  String get devPortalCodesStub =>
-      'فعالولو کوډونه: لټون، جوړول او لغوه کول له اداري API بارېږي.';
-
-  @override
-  String get devPortalShopsStub =>
-      'هټۍ او جوازونه: لیست او جزئیات له اداري API بارېږي.';
-
-  @override
-  String get devPortalResetsStub =>
-      'د پاسورډ بیا تنظیم غوښتنې: د ملاتړ قطار له اداري API بارېږي.';
-
-  @override
-  String get devPortalDiagStub =>
+  String get devPortalDiagHint =>
       'د بشپړې وسیلې بسته لپاره تنظیمات → سنک او تشخیص → تشخیص بسته صادرول وکاروئ.';
 
   @override
@@ -3846,4 +3947,70 @@ class AppLocalizationsPs extends AppLocalizations {
   @override
   String get appGuideDashboardBody =>
       'له کیڼ اړخ څخه کش کړئ (یا د مینو آیکن) د لټون، همغږي او لنډو لارو لپاره.';
+
+  @override
+  String get syncConflictsTitle => 'د همغږي شخړې';
+
+  @override
+  String get syncConflictsSubtitle =>
+      'هغه امرونه چې ستاسو وسیله او سرور په کې اختلاف لري.';
+
+  @override
+  String get syncConflictsEmpty => 'د همغږي شخړې نشته.';
+
+  @override
+  String get syncConflictPullSkipped =>
+      'د سرور تازه کول رد شول — ستاسو نسخه نوی ده.';
+
+  @override
+  String get syncConflictPushRejected =>
+      'سرور ستاسو تازه کول رد کړ — د سرور نسخه نوی ده.';
+
+  @override
+  String get syncConflictKeepMine => 'زما نسخه وساتئ';
+
+  @override
+  String get syncConflictUseServer => 'د سرور نسخه وکاروئ';
+
+  @override
+  String get syncConflictDismiss => 'رد کړئ';
+
+  @override
+  String get syncConflictLocalLabel => 'په دې وسیله';
+
+  @override
+  String get syncConflictRemoteLabel => 'له سرور';
+
+  @override
+  String get catalogPublicFeedError =>
+      'شریک شوي ډیزاینونه بار نشول. شریکول فعال کړئ او اتصال وګورئ.';
+
+  @override
+  String get catalogP2pDownload => 'ډیزاین ډاونلوډ';
+
+  @override
+  String get catalogP2pDownloading => 'ډاونلوډ کېږي…';
+
+  @override
+  String get catalogP2pWaitingSender => 'د لېږونکي آنلاین کېدو په تمه…';
+
+  @override
+  String get catalogP2pDownloadDone => 'ډیزاین په «زما ډیزاینونه» کې خوندي شو.';
+
+  @override
+  String get catalogP2pDownloadFailed =>
+      'ډاونلوډ ناکام شو. کله چې دواړه هټۍ آنلاین وي بیا هڅه وکړئ.';
+
+  @override
+  String get catalogP2pWebNotSupported =>
+      'په ویب کې کتلاګ ډاونلوډ نشته. د اندروید اپ وکاروئ.';
+
+  @override
+  String get settingsSyncConflictsTile => 'د همغږي شخړې';
+
+  @override
+  String get settingsSyncConflictsTileSubtitle => 'د امر شخړې وګورئ او حل کړئ';
+
+  @override
+  String get pushTokenAutoRegistered => 'د دې وسیلې لپاره فوري خبرتیا ثبت شوه.';
 }

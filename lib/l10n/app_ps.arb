@@ -98,6 +98,11 @@
       }
     }
   },
+  "devPortalShopContactHeader": "د ثبت تماس معلومات",
+  "devPortalShopContactWhatsapp": "واټساپ: {value}",
+  "devPortalShopContactEmail": "برېښنالیک: {value}",
+  "devPortalShopContactAddress": "پته: {value}",
+  "devPortalShopContactMissing": "د ثبت تماس معلومات نشته (هټۍ مخکې له دې برخې څخه جوړه شوې).",
   "devPortalShopUsersHeader": "حسابونه",
   "devPortalShopUserOwnerBadge": "خاوند",
   "devPortalShopUserDeletedBadge": "ړنګ شوی",
@@ -193,21 +198,17 @@
   "loginShopCreateNameLabel": "د هټۍ نوم",
   "loginShopCreateOwnerUsernameLabel": "د مالک کارن نوم",
   "loginShopCreateOwnerPasswordLabel": "د مالک پاسورډ",
+  "loginShopCreateWhatsappLabel": "د واټساپ شمېره",
+  "loginShopCreateWhatsappHint": "لکه 0700 123 456",
+  "loginShopCreateWhatsappInvalid": "د واټساپ یا موبایل معتبر شمېره ولیکئ.",
+  "loginShopCreateEmailLabel": "برېښنالیک (اختیاري)",
+  "loginShopCreateAddressLabel": "د هټۍ پته",
   "loginShopCreateCta": "هټۍ جوړول او ننوتل",
   "loginShopCreating": "هټۍ جوړېږي…",
   "loginShopCreateError": "هټۍ نشوه جوړېدلی: {error}",
   "@loginShopCreateError": {
     "placeholders": {
       "error": {
-        "type": "String"
-      }
-    }
-  },
-  "modulePlaceholder": "{moduleName} — انټرفیس ژر راځي.",
-  "@modulePlaceholder": {
-    "description": "Placeholder body for a shell tab",
-    "placeholders": {
-      "moduleName": {
         "type": "String"
       }
     }
@@ -234,16 +235,7 @@
   "licenseStatusExpired": "پای ته رسېدلی",
   "ordersNewTitle": "نوی امر",
   "ordersNewCta": "نوی امر",
-  "ordersComposerPlaceholderBody": "د امر فورمه به دلته راشي.",
   "ordersDetailTitle": "د امر جزئیات",
-  "ordersDetailPlaceholderBody": "امر {orderId} — جزئیات ژر راځي.",
-  "@ordersDetailPlaceholderBody": {
-    "placeholders": {
-      "orderId": {
-        "type": "String"
-      }
-    }
-  },
   "orderStatusNew": "نوی",
   "orderStatusInProgress": "روان",
   "orderStatusReady": "چمتو",
@@ -632,14 +624,6 @@
   "catalogViewerManageA11y": "ډیزاین مدیریت",
   "catalogAddDesignPlaceholder": "د کیمرې/ګالري زیاتول یوازې په اندروید/iOS کې.",
   "catalogDetailTitle": "د کتلاګ توکی",
-  "catalogDetailPlaceholder": "کتلاګ توکی {id} — جزئیات ژر راځي.",
-  "@catalogDetailPlaceholder": {
-    "placeholders": {
-      "id": {
-        "type": "String"
-      }
-    }
-  },
   "settingsSectionAccountAndShop": "حساب او هټۍ",
   "settingsSectionUsers": "کارنان",
   "settingsSectionBackupRestore": "بیکاپ او بیرته راوړل",
@@ -785,7 +769,6 @@
   "datePickerDayLabel": "ورځ",
   "dateRangeFromLabel": "له",
   "dateRangeToLabel": "تر",
-  "settingsComingSoon": "ژر راځي.",
   "loading": "بارېږي…",
   "genericError": "یو څه ستونزه رامنځته شوه.",
   "resetCta": "بیا تنظیم",
@@ -1192,10 +1175,54 @@
   "subscriptionBillingTelegram": "ټیلیګرام",
   "subscriptionBillingPhone": "تلیفون",
   "devPortalTabBilling": "بلینګ",
-  "devPortalBillingIntro": "د حساب پی جزئیات، بیې (افغانۍ) او د تادیې ګامونه په هر ژبه ولیکئ. «خپور شوی» فعال کړئ ترڅو ټولې هټۍ یې په تنظیمات → ګډون وګوري. لاندې د تادیې غوښتنې وڅارئ او د فعالولو کوډ جوړولو لپاره ومنئ.",
+  "devPortalTabSupport": "مرسته",
+  "devPortalBillingIntro": "د پیرودونکو لپاره یو د تنظیماتو انځور پورته کړئ (ګډون، QR، بیې). «خپور شوی» فعال کړئ. لاندې د تادیې غوښتنې وڅارئ.",
+  "devPortalBillingSettingsImageTitle": "د تنظیماتو انځور",
+  "devPortalBillingSettingsImagePick": "انځور غوره کړئ",
+  "devPortalBillingSettingsImageReplace": "انځور بدل کړئ",
+  "devPortalBillingSettingsImageRemove": "انځور لرې کړئ",
+  "devPortalBillingSettingsImageTooLarge": "انځور باید تر ۱ مېګابایټ زیات نه وي. کوچنی فایل وټاکئ.",
   "devPortalBillingLoadError": "د بلینګ پروفایل بارول ناکام: {error}",
   "devPortalBillingProfileTitle": "د حساب پی پروفایل",
   "devPortalBillingPublished": "خپور شوی (د هټیو لپاره)",
+  "devPortalSupportLoadError": "د مرستې معلومات بارول ناکام: {error}",
+  "@devPortalSupportLoadError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "devPortalSupportPublishTitle": "خپور شوی (د هټیو لپاره)",
+  "devPortalSupportPublishSubtitle": "په تنظیمات → په اړه کې ښکاري.",
+  "devPortalSupportDeveloperName": "د پراختیاګر نوم",
+  "devPortalSupportDeveloperTitle": "عنوان / رول",
+  "devPortalSupportDeveloperBio": "لنډه پېژندنه (اختیاري)",
+  "devPortalSupportEmail": "د مرستې ایمیل",
+  "devPortalSupportPhone": "د مرستې تلیفون",
+  "devPortalSupportWhatsapp": "د مرستې واټساپ",
+  "devPortalSupportHelpVideoUrl": "د کارولو ویډیو لینک (HTTPS)",
+  "devPortalSupportSaveSuccess": "د مرستې معلومات خوندي شول.",
+  "devPortalSupportSaveError": "خوندي کول ناکام: {error}",
+  "@devPortalSupportSaveError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "supportSectionTitle": "لارښود او مرسته",
+  "supportSectionSubtitle": "د کارولو ویډیو او د اړیکې معلومات.",
+  "supportSectionSubtitleCached": "خوندي شوی: {time}",
+  "@supportSectionSubtitleCached": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "supportNotAvailableTitle": "د مرستې معلومات نشته",
+  "supportNotAvailableBody": "له توزیع کوونکي وغواړئ چې په د پراختیاګر پورټل → مرسته کې یې خپاره کړي.",
+  "supportHowToVideoTitle": "د اپ کارولو لارښود (ویډیو)",
+  "supportDeveloperFallback": "پراختیاګر",
+  "supportEmailTitle": "ایمیل",
+  "supportPhoneTitle": "تلیفون",
+  "supportWhatsappTitle": "واټساپ",
+  "supportOpenLinkFailed": "په دې وسیله کې د لینک پرانیستل ممکن نه دي.",
   "devPortalBillingPaymentLinkSectionTitle": "د حساب پی تادیې لینک",
   "devPortalBillingPaymentLinkSectionBody": "کاروونکي په تنظیمات → ګډون کې QR او تڼۍ ګوري کله چې «خپور شوی» فعال وي. بشپړ HTTPS لینک له حساب پی پېښ کړئ.",
   "devPortalBillingPaymentLinkPreviewTitle": "مخکتنه (هغه څه چې هټۍ ګوري)",
@@ -1515,10 +1542,7 @@
   "devPortalStatActivations": "د کوډ جوړول (ممیزي)",
   "devPortalApiHealthTitle": "د API روغتیا",
   "devPortalApiHealthUnknown": "نامعلوم — API ته ونښلوئ",
-  "devPortalCodesStub": "فعالولو کوډونه: لټون، جوړول او لغوه کول له اداري API بارېږي.",
-  "devPortalShopsStub": "هټۍ او جوازونه: لیست او جزئیات له اداري API بارېږي.",
-  "devPortalResetsStub": "د پاسورډ بیا تنظیم غوښتنې: د ملاتړ قطار له اداري API بارېږي.",
-  "devPortalDiagStub": "د بشپړې وسیلې بسته لپاره تنظیمات → سنک او تشخیص → تشخیص بسته صادرول وکاروئ.",
+  "devPortalDiagHint": "د بشپړې وسیلې بسته لپاره تنظیمات → سنک او تشخیص → تشخیص بسته صادرول وکاروئ.",
   "devPortalDiagLocalTitle": "دا وسیله (آفلاین حافظه)",
   "devPortalDiagLocalSubtitle": "له محلي ذخیرې شمېر — کله اداري API آفلاین وي ګټور دی.",
   "devPortalDiagCountLoading": "…",
@@ -1746,5 +1770,25 @@
   "appGuideSettingsTitle": "تنظیمات",
   "appGuideSettingsBody": "د هټۍ پروفایل، چاپګر، سټایل کتابتون او ګډون دلته تنظیم کړئ.",
   "appGuideDashboardTitle": "ډشبورډ",
-  "appGuideDashboardBody": "له کیڼ اړخ څخه کش کړئ (یا د مینو آیکن) د لټون، همغږي او لنډو لارو لپاره."
+  "appGuideDashboardBody": "له کیڼ اړخ څخه کش کړئ (یا د مینو آیکن) د لټون، همغږي او لنډو لارو لپاره.",
+  "syncConflictsTitle": "د همغږي شخړې",
+  "syncConflictsSubtitle": "هغه امرونه چې ستاسو وسیله او سرور په کې اختلاف لري.",
+  "syncConflictsEmpty": "د همغږي شخړې نشته.",
+  "syncConflictPullSkipped": "د سرور تازه کول رد شول — ستاسو نسخه نوی ده.",
+  "syncConflictPushRejected": "سرور ستاسو تازه کول رد کړ — د سرور نسخه نوی ده.",
+  "syncConflictKeepMine": "زما نسخه وساتئ",
+  "syncConflictUseServer": "د سرور نسخه وکاروئ",
+  "syncConflictDismiss": "رد کړئ",
+  "syncConflictLocalLabel": "په دې وسیله",
+  "syncConflictRemoteLabel": "له سرور",
+  "catalogPublicFeedError": "شریک شوي ډیزاینونه بار نشول. شریکول فعال کړئ او اتصال وګورئ.",
+  "catalogP2pDownload": "ډیزاین ډاونلوډ",
+  "catalogP2pDownloading": "ډاونلوډ کېږي…",
+  "catalogP2pWaitingSender": "د لېږونکي آنلاین کېدو په تمه…",
+  "catalogP2pDownloadDone": "ډیزاین په «زما ډیزاینونه» کې خوندي شو.",
+  "catalogP2pDownloadFailed": "ډاونلوډ ناکام شو. کله چې دواړه هټۍ آنلاین وي بیا هڅه وکړئ.",
+  "catalogP2pWebNotSupported": "په ویب کې کتلاګ ډاونلوډ نشته. د اندروید اپ وکاروئ.",
+  "settingsSyncConflictsTile": "د همغږي شخړې",
+  "settingsSyncConflictsTileSubtitle": "د امر شخړې وګورئ او حل کړئ",
+  "pushTokenAutoRegistered": "د دې وسیلې لپاره فوري خبرتیا ثبت شوه."
 }

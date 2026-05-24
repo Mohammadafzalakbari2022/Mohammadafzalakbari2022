@@ -6,6 +6,8 @@ import 'package:pride_v3/l10n/app_localizations.dart';
 import 'package:pride_v3/core/sync/auto_sync_host.dart';
 import 'package:pride_v3/licensing/license_status_refresh_host.dart';
 
+import '../features/catalog/catalog_p2p_serve_host.dart';
+
 import 'app_theme.dart';
 import '../features/settings/settings_providers.dart';
 import '../router/app_router.dart';
@@ -19,8 +21,9 @@ class AfghanPrideApp extends ConsumerWidget {
     final themeMode = ref.watch(themeModeProvider);
     final localeOverride = ref.watch(localeOverrideProvider);
     return LicenseStatusRefreshHost(
-      child: AutoSyncHost(
-        child: MaterialApp.router(
+      child: CatalogP2pServeHost(
+        child: AutoSyncHost(
+          child: MaterialApp.router(
           routerConfig: router,
           onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
           localizationsDelegates: [
@@ -46,6 +49,7 @@ class AfghanPrideApp extends ConsumerWidget {
           themeMode: themeMode,
         ),
       ),
+    ),
     );
   }
 }

@@ -1129,6 +1129,15 @@ class _ComposerRecentOrdersCard extends ConsumerWidget {
     final locale = Localizations.localeOf(context).toString();
     final calendar = ref.watch(dateCalendarSystemProvider);
     final ordersAsync = ref.watch(ordersListStreamProvider);
+    final shopId = ref.watch(effectiveShopIdProvider);
+    final asyncShopPayments = ref.watch(paymentsForShopProvider(shopId));
+    final paidByOrderId = asyncShopPayments.hasValue
+        ? OrderPaymentRules.sumPaidMinorByOrderId(
+            (asyncShopPayments.value ?? const [])
+                .map((p) => (orderInternalId: p.orderInternalId, amountMinor: p.amountMinor)),
+          )
+        : const <String, int>{};
+    final paymentsLedgerLoaded = asyncShopPayments.hasValue;
 
     return ordersAsync.when(
       data: (orders) {
@@ -1157,7 +1166,18 @@ class _ComposerRecentOrdersCard extends ConsumerWidget {
                         o.deliveryDate,
                         locale,
                       ),
-                      money(l10n, o.remainingAmountMinor),
+                      money(
+                        l10n,
+                        OrderPaymentRules.remainingMinor(
+                          o.totalAmountMinor,
+                          OrderPaymentRules.paidMinorForOrder(
+                            orderSummaryPaidMinor: o.paidAmountMinor,
+                            paidByOrderId: paidByOrderId,
+                            orderInternalId: o.internalId,
+                            paymentsLedgerLoaded: paymentsLedgerLoaded,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                   trailing: const Icon(Icons.chevron_right),

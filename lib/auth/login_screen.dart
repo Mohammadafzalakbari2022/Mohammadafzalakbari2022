@@ -6,9 +6,11 @@ import 'package:pride_v3/core/api/pride_api_auth.dart';
 import 'package:pride_v3/core/api/pride_api_config.dart';
 import 'package:pride_v3/core/branding/app_branding.dart';
 import 'package:pride_v3/core/api/pride_api_shop.dart';
+import 'package:pride_v3/core/printing/phone_whatsapp.dart';
 import 'package:pride_v3/core/persistence/shared_preferences_provider.dart';
 import 'package:pride_v3/core/persistence/sync_cursor_storage.dart';
 import 'package:pride_v3/core/persistence/sync_diagnostics_storage.dart';
+import 'package:pride_v3/core/push/push_token_bootstrap.dart';
 import 'package:pride_v3/data/local/seed_bundled_defaults.dart';
 import 'package:pride_v3/shell/shell_sync_providers.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
@@ -41,6 +43,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _createShopName = TextEditingController();
   final _createOwnerUser = TextEditingController();
   final _createOwnerPass = TextEditingController();
+  final _createWhatsapp = TextEditingController();
+  final _createEmail = TextEditingController();
+  final _createAddress = TextEditingController();
   bool _busy = false;
   bool _busyCreate = false;
   bool _passwordVisible = false;
@@ -56,6 +61,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     _createShopName.dispose();
     _createOwnerUser.dispose();
     _createOwnerPass.dispose();
+    _createWhatsapp.dispose();
+    _createEmail.dispose();
+    _createAddress.dispose();
     super.dispose();
   }
 
@@ -126,6 +134,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       await AuthSessionStorage.markDeveloperPortalUnlocked(prefs);
     }
     await _seedBundledDefaultsForShop(ok.shopId);
+    await bootstrapPushTokenRegistration(ref);
     ref.invalidate(adminMeProvider);
   }
 
@@ -282,9 +291,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final name = _createShopName.text.trim();
     final ou = _createOwnerUser.text.trim();
     final pass = _createOwnerPass.text;
-    if (name.isEmpty || ou.isEmpty || pass.isEmpty) {
+    final whatsappNorm =
+        normalizePhoneForWhatsApp(_createWhatsapp.text.trim()) ?? '';
+    final address = _createAddress.text.trim();
+    final email = _createEmail.text.trim();
+    if (name.isEmpty ||
+        ou.isEmpty ||
+        pass.isEmpty ||
+        whatsappNorm.isEmpty ||
+        address.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.loginFieldRequired)),
+      );
+      return;
+    }
+    if (whatsappNorm.length < 9) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.loginShopCreateWhatsappInvalid)),
       );
       return;
     }
@@ -297,6 +320,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         shopName: name,
         ownerUsername: ou,
         ownerPassword: pass,
+        contactWhatsapp: whatsappNorm,
+        contactAddress: address,
+        contactEmail: email.isEmpty ? null : email,
       );
       if (!mounted) return;
       if (result is PrideApiLoginFailure) {
@@ -533,6 +559,43 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                         : Icons.visibility_outlined,
                                   ),
                                 ),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            TextField(
+                              controller: _createWhatsapp,
+                              enabled: !_busyCreate && !_busy,
+                              keyboardType: TextInputType.phone,
+                              textInputAction: TextInputAction.next,
+                              decoration: InputDecoration(
+                                labelText: l10n.loginShopCreateWhatsappLabel,
+                                hintText: l10n.loginShopCreateWhatsappHint,
+                                border: const OutlineInputBorder(),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            TextField(
+                              controller: _createEmail,
+                              enabled: !_busyCreate && !_busy,
+                              keyboardType: TextInputType.emailAddress,
+                              textInputAction: TextInputAction.next,
+                              autocorrect: false,
+                              decoration: InputDecoration(
+                                labelText: l10n.loginShopCreateEmailLabel,
+                                border: const OutlineInputBorder(),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            TextField(
+                              controller: _createAddress,
+                              enabled: !_busyCreate && !_busy,
+                              textInputAction: TextInputAction.done,
+                              minLines: 2,
+                              maxLines: 4,
+                              decoration: InputDecoration(
+                                labelText: l10n.loginShopCreateAddressLabel,
+                                border: const OutlineInputBorder(),
+                                alignLabelWithHint: true,
                               ),
                             ),
                             const SizedBox(height: 16),

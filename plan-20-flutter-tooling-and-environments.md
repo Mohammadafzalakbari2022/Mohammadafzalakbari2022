@@ -41,32 +41,25 @@ Optional: use **Flutter flavors** (`dev` / `staging` / `prod`) with different `m
 
 - Separate Supabase projects: **dev**, **staging**, **prod** (already aligned with `plan-07-hosting-devops.md`).
 
-## Codegen & packages (selected)
+## Codegen & packages (as shipped)
 
-Use **build_runner**-driven codegen for consistency and fewer mistakes:
+| Purpose | Package | Status in repo |
+|--------|---------|----------------|
+| State + providers | `flutter_riverpod` | **Active** — hand-written `Provider` / `NotifierProvider` |
+| Local DB (mobile) | **`isar`** + **`isar_generator`** + `isar_flutter_libs` | **Active** — run build_runner after entity changes |
+| Immutable models / unions | **`freezed`** + `freezed_annotation` | Optional for new DTOs; not required repo-wide |
+| JSON (DTOs, API payloads) | **`json_serializable`** + `json_annotation` | Optional for new API DTOs; many payloads use manual `Map` parsing today |
+| Riverpod codegen | **`riverpod_annotation`** + **`riverpod_generator`** | Optional for new providers; not required repo-wide |
 
-| Purpose | Package |
-|--------|---------|
-| State + providers | `flutter_riverpod` + **`riverpod_annotation`** + **`riverpod_generator`** |
-| Immutable models / unions | **`freezed`** + `freezed_annotation` |
-| JSON (DTOs, API payloads) | **`json_serializable`** + `json_annotation` |
-| Local DB (mobile) | **`isar`** + **`isar_generator`** + `isar_flutter_libs` |
-
-Run after model/provider changes:
+After **Isar entity** changes:
 
 ```bash
 dart run build_runner build --delete-conflicting-outputs
 ```
 
-(Use `watch` during heavy codegen sessions if you prefer.)
-
 ### Not in scope by default
 
 - **Drift** (SQLite): not needed; **Isar** is the chosen offline store (`plan-02-data-model.md`). Do not add Drift unless you explicitly change strategy.
-
-### Confirmed stack (typo “Tiber” → use this)
-
-Use **only** the packages in the table above—no separate “Tiber” package. **Freezed** + **json_serializable** + **riverpod_generator** + **isar_generator** is the approved fit for Riverpod, Isar, sync DTOs, and maintainable codegen.
 
 Optional (recommended when implementing): **`custom_lint`** + **`riverpod_lint`** for Riverpod-specific static analysis.
 

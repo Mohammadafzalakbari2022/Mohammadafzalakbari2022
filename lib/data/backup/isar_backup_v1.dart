@@ -1,7 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:isar/isar.dart';
+import 'package:path_provider/path_provider.dart';
 
+import '../local/entities/catalog_item_entity.dart';
 import '../local/entities/app_notification_entity.dart';
 import '../local/entities/customer_entity.dart';
 import '../local/entities/measurement_profile_entity.dart';
@@ -16,7 +19,7 @@ import 'backup_merge_result.dart';
 /// JSON backup (plan-15). Exports as [currentExportVersion]; imports v1 and v2.
 abstract final class IsarBackupV1 {
   static const schemaKey = 'afghan_pride_backup';
-  static const currentExportVersion = 2;
+  static const currentExportVersion = 3;
   static const minImportVersion = 1;
 
   static int _versionFromRoot(Map<String, dynamic> root) {
@@ -72,6 +75,25 @@ abstract final class IsarBackupV1 {
             .filter()
             .shopIdEqualTo(shopId)
             .findAll();
+    final catalogItems = await isar.catalogItemEntitys
+        .filter()
+        .shopIdEqualTo(shopId)
+        .findAll();
+
+    final catalogAssets = <String, String>{};
+    for (final c in catalogItems) {
+      for (final path in [c.imagePath, c.thumbnailPath]) {
+        if (path == null || path.isEmpty) continue;
+        try {
+          final f = File(path);
+          if (!f.existsSync()) continue;
+          final bytes = await f.readAsBytes();
+          catalogAssets[path] = base64Encode(bytes);
+        } catch (_) {
+          // Skip unreadable paths on export.
+        }
+      }
+    }
 
     return {
       'schema': schemaKey,
@@ -99,6 +121,10 @@ abstract final class IsarBackupV1 {
       'appNotifications': [
         for (final n in notifications) _notificationToMap(n),
       ],
+      'catalogItems': [
+        for (final c in catalogItems) _catalogItemToMap(c),
+      ],
+      'catalogAssets': catalogAssets,
     };
   }
 
@@ -244,6 +270,37 @@ abstract final class IsarBackupV1 {
         }
         await isar.appNotificationEntitys.putByInternalId(e);
         notificationsInserted++;
+      }
+
+      final assetsRaw = root['catalogAssets'];
+      final assets = assetsRaw is Map
+          ? Map<String, String>.fromEntries(
+              assetsRaw.entries.map(
+                (e) => MapEntry('${e.key}', '${e.value}'),
+              ),
+            )
+          : <String, String>{};
+
+      for (final raw in _asMapList(root['catalogItems'])) {
+        var e = _catalogItemFromMap(raw);
+        if (shopId.isNotEmpty && e.shopId != shopId) continue;
+        final imageKey = raw['imagePath'] as String?;
+        final thumbKey = raw['thumbnailPath'] as String?;
+        if (imageKey != null && assets.containsKey(imageKey)) {
+          e.imagePath = await _restoreCatalogAssetPath(
+            e.internalId,
+            'full',
+            assets[imageKey]!,
+          );
+        }
+        if (thumbKey != null && assets.containsKey(thumbKey)) {
+          e.thumbnailPath = await _restoreCatalogAssetPath(
+            e.internalId,
+            'thumb',
+            assets[thumbKey]!,
+          );
+        }
+        await isar.catalogItemEntitys.putByInternalId(e);
       }
     });
 
@@ -522,5 +579,53 @@ abstract final class IsarBackupV1 {
     final del = m['deletedAt'] as String?;
     i.deletedAt = del == null ? null : DateTime.parse(del).toLocal();
     return i;
+  }
+
+  static Map<String, dynamic> _catalogItemToMap(CatalogItemEntity c) => {
+        'internalId': c.internalId,
+        'shopId': c.shopId,
+        'designName': c.designName,
+        'designerShopName': c.designerShopName,
+        'imagePath': c.imagePath,
+        'thumbnailPath': c.thumbnailPath,
+        'notes': c.notes,
+        'createdAt': c.createdAt.toUtc().toIso8601String(),
+        'updatedAt': c.updatedAt.toUtc().toIso8601String(),
+        'isSharedPublic': c.isSharedPublic,
+        'deletedAt': c.deletedAt?.toUtc().toIso8601String(),
+      };
+
+  static CatalogItemEntity _catalogItemFromMap(Map<String, dynamic> m) {
+    final c = CatalogItemEntity()
+      ..internalId = m['internalId']! as String
+      ..shopId = m['shopId']! as String
+      ..designName = m['designName']! as String
+      ..designerShopName = m['designerShopName']! as String
+      ..imagePath = m['imagePath'] as String?
+      ..thumbnailPath = m['thumbnailPath'] as String?
+      ..notes = m['notes'] as String?
+      ..createdAt = DateTime.parse(m['createdAt']! as String).toLocal()
+      ..updatedAt = DateTime.parse(m['updatedAt']! as String).toLocal()
+      ..isSharedPublic = (m['isSharedPublic'] as bool?) ?? false;
+    final del = m['deletedAt'] as String?;
+    c.deletedAt = del == null ? null : DateTime.parse(del).toLocal();
+    return c;
+  }
+
+  static Future<String> _restoreCatalogAssetPath(
+    String internalId,
+    String kind,
+    String base64Data,
+  ) async {
+    final dir = await getApplicationDocumentsDirectory();
+    final folder = Directory('${dir.path}${Platform.pathSeparator}catalog');
+    if (!await folder.exists()) {
+      await folder.create(recursive: true);
+    }
+    final ext = kind == 'thumb' ? 'thumb.png' : 'jpg';
+    final path =
+        '${folder.path}${Platform.pathSeparator}backup_${internalId}_$kind.$ext';
+    await File(path).writeAsBytes(base64Decode(base64Data), flush: true);
+    return path;
   }
 }

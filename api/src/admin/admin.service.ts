@@ -137,6 +137,9 @@ export class AdminService {
     Array<{
       id: string;
       name: string;
+      contact_whatsapp: string | null;
+      contact_email: string | null;
+      contact_address: string | null;
       created_at: string;
       user_count: number;
       license_status: string;
@@ -165,6 +168,9 @@ export class AdminService {
     const out: Array<{
       id: string;
       name: string;
+      contact_whatsapp: string | null;
+      contact_email: string | null;
+      contact_address: string | null;
       created_at: string;
       user_count: number;
       license_status: string;
@@ -202,6 +208,9 @@ export class AdminService {
       out.push({
         id: s.id,
         name: s.name,
+        contact_whatsapp: s.contactWhatsapp,
+        contact_email: s.contactEmail,
+        contact_address: s.contactAddress,
         created_at: s.createdAt.toISOString(),
         user_count,
         license_status,

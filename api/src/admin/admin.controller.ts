@@ -18,6 +18,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import type { PrideAccessPayload } from '../auth/jwt-payload.interface';
 import { BillingService } from '../billing/billing.service';
 import { PushDispatchService } from '../push/push-dispatch.service';
+import { SupportService } from '../support/support.service';
 import { AdminService } from './admin.service';
 
 @Controller('admin')
@@ -26,6 +27,7 @@ export class AdminController {
     private readonly admin: AdminService,
     private readonly pushDispatch: PushDispatchService,
     private readonly billing: BillingService,
+    private readonly support: SupportService,
   ) {}
 
   /** `GET /admin/me` — developer gate (`plan-18`). */
@@ -290,6 +292,30 @@ export class AdminController {
       throw new ForbiddenException();
     }
     return this.billing.upsertAdminBillingInfo(req.user.sub, body ?? {});
+  }
+
+  /** `GET /admin/support-info` — developer edits global app support info. */
+  @Get('support-info')
+  @UseGuards(JwtAuthGuard)
+  async getSupportInfo(@Req() req: Request & { user: PrideAccessPayload }) {
+    if (!this.admin.isDeveloper(req.user)) {
+      throw new ForbiddenException();
+    }
+    return this.support.getAdminSupportInfo();
+  }
+
+  /** `PUT /admin/support-info` — upsert singleton support config. */
+  @Post('support-info')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  async putSupportInfo(
+    @Req() req: Request & { user: PrideAccessPayload },
+    @Body() body: Record<string, unknown>,
+  ) {
+    if (!this.admin.isDeveloper(req.user)) {
+      throw new ForbiddenException();
+    }
+    return this.support.upsertAdminSupportInfo(req.user.sub, body ?? {});
   }
 
   /** `GET /admin/payment-claims` — developer payment claim queue. */

@@ -10,6 +10,10 @@ datasource db {
 model Shop {
   id                   String             @id
   name                 String
+  /// E.164-ish digits for support contact (developer portal only).
+  contactWhatsapp      String?            @map("contact_whatsapp")
+  contactEmail         String?            @map("contact_email")
+  contactAddress       String?            @map("contact_address")
   createdAt            DateTime           @default(now()) @map("created_at")
   lastMutationRevision Int                @default(0) @map("last_mutation_revision")
   disabledAt           DateTime?          @map("disabled_at")
@@ -20,6 +24,8 @@ model Shop {
   license                ShopLicense?
   syncMutations          ShopSyncMutation[]
   licenseExpiryPushDays  LicenseExpiryPushDay[]
+  catalogSettings        ShopCatalogSettings?
+  publicCatalogEntries   PublicCatalogEntry[]
 
   @@map("shops")
 }
@@ -141,11 +147,30 @@ model SubscriptionBillingConfig {
   whatsappE164            String?  @map("whatsapp_e164")
   telegramHandle          String?  @map("telegram_handle")
   directPhoneE164         String?  @map("direct_phone_e164")
+  settingsImage           Bytes?   @map("settings_image")
+  settingsImageMimeType   String?  @map("settings_image_mime_type")
   isPublished             Boolean  @default(false) @map("is_published")
   updatedAt               DateTime @updatedAt @map("updated_at")
   updatedByDeveloperSub   String?  @map("updated_by_developer_sub")
 
   @@map("subscription_billing_config")
+}
+
+/// Global developer contact info + help video link (singleton `default`).
+model AppSupportConfig {
+  id                   String   @id
+  developerName        String?  @map("developer_name")
+  developerTitle       String?  @map("developer_title")
+  developerBio         String?  @map("developer_bio")
+  supportEmail         String?  @map("support_email")
+  supportPhone         String?  @map("support_phone")
+  supportWhatsapp      String?  @map("support_whatsapp")
+  helpVideoUrl         String?  @map("help_video_url")
+  isPublished          Boolean  @default(false) @map("is_published")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+  updatedByDeveloperSub String? @map("updated_by_developer_sub")
+
+  @@map("app_support_config")
 }
 
 /// Shop owner-submitted Hesab Pay payment proof awaiting developer review.
@@ -181,4 +206,47 @@ model AdminAuditLog {
 
   @@index([createdAt])
   @@map("admin_audit_logs")
+}
+
+/// Per-shop catalog sharing opt-in (`plan-14`).
+model ShopCatalogSettings {
+  shopId         String   @id @map("shop_id")
+  shop           Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  sharingEnabled Boolean  @default(false) @map("sharing_enabled")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@map("shop_catalog_settings")
+}
+
+/// Public catalog metadata index — no image binaries (`plan-14`).
+model PublicCatalogEntry {
+  id               String    @id @default(uuid())
+  shopId           String    @map("shop_id")
+  shop             Shop      @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  internalId       String    @map("internal_id")
+  designName       String    @map("design_name")
+  designerShopName String    @map("designer_shop_name")
+  notes            String?
+  sharedAt         DateTime  @default(now()) @map("shared_at")
+  unpublishedAt    DateTime? @map("unpublished_at")
+
+  @@unique([shopId, internalId])
+  @@index([sharedAt])
+  @@map("public_catalog_entries")
+}
+
+/// WebRTC signaling inbox (`plan-14`); payloads are offer/answer/ICE/chunks only.
+model P2pSignalMessage {
+  id          String    @id @default(uuid())
+  toShopId    String    @map("to_shop_id")
+  fromShopId  String    @map("from_shop_id")
+  sessionId   String    @map("session_id")
+  payloadType String    @map("payload_type")
+  payload     Json
+  createdAt   DateTime  @default(now()) @map("created_at")
+  consumedAt  DateTime? @map("consumed_at")
+
+  @@index([toShopId, consumedAt])
+  @@index([sessionId])
+  @@map("p2p_signal_messages")
 }

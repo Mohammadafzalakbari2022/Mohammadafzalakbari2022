@@ -26,11 +26,11 @@ final PdfColor kInvoicePdfSurface = PdfColor.fromInt(0xFFF7F5FB);
 final PdfColor kInvoicePdfSurfaceAlt = PdfColor.fromInt(0xFFEFECF4);
 final PdfColor kInvoicePdfBorder = PdfColors.grey400;
 
-const double kInvoicePdfSectionGap = 10;
-const double kInvoicePdfOuterBorderWidth = 1.2;
-const double kInvoicePdfSectionRadius = 6;
+const double kInvoicePdfSectionGap = 6;
+const double kInvoicePdfOuterBorderWidth = 1;
+const double kInvoicePdfSectionRadius = 4;
 
-/// Builds a single-page A4 PDF invoice (RTL when [textDirection] is RTL).
+/// Builds an A4 PDF invoice/receipt (RTL when [textDirection] is RTL).
 Future<Uint8List> buildOrderInvoicePdf({
   required AppLocalizations l10n,
   required ShopProfile? shop,
@@ -55,7 +55,7 @@ Future<Uint8List> buildOrderInvoicePdf({
   pw.ImageProvider? logoProvider;
   final logoRaster = await loadReceiptHeaderLogoRaster(
     userLogoRelativePath: shop?.logoRelativePath,
-    maxWidthPx: 240,
+    maxWidthPx: 180,
   );
   if (logoRaster != null) {
     final png = Uint8List.fromList(img.encodePng(logoRaster));
@@ -81,22 +81,8 @@ Future<Uint8List> buildOrderInvoicePdf({
   doc.addPage(
     pw.MultiPage(
       pageFormat: PdfPageFormat.a4,
-      margin: const pw.EdgeInsets.fromLTRB(32, 28, 32, 88),
+      margin: const pw.EdgeInsets.fromLTRB(24, 22, 24, 24),
       textDirection: textDirection,
-      footer: (context) => pw.Directionality(
-        textDirection: textDirection,
-        child: pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.stretch,
-          children: [
-            _buildThankYouFooter(fonts: fonts, branding: branding),
-            _buildPridePromoFooter(
-              fonts: fonts,
-              l10n: l10n,
-              promo: promo,
-            ),
-          ],
-        ),
-      ),
       build: (context) {
         return [
           pw.Directionality(
@@ -109,7 +95,7 @@ Future<Uint8List> buildOrderInvoicePdf({
               ),
               borderRadius: pw.BorderRadius.circular(8),
             ),
-            padding: const pw.EdgeInsets.all(12),
+            padding: const pw.EdgeInsets.all(8),
             child: pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.stretch,
               children: [
@@ -121,7 +107,7 @@ Future<Uint8List> buildOrderInvoicePdf({
                   orderNo: order.displayOrderNo,
                 ),
                 _buildShopInfoCard(fonts: fonts, l10n: l10n, branding: branding),
-                pw.SizedBox(height: 12),
+                pw.SizedBox(height: 8),
                 _buildMetaRow(
                   fonts: fonts,
                   l10n: l10n,
@@ -146,7 +132,7 @@ Future<Uint8List> buildOrderInvoicePdf({
                   ),
                 ],
                 if (rail.figureProviders.isNotEmpty) ...[
-                  pw.SizedBox(height: 6),
+                  pw.SizedBox(height: 4),
                   _buildStyleFigureImages(fonts: fonts, rail: rail),
                 ],
                 if (order.hasCustomerFabric) ...[
@@ -191,7 +177,7 @@ Future<Uint8List> buildOrderInvoicePdf({
                         if (rail.catalogProvider != null) ...[
                           pw.Center(
                             child: pw.Container(
-                              padding: const pw.EdgeInsets.all(8),
+                              padding: const pw.EdgeInsets.all(4),
                               decoration: pw.BoxDecoration(
                                 color: kInvoicePdfSurface,
                                 borderRadius: pw.BorderRadius.circular(4),
@@ -210,7 +196,7 @@ Future<Uint8List> buildOrderInvoicePdf({
                               ),
                             ),
                           ),
-                          pw.SizedBox(height: 8),
+                          pw.SizedBox(height: 4),
                         ],
                         if (order.catalogDesignNameSnapshot.trim().isNotEmpty)
                           _bodyText(
@@ -221,7 +207,7 @@ Future<Uint8List> buildOrderInvoicePdf({
                         if (order.catalogDesignerShopNameSnapshot
                             .trim()
                             .isNotEmpty) ...[
-                          pw.SizedBox(height: 4),
+                          pw.SizedBox(height: 2),
                           _labelValue(
                             fonts,
                             l10n.invoiceCatalogDesignerLabel,
@@ -244,7 +230,7 @@ Future<Uint8List> buildOrderInvoicePdf({
                     ),
                   ),
                 ],
-                pw.SizedBox(height: 12),
+                pw.SizedBox(height: 8),
                 _buildPaymentSummary(
                   fonts: fonts,
                   l10n: l10n,
@@ -257,6 +243,21 @@ Future<Uint8List> buildOrderInvoicePdf({
             ),
           ),
         ),
+          pw.Directionality(
+            textDirection: textDirection,
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+              children: [
+                pw.SizedBox(height: 8),
+                _buildThankYouFooter(fonts: fonts, branding: branding),
+                _buildPridePromoFooter(
+                  fonts: fonts,
+                  l10n: l10n,
+                  promo: promo,
+                ),
+              ],
+            ),
+          ),
         ];
       },
     ),
@@ -270,14 +271,14 @@ pw.Widget _buildStyleFigureImages({
   required InvoicePdfDesignRail rail,
 }) {
   return pw.Wrap(
-    spacing: 6,
-    runSpacing: 6,
+    spacing: 4,
+    runSpacing: 4,
     children: [
       for (final provider in rail.figureProviders)
         pw.Container(
           width: kInvoicePdfStyleFigurePx.toDouble(),
           height: kInvoicePdfStyleFigurePx.toDouble(),
-          padding: const pw.EdgeInsets.all(4),
+          padding: const pw.EdgeInsets.all(2),
           decoration: pw.BoxDecoration(
             color: kInvoicePdfSurface,
             borderRadius: pw.BorderRadius.circular(4),
@@ -295,71 +296,44 @@ pw.Widget _buildPridePromoFooter({
   required InvoicePdfPromoAssets promo,
 }) {
   return pw.Container(
-    margin: const pw.EdgeInsets.only(top: 6),
-    padding: const pw.EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+    margin: const pw.EdgeInsets.only(top: 4),
+    padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 6),
     decoration: pw.BoxDecoration(
       color: kInvoicePdfAccentLight,
       borderRadius: pw.BorderRadius.circular(kInvoicePdfSectionRadius),
-      border: pw.Border.all(color: kInvoicePdfBorder, width: 0.6),
+      border: pw.Border.all(color: kInvoicePdfBorder, width: 0.5),
     ),
-    child: pw.Column(
-      children: [
-        pw.Center(
-          child: pw.Wrap(
-            crossAxisAlignment: pw.WrapCrossAlignment.center,
-            alignment: pw.WrapAlignment.center,
-            spacing: 8,
-            runSpacing: 6,
-            children: [
-              if (promo.prideIconProvider != null)
-                pw.SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: pw.Image(
-                    promo.prideIconProvider!,
-                    fit: pw.BoxFit.contain,
-                  ),
-                ),
-              pw.Text(
-                l10n.invoicePridePromoLine,
-                style: pw.TextStyle(
-                  font: fonts.regular,
-                  fontSize: 8,
-                  color: PdfColors.grey800,
-                ),
-                textAlign: pw.TextAlign.center,
+    child: pw.Center(
+      child: pw.Wrap(
+        crossAxisAlignment: pw.WrapCrossAlignment.center,
+        alignment: pw.WrapAlignment.center,
+        spacing: 6,
+        runSpacing: 4,
+        children: [
+          if (promo.prideIconProvider != null)
+            pw.SizedBox(
+              width: 14,
+              height: 14,
+              child: pw.Image(
+                promo.prideIconProvider!,
+                fit: pw.BoxFit.contain,
               ),
-            ],
+            ),
+          pw.Text(
+            l10n.invoicePridePromoLine,
+            style: pw.TextStyle(
+              font: fonts.regular,
+              fontSize: 7.5,
+              color: PdfColors.grey800,
+            ),
+            textAlign: pw.TextAlign.center,
           ),
-        ),
-        pw.SizedBox(height: 8),
-        pw.Center(
-          child: pw.Wrap(
-            spacing: 10,
-            runSpacing: 4,
-            alignment: pw.WrapAlignment.center,
-            children: [
-              _storeBadgeWidget(promo.googlePlayProvider, isGooglePlay: true),
-              _storeBadgeWidget(promo.appStoreProvider, isGooglePlay: false),
-            ],
-          ),
-        ),
-      ],
+          InvoicePdfIcons.android(size: 12, color: kInvoicePdfAccent),
+          InvoicePdfIcons.apple(size: 12, color: kInvoicePdfAccent),
+        ],
+      ),
     ),
   );
-}
-
-pw.Widget _storeBadgeWidget(
-  pw.ImageProvider? provider, {
-  required bool isGooglePlay,
-}) {
-  if (provider != null) {
-    return pw.SizedBox(
-      height: 20,
-      child: pw.Image(provider, fit: pw.BoxFit.contain),
-    );
-  }
-  return buildInvoiceStoreBadgeFallback(isGooglePlay: isGooglePlay, size: 20);
 }
 
 pw.Widget _buildHeader({
@@ -371,7 +345,7 @@ pw.Widget _buildHeader({
 }) {
   return pw.Container(
     width: double.infinity,
-    padding: const pw.EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+    padding: const pw.EdgeInsets.symmetric(vertical: 6, horizontal: 8),
     decoration: pw.BoxDecoration(
       color: kInvoicePdfAccent,
       borderRadius: pw.BorderRadius.circular(kInvoicePdfSectionRadius),
@@ -382,29 +356,29 @@ pw.Widget _buildHeader({
       children: [
         if (logoProvider != null)
           pw.Container(
-            width: 52,
-            height: 52,
-            padding: const pw.EdgeInsets.all(4),
+            width: 40,
+            height: 40,
+            padding: const pw.EdgeInsets.all(3),
             decoration: pw.BoxDecoration(
               color: PdfColors.white,
-              borderRadius: pw.BorderRadius.circular(6),
+              borderRadius: pw.BorderRadius.circular(4),
               border: pw.Border.all(color: PdfColors.white, width: 0.5),
             ),
             child: pw.Image(logoProvider, fit: pw.BoxFit.contain),
           ),
-        if (logoProvider != null) pw.SizedBox(width: 12),
+        if (logoProvider != null) pw.SizedBox(width: 8),
         pw.Expanded(
           child: pw.Text(
             branding.shopDisplayName,
             style: pw.TextStyle(
               font: fonts.bold,
-              fontSize: 17,
+              fontSize: 14,
               color: PdfColors.white,
             ),
           ),
         ),
         pw.Container(
-          padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: pw.BoxDecoration(
             color: PdfColors.white,
             borderRadius: pw.BorderRadius.circular(4),
@@ -413,7 +387,7 @@ pw.Widget _buildHeader({
             l10n.ordersNumberPrefix(orderNo),
             style: pw.TextStyle(
               font: fonts.bold,
-              fontSize: 11,
+              fontSize: 10,
               color: kInvoicePdfAccent,
             ),
           ),
@@ -435,10 +409,10 @@ pw.Widget _buildShopInfoCard({
   if (!hasPhone && !hasAddress) return pw.SizedBox();
 
   return pw.Padding(
-    padding: const pw.EdgeInsets.only(top: 10),
+    padding: const pw.EdgeInsets.only(top: 6),
     child: pw.Container(
       width: double.infinity,
-      padding: const pw.EdgeInsets.all(10),
+      padding: const pw.EdgeInsets.all(6),
       decoration: pw.BoxDecoration(
         color: kInvoicePdfSurface,
         borderRadius: pw.BorderRadius.circular(kInvoicePdfSectionRadius),
@@ -454,7 +428,7 @@ pw.Widget _buildShopInfoCard({
               label: l10n.receiptShopPhoneLabel,
               value: phoneRaw,
             ),
-          if (hasPhone && hasAddress) pw.SizedBox(height: 6),
+          if (hasPhone && hasAddress) pw.SizedBox(height: 4),
           if (hasAddress)
             pw.Row(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -469,19 +443,19 @@ pw.Widget _buildShopInfoCard({
                         l10n.receiptShopAddressLabel,
                         style: pw.TextStyle(
                           font: fonts.bold,
-                          fontSize: 8.5,
+                          fontSize: 8,
                           color: PdfColors.grey700,
                         ),
                       ),
                       for (final line in branding.addressLines)
                         if (line.trim().isNotEmpty)
                           pw.Padding(
-                            padding: const pw.EdgeInsets.only(top: 2),
+                            padding: const pw.EdgeInsets.only(top: 1),
                             child: pw.Text(
                               line.trim(),
                               style: pw.TextStyle(
                                 font: fonts.regular,
-                                fontSize: 9.5,
+                                fontSize: 9,
                               ),
                             ),
                           ),
@@ -515,7 +489,7 @@ pw.Widget _buildMetaRow({
             children: [
               _bodyText(fonts, order.customerName, bold: true),
               if (_invoicePhoneLine(order.customerPhone) case final phone?) ...[
-                pw.SizedBox(height: 6),
+                pw.SizedBox(height: 4),
                 _iconTextRow(
                   fonts: fonts,
                   icon: InvoicePdfIcons.person(color: kInvoicePdfAccent),
@@ -527,7 +501,7 @@ pw.Widget _buildMetaRow({
           ),
         ),
       ),
-      pw.SizedBox(width: 10),
+      pw.SizedBox(width: 6),
       pw.Expanded(
         child: _sectionCard(
           fonts: fonts,
@@ -536,7 +510,7 @@ pw.Widget _buildMetaRow({
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
               _labelValue(fonts, l10n.receiptDeliveryLabel, deliveryDateText),
-              pw.SizedBox(height: 6),
+              pw.SizedBox(height: 4),
               _labelValue(fonts, l10n.receiptStatusLabel, statusText),
             ],
           ),
@@ -564,7 +538,7 @@ pw.Widget _buildPaymentSummary({
       children: [
         pw.Container(
           width: double.infinity,
-          padding: const pw.EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 5),
           decoration: pw.BoxDecoration(
             color: kInvoicePdfAccent,
             borderRadius: const pw.BorderRadius.only(
@@ -576,20 +550,20 @@ pw.Widget _buildPaymentSummary({
             l10n.receiptPaymentsHeader,
             style: pw.TextStyle(
               font: fonts.bold,
-              fontSize: 11,
+              fontSize: 10,
               color: PdfColors.white,
             ),
           ),
         ),
         pw.Container(
-          padding: const pw.EdgeInsets.fromLTRB(10, 10, 10, 10),
+          padding: const pw.EdgeInsets.fromLTRB(6, 6, 6, 6),
           color: kInvoicePdfSurface,
           child: pw.Column(
             children: [
               _moneyRowTile(fonts, l10n.receiptTotalLabel, total),
-              pw.SizedBox(height: 6),
+              pw.SizedBox(height: 4),
               _moneyRowTile(fonts, l10n.receiptPaidLabel, paid),
-              pw.SizedBox(height: 6),
+              pw.SizedBox(height: 4),
               _moneyRowTile(
                 fonts,
                 l10n.receiptBalanceLabel,
@@ -597,11 +571,11 @@ pw.Widget _buildPaymentSummary({
                 emphasize: true,
               ),
               if (payments.isNotEmpty) ...[
-                pw.SizedBox(height: 10),
+                pw.SizedBox(height: 6),
                 pw.Divider(color: kInvoicePdfBorder, height: 0.5),
-                pw.SizedBox(height: 8),
+                pw.SizedBox(height: 4),
                 for (var i = 0; i < payments.length; i++) ...[
-                  if (i > 0) pw.SizedBox(height: 4),
+                  if (i > 0) pw.SizedBox(height: 2),
                   _moneyRowTile(
                     fonts,
                     payments[i].method,
@@ -626,24 +600,24 @@ pw.Widget _buildThankYouFooter({
   if (thanks.isEmpty) return pw.SizedBox();
 
   return pw.Container(
-    margin: const pw.EdgeInsets.only(top: 4),
-    padding: const pw.EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+    margin: const pw.EdgeInsets.only(top: 2),
+    padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 6),
     decoration: pw.BoxDecoration(
       color: kInvoicePdfSurface,
       borderRadius: pw.BorderRadius.circular(kInvoicePdfSectionRadius),
-      border: pw.Border.all(color: kInvoicePdfBorder, width: 0.8),
+      border: pw.Border.all(color: kInvoicePdfBorder, width: 0.6),
     ),
     child: pw.Column(
       children: [
         for (final line in thanks)
           pw.Padding(
-            padding: const pw.EdgeInsets.only(bottom: 2),
+            padding: const pw.EdgeInsets.only(bottom: 1),
             child: pw.Center(
               child: pw.Text(
                 line.trim(),
                 style: pw.TextStyle(
                   font: fonts.bold,
-                  fontSize: 10.5,
+                  fontSize: 9.5,
                   color: kInvoicePdfAccent,
                 ),
                 textAlign: pw.TextAlign.center,
@@ -670,7 +644,7 @@ pw.Widget _sectionCard({
       children: [
         pw.Container(
           width: double.infinity,
-          padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: pw.BoxDecoration(
             color: kInvoicePdfAccentLight,
             borderRadius: const pw.BorderRadius.only(
@@ -682,7 +656,7 @@ pw.Widget _sectionCard({
             title,
             style: pw.TextStyle(
               font: fonts.bold,
-              fontSize: 10,
+              fontSize: 9,
               color: kInvoicePdfAccent,
             ),
           ),
@@ -690,7 +664,7 @@ pw.Widget _sectionCard({
         pw.Divider(color: kInvoicePdfBorder, height: 0.5),
         pw.Container(
           width: double.infinity,
-          padding: const pw.EdgeInsets.all(10),
+          padding: const pw.EdgeInsets.all(6),
           color: PdfColors.white,
           child: child,
         ),
@@ -709,7 +683,7 @@ pw.Widget _iconTextRow({
     crossAxisAlignment: pw.CrossAxisAlignment.start,
     children: [
       icon,
-      pw.SizedBox(width: 8),
+      pw.SizedBox(width: 6),
       pw.Expanded(
         child: pw.RichText(
           text: pw.TextSpan(
@@ -718,13 +692,13 @@ pw.Widget _iconTextRow({
                 text: '$label: ',
                 style: pw.TextStyle(
                   font: fonts.regular,
-                  fontSize: 8.5,
+                  fontSize: 8,
                   color: PdfColors.grey700,
                 ),
               ),
               pw.TextSpan(
                 text: value,
-                style: pw.TextStyle(font: fonts.regular, fontSize: 10),
+                style: pw.TextStyle(font: fonts.regular, fontSize: 9.5),
               ),
             ],
           ),
@@ -744,8 +718,8 @@ pw.Widget _bodyText(
     text,
     style: pw.TextStyle(
       font: bold ? fonts.bold : fonts.regular,
-      fontSize: 10,
-      lineSpacing: 2,
+      fontSize: 9.5,
+      lineSpacing: 1,
     ),
     maxLines: maxLines,
   );
@@ -754,7 +728,7 @@ pw.Widget _bodyText(
 pw.Widget _labelValue(InvoicePdfFontSet fonts, String label, String value) {
   return pw.Container(
     width: double.infinity,
-    padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+    padding: const pw.EdgeInsets.symmetric(horizontal: 5, vertical: 3),
     decoration: pw.BoxDecoration(
       color: kInvoicePdfSurfaceAlt,
       borderRadius: pw.BorderRadius.circular(3),
@@ -766,13 +740,13 @@ pw.Widget _labelValue(InvoicePdfFontSet fonts, String label, String value) {
             text: '$label: ',
             style: pw.TextStyle(
               font: fonts.regular,
-              fontSize: 9,
+              fontSize: 8.5,
               color: PdfColors.grey700,
             ),
           ),
           pw.TextSpan(
             text: value,
-            style: pw.TextStyle(font: fonts.regular, fontSize: 10),
+            style: pw.TextStyle(font: fonts.regular, fontSize: 9.5),
           ),
         ],
       ),
@@ -788,7 +762,7 @@ pw.Widget _moneyRowTile(
   bool altBackground = false,
 }) {
   return pw.Container(
-    padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+    padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 4),
     decoration: pw.BoxDecoration(
       color: emphasize
           ? kInvoicePdfAccentLight
@@ -805,14 +779,14 @@ pw.Widget _moneyRowTile(
           label,
           style: pw.TextStyle(
             font: emphasize ? fonts.bold : fonts.regular,
-            fontSize: emphasize ? 11 : 10,
+            fontSize: emphasize ? 10 : 9.5,
           ),
         ),
         pw.Text(
           amount,
           style: pw.TextStyle(
             font: emphasize ? fonts.bold : fonts.regular,
-            fontSize: emphasize ? 12 : 10,
+            fontSize: emphasize ? 11 : 9.5,
             color: emphasize ? kInvoicePdfAccent : PdfColors.black,
           ),
         ),

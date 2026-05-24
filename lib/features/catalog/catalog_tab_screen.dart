@@ -6,11 +6,14 @@ import 'package:pride_v3/app/app_theme.dart';
 import 'package:pride_v3/core/widgets/pride_action_buttons.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
+import '../../auth/auth_providers.dart';
 import '../../data/local/catalog_item_summary.dart';
 import '../../data/providers/local_data_providers.dart';
 import 'catalog_fullscreen_viewer.dart';
+import 'catalog_shared_download.dart';
 import 'catalog_sharing_provider.dart';
 import 'catalog_tile_image.dart';
+import 'remote_public_catalog_provider.dart';
 
 class CatalogTabScreen extends ConsumerStatefulWidget {
   const CatalogTabScreen({super.key});
@@ -202,11 +205,20 @@ class _CatalogTabScreenState extends ConsumerState<CatalogTabScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final asyncMy = ref.watch(myCatalogStreamProvider);
-    final asyncShared = ref.watch(sharedCatalogStreamProvider);
+    final asyncSharedRemote = ref.watch(remotePublicCatalogProvider);
+    final asyncSharedLocal = ref.watch(sharedCatalogStreamProvider);
 
     final sharedEnabled = ref.watch(catalogSharingEnabledProvider);
     final showShared = _segment == _CatalogSegment.sharedDesigns;
-    final catalogAsync = showShared ? asyncShared : asyncMy;
+    final catalogAsync = showShared
+        ? asyncSharedRemote.when(
+            data: (remote) => remote.isNotEmpty
+                ? AsyncValue.data(remote)
+                : asyncSharedLocal,
+            loading: () => asyncSharedLocal,
+            error: (e, _) => asyncSharedLocal,
+          )
+        : asyncMy;
     final emptyMessage =
         showShared ? l10n.catalogSharedDirectoryEmpty : l10n.catalogEmptyMyDesigns;
     final hasSearch = _search.text.trim().isNotEmpty;
@@ -295,18 +307,98 @@ class _CatalogTabScreenState extends ConsumerState<CatalogTabScreen> {
                     itemCount: filtered.length,
                     itemBuilder: (context, i) {
                       final it = filtered[i];
+                      final myShopId = ref.read(effectiveShopIdProvider);
+                      final isRemoteShared =
+                          showShared && it.shopId != myShopId;
                       return Material(
                         color: Theme.of(context)
                             .colorScheme
                             .surfaceContainerHighest,
                         clipBehavior: Clip.antiAlias,
                         child: InkWell(
-                          onTap: () =>
-                              CatalogFullscreenViewer.open(context, it.internalId),
-                          child: CatalogTileImage(
-                            thumbnailPath: it.thumbnailPath,
-                            imagePath: it.imagePath,
-                            borderRadius: 0,
+                          onTap: isRemoteShared
+                              ? null
+                              : () => CatalogFullscreenViewer.open(
+                                    context,
+                                    it.internalId,
+                                  ),
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              CatalogTileImage(
+                                thumbnailPath: it.thumbnailPath,
+                                imagePath: it.imagePath,
+                                borderRadius: 0,
+                              ),
+                              if (isRemoteShared)
+                                Positioned(
+                                  left: 0,
+                                  right: 0,
+                                  bottom: 0,
+                                  child: Material(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .surface
+                                        .withValues(alpha: 0.92),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 4,
+                                        vertical: 2,
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.stretch,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            it.designName,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .labelSmall,
+                                          ),
+                                          Text(
+                                            it.designerShopName,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall,
+                                          ),
+                                          const SizedBox(height: 4),
+                                          FilledButton.tonalIcon(
+                                            onPressed: kIsWeb
+                                                ? null
+                                                : () =>
+                                                    downloadSharedCatalogItem(
+                                                      context,
+                                                      ref,
+                                                      it,
+                                                    ),
+                                            icon: const Icon(
+                                              Icons.download_outlined,
+                                              size: 18,
+                                            ),
+                                            label: Text(
+                                              l10n.catalogP2pDownload,
+                                            ),
+                                            style: FilledButton.styleFrom(
+                                              visualDensity:
+                                                  VisualDensity.compact,
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                horizontal: 8,
+                                                vertical: 4,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
                       );

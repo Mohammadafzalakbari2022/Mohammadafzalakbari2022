@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pride_v3/auth/auth_providers.dart';
@@ -8,11 +11,12 @@ import 'package:pride_v3/l10n/app_localizations.dart';
 import '../../core/persistence/api_offline_cache_storage.dart';
 import '../../core/persistence/shared_preferences_provider.dart';
 import '../../shell/shell_sync_providers.dart';
-import '../subscription/hesab_pay_payment_link_section.dart';
-import 'developer_portal_screen.dart';
+import '../subscription/billing_settings_image.dart';
 import 'developer_portal_code_share.dart';
+import 'developer_portal_screen.dart';
+import 'pick_billing_settings_image.dart';
 
-/// Developer portal: Hesab Pay profile + payment claim inbox.
+/// Developer portal: settings image + payment claim inbox.
 class DeveloperPortalBillingTab extends ConsumerStatefulWidget {
   const DeveloperPortalBillingTab({super.key, required this.l10n});
 
@@ -31,28 +35,10 @@ class _DeveloperPortalBillingTabState
   bool _published = false;
   bool _showingOfflineCache = false;
 
-  final _accountName = TextEditingController();
-  final _accountNumber = TextEditingController();
-  final _merchantId = TextEditingController();
-  final _paymentLink = TextEditingController();
-  final _linkLabelEn = TextEditingController();
-  final _linkLabelFa = TextEditingController();
-  final _linkLabelPs = TextEditingController();
-  final _price1 = TextEditingController();
-  final _price2 = TextEditingController();
-  final _priceLife = TextEditingController();
-  final _payEn = TextEditingController();
-  final _payFa = TextEditingController();
-  final _payPs = TextEditingController();
-  final _actEn = TextEditingController();
-  final _actFa = TextEditingController();
-  final _actPs = TextEditingController();
-  final _cashEn = TextEditingController();
-  final _cashFa = TextEditingController();
-  final _cashPs = TextEditingController();
-  final _whatsapp = TextEditingController();
-  final _telegram = TextEditingController();
-  final _phone = TextEditingController();
+  Uint8List? _imageBytes;
+  Uint8List? _pendingImageBytes;
+  String? _pendingImageMime;
+  bool _removeImage = false;
 
   String _claimFilter = 'pending';
   List<Map<String, dynamic>> _claims = const [];
@@ -61,91 +47,17 @@ class _DeveloperPortalBillingTabState
   @override
   void initState() {
     super.initState();
-    _paymentLink.addListener(_onPaymentLinkChanged);
     _load();
-  }
-
-  void _onPaymentLinkChanged() {
-    if (mounted) setState(() {});
-  }
-
-  @override
-  void dispose() {
-    _paymentLink.removeListener(_onPaymentLinkChanged);
-    _accountName.dispose();
-    _accountNumber.dispose();
-    _merchantId.dispose();
-    _paymentLink.dispose();
-    _linkLabelEn.dispose();
-    _linkLabelFa.dispose();
-    _linkLabelPs.dispose();
-    _price1.dispose();
-    _price2.dispose();
-    _priceLife.dispose();
-    _payEn.dispose();
-    _payFa.dispose();
-    _payPs.dispose();
-    _actEn.dispose();
-    _actFa.dispose();
-    _actPs.dispose();
-    _cashEn.dispose();
-    _cashFa.dispose();
-    _cashPs.dispose();
-    _whatsapp.dispose();
-    _telegram.dispose();
-    _phone.dispose();
-    super.dispose();
   }
 
   String? _token() => ref.read(authSessionProvider).accessToken;
 
-  Map<String, String> _localeMap(
-    TextEditingController en,
-    TextEditingController fa,
-    TextEditingController ps,
-  ) =>
-      {
-        'en': en.text.trim(),
-        'fa': fa.text.trim(),
-        'ps': ps.text.trim(),
-      };
-
   void _applyBilling(Map<String, dynamic> d) {
-    void fillLocales(
-      String key,
-      TextEditingController en,
-      TextEditingController fa,
-      TextEditingController ps,
-    ) {
-      final all = d['${key}_all'];
-      if (all is Map) {
-        en.text = '${all['en'] ?? ''}';
-        fa.text = '${all['fa'] ?? ''}';
-        ps.text = '${all['ps'] ?? ''}';
-      }
-    }
-
     _published = d['is_published'] == true;
-    _accountName.text = '${d['hesab_pay_account_name'] ?? ''}';
-    _accountNumber.text = '${d['hesab_pay_account_number'] ?? ''}';
-    _merchantId.text = '${d['hesab_pay_merchant_id'] ?? ''}';
-    _paymentLink.text = '${d['hesab_pay_payment_link'] ?? ''}';
-    fillLocales(
-      'hesab_pay_payment_link_label',
-      _linkLabelEn,
-      _linkLabelFa,
-      _linkLabelPs,
-    );
-    _price1.text = d['price_1_year_afn']?.toString() ?? '';
-    _price2.text = d['price_2_year_afn']?.toString() ?? '';
-    _priceLife.text = d['price_lifetime_afn']?.toString() ?? '';
-    _whatsapp.text = '${d['whatsapp_e164'] ?? ''}';
-    _telegram.text = '${d['telegram_handle'] ?? ''}';
-    _phone.text = '${d['direct_phone_e164'] ?? ''}';
-
-    fillLocales('payment_steps', _payEn, _payFa, _payPs);
-    fillLocales('activation_delivery_steps', _actEn, _actFa, _actPs);
-    fillLocales('cash_payment_note', _cashEn, _cashFa, _cashPs);
+    _imageBytes = decodeBillingSettingsImageBytes(d);
+    _pendingImageBytes = null;
+    _pendingImageMime = null;
+    _removeImage = false;
   }
 
   Future<void> _load() async {
@@ -178,6 +90,7 @@ class _DeveloperPortalBillingTabState
           _showingOfflineCache = false;
         });
       }
+      await _loadClaims();
       return;
     }
 
@@ -201,9 +114,12 @@ class _DeveloperPortalBillingTabState
     if (r.ok && r.data != null) {
       _applyBilling(r.data!);
       await ApiOfflineCacheStorage.saveAdminBilling(prefs, r.data!);
+      setState(() {
+        _loading = false;
+        _showingOfflineCache = false;
+      });
     } else {
       final err = r.error ?? '';
-      // Legacy API: missing row — still show the form so the developer can save.
       if (!err.toLowerCase().contains('billing config missing')) {
         setState(() {
           _loading = false;
@@ -214,11 +130,11 @@ class _DeveloperPortalBillingTabState
         });
         return;
       }
+      setState(() {
+        _loading = false;
+        _showingOfflineCache = false;
+      });
     }
-    setState(() {
-      _loading = false;
-      _showingOfflineCache = false;
-    });
     await _loadClaims();
   }
 
@@ -238,34 +154,50 @@ class _DeveloperPortalBillingTabState
     });
   }
 
+  Future<void> _pickImage() async {
+    final picked = await pickBillingSettingsImage();
+    if (!mounted || picked == null) return;
+    if (picked.bytes.length > billingSettingsImageMaxBytes) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(widget.l10n.devPortalBillingSettingsImageTooLarge)),
+      );
+      return;
+    }
+    setState(() {
+      _pendingImageBytes = picked.bytes;
+      _pendingImageMime = picked.mimeType;
+      _removeImage = false;
+    });
+  }
+
+  void _clearPendingImage() {
+    setState(() {
+      _pendingImageBytes = null;
+      _pendingImageMime = null;
+      if (_imageBytes != null) {
+        _removeImage = true;
+        _imageBytes = null;
+      } else {
+        _removeImage = false;
+      }
+    });
+  }
+
   Future<void> _save() async {
     final token = _token();
     if (token == null) return;
     setState(() => _saving = true);
-    int? parsePrice(TextEditingController c) {
-      final t = c.text.trim();
-      if (t.isEmpty) return null;
-      return int.tryParse(t);
-    }
 
     final body = <String, dynamic>{
       'is_published': _published,
-      'hesab_pay_account_name': _accountName.text.trim(),
-      'hesab_pay_account_number': _accountNumber.text.trim(),
-      'hesab_pay_merchant_id': _merchantId.text.trim(),
-      'hesab_pay_payment_link': _paymentLink.text.trim(),
-      'hesab_pay_payment_link_label':
-          _localeMap(_linkLabelEn, _linkLabelFa, _linkLabelPs),
-      'price_1_year_afn': parsePrice(_price1),
-      'price_2_year_afn': parsePrice(_price2),
-      'price_lifetime_afn': parsePrice(_priceLife),
-      'payment_steps': _localeMap(_payEn, _payFa, _payPs),
-      'activation_delivery_steps': _localeMap(_actEn, _actFa, _actPs),
-      'cash_payment_note': _localeMap(_cashEn, _cashFa, _cashPs),
-      'whatsapp_e164': _whatsapp.text.trim(),
-      'telegram_handle': _telegram.text.trim(),
-      'direct_phone_e164': _phone.text.trim(),
     };
+    if (_removeImage) {
+      body['remove_settings_image'] = true;
+    } else if (_pendingImageBytes != null) {
+      body['settings_image_base64'] = base64Encode(_pendingImageBytes!);
+      body['settings_image_mime_type'] = _pendingImageMime ?? 'image/png';
+    }
+
     final r = await postPrideApiAdminBillingInfo(
       accessToken: token,
       body: body,
@@ -274,6 +206,9 @@ class _DeveloperPortalBillingTabState
     setState(() => _saving = false);
     if (r.ok && r.data != null) {
       _applyBilling(r.data!);
+      final prefs = ref.read(sharedPreferencesProvider);
+      await ApiOfflineCacheStorage.saveAdminBilling(prefs, r.data!);
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(widget.l10n.devPortalBillingSaveSuccess)),
       );
@@ -287,6 +222,8 @@ class _DeveloperPortalBillingTabState
       );
     }
   }
+
+  Uint8List? get _previewBytes => _pendingImageBytes ?? _imageBytes;
 
   Future<void> _approveClaim(Map<String, dynamic> claim) async {
     final token = _token();
@@ -404,10 +341,10 @@ class _DeveloperPortalBillingTabState
             ),
           if (_showingOfflineCache) DevPortalOfflineCacheBanner(l10n: l10n),
           Text(
-            l10n.devPortalBillingIntro,
-            style: Theme.of(context).textTheme.bodyMedium,
+            l10n.devPortalBillingSettingsImageTitle,
+            style: Theme.of(context).textTheme.titleMedium,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
             title: Text(l10n.devPortalBillingPublished),
@@ -415,31 +352,47 @@ class _DeveloperPortalBillingTabState
             onChanged: (v) => setState(() => _published = v),
           ),
           const SizedBox(height: 8),
-          _paymentLinkSection(context, l10n),
-          const SizedBox(height: 16),
-          Text(
-            l10n.devPortalBillingProfileTitle,
-            style: Theme.of(context).textTheme.titleMedium,
+          if (_previewBytes != null)
+            BillingSettingsImageView(imageBytes: _previewBytes!),
+          if (_previewBytes == null)
+            Container(
+              height: 120,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                ),
+              ),
+              child: Icon(
+                Icons.image_outlined,
+                size: 48,
+                color: Theme.of(context).colorScheme.outline,
+              ),
+            ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              OutlinedButton.icon(
+                onPressed: _saving ? null : _pickImage,
+                icon: const Icon(Icons.upload_outlined),
+                label: Text(
+                  _previewBytes == null
+                      ? l10n.devPortalBillingSettingsImagePick
+                      : l10n.devPortalBillingSettingsImageReplace,
+                ),
+              ),
+              if (_previewBytes != null)
+                OutlinedButton.icon(
+                  onPressed: _saving ? null : _clearPendingImage,
+                  icon: const Icon(Icons.delete_outline),
+                  label: Text(l10n.devPortalBillingSettingsImageRemove),
+                ),
+            ],
           ),
-          const SizedBox(height: 8),
-          _field(l10n.devPortalBillingAccountName, _accountName),
-          _field(l10n.devPortalBillingAccountNumber, _accountNumber),
-          _field(l10n.devPortalBillingMerchantId, _merchantId),
-          _field(l10n.devPortalBillingPrice1Year, _price1, keyboard: TextInputType.number),
-          _field(l10n.devPortalBillingPrice2Year, _price2, keyboard: TextInputType.number),
-          _field(l10n.devPortalBillingPriceLifetime, _priceLife, keyboard: TextInputType.number),
-          _field(l10n.devPortalBillingPaymentStepsEn, _payEn, maxLines: 4),
-          _field(l10n.devPortalBillingPaymentStepsFa, _payFa, maxLines: 4),
-          _field(l10n.devPortalBillingPaymentStepsPs, _payPs, maxLines: 4),
-          _field(l10n.devPortalBillingActivationStepsEn, _actEn, maxLines: 3),
-          _field(l10n.devPortalBillingActivationStepsFa, _actFa, maxLines: 3),
-          _field(l10n.devPortalBillingActivationStepsPs, _actPs, maxLines: 3),
-          _field(l10n.devPortalBillingCashNoteEn, _cashEn, maxLines: 2),
-          _field(l10n.devPortalBillingCashNoteFa, _cashFa, maxLines: 2),
-          _field(l10n.devPortalBillingCashNotePs, _cashPs, maxLines: 2),
-          _field(l10n.devPortalBillingWhatsapp, _whatsapp),
-          _field(l10n.devPortalBillingTelegram, _telegram),
-          _field(l10n.devPortalBillingPhone, _phone),
+          const SizedBox(height: 12),
           FilledButton.icon(
             onPressed: _saving || _error != null ? null : _save,
             icon: _saving
@@ -519,106 +472,6 @@ class _DeveloperPortalBillingTabState
               );
             }),
         ],
-      ),
-    );
-  }
-
-  Widget _paymentLinkSection(BuildContext context, AppLocalizations l10n) {
-    final link = _paymentLink.text.trim();
-    final hasLink = link.startsWith('http://') || link.startsWith('https://');
-    final previewLabel = _linkLabelEn.text.trim().isNotEmpty
-        ? _linkLabelEn.text.trim()
-        : l10n.subscriptionBillingPaymentLinkDefaultLabel;
-
-    return Card(
-      elevation: 0,
-      color: Theme.of(context).colorScheme.primaryContainer.withValues(
-            alpha: 0.35,
-          ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  Icons.link,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.devPortalBillingPaymentLinkSectionTitle,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        l10n.devPortalBillingPaymentLinkSectionBody,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            _field(
-              l10n.devPortalBillingPaymentLink,
-              _paymentLink,
-              keyboard: TextInputType.url,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Text(
-                l10n.devPortalBillingPaymentLinkHint,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ),
-            _field(l10n.devPortalBillingPaymentLinkLabelEn, _linkLabelEn),
-            _field(l10n.devPortalBillingPaymentLinkLabelFa, _linkLabelFa),
-            _field(l10n.devPortalBillingPaymentLinkLabelPs, _linkLabelPs),
-            if (hasLink) ...[
-              const SizedBox(height: 8),
-              Text(
-                l10n.devPortalBillingPaymentLinkPreviewTitle,
-                style: Theme.of(context).textTheme.titleSmall,
-              ),
-              const SizedBox(height: 8),
-              HesabPayPaymentLinkSection(
-                paymentLink: link,
-                linkLabel: previewLabel,
-                l10n: l10n,
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _field(
-    String label,
-    TextEditingController ctrl, {
-    int maxLines = 1,
-    TextInputType? keyboard,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: TextField(
-        controller: ctrl,
-        maxLines: maxLines,
-        keyboardType: keyboard,
-        decoration: InputDecoration(
-          labelText: label,
-          border: const OutlineInputBorder(),
-          filled: true,
-          fillColor: Theme.of(context).colorScheme.surface,
-        ),
       ),
     );
   }

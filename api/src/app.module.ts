@@ -10,6 +10,8 @@ import { AdminModule } from './admin/admin.module';
 import { SyncModule } from './sync/sync.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { CatalogModule } from './catalog/catalog.module';
+import { P2pModule } from './p2p/p2p.module';
+import { PushModule } from './push/push.module';
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { CatalogModule } from './catalog/catalog.module';
     AdminModule,
     SyncModule,
     CatalogModule,
+    P2pModule,
+    PushModule,
   ],
   controllers: [AppController],
   providers: [AppService],

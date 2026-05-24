@@ -167,72 +167,149 @@ export class SyncService {
     })();
   }
 
+  private extractNotificationPushHint(
+    data: Record<string, unknown> | undefined,
+  ): { title?: string; body?: string; type?: string } | null {
+    if (!data) return null;
+    const title = String(data['title'] ?? '').trim();
+    const body = String(data['body'] ?? '').trim();
+    const type = String(data['type'] ?? data['kind'] ?? '').trim();
+    if (!title && !body) return null;
+    return { title: title || 'Notification', body: body || title, type };
+  }
+
+  private fireNotificationPushesFireAndForget(
+    shopId: string,
+    notes: { title: string; body: string; type?: string }[],
+  ): void {
+    if (notes.length === 0) return;
+    void (async () => {
+      try {
+        for (const n of notes) {
+          await this.pushDispatch.sendToShop(shopId, n.title, n.body, {
+            type: n.type ?? 'notification',
+            shop_id: shopId,
+          });
+        }
+      } catch (e) {
+        this.logger.warn(`notification push failed: ${e}`);
+      }
+    })();
+  }
+
   async push(shopId: string, mutations: SyncMutationInput[]): Promise<SyncPushResponseBody> {
     await this.assertLicenseAllowsSync(shopId);
     const server_now = new Date().toISOString();
 
-    const txResult = await this.prisma.$transaction(async (tx) => {
-      const shop = await tx.shop.findUnique({
-        where: { id: shopId },
-        select: { lastMutationRevision: true },
-      });
-      if (!shop) {
-        throw new NotFoundException('shop not found');
-      }
-      if (mutations.length === 0) {
-        return { nextRev: shop.lastMutationRevision, newOrders: [] as { internalId: string; hint?: string }[] };
-      }
-      let cursor = shop.lastMutationRevision;
-      const newOrders: { internalId: string; hint?: string }[] = [];
-      for (const x of mutations) {
-        let isNewOrder = false;
-        if (x.entity_type === 'order' && x.operation === 'upsert') {
-          const prev = await tx.shopSyncMutation.count({
-            where: { shopId, internalId: x.internal_id, entityType: 'order' },
-          });
-          isNewOrder = prev === 0;
-        }
-        cursor += 1;
-        await tx.shopSyncMutation.create({
-          data: {
-            shopId,
-            revision: cursor,
-            internalId: x.internal_id,
-            entityType: x.entity_type,
-            operation: x.operation,
-            clientUpdatedAt: new Date(x.client_updated_at),
-            payload:
-              x.operation === 'upsert' && x.data
-                ? (x.data as Prisma.InputJsonValue)
-                : Prisma.DbNull,
-          },
+    const shop = await this.prisma.shop.findUnique({
+      where: { id: shopId },
+      select: { lastMutationRevision: true },
+    });
+    if (!shop) {
+      throw new NotFoundException('shop not found');
+    }
+
+    if (mutations.length === 0) {
+      return {
+        server_now,
+        results: [],
+        next_cursor: String(shop.lastMutationRevision),
+      };
+    }
+
+    const results: {
+      internal_id: string;
+      status: 'accepted' | 'conflict' | 'rejected';
+      message: string | null;
+    }[] = [];
+    const newOrders: { internalId: string; hint?: string }[] = [];
+    const notificationPushes: { title: string; body: string; type?: string }[] =
+      [];
+
+    let cursor = shop.lastMutationRevision;
+
+    for (const x of mutations) {
+      if (x.entity_type === 'order' && x.operation === 'upsert') {
+        const latest = await this.prisma.shopSyncMutation.findFirst({
+          where: { shopId, internalId: x.internal_id, entityType: 'order' },
+          orderBy: { revision: 'desc' },
         });
-        if (isNewOrder) {
-          newOrders.push({
-            internalId: x.internal_id,
-            hint: this.extractOrderPushHint(x.data),
+        const clientTs = Date.parse(x.client_updated_at);
+        if (
+          latest &&
+          Number.isFinite(clientTs) &&
+          clientTs < latest.clientUpdatedAt.getTime()
+        ) {
+          results.push({
+            internal_id: x.internal_id,
+            status: 'conflict',
+            message: 'server_has_newer_version',
+          });
+          continue;
+        }
+      }
+
+      let isNewOrder = false;
+      if (x.entity_type === 'order' && x.operation === 'upsert') {
+        const prev = await this.prisma.shopSyncMutation.count({
+          where: { shopId, internalId: x.internal_id, entityType: 'order' },
+        });
+        isNewOrder = prev === 0;
+      }
+
+      cursor += 1;
+      await this.prisma.shopSyncMutation.create({
+        data: {
+          shopId,
+          revision: cursor,
+          internalId: x.internal_id,
+          entityType: x.entity_type,
+          operation: x.operation,
+          clientUpdatedAt: new Date(x.client_updated_at),
+          payload:
+            x.operation === 'upsert' && x.data
+              ? (x.data as Prisma.InputJsonValue)
+              : Prisma.DbNull,
+        },
+      });
+
+      results.push({
+        internal_id: x.internal_id,
+        status: 'accepted',
+        message: null,
+      });
+
+      if (isNewOrder) {
+        newOrders.push({
+          internalId: x.internal_id,
+          hint: this.extractOrderPushHint(x.data),
+        });
+      }
+
+      if (x.entity_type === 'notification' && x.operation === 'upsert') {
+        const hint = this.extractNotificationPushHint(x.data);
+        if (hint?.title && hint.body) {
+          notificationPushes.push({
+            title: hint.title,
+            body: hint.body,
+            type: hint.type,
           });
         }
       }
-      await tx.shop.update({
-        where: { id: shopId },
-        data: { lastMutationRevision: cursor },
-      });
-      return { nextRev: cursor, newOrders };
+    }
+
+    await this.prisma.shop.update({
+      where: { id: shopId },
+      data: { lastMutationRevision: cursor },
     });
 
-    const results = mutations.map((x) => ({
-      internal_id: x.internal_id,
-      status: 'accepted' as const,
-      message: null as string | null,
-    }));
-
-    this.fireNewOrderPushesFireAndForget(shopId, txResult.newOrders);
+    this.fireNewOrderPushesFireAndForget(shopId, newOrders);
+    this.fireNotificationPushesFireAndForget(shopId, notificationPushes);
 
     return {
       server_now,
       results,
-      next_cursor: String(txResult.nextRev),
+      next_cursor: String(cursor),
     };
   }
 

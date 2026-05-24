@@ -243,6 +243,17 @@ class OrderDetailScreen extends ConsumerWidget {
         final changeStatusEnabled = !editBlockedByLicense;
         final canEdit = !editBlockedByLicense;
         final asyncPayments = ref.watch(paymentsForOrderProvider(o.internalId));
+        final paymentAmounts = asyncPayments.valueOrNull
+            ?.map((p) => p.amountMinor)
+            .toList();
+        final paidMinor = OrderPaymentRules.effectivePaidMinor(
+          orderSummaryPaidMinor: o.paidAmountMinor,
+          paymentAmountsMinor: paymentAmounts,
+        );
+        final remainingMinor = OrderPaymentRules.remainingMinor(
+          o.totalAmountMinor,
+          paidMinor,
+        );
         return Scaffold(
           appBar: AppBar(
             leading: IconButton(
@@ -323,6 +334,8 @@ class OrderDetailScreen extends ConsumerWidget {
                 ),
               OrderDetailHeroCard(
                 order: o,
+                paidAmountMinor: paidMinor,
+                remainingAmountMinor: remainingMinor,
                 l10n: l10n,
                 locale: locale,
                 calendar: calendar,
@@ -717,13 +730,8 @@ class OrderDetailScreen extends ConsumerWidget {
                 title: l10n.ordersDetailSectionPayments,
                 subtitle: l10n.ordersComposerPaymentSummary(
                   formatMoney(o.totalAmountMinor),
-                  formatMoney(o.paidAmountMinor),
-                  formatMoney(
-                    OrderPaymentRules.remainingMinor(
-                      o.totalAmountMinor,
-                      o.paidAmountMinor,
-                    ),
-                  ),
+                  formatMoney(paidMinor),
+                  formatMoney(remainingMinor),
                 ),
                 trailing: orderDetailEditTrailing(
                   l10n: l10n,
@@ -737,7 +745,8 @@ class OrderDetailScreen extends ConsumerWidget {
                 ),
                 child: _TotalsCard(
                   totalMinor: o.totalAmountMinor,
-                  paidMinor: o.paidAmountMinor,
+                  paidMinor: paidMinor,
+                  remainingMinor: remainingMinor,
                   l10n: l10n,
                   formatMoney: formatMoney,
                 ),
@@ -912,19 +921,21 @@ class _TotalsCard extends StatelessWidget {
   const _TotalsCard({
     required this.totalMinor,
     required this.paidMinor,
+    required this.remainingMinor,
     required this.l10n,
     required this.formatMoney,
   });
 
   final int totalMinor;
   final int paidMinor;
+  final int remainingMinor;
   final AppLocalizations l10n;
   final String Function(int minor) formatMoney;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final remaining = totalMinor - paidMinor;
+    final remaining = remainingMinor;
     return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
@@ -1050,7 +1061,7 @@ class _OrderDetailInfoRow extends StatelessWidget {
               ],
             ),
           ),
-          if (trailing != null) trailing!,
+          ?trailing,
         ],
       ),
     );

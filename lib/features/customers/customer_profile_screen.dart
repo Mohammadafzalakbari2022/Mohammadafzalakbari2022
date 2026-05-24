@@ -16,6 +16,8 @@ import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../auth/auth_providers.dart';
 import '../../data/local/customer_summary.dart';
+import '../../data/local/order_summary.dart';
+import 'package:pride_v3/core/calendar/date_calendar_system.dart';
 import '../../data/local/measurement_profile_item_input.dart';
 import '../../data/local/measurement_profile_summary.dart';
 import '../../data/local/measurement_type_summary.dart';
@@ -26,6 +28,7 @@ import '../../licensing/license_providers.dart';
 import '../../security/delete_by_typing_name.dart';
 import '../../shell/shell_sync_providers.dart';
 import '../orders/order_list_tile.dart';
+import '../orders/order_payment_rules.dart';
 import 'customer_profile_hero_card.dart';
 
 class CustomerProfileScreen extends ConsumerWidget {
@@ -218,6 +221,15 @@ class CustomerProfileScreen extends ConsumerWidget {
 
     final asyncCustomers = ref.watch(customersListStreamProvider);
     final asyncOrders = ref.watch(ordersListStreamProvider);
+    final shopId = ref.watch(effectiveShopIdProvider);
+    final asyncShopPayments = ref.watch(paymentsForShopProvider(shopId));
+    final paidByOrderId = asyncShopPayments.hasValue
+        ? OrderPaymentRules.sumPaidMinorByOrderId(
+            (asyncShopPayments.value ?? const [])
+                .map((p) => (orderInternalId: p.orderInternalId, amountMinor: p.amountMinor)),
+          )
+        : const <String, int>{};
+    final paymentsLedgerLoaded = asyncShopPayments.hasValue;
 
     return asyncCustomers.when(
       data: (customers) {
@@ -259,7 +271,17 @@ class CustomerProfileScreen extends ConsumerWidget {
         for (final o in ordersList) {
           if (o.customerInternalId != customerId) continue;
           orderCount++;
-          if (o.isUnpaid) unpaidMinor += o.remainingAmountMinor;
+          final paidMinor = OrderPaymentRules.paidMinorForOrder(
+            orderSummaryPaidMinor: o.paidAmountMinor,
+            paidByOrderId: paidByOrderId,
+            orderInternalId: o.internalId,
+            paymentsLedgerLoaded: paymentsLedgerLoaded,
+          );
+          final remainingMinor = OrderPaymentRules.remainingMinor(
+            o.totalAmountMinor,
+            paidMinor,
+          );
+          if (remainingMinor > 0) unpaidMinor += remainingMinor;
         }
         String formatMoney(int minor) =>
             l10n.moneyAfn(NumberFormat.decimalPattern().format(minor));
@@ -408,13 +430,13 @@ class CustomerProfileScreen extends ConsumerWidget {
                         : Column(
                             children: [
                               for (final o in history)
-                                OrderListTile(
+                                _customerOrderHistoryTile(
                                   order: o,
+                                  paidByOrderId: paidByOrderId,
+                                  paymentsLedgerLoaded: paymentsLedgerLoaded,
                                   l10n: l10n,
                                   locale: locale,
                                   calendar: calendar,
-                                  isSelected: false,
-                                  detailed: true,
                                   formatMoney: formatMoney,
                                   onTap: () => context.push(
                                     '/app/orders/${o.internalId}',
@@ -907,5 +929,38 @@ class _MeasurementProfileEditorBodyState
       },
     );
   }
+}
+
+OrderListTile _customerOrderHistoryTile({
+  required OrderSummary order,
+  required Map<String, int> paidByOrderId,
+  required bool paymentsLedgerLoaded,
+  required AppLocalizations l10n,
+  required String locale,
+  required DateCalendarSystem calendar,
+  required String Function(int minor) formatMoney,
+  required VoidCallback onTap,
+}) {
+  final paidMinor = OrderPaymentRules.paidMinorForOrder(
+    orderSummaryPaidMinor: order.paidAmountMinor,
+    paidByOrderId: paidByOrderId,
+    orderInternalId: order.internalId,
+    paymentsLedgerLoaded: paymentsLedgerLoaded,
+  );
+  return OrderListTile(
+    order: order,
+    paidAmountMinor: paidMinor,
+    remainingAmountMinor: OrderPaymentRules.remainingMinor(
+      order.totalAmountMinor,
+      paidMinor,
+    ),
+    l10n: l10n,
+    locale: locale,
+    calendar: calendar,
+    isSelected: false,
+    detailed: true,
+    formatMoney: formatMoney,
+    onTap: onTap,
+  );
 }
 

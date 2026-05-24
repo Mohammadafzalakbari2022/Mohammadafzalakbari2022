@@ -36,6 +36,46 @@ function safeEqualPassword(password: string, hashHex: string): boolean {
   return timingSafeEqual(digest, stored);
 }
 
+export type ShopRegistrationContact = {
+  whatsapp: string;
+  email?: string;
+  address: string;
+};
+
+/** Best-effort Afghan / international digits for developer contact records. */
+function normalizeContactWhatsapp(raw: string): string {
+  let digits = raw.replace(/\D/g, '');
+  if (digits.startsWith('00')) digits = digits.slice(2);
+  if (digits.startsWith('0') && digits.length >= 9) {
+    digits = `93${digits.slice(1)}`;
+  } else if (digits.length === 9 && !digits.startsWith('93')) {
+    digits = `93${digits}`;
+  }
+  return digits;
+}
+
+function parseRegistrationContact(
+  contact: ShopRegistrationContact,
+): { whatsapp: string; email: string | null; address: string } {
+  const whatsapp = normalizeContactWhatsapp(contact.whatsapp.trim());
+  if (whatsapp.length < 9) {
+    throw new BadRequestException('contact_whatsapp is required');
+  }
+  const address = contact.address.trim();
+  if (address.length < 3) {
+    throw new BadRequestException('contact_address is required');
+  }
+  const emailRaw = contact.email?.trim() ?? '';
+  let email: string | null = null;
+  if (emailRaw.length > 0) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailRaw)) {
+      throw new BadRequestException('contact_email is invalid');
+    }
+    email = emailRaw;
+  }
+  return { whatsapp, email, address };
+}
+
 function toUserRow(u: {
   id: string;
   shopId: string;
@@ -87,12 +127,14 @@ export class ShopRegistryService {
     shopName: string,
     ownerUsername: string,
     ownerPassword: string,
+    contact: ShopRegistrationContact,
   ): Promise<{ shop: ShopRow; user: UserRow }> {
     const name = shopName.trim();
     const ou = ownerUsername.trim();
     if (!name) throw new BadRequestException('shop_name is required');
     if (!ou) throw new BadRequestException('owner_username is required');
     if (!ownerPassword) throw new BadRequestException('owner_password is required');
+    const { whatsapp, email, address } = parseRegistrationContact(contact);
 
     const shopId = randomUUID();
     const now = new Date();
@@ -101,7 +143,13 @@ export class ShopRegistryService {
 
     const result = await this.prisma.$transaction(async (tx) => {
       const shop = await tx.shop.create({
-        data: { id: shopId, name },
+        data: {
+          id: shopId,
+          name,
+          contactWhatsapp: whatsapp,
+          contactEmail: email,
+          contactAddress: address,
+        },
       });
       const user = await tx.shopUser.create({
         data: {

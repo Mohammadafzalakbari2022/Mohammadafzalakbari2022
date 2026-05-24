@@ -82,7 +82,7 @@ class ShopBrandingHeader extends ConsumerWidget {
                   ),
                 ),
               ),
-              if (trailing != null) trailing!,
+              ?trailing,
             ],
           ),
         ),

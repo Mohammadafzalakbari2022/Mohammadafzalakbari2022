@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pride_v3/auth/auth_providers.dart';
 import 'package:pride_v3/core/api/pride_api_billing.dart';
 import 'package:pride_v3/core/api/pride_api_config.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../../shell/shell_sync_providers.dart';
 import 'billing_info_cache.dart';
-import 'hesab_pay_payment_link_section.dart';
+import 'billing_settings_image.dart';
 
-/// Hesab Pay instructions + owner payment claims on the subscription screen.
+/// Subscription billing poster + owner payment claims (same layout as before).
 class SubscriptionBillingPanel extends ConsumerStatefulWidget {
   const SubscriptionBillingPanel({super.key});
 
@@ -154,19 +152,6 @@ class _SubscriptionBillingPanelState
     }
   }
 
-  void _copyText(BuildContext context, String text, AppLocalizations l10n) {
-    if (text.isEmpty) return;
-    Clipboard.setData(ClipboardData(text: text));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.subscriptionBillingCopied)),
-    );
-  }
-
-  Future<void> _shareContact(String label, String value) async {
-    if (value.isEmpty) return;
-    await Share.share('$label: $value');
-  }
-
   String _claimStatusLabel(AppLocalizations l10n, String status) {
     return switch (status) {
       'approved' => l10n.subscriptionPaymentClaimStatusApproved,
@@ -194,6 +179,7 @@ class _SubscriptionBillingPanelState
 
     final billing = _billing;
     final hasPublished = billing != null && billing['is_published'] == true;
+    final imageBytes = decodeBillingSettingsImageBytes(billing);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -228,106 +214,10 @@ class _SubscriptionBillingPanelState
             ),
           ),
         if (hasPublished) ...[
-          _sectionTitle(context, l10n.subscriptionBillingPlansTitle),
-          _priceRow(
-            context,
-            l10n.subscriptionBillingPrice1Year,
-            billing['price_1_year_afn'],
-          ),
-          _priceRow(
-            context,
-            l10n.subscriptionBillingPrice2Year,
-            billing['price_2_year_afn'],
-          ),
-          _priceRow(
-            context,
-            l10n.subscriptionBillingPriceLifetime,
-            billing['price_lifetime_afn'],
-          ),
-          const SizedBox(height: 16),
-          _sectionTitle(context, l10n.subscriptionBillingHesabPayTitle),
-          if ('${billing['hesab_pay_payment_link'] ?? ''}'.trim().isNotEmpty) ...[
-            const SizedBox(height: 8),
-            HesabPayPaymentLinkSection(
-              paymentLink: '${billing['hesab_pay_payment_link']}'.trim(),
-              linkLabel: '${billing['hesab_pay_payment_link_label'] ?? ''}',
-              l10n: l10n,
-            ),
-            const SizedBox(height: 12),
+          if (imageBytes != null) ...[
+            BillingSettingsImageView(imageBytes: imageBytes),
+            const SizedBox(height: 24),
           ],
-          if (billing['hesab_pay_account_name'] != null)
-            Text('${billing['hesab_pay_account_name']}'),
-          if (billing['hesab_pay_account_number'] != null) ...[
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                Expanded(
-                  child: SelectableText(
-                    '${billing['hesab_pay_account_number']}',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ),
-                TextButton(
-                  onPressed: () => _copyText(
-                    context,
-                    '${billing['hesab_pay_account_number']}',
-                    l10n,
-                  ),
-                  child: Text(l10n.subscriptionBillingCopyAccount),
-                ),
-              ],
-            ),
-          ],
-          if (billing['hesab_pay_merchant_id'] != null)
-            Text('ID: ${billing['hesab_pay_merchant_id']}'),
-          if ('${billing['payment_steps'] ?? ''}'.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Text('${billing['payment_steps']}'),
-          ],
-          const SizedBox(height: 16),
-          if ('${billing['cash_payment_note'] ?? ''}'.isNotEmpty) ...[
-            _sectionTitle(context, l10n.subscriptionBillingCashTitle),
-            Text('${billing['cash_payment_note']}'),
-            const SizedBox(height: 16),
-          ],
-          if ('${billing['activation_delivery_steps'] ?? ''}'.isNotEmpty) ...[
-            _sectionTitle(context, l10n.subscriptionBillingContactTitle),
-            Text('${billing['activation_delivery_steps']}'),
-            const SizedBox(height: 8),
-          ],
-          Wrap(
-            spacing: 8,
-            children: [
-              if ('${billing['whatsapp_e164'] ?? ''}'.isNotEmpty)
-                OutlinedButton.icon(
-                  onPressed: () => _shareContact(
-                    l10n.subscriptionBillingWhatsapp,
-                    '${billing['whatsapp_e164']}',
-                  ),
-                  icon: const Icon(Icons.chat_outlined, size: 18),
-                  label: Text(l10n.subscriptionBillingWhatsapp),
-                ),
-              if ('${billing['telegram_handle'] ?? ''}'.isNotEmpty)
-                OutlinedButton.icon(
-                  onPressed: () => _shareContact(
-                    l10n.subscriptionBillingTelegram,
-                    '${billing['telegram_handle']}',
-                  ),
-                  icon: const Icon(Icons.send_outlined, size: 18),
-                  label: Text(l10n.subscriptionBillingTelegram),
-                ),
-              if ('${billing['direct_phone_e164'] ?? ''}'.isNotEmpty)
-                OutlinedButton.icon(
-                  onPressed: () => _shareContact(
-                    l10n.subscriptionBillingPhone,
-                    '${billing['direct_phone_e164']}',
-                  ),
-                  icon: const Icon(Icons.phone_outlined, size: 18),
-                  label: Text(l10n.subscriptionBillingPhone),
-                ),
-            ],
-          ),
-          const SizedBox(height: 24),
           _sectionTitle(context, l10n.subscriptionPaymentClaimTitle),
           if (!auth.isShopOwner)
             Text(
@@ -336,7 +226,7 @@ class _SubscriptionBillingPanelState
             )
           else if (auth.hasApiSession) ...[
             DropdownButtonFormField<String>(
-              value: _planTier,
+              initialValue: _planTier,
               decoration: InputDecoration(
                 labelText: l10n.subscriptionPaymentClaimPlanTier,
                 border: const OutlineInputBorder(),
@@ -453,23 +343,6 @@ class _SubscriptionBillingPanelState
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(text, style: Theme.of(context).textTheme.titleSmall),
-    );
-  }
-
-  Widget _priceRow(BuildContext context, String label, Object? afn) {
-    if (afn == null) return const SizedBox.shrink();
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label),
-          Text(
-            '$afn AFN',
-            style: Theme.of(context).textTheme.titleSmall,
-          ),
-        ],
-      ),
     );
   }
 }

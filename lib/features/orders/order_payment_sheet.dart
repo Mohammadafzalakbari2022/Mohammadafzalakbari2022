@@ -476,9 +476,15 @@ class _OrderPaymentSavedSheetState extends ConsumerState<_OrderPaymentSavedSheet
       setState(() => _error = l10n.ordersPaymentNextMustBePositive);
       return;
     }
+    final payments =
+        ref.read(paymentsForOrderProvider(o.internalId)).valueOrNull ?? const [];
+    final currentPaid = OrderPaymentRules.effectivePaidMinor(
+      orderSummaryPaidMinor: o.paidAmountMinor,
+      paymentAmountsMinor: payments.map((p) => p.amountMinor).toList(),
+    );
     if (!OrderPaymentRules.canRecordNextPayment(
       totalMinor: o.totalAmountMinor,
-      paidMinor: o.paidAmountMinor,
+      paidMinor: currentPaid,
       nextPaymentMinor: parsed,
     )) {
       setState(() => _error = l10n.ordersPaymentExceedsRemaining);
@@ -636,8 +642,7 @@ class _OrderPaymentSavedSheetState extends ConsumerState<_OrderPaymentSavedSheet
         final previewDue =
             OrderPaymentRules.remainingMinor(previewTotal, previewPaid);
 
-        final due = order.remainingAmountMinor;
-        final canRecord = !_editing && due > 0;
+        final canRecord = !_editing && previewDue > 0;
 
         return Padding(
           padding: EdgeInsets.only(bottom: viewInsets),

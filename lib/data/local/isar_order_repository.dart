@@ -21,6 +21,7 @@ import 'order_summary.dart';
 import 'seed_data.dart';
 import 'catalog/catalog_order_snapshot.dart';
 import 'sync_pull_payload.dart';
+import '../../core/sync/sync_conflict_helpers.dart';
 
 class IsarOrderRepository implements OrderListRepository {
   IsarOrderRepository(this._isar);
@@ -731,6 +732,10 @@ class IsarOrderRepository implements OrderListRepository {
     required String operation,
     Object? data,
     DateTime? serverUpdatedAt,
+    Future<void> Function(
+      Map<String, dynamic> localSnapshot,
+      Map<String, dynamic> remoteSnapshot,
+    )? onPullConflict,
   }) async {
     if (operation == 'delete') {
       await _isar.writeTxn(() async {
@@ -753,6 +758,18 @@ class IsarOrderRepository implements OrderListRepository {
         existing != null &&
         existing.deletedAt == null &&
         existing.updatedAt.isAfter(serverUpdatedAt)) {
+      if (onPullConflict != null) {
+        final m = syncPullDataMap(data);
+        await onPullConflict(
+          orderConflictSnapshotFromPullData(
+            {},
+            displayOrderNo: existing.displayOrderNo,
+            customerName: existing.customerNameSnapshot,
+            updatedAt: existing.updatedAt,
+          ),
+          orderConflictSnapshotFromPullData(m),
+        );
+      }
       return;
     }
     final customerId =

@@ -107,11 +107,17 @@ abstract class OrderListRepository {
   ///
   /// When [serverUpdatedAt] is set and the local row is newer, upserts are skipped
   /// (last-write-wins for conflicts). Deletes always apply.
+  ///
+  /// [onPullConflict] is invoked when a pull upsert is skipped due to a newer local row.
   Future<void> mergeRemoteOrder({
     required String shopId,
     required String internalId,
     required String operation,
     Object? data,
     DateTime? serverUpdatedAt,
+    Future<void> Function(
+      Map<String, dynamic> localSnapshot,
+      Map<String, dynamic> remoteSnapshot,
+    )? onPullConflict,
   });
 }

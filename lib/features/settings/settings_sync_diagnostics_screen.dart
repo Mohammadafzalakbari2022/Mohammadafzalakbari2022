@@ -11,6 +11,8 @@ import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
 import 'package:pride_v3/core/crash/pride_error_collector.dart';
 import 'package:pride_v3/core/diagnostics/diagnostics_export_payload.dart';
 import 'package:pride_v3/core/diagnostics/diagnostics_share.dart';
+import 'package:pride_v3/core/persistence/shared_preferences_provider.dart';
+import 'package:pride_v3/core/push/push_token_bootstrap.dart';
 import 'package:pride_v3/core/sync/manual_sync_ui.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 import 'package:pride_v3/licensing/license_notifier.dart';
@@ -183,6 +185,13 @@ class _SettingsSyncDiagnosticsScreenState
         platform: _pushPlatform,
       );
       if (!mounted) return;
+      if (ok) {
+        await cachePushTokenForBootstrap(
+          ref.read(sharedPreferencesProvider),
+          token: raw,
+          platform: _pushPlatform,
+        );
+      }
       messenger.showSnackBar(
         SnackBar(
           content: Text(

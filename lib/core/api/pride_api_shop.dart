@@ -20,6 +20,9 @@ Future<PrideApiLoginResult> postPrideApiShopCreate({
   required String shopName,
   required String ownerUsername,
   required String ownerPassword,
+  required String contactWhatsapp,
+  required String contactAddress,
+  String? contactEmail,
   Duration timeout = const Duration(seconds: 25),
 }) async {
   final base = PrideApiConfig.normalizedBase;
@@ -36,6 +39,10 @@ Future<PrideApiLoginResult> postPrideApiShopCreate({
             'shop_name': shopName,
             'owner_username': ownerUsername,
             'owner_password': ownerPassword,
+            'contact_whatsapp': contactWhatsapp,
+            'contact_address': contactAddress,
+            if (contactEmail != null && contactEmail.trim().isNotEmpty)
+              'contact_email': contactEmail.trim(),
           }),
         )
         .timeout(timeout);

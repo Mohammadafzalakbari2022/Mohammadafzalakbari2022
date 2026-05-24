@@ -14,6 +14,7 @@ import 'order_summary.dart';
 import 'seed_data.dart';
 import 'catalog/catalog_order_snapshot.dart';
 import 'sync_pull_payload.dart';
+import '../../core/sync/sync_conflict_helpers.dart';
 
 /// Web / non-native: in-memory list (Isar does not run on Flutter Web).
 class MemoryOrderRepository implements OrderListRepository {
@@ -563,6 +564,10 @@ class MemoryOrderRepository implements OrderListRepository {
     required String operation,
     Object? data,
     DateTime? serverUpdatedAt,
+    Future<void> Function(
+      Map<String, dynamic> localSnapshot,
+      Map<String, dynamic> remoteSnapshot,
+    )? onPullConflict,
   }) async {
     await seedIfEmpty();
     if (operation == 'delete') {
@@ -580,6 +585,18 @@ class MemoryOrderRepository implements OrderListRepository {
     if (serverUpdatedAt != null &&
         existing != null &&
         existing.updatedAt.isAfter(serverUpdatedAt)) {
+      if (onPullConflict != null) {
+        final m = syncPullDataMap(data);
+        await onPullConflict(
+          orderConflictSnapshotFromPullData(
+            {},
+            displayOrderNo: existing.displayOrderNo,
+            customerName: existing.customerName,
+            updatedAt: existing.updatedAt,
+          ),
+          orderConflictSnapshotFromPullData(m),
+        );
+      }
       return;
     }
 

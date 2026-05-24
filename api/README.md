@@ -34,7 +34,7 @@
 - `GET /license/status` — **Bearer JWT** required; per-shop license row (`trial_active` / `active` / `expired` from `expires_at`).
 - `POST /license/redeem` — **Bearer JWT** required; body `{ "code": "..." }`. Redeems a row from **`activation_codes`** when the string matches an active, non-expired code (extends license by `plan_days`). Codes listed in **`PRIDE_LEGACY_REDEEM_CODES`** (default includes `pilot-2026`) still work for dev/e2e without a DB row.
 - `POST /auth/login` — body `{ "shop_id"?, "username", "password" }`; returns **JWT** `access_token`, `license_snapshot`, `user` (`plan-04`).
-- `POST /shop/create` — body `{ "shop_name", "owner_username", "owner_password" }`; creates **Postgres** shop + owner + trial license; response same as login.
+- `POST /shop/create` — body `{ "shop_name", "owner_username", "owner_password", "contact_whatsapp", "contact_address", "contact_email?" }`; creates **Postgres** shop + owner + trial license; response same as login. Contact fields are for developer/support records only (shown in Developer Portal).
 - `POST /shop/join` — same body and response as `POST /auth/login` (shop bootstrap for an existing shop; `plan-04`).
 - `GET /shop/users` — **Bearer JWT** required; any shop member may list users (read-only in app for non-owners).
 - `GET /shop/user-limits` — cap, active count, `can_add` (owner only for add).

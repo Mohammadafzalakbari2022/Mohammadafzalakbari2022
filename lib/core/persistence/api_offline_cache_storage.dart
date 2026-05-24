@@ -12,6 +12,7 @@ abstract final class ApiOfflineCacheStorage {
   static const adminResetsKey = 'pride_cache_admin_password_resets';
   static const adminStatsKey = 'pride_cache_admin_stats';
   static const adminBillingKey = 'pride_cache_admin_billing';
+  static const adminSupportKey = 'pride_cache_admin_support';
 
   static List<Map<String, dynamic>> _decodeMapList(dynamic raw) {
     if (raw is! List) return const [];
@@ -179,6 +180,32 @@ abstract final class ApiOfflineCacheStorage {
 
   static Map<String, dynamic>? readAdminBilling(SharedPreferences prefs) {
     final raw = prefs.getString(adminBillingKey);
+    if (raw == null || raw.isEmpty) return null;
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is! Map<String, dynamic>) return null;
+      final data = decoded['data'];
+      return data is Map<String, dynamic> ? data : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static Future<void> saveAdminSupport(
+    SharedPreferences prefs,
+    Map<String, dynamic> data,
+  ) async {
+    await prefs.setString(
+      adminSupportKey,
+      jsonEncode({
+        'data': data,
+        'saved_at': DateTime.now().toUtc().toIso8601String(),
+      }),
+    );
+  }
+
+  static Map<String, dynamic>? readAdminSupport(SharedPreferences prefs) {
+    final raw = prefs.getString(adminSupportKey);
     if (raw == null || raw.isEmpty) return null;
     try {
       final decoded = jsonDecode(raw);

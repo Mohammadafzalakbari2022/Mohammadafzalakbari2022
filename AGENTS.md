@@ -17,7 +17,7 @@ This file applies **only to this repository**. Humans and automated agents must 
 
 4. **Secrets** — No production secrets in source. API base URL and Supabase public values come from **`dart-define` or flavors** (`plan-20`). Document run/build commands per environment.
 
-5. **Codegen stack** — Use **riverpod_generator**, **freezed**, **json_serializable**, **isar_generator** (`plan-20`). Do **not** add Drift/SQLite unless the plan explicitly changes.
+5. **Codegen stack** — **`isar_generator`** is in active use for local entities. **Riverpod**, repositories, and API DTOs are mostly hand-written today; adopt **riverpod_generator**, **freezed**, and **json_serializable** only when touching a module that already uses them or when a plan explicitly calls for codegen there (`plan-20`). Do **not** add Drift/SQLite unless the plan explicitly changes.
 
 6. **Navigation** — **`go_router`** with guards per `plan-19-ui-routes-navigation-map.md` (auth, license read-only, developer portal).
 

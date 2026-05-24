@@ -13,6 +13,8 @@ class OrderDetailHeroCard extends StatelessWidget {
   const OrderDetailHeroCard({
     super.key,
     required this.order,
+    required this.paidAmountMinor,
+    required this.remainingAmountMinor,
     required this.l10n,
     required this.locale,
     required this.calendar,
@@ -20,6 +22,8 @@ class OrderDetailHeroCard extends StatelessWidget {
   });
 
   final OrderSummary order;
+  final int paidAmountMinor;
+  final int remainingAmountMinor;
   final AppLocalizations l10n;
   final String locale;
   final DateCalendarSystem calendar;
@@ -31,9 +35,10 @@ class OrderDetailHeroCard extends StatelessWidget {
     final scheme = theme.colorScheme;
     final actions = theme.extension<PrideActionColors>()!;
     final statusColor = _statusColor(order.status, scheme, actions);
+    final isUnpaid = remainingAmountMinor > 0;
     final paidRatio = order.totalAmountMinor <= 0
         ? 0.0
-        : (order.paidAmountMinor / order.totalAmountMinor).clamp(0.0, 1.0);
+        : (paidAmountMinor / order.totalAmountMinor).clamp(0.0, 1.0);
 
     final deliveryFmt = AppCalendarFormat.mediumDate(
       l10n,
@@ -163,7 +168,7 @@ class OrderDetailHeroCard extends StatelessWidget {
                   value: paidRatio,
                   minHeight: 8,
                   backgroundColor: scheme.surfaceContainerHigh,
-                  color: order.isUnpaid ? actions.warning : actions.payment,
+                  color: isUnpaid ? actions.warning : actions.payment,
                 ),
               ),
               const SizedBox(height: 8),
@@ -171,16 +176,14 @@ class OrderDetailHeroCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '${l10n.paymentPaid}: ${formatMoney(order.paidAmountMinor)}',
+                    '${l10n.paymentPaid}: ${formatMoney(paidAmountMinor)}',
                     style: theme.textTheme.bodySmall,
                   ),
                   Text(
-                    '${l10n.paymentRemaining}: ${formatMoney(order.remainingAmountMinor)}',
+                    '${l10n.paymentRemaining}: ${formatMoney(remainingAmountMinor)}',
                     style: theme.textTheme.bodySmall?.copyWith(
                       fontWeight: FontWeight.w700,
-                      color: order.isUnpaid
-                          ? actions.warning
-                          : scheme.onSurface,
+                      color: isUnpaid ? actions.warning : scheme.onSurface,
                     ),
                   ),
                 ],

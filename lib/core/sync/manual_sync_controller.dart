@@ -8,6 +8,7 @@ import '../persistence/shared_preferences_provider.dart';
 import '../persistence/sync_diagnostics_storage.dart';
 import 'sync_coordinator.dart';
 import 'manual_sync_runner.dart';
+import 'sync_conflict_recorder.dart';
 
 sealed class ManualSyncUiOutcome {
   const ManualSyncUiOutcome();
@@ -66,6 +67,9 @@ Future<ManualSyncUiOutcome> runManualSyncFromRef(WidgetRef ref) async {
           await ref.read(shopFinanceRepositoryProvider.future);
       final prefs = ref.read(sharedPreferencesProvider);
       final syncShopId = ref.read(effectiveShopIdProvider);
+      final conflictStorage = ref.read(syncConflictStorageProvider);
+      final conflictRecorder =
+          SyncConflictRecorder(conflictStorage, syncShopId);
 
       final outcome = await runManualSyncWithOutbox(
         outboxRepo: repo,
@@ -82,6 +86,7 @@ Future<ManualSyncUiOutcome> runManualSyncFromRef(WidgetRef ref) async {
         styleCatalog: styleCatalogRepo,
         fabricPresets: fabricPresetsRepo,
         shopFinance: shopFinanceRepo,
+        conflictRecorder: conflictRecorder,
       );
 
       switch (outcome) {

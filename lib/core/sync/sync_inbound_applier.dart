@@ -9,6 +9,7 @@ import '../../data/local/order_list_repository.dart';
 import '../../data/local/payment_repository.dart';
 import '../../data/local/shop_finance_repository.dart';
 import '../../data/local/task_repository.dart';
+import 'sync_conflict_recorder.dart';
 
 /// Applies `GET /sync/pull` `changes` locally (`plan-03`). Entity coverage grows incrementally.
 class SyncInboundApplier {
@@ -24,6 +25,7 @@ class SyncInboundApplier {
     required this.fabricPresets,
     required this.shopFinance,
     required this.shopId,
+    this.conflictRecorder,
   });
 
   final AppNotificationRepository notifications;
@@ -37,6 +39,7 @@ class SyncInboundApplier {
   final FabricPresetRepository fabricPresets;
   final ShopFinanceRepository shopFinance;
   final String shopId;
+  final SyncConflictRecorder? conflictRecorder;
 
   /// Returns number of rows applied (skipped kinds return 0 contribution per change).
   Future<int> applyChanges(List<Map<String, dynamic>> changes) async {
@@ -85,6 +88,15 @@ class SyncInboundApplier {
           operation: op,
           data: raw['data'],
           serverUpdatedAt: parseSyncChangeServerUpdatedAt(raw),
+          onPullConflict: conflictRecorder == null
+              ? null
+              : (local, remote) => conflictRecorder!.recordPullSkipped(
+                    entityType: 'order',
+                    internalId: id,
+                    localSnapshot: local,
+                    remoteSnapshot: remote,
+                    displayLabel: local['display_order_no']?.toString(),
+                  ),
         );
         applied++;
       } else if (et == 'measurement_type') {

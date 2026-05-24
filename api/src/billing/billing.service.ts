@@ -11,13 +11,13 @@ import type { PrideAccessPayload } from '../auth/jwt-payload.interface';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   isPlanTier,
-  pickLocaleText,
   planTierToDays,
   type PlanTier,
 } from './billing.types';
 
 const BILLING_CONFIG_ID = 'default';
 const MAX_PENDING_CLAIMS_PER_SHOP = 3;
+const MAX_SETTINGS_IMAGE_BYTES = 1_048_576; // 1 MB
 
 @Injectable()
 export class BillingService {
@@ -86,38 +86,62 @@ export class BillingService {
     return { id, code };
   }
 
+  private imageToBase64(bytes: Buffer | Uint8Array | null): string | null {
+    if (!bytes || bytes.length === 0) return null;
+    return Buffer.from(bytes).toString('base64');
+  }
+
+  private parseSettingsImageFromBody(body: Record<string, unknown>): {
+    bytes: Buffer | null | undefined;
+    mimeType: string | null | undefined;
+  } {
+    if (body.remove_settings_image === true) {
+      return { bytes: null, mimeType: null };
+    }
+    const raw = body.settings_image_base64;
+    if (raw === undefined) {
+      return { bytes: undefined, mimeType: undefined };
+    }
+    if (typeof raw !== 'string' || !raw.trim()) {
+      throw new BadRequestException('settings_image_base64 must be a non-empty string');
+    }
+    let buf: Buffer;
+    try {
+      buf = Buffer.from(raw.trim(), 'base64');
+    } catch {
+      throw new BadRequestException('settings_image_base64 is not valid base64');
+    }
+    if (buf.length === 0) {
+      throw new BadRequestException('settings image is empty');
+    }
+    if (buf.length > MAX_SETTINGS_IMAGE_BYTES) {
+      throw new BadRequestException('settings image must be at most 1 MB');
+    }
+    const mime = String(body.settings_image_mime_type ?? 'image/png')
+      .trim()
+      .toLowerCase();
+    if (!/^image\/(png|jpeg|jpg|webp)$/.test(mime)) {
+      throw new BadRequestException(
+        'settings_image_mime_type must be image/png, image/jpeg, or image/webp',
+      );
+    }
+    return { bytes: buf, mimeType: mime === 'image/jpg' ? 'image/jpeg' : mime };
+  }
+
   private configToDto(
     row: SubscriptionBillingConfig,
-    opts: { publishedOnly: boolean; locale?: string },
+    opts: { publishedOnly: boolean },
   ) {
-    const locale = opts.locale;
+    const hasImage =
+      row.settingsImage != null && row.settingsImage.length > 0;
     return {
-      schema_version: 1,
+      schema_version: 2,
       is_published: row.isPublished,
-      hesab_pay_account_name: row.hesabPayAccountName,
-      hesab_pay_account_number: row.hesabPayAccountNumber,
-      hesab_pay_merchant_id: row.hesabPayMerchantId,
-      hesab_pay_payment_link: row.hesabPayPaymentLink,
-      hesab_pay_payment_link_label: pickLocaleText(
-        row.hesabPayPaymentLinkLabel,
-        locale,
-      ),
-      hesab_pay_payment_link_label_all: row.hesabPayPaymentLinkLabel,
-      price_1_year_afn: row.price1YearAfn,
-      price_2_year_afn: row.price2YearAfn,
-      price_lifetime_afn: row.priceLifetimeAfn,
-      payment_steps: pickLocaleText(row.paymentSteps, locale),
-      activation_delivery_steps: pickLocaleText(
-        row.activationDeliverySteps,
-        locale,
-      ),
-      cash_payment_note: pickLocaleText(row.cashPaymentNote, locale),
-      payment_steps_all: row.paymentSteps,
-      activation_delivery_steps_all: row.activationDeliverySteps,
-      cash_payment_note_all: row.cashPaymentNote,
-      whatsapp_e164: row.whatsappE164,
-      telegram_handle: row.telegramHandle,
-      direct_phone_e164: row.directPhoneE164,
+      has_settings_image: hasImage,
+      settings_image_mime_type: row.settingsImageMimeType,
+      settings_image_base64: hasImage
+        ? this.imageToBase64(row.settingsImage)
+        : null,
       updated_at: row.updatedAt.toISOString(),
       ...(opts.publishedOnly
         ? {}
@@ -131,172 +155,71 @@ export class BillingService {
     });
   }
 
-  async getPublishedBillingInfo(locale?: string) {
+  async getPublishedBillingInfo(_locale?: string) {
     const row = await this.getConfigRow();
     if (!row || !row.isPublished) {
       throw new NotFoundException('billing info not published');
     }
-    return this.configToDto(row, { publishedOnly: true, locale });
+    return this.configToDto(row, { publishedOnly: true });
   }
 
-  /** Empty singleton for first-time setup (no row yet or migration pending). */
   private emptyAdminBillingDto() {
     return {
-      schema_version: 1,
+      schema_version: 2,
       is_published: false,
-      hesab_pay_account_name: null,
-      hesab_pay_account_number: null,
-      hesab_pay_merchant_id: null,
-      hesab_pay_payment_link: null,
-      hesab_pay_payment_link_label: '',
-      hesab_pay_payment_link_label_all: {},
-      price_1_year_afn: null,
-      price_2_year_afn: null,
-      price_lifetime_afn: null,
-      payment_steps: '',
-      activation_delivery_steps: '',
-      cash_payment_note: '',
-      payment_steps_all: {},
-      activation_delivery_steps_all: {},
-      cash_payment_note_all: {},
-      whatsapp_e164: null,
-      telegram_handle: null,
-      direct_phone_e164: null,
+      has_settings_image: false,
+      settings_image_mime_type: null,
+      settings_image_base64: null,
       updated_at: null,
       updated_by_developer_sub: null,
     };
   }
 
-  async getAdminBillingInfo(locale?: string) {
+  async getAdminBillingInfo(_locale?: string) {
     const row = await this.getConfigRow();
     if (!row) {
       return this.emptyAdminBillingDto();
     }
-    return this.configToDto(row, { publishedOnly: false, locale });
+    return this.configToDto(row, { publishedOnly: false });
   }
 
   async upsertAdminBillingInfo(
     developerSub: string,
     body: Record<string, unknown>,
   ) {
-    const parseJsonLocales = (key: string, existing: unknown): object => {
-      const v = body[key];
-      if (v === undefined) {
-        return existing && typeof existing === 'object' && !Array.isArray(existing)
-          ? (existing as object)
-          : {};
-      }
-      if (v === null || (typeof v === 'object' && !Array.isArray(v))) {
-        return (v ?? {}) as object;
-      }
-      throw new BadRequestException(`${key} must be a JSON object`);
-    };
-
     const existing = await this.getConfigRow();
-    const paymentSteps = parseJsonLocales(
-      'payment_steps',
-      existing?.paymentSteps,
-    );
-    const activationDeliverySteps = parseJsonLocales(
-      'activation_delivery_steps',
-      existing?.activationDeliverySteps,
-    );
-    const cashPaymentNote = parseJsonLocales(
-      'cash_payment_note',
-      existing?.cashPaymentNote,
-    );
-    const paymentLinkLabel = parseJsonLocales(
-      'hesab_pay_payment_link_label',
-      existing?.hesabPayPaymentLinkLabel,
-    );
-
-    const strOrNull = (key: string, prev: string | null | undefined) => {
-      if (body[key] === undefined) return prev ?? null;
-      const s = String(body[key] ?? '').trim();
-      return s.length > 0 ? s : null;
-    };
-
-    const intOrNull = (key: string, prev: number | null | undefined) => {
-      if (body[key] === undefined) return prev ?? null;
-      const n = Number(body[key]);
-      if (!Number.isFinite(n) || n < 0) {
-        throw new BadRequestException(`${key} must be a non-negative number`);
-      }
-      return Math.floor(n);
-    };
+    const parsedImage = this.parseSettingsImageFromBody(body);
 
     const isPublished =
       body.is_published === undefined
         ? (existing?.isPublished ?? false)
         : Boolean(body.is_published);
 
-    const paymentLink = strOrNull(
-      'hesab_pay_payment_link',
-      existing?.hesabPayPaymentLink,
-    );
-    if (paymentLink != null) {
-      const lower = paymentLink.toLowerCase();
-      if (
-        !lower.startsWith('https://') &&
-        !lower.startsWith('http://')
-      ) {
-        throw new BadRequestException(
-          'hesab_pay_payment_link must start with http:// or https://',
-        );
-      }
-    }
+    const settingsImage =
+      parsedImage.bytes !== undefined
+        ? parsedImage.bytes
+        : existing?.settingsImage ?? null;
+    const settingsImageMimeType =
+      parsedImage.mimeType !== undefined
+        ? parsedImage.mimeType
+        : existing?.settingsImageMimeType ?? null;
 
     const row = await this.prisma.subscriptionBillingConfig.upsert({
       where: { id: BILLING_CONFIG_ID },
       create: {
         id: BILLING_CONFIG_ID,
-        hesabPayAccountName: strOrNull('hesab_pay_account_name', null),
-        hesabPayAccountNumber: strOrNull('hesab_pay_account_number', null),
-        hesabPayMerchantId: strOrNull('hesab_pay_merchant_id', null),
-        hesabPayPaymentLink: paymentLink,
-        hesabPayPaymentLinkLabel: paymentLinkLabel,
-        price1YearAfn: intOrNull('price_1_year_afn', null),
-        price2YearAfn: intOrNull('price_2_year_afn', null),
-        priceLifetimeAfn: intOrNull('price_lifetime_afn', null),
-        paymentSteps,
-        activationDeliverySteps,
-        cashPaymentNote,
-        whatsappE164: strOrNull('whatsapp_e164', null),
-        telegramHandle: strOrNull('telegram_handle', null),
-        directPhoneE164: strOrNull('direct_phone_e164', null),
+        settingsImage,
+        settingsImageMimeType,
         isPublished,
         updatedByDeveloperSub: developerSub,
       },
       update: {
-        hesabPayAccountName: strOrNull(
-          'hesab_pay_account_name',
-          existing?.hesabPayAccountName,
-        ),
-        hesabPayAccountNumber: strOrNull(
-          'hesab_pay_account_number',
-          existing?.hesabPayAccountNumber,
-        ),
-        hesabPayMerchantId: strOrNull(
-          'hesab_pay_merchant_id',
-          existing?.hesabPayMerchantId,
-        ),
-        hesabPayPaymentLink: paymentLink,
-        hesabPayPaymentLinkLabel: paymentLinkLabel,
-        price1YearAfn: intOrNull('price_1_year_afn', existing?.price1YearAfn),
-        price2YearAfn: intOrNull('price_2_year_afn', existing?.price2YearAfn),
-        priceLifetimeAfn: intOrNull(
-          'price_lifetime_afn',
-          existing?.priceLifetimeAfn,
-        ),
-        paymentSteps,
-        activationDeliverySteps,
-        cashPaymentNote,
-        whatsappE164: strOrNull('whatsapp_e164', existing?.whatsappE164),
-        telegramHandle: strOrNull('telegram_handle', existing?.telegramHandle),
-        directPhoneE164: strOrNull(
-          'direct_phone_e164',
-          existing?.directPhoneE164,
-        ),
+        ...(parsedImage.bytes !== undefined
+          ? {
+              settingsImage,
+              settingsImageMimeType,
+            }
+          : {}),
         isPublished,
         updatedByDeveloperSub: developerSub,
       },
@@ -304,25 +227,11 @@ export class BillingService {
 
     await this.audit(developerSub, 'billing_config.update', {
       is_published: row.isPublished,
+      has_settings_image:
+        row.settingsImage != null && row.settingsImage.length > 0,
     });
 
     return this.configToDto(row, { publishedOnly: false });
-  }
-
-  private priceForTier(
-    config: SubscriptionBillingConfig,
-    tier: PlanTier,
-  ): number {
-    switch (tier) {
-      case 'one_year':
-        return config.price1YearAfn ?? 0;
-      case 'two_year':
-        return config.price2YearAfn ?? 0;
-      case 'lifetime':
-        return config.priceLifetimeAfn ?? 0;
-      default:
-        return 0;
-    }
   }
 
   assertOwner(user: PrideAccessPayload): void {
@@ -338,6 +247,7 @@ export class BillingService {
       transaction_id?: unknown;
       payer_phone?: unknown;
       notes?: unknown;
+      amount_afn?: unknown;
     },
   ) {
     this.assertOwner(user);
@@ -384,12 +294,21 @@ export class BillingService {
         ? body.notes.trim()
         : null;
 
+    let amountAfn = 0;
+    if (body.amount_afn !== undefined && body.amount_afn !== null) {
+      const n = Number(body.amount_afn);
+      if (!Number.isFinite(n) || n < 0) {
+        throw new BadRequestException('amount_afn must be a non-negative number');
+      }
+      amountAfn = Math.floor(n);
+    }
+
     const row = await this.prisma.subscriptionPaymentClaim.create({
       data: {
         shopId: user.shop_id,
         submittedByUserId: user.sub,
         planTier: tierRaw,
-        amountAfn: this.priceForTier(config, tierRaw),
+        amountAfn,
         transactionId,
         payerPhone,
         notes,

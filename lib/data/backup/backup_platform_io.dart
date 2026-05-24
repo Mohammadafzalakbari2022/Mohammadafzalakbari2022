@@ -16,7 +16,7 @@ class BackupPlatformActions {
     final json = IsarBackupV1.encodePretty(doc);
     final stamp = DateTime.now().toUtc().toIso8601String().replaceAll(':', '-');
     final safeStamp = stamp.split('.').first;
-    final name = 'pride_backup_v2_$safeStamp.json';
+    final name = 'pride_backup_v3_$safeStamp.json';
     final path = await FilePicker.saveFile(
       dialogTitle: 'Save backup',
       fileName: name,

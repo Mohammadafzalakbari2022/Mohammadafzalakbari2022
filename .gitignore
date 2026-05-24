@@ -76,6 +76,7 @@ Desktop.ini
 
 # NestJS API (`api/`)
 api/node_modules/
+api/node_modules/.prisma/
 api/dist/
 api/build/
 api/coverage/

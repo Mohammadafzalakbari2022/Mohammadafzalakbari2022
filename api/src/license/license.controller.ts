@@ -13,6 +13,7 @@ import type { Request } from 'express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import type { PrideAccessPayload } from '../auth/jwt-payload.interface';
 import { BillingService } from '../billing/billing.service';
+import { SupportService } from '../support/support.service';
 import { LicenseService } from './license.service';
 import { LicenseStatusDto } from './license.types';
 
@@ -21,6 +22,7 @@ export class LicenseController {
   constructor(
     private readonly licenseService: LicenseService,
     private readonly billing: BillingService,
+    private readonly support: SupportService,
   ) {}
 
   /** Contract: `plan-04` — `GET /license/status` (shop from JWT). */
@@ -48,6 +50,13 @@ export class LicenseController {
     @Query('locale') locale?: string,
   ) {
     return this.billing.getPublishedBillingInfo(locale);
+  }
+
+  /** Published developer contact info + help video link for all shop users. */
+  @Get('support-info')
+  @UseGuards(JwtAuthGuard)
+  supportInfo() {
+    return this.support.getPublishedSupportInfo();
   }
 
   /** Owner submits Hesab Pay payment proof. */

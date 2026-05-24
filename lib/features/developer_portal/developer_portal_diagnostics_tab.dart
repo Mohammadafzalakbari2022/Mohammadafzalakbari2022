@@ -90,7 +90,7 @@ class DeveloperPortalDiagnosticsTab extends ConsumerWidget {
         ),
         const SizedBox(height: 16),
         Text(
-          l10n.devPortalDiagStub,
+          l10n.devPortalDiagHint,
           style: Theme.of(context).textTheme.bodySmall,
         ),
       ],

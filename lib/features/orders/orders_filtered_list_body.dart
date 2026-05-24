@@ -8,10 +8,12 @@ import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
 import 'package:pride_v3/core/widgets/compact_search_toolbar.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
+import '../../auth/auth_providers.dart';
 import '../../data/local/customer_summary.dart';
 import '../../data/local/entities/order_status.dart';
 import '../../data/providers/local_data_providers.dart';
 import 'order_list_tile.dart';
+import 'order_payment_rules.dart';
 import 'orders_list_filter.dart';
 import 'orders_list_filter_provider.dart';
 import 'orders_list_filter_sheet.dart';
@@ -173,6 +175,15 @@ class _OrdersFilteredListBodyState extends ConsumerState<OrdersFilteredListBody>
       GoRouterState.of(context).uri.queryParameters['customer'],
     );
     final asyncOrders = ref.watch(ordersListStreamProvider);
+    final shopId = ref.watch(effectiveShopIdProvider);
+    final asyncShopPayments = ref.watch(paymentsForShopProvider(shopId));
+    final paidByOrderId = asyncShopPayments.hasValue
+        ? OrderPaymentRules.sumPaidMinorByOrderId(
+            (asyncShopPayments.value ?? const [])
+                .map((p) => (orderInternalId: p.orderInternalId, amountMinor: p.amountMinor)),
+          )
+        : const <String, int>{};
+    final paymentsLedgerLoaded = asyncShopPayments.hasValue;
     final asyncCustomers = ref.watch(customersListStreamProvider);
     final filter = ref.watch(ordersListFilterProvider);
     final customers = asyncCustomers.maybeWhen(
@@ -288,9 +299,21 @@ class _OrdersFilteredListBodyState extends ConsumerState<OrdersFilteredListBody>
                 itemBuilder: (context, i) {
                   final o = filtered[i];
                   final isSelected = selectedId == o.internalId;
+                  final paidMinor = OrderPaymentRules.paidMinorForOrder(
+                    orderSummaryPaidMinor: o.paidAmountMinor,
+                    paidByOrderId: paidByOrderId,
+                    orderInternalId: o.internalId,
+                    paymentsLedgerLoaded: paymentsLedgerLoaded,
+                  );
+                  final remainingMinor = OrderPaymentRules.remainingMinor(
+                    o.totalAmountMinor,
+                    paidMinor,
+                  );
 
                   return OrderListTile(
                     order: o,
+                    paidAmountMinor: paidMinor,
+                    remainingAmountMinor: remainingMinor,
                     l10n: l10n,
                     locale: locale,
                     calendar: calendar,

@@ -4,6 +4,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../branding/app_branding.dart';
+import 'invoice_pdf_icons.dart';
 
 const _kGooglePlayBadgeAsset =
     'assets/branding/invoice_google_play_badge.png';
@@ -62,48 +63,14 @@ Future<pw.ImageProvider?> _loadAssetProvider(
   }
 }
 
-/// Fallback store icons when badge PNGs are missing from the bundle.
+/// Fallback store platform icons when badge PNGs are missing from the bundle.
 pw.Widget buildInvoiceStoreBadgeFallback({
   required bool isGooglePlay,
-  double size = 18,
+  double size = 12,
+  PdfColor? color,
 }) {
-  return pw.SizedBox(
-    width: size,
-    height: size,
-    child: pw.CustomPaint(
-      size: PdfPoint(size, size),
-      painter: (canvas, bounds) {
-        final grey = PdfColors.grey600;
-        canvas.setStrokeColor(grey);
-        canvas.setLineWidth(0.4);
-        canvas.drawRect(0, 0, bounds.x, bounds.y);
-        if (isGooglePlay) {
-          canvas.setFillColor(grey);
-          final cx = bounds.x * 0.38;
-          final cy = bounds.y * 0.5;
-          final s = bounds.x * 0.22;
-          canvas.moveTo(cx - s * 0.3, cy - s);
-          canvas.lineTo(cx + s, cy);
-          canvas.lineTo(cx - s * 0.3, cy + s);
-          canvas.closePath();
-          canvas.fillPath();
-        } else {
-          canvas.setFillColor(grey);
-          final r = bounds.x * 0.22;
-          canvas.drawEllipse(
-            bounds.x * 0.5,
-            bounds.y * 0.52,
-            r,
-            r * 1.1,
-          );
-          canvas.drawRect(
-            bounds.x * 0.38,
-            bounds.y * 0.35,
-            bounds.x * 0.24,
-            bounds.y * 0.22,
-          );
-        }
-      },
-    ),
-  );
+  final c = color ?? PdfColors.grey600;
+  return isGooglePlay
+      ? InvoicePdfIcons.android(size: size, color: c)
+      : InvoicePdfIcons.apple(size: size, color: c);
 }

@@ -9,6 +9,7 @@ import 'package:pride_v3/core/feedback/app_feedback.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../auth/auth_providers.dart';
+import '../../core/api/pride_api_catalog.dart';
 import '../../data/local/catalog_item_detail.dart';
 import '../../data/local/sync_outbox_kinds.dart';
 import '../../data/providers/local_data_providers.dart';
@@ -300,6 +301,17 @@ class CatalogItemDetailScreen extends ConsumerWidget {
                                   internalId: item.internalId,
                                   isSharedPublic: v,
                                 );
+                                final auth = ref.read(authSessionProvider);
+                                if (auth.hasApiSession && auth.accessToken != null) {
+                                  await postCatalogItemShare(
+                                    accessToken: auth.accessToken!,
+                                    internalId: item.internalId,
+                                    shared: v,
+                                    designName: item.designName,
+                                    designerShopName: item.designerShopName,
+                                    notes: item.notes,
+                                  );
+                                }
                                 final now = DateTime.now();
                                 recordSyncOutboxMutation(
                                   ref,

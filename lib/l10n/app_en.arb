@@ -91,21 +91,17 @@
   "loginShopCreateNameLabel": "Shop name",
   "loginShopCreateOwnerUsernameLabel": "Owner username",
   "loginShopCreateOwnerPasswordLabel": "Owner password",
+  "loginShopCreateWhatsappLabel": "WhatsApp number",
+  "loginShopCreateWhatsappHint": "e.g. 0700 123 456",
+  "loginShopCreateWhatsappInvalid": "Enter a valid WhatsApp or mobile number.",
+  "loginShopCreateEmailLabel": "Email (optional)",
+  "loginShopCreateAddressLabel": "Shop address",
   "loginShopCreateCta": "Create shop & sign in",
   "loginShopCreating": "Creating shop…",
   "loginShopCreateError": "Could not create shop: {error}",
   "@loginShopCreateError": {
     "placeholders": {
       "error": {
-        "type": "String"
-      }
-    }
-  },
-  "modulePlaceholder": "{moduleName} — UI coming soon.",
-  "@modulePlaceholder": {
-    "description": "Placeholder body for a shell tab",
-    "placeholders": {
-      "moduleName": {
         "type": "String"
       }
     }
@@ -132,16 +128,7 @@
   "licenseStatusExpired": "Expired",
   "ordersNewTitle": "New order",
   "ordersNewCta": "New order",
-  "ordersComposerPlaceholderBody": "Order composer will go here.",
   "ordersDetailTitle": "Order details",
-  "ordersDetailPlaceholderBody": "Order {orderId} — details UI coming soon.",
-  "@ordersDetailPlaceholderBody": {
-    "placeholders": {
-      "orderId": {
-        "type": "String"
-      }
-    }
-  },
   "orderStatusNew": "New",
   "orderStatusInProgress": "In progress",
   "orderStatusReady": "Ready",
@@ -504,12 +491,6 @@
   "catalogViewerManageA11y": "Manage design",
   "catalogAddDesignPlaceholder": "Camera / Gallery add will be implemented on Android/iOS only.",
   "catalogDetailTitle": "Catalog item",
-  "catalogDetailPlaceholder": "Catalog item {id} — detail screen coming soon.",
-  "@catalogDetailPlaceholder": {
-    "placeholders": {
-      "id": { "type": "String" }
-    }
-  },
   "settingsSectionAccountAndShop": "Account & shop",
   "settingsSectionUsers": "Users",
   "settingsSectionBackupRestore": "Backup & restore",
@@ -661,7 +642,6 @@
   "datePickerDayLabel": "Day",
   "dateRangeFromLabel": "From",
   "dateRangeToLabel": "To",
-  "settingsComingSoon": "Coming soon.",
   "loading": "Loading…",
   "genericError": "Something went wrong.",
   "resetCta": "Reset",
@@ -1074,7 +1054,13 @@
   "subscriptionBillingTelegram": "Telegram",
   "subscriptionBillingPhone": "Phone",
   "devPortalTabBilling": "Billing",
-  "devPortalBillingIntro": "Set Hesab Pay account details, payment link (QR + button for shops), prices (AFN), and payment steps in each language. Copy-paste templates: docs/BILLING_DEVELOPER_PORTAL_COPY_EN.md. Turn on Published so shops see them under Settings → Subscription. Review payment claims below.",
+  "devPortalTabSupport": "Support",
+  "devPortalBillingIntro": "Upload one settings image for shops (subscription instructions, QR, prices). Turn on Published so shops see it under Settings → Subscription. Review payment claims below.",
+  "devPortalBillingSettingsImageTitle": "Settings image",
+  "devPortalBillingSettingsImagePick": "Choose image",
+  "devPortalBillingSettingsImageReplace": "Replace image",
+  "devPortalBillingSettingsImageRemove": "Remove image",
+  "devPortalBillingSettingsImageTooLarge": "Image must be 1 MB or less. Choose a smaller file.",
   "devPortalBillingLoadError": "Could not load billing profile: {error}",
   "@devPortalBillingLoadError": {
     "placeholders": {
@@ -1117,6 +1103,44 @@
       "error": { "type": "String" }
     }
   },
+  "devPortalSupportLoadError": "Could not load support info: {error}",
+  "@devPortalSupportLoadError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "devPortalSupportPublishTitle": "Published (visible to shops)",
+  "devPortalSupportPublishSubtitle": "Shows in Settings → About.",
+  "devPortalSupportDeveloperName": "Developer name",
+  "devPortalSupportDeveloperTitle": "Title / role",
+  "devPortalSupportDeveloperBio": "Short bio (optional)",
+  "devPortalSupportEmail": "Support email",
+  "devPortalSupportPhone": "Support phone",
+  "devPortalSupportWhatsapp": "Support WhatsApp",
+  "devPortalSupportHelpVideoUrl": "How-to video link (HTTPS URL)",
+  "devPortalSupportSaveSuccess": "Support info saved.",
+  "devPortalSupportSaveError": "Save failed: {error}",
+  "@devPortalSupportSaveError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "supportSectionTitle": "Help & support",
+  "supportSectionSubtitle": "How to use the app and contact information.",
+  "supportSectionSubtitleCached": "Cached: {time}",
+  "@supportSectionSubtitleCached": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "supportNotAvailableTitle": "Support info not available",
+  "supportNotAvailableBody": "Ask your distributor to publish support info in Developer Portal → Support.",
+  "supportHowToVideoTitle": "How to use the app (video)",
+  "supportDeveloperFallback": "Developer",
+  "supportEmailTitle": "Email",
+  "supportPhoneTitle": "Phone",
+  "supportWhatsappTitle": "WhatsApp",
+  "supportOpenLinkFailed": "Could not open this link on this device.",
   "devPortalBillingClaimsTitle": "Payment claims",
   "devPortalBillingClaimsPending": "Pending",
   "devPortalBillingClaimsAll": "All",
@@ -1414,6 +1438,26 @@
       }
     }
   },
+  "devPortalShopContactHeader": "Registration contact",
+  "devPortalShopContactWhatsapp": "WhatsApp: {value}",
+  "@devPortalShopContactWhatsapp": {
+    "placeholders": {
+      "value": { "type": "String" }
+    }
+  },
+  "devPortalShopContactEmail": "Email: {value}",
+  "@devPortalShopContactEmail": {
+    "placeholders": {
+      "value": { "type": "String" }
+    }
+  },
+  "devPortalShopContactAddress": "Address: {value}",
+  "@devPortalShopContactAddress": {
+    "placeholders": {
+      "value": { "type": "String" }
+    }
+  },
+  "devPortalShopContactMissing": "No registration contact on file (shop created before contact fields).",
   "devPortalShopUsersHeader": "Accounts",
   "devPortalShopUserOwnerBadge": "Owner",
   "devPortalShopUserDeletedBadge": "Removed",
@@ -1515,10 +1559,7 @@
   "devPortalStatActivations": "Code creates (audit)",
   "devPortalApiHealthTitle": "API health",
   "devPortalApiHealthUnknown": "Unknown — connect to the API",
-  "devPortalCodesStub": "Activation codes: search, create, and revoke will load from the admin API.",
-  "devPortalShopsStub": "Shops & licenses: list and detail views will load from the admin API.",
-  "devPortalResetsStub": "Password reset requests: support queue will load from the admin API.",
-  "devPortalDiagStub": "For a full device bundle, use Settings → Sync & Diagnostics → Export diagnostics bundle.",
+  "devPortalDiagHint": "For a full device bundle, use Settings → Sync & Diagnostics → Export diagnostics bundle.",
   "devPortalDiagLocalTitle": "This device (offline cache)",
   "devPortalDiagLocalSubtitle": "Counts from local storage — useful when the admin API is offline.",
   "devPortalDiagCountLoading": "…",
@@ -1754,5 +1795,25 @@
   "appGuideSettingsTitle": "Settings",
   "appGuideSettingsBody": "Set shop profile, printers, style library, and subscription here.",
   "appGuideDashboardTitle": "Dashboard",
-  "appGuideDashboardBody": "Swipe from the left edge (or tap the menu icon) for search, sync, and shortcuts."
+  "appGuideDashboardBody": "Swipe from the left edge (or tap the menu icon) for search, sync, and shortcuts.",
+  "syncConflictsTitle": "Sync conflicts",
+  "syncConflictsSubtitle": "Orders where your device and the server disagree.",
+  "syncConflictsEmpty": "No sync conflicts.",
+  "syncConflictPullSkipped": "Server update skipped — your copy is newer.",
+  "syncConflictPushRejected": "Server rejected your update — server copy is newer.",
+  "syncConflictKeepMine": "Keep my version",
+  "syncConflictUseServer": "Use server version",
+  "syncConflictDismiss": "Dismiss",
+  "syncConflictLocalLabel": "On this device",
+  "syncConflictRemoteLabel": "From server",
+  "catalogPublicFeedError": "Could not load shared designs. Enable sharing and check your connection.",
+  "catalogP2pDownload": "Download design",
+  "catalogP2pDownloading": "Downloading…",
+  "catalogP2pWaitingSender": "Waiting for sender to be online…",
+  "catalogP2pDownloadDone": "Design saved to My Designs.",
+  "catalogP2pDownloadFailed": "Download failed. Try again when both shops are online.",
+  "catalogP2pWebNotSupported": "Catalog download is not available on web. Use the Android app.",
+  "settingsSyncConflictsTile": "Sync conflicts",
+  "settingsSyncConflictsTileSubtitle": "Review and resolve order conflicts",
+  "pushTokenAutoRegistered": "Push notifications registered for this device."
 }

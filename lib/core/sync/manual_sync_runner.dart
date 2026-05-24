@@ -15,6 +15,7 @@ import '../api/pride_api_sync.dart';
 import '../persistence/sync_cursor_storage.dart';
 import 'outbox_push_batch.dart';
 import 'sync_inbound_applier.dart';
+import 'sync_conflict_recorder.dart';
 
 sealed class ManualSyncOutcome {
   const ManualSyncOutcome();
@@ -55,6 +56,7 @@ Future<ManualSyncOutcome> runManualSyncWithOutbox({
   required StyleCatalogRepository styleCatalog,
   required FabricPresetRepository fabricPresets,
   required ShopFinanceRepository shopFinance,
+  SyncConflictRecorder? conflictRecorder,
 }) async {
   final applier = SyncInboundApplier(
     notifications: notifications,
@@ -68,6 +70,7 @@ Future<ManualSyncOutcome> runManualSyncWithOutbox({
     fabricPresets: fabricPresets,
     shopFinance: shopFinance,
     shopId: syncShopId,
+    conflictRecorder: conflictRecorder,
   );
 
   var remoteChangeCount = 0;
@@ -117,18 +120,33 @@ Future<ManualSyncOutcome> runManualSyncWithOutbox({
         if (results.length != batch.mutations.length) {
           return const ManualSyncFailure('Unexpected server response length');
         }
-        for (final r in results) {
-          if (r.status != 'accepted') {
-            return ManualSyncFailure(
-              'Sync incomplete: ${r.internalId} → ${r.status}',
-            );
+        final acceptedEntryIds = <String>[];
+        for (var i = 0; i < results.length; i++) {
+          final r = results[i];
+          if (r.status == 'accepted') {
+            acceptedEntryIds.add(batch.entryIdsToClear[i]);
+          } else if (r.status == 'conflict' || r.status == 'rejected') {
+            if (conflictRecorder != null &&
+                batch.mutations[i]['entity_type'] == 'order') {
+              final data = batch.mutations[i]['data'];
+              final snap = data is Map<String, dynamic> ? data : <String, dynamic>{};
+              await conflictRecorder.recordPushConflict(
+                entityType: 'order',
+                internalId: r.internalId,
+                localSnapshot: snap,
+                message: r.message,
+                displayLabel: snap['display_order_no']?.toString(),
+              );
+            }
           }
         }
-        await outboxRepo.markPendingSynced(
-          syncShopId,
-          batch.entryIdsToClear,
-        );
-        pushedMutationCount += batch.mutations.length;
+        if (acceptedEntryIds.isNotEmpty) {
+          await outboxRepo.markPendingSynced(
+            syncShopId,
+            acceptedEntryIds,
+          );
+          pushedMutationCount += acceptedEntryIds.length;
+        }
     }
   }
 

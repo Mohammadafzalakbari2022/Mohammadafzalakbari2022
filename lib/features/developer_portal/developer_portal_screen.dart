@@ -13,6 +13,7 @@ import 'developer_portal_account_tab.dart';
 import 'developer_portal_codes_tab.dart';
 import 'developer_portal_billing_tab.dart';
 import 'developer_portal_diagnostics_tab.dart';
+import 'developer_portal_support_tab.dart';
 
 /// Developer portal shell (plan-18): overview, activation codes, shops, resets, diagnostics.
 class DeveloperPortalScreen extends ConsumerWidget {
@@ -23,7 +24,7 @@ class DeveloperPortalScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final online = ref.watch(connectivityOnlineProvider);
     return DefaultTabController(
-      length: 7,
+      length: 8,
       child: Scaffold(
         appBar: AppBar(
           title: Text(l10n.devPortalTitle),
@@ -33,6 +34,7 @@ class DeveloperPortalScreen extends ConsumerWidget {
               Tab(text: l10n.devPortalTabOverview),
               Tab(text: l10n.devPortalTabCodes),
               Tab(text: l10n.devPortalTabBilling),
+              Tab(text: l10n.devPortalTabSupport),
               Tab(text: l10n.devPortalTabShops),
               Tab(text: l10n.devPortalTabResets),
               Tab(text: l10n.devPortalTabDiagnostics),
@@ -59,6 +61,7 @@ class DeveloperPortalScreen extends ConsumerWidget {
                   _OverviewTab(l10n: l10n),
                   DeveloperPortalCodesTab(l10n: l10n),
                   DeveloperPortalBillingTab(l10n: l10n),
+                  DeveloperPortalSupportTab(l10n: l10n),
                   _DevPortalShopsTab(l10n: l10n),
                   _DevPortalResetsTab(l10n: l10n),
                   const DeveloperPortalDiagnosticsTab(),
@@ -400,6 +403,57 @@ class _DevPortalShopsTabState extends ConsumerState<_DevPortalShopsTab> {
     final raw = shop['users'];
     if (raw is! List) return const [];
     return raw.whereType<Map<String, dynamic>>().toList();
+  }
+
+  String? _shopContactField(Map<String, dynamic> shop, String key) {
+    final raw = shop[key];
+    if (raw == null) return null;
+    final s = '$raw'.trim();
+    if (s.isEmpty || s == 'null') return null;
+    return s;
+  }
+
+  Widget _shopContactSection(Map<String, dynamic> shop) {
+    final whatsapp = _shopContactField(shop, 'contact_whatsapp');
+    final email = _shopContactField(shop, 'contact_email');
+    final address = _shopContactField(shop, 'contact_address');
+    final hasAny =
+        whatsapp != null || email != null || address != null;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            widget.l10n.devPortalShopContactHeader,
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
+          const SizedBox(height: 6),
+          if (!hasAny)
+            Text(
+              widget.l10n.devPortalShopContactMissing,
+              style: Theme.of(context).textTheme.bodySmall,
+            )
+          else ...[
+            if (whatsapp != null)
+              Text(
+                widget.l10n.devPortalShopContactWhatsapp(whatsapp),
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            if (email != null)
+              Text(
+                widget.l10n.devPortalShopContactEmail(email),
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            if (address != null)
+              Text(
+                widget.l10n.devPortalShopContactAddress(address),
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+          ],
+        ],
+      ),
+    );
   }
 
   Future<void> _disableShop(String shopId) async {
@@ -819,6 +873,7 @@ class _DevPortalShopsTabState extends ConsumerState<_DevPortalShopsTab> {
                 '${disabled ? '\n${widget.l10n.devPortalShopDisabledLabel}' : ''}',
               ),
               children: [
+                _shopContactSection(m),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                   child: Align(
