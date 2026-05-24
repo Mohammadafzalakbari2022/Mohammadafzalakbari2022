@@ -1,11 +1,11 @@
 {
-    "name": "Pride",
-    "short_name": "Pride",
+    "name": "خیاط",
+    "short_name": "خیاط",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#5B21B6",
-    "theme_color": "#7C3AED",
-    "description": "Pride — offline-first tailoring shop app.",
+    "background_color": "#7E0094",
+    "theme_color": "#7E0094",
+    "description": "خیاط — offline-first tailoring shop app.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

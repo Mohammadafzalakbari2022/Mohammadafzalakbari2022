@@ -1,2 +1,5 @@
-/// Launcher / store brand mark (`pride_full_platform_icon_pack` → `assets/branding/app_icon.png`).
+/// Launcher / invoice brand mark (`khayat_dari_clean_needle_icon_pack`).
 const kAppBrandIconAsset = 'assets/branding/app_icon.png';
+
+/// Login screen logo (transparent needle mark).
+const kLoginBrandLogoAsset = 'assets/branding/login_logo.png';

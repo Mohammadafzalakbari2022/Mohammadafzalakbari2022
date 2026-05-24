@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Pride';
+  String get appTitle => 'Khayat';
 
   @override
   String get tabOrders => 'Orders';
@@ -2274,7 +2274,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashboardNotificationsViewAll => 'View all notifications';
 
   @override
-  String get notifSeedWelcomeTitle => 'Welcome to Afghan Pride';
+  String get notifSeedWelcomeTitle => 'Welcome to Khayat';
 
   @override
   String get notifSeedWelcomeBody =>
@@ -3418,11 +3418,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get devPortalCodesCopied => 'Code copied to clipboard.';
 
   @override
-  String get devPortalCodesShareSubject => 'Afghan Pride activation code';
+  String get devPortalCodesShareSubject => 'Khayat activation code';
 
   @override
   String devPortalCodesShareMessage(String code, int days) {
-    return 'Afghan Pride — subscription activation\n\nCode: $code\nPaid days when redeemed: $days\n\nIn the shop app: Settings → Subscription → enter this code.\nSingle-use unless noted otherwise.';
+    return 'Khayat — subscription activation\n\nCode: $code\nPaid days when redeemed: $days\n\nIn the shop app: Settings → Subscription → enter this code.\nSingle-use unless noted otherwise.';
   }
 
   @override
@@ -3630,7 +3630,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsPrinterTestCta => 'Test print';
 
   @override
-  String get settingsPrinterTestHeadline => 'Afghan Pride';
+  String get settingsPrinterTestHeadline => 'Khayat';
 
   @override
   String get settingsPrinterTestDetail =>
@@ -3686,8 +3686,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get receiptMeasurementsLabel => 'Measurements';
 
   @override
-  String get invoicePridePromoLine =>
-      'Invoice created and sent with Afghan Pride';
+  String get invoicePridePromoLine => 'Invoice created and sent with Khayat';
 
   @override
   String get receiptStyleLabel => 'Style notes';

@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Pride</string>
+	<string>خیاط</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>Pride</string>
+	<string>خیاط</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -46,14 +46,14 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Pride connects to a receipt printer on your shop Wi‑Fi or LAN.</string>
+	<string>Khayat connects to a receipt printer on your shop Wi‑Fi or LAN.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Pride uses the camera to add style figure and catalog photos.</string>
+	<string>Khayat uses the camera to add style figure and catalog photos.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Pride accesses your photo library to add style figure and catalog images.</string>
+	<string>Khayat accesses your photo library to add style figure and catalog images.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Pride saves images you choose for style figures and catalog items.</string>
+	<string>Khayat saves images you choose for style figures and catalog items.</string>
 	<key>NSContactsUsageDescription</key>
-	<string>Pride can save customer phone numbers to your contacts when you share an invoice.</string>
+	<string>Khayat can save customer phone numbers to your contacts when you share an invoice.</string>
 </dict>
 </plist>

@@ -9,7 +9,7 @@ class AppLocalizationsPs extends AppLocalizations {
   AppLocalizationsPs([String locale = 'ps']) : super(locale);
 
   @override
-  String get appTitle => 'افغان پراید';
+  String get appTitle => 'خیاط';
 
   @override
   String get tabOrders => 'امرونه';
@@ -2253,7 +2253,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get dashboardNotificationsViewAll => 'ټولې خبرتیاوې وګورئ';
 
   @override
-  String get notifSeedWelcomeTitle => 'افغان پراید ته ښه راغلاست';
+  String get notifSeedWelcomeTitle => 'خیاط ته ښه راغلاست';
 
   @override
   String get notifSeedWelcomeBody =>
@@ -3388,11 +3388,11 @@ class AppLocalizationsPs extends AppLocalizations {
   String get devPortalCodesCopied => 'کوډ په کلیپ‌بورډ کې کاپي شو.';
 
   @override
-  String get devPortalCodesShareSubject => 'د افغان پرایډ فعالولو کوډ';
+  String get devPortalCodesShareSubject => 'د خیاط فعالولو کوډ';
 
   @override
   String devPortalCodesShareMessage(String code, int days) {
-    return 'افغان پرایډ — د ګډون فعالول\n\nکوډ: $code\nورځې پیسې وروسته له فعالولو: $days\n\nپه اپ کې: تنظیمات → ګډون → دا کوډ ولیکئ.';
+    return 'خیاط — د ګډون فعالول\n\nکوډ: $code\nورځې پیسې وروسته له فعالولو: $days\n\nپه اپ کې: تنظیمات → ګډون → دا کوډ ولیکئ.';
   }
 
   @override
@@ -3598,7 +3598,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get settingsPrinterTestCta => 'ازموینه چاپ';
 
   @override
-  String get settingsPrinterTestHeadline => 'افغان پراید';
+  String get settingsPrinterTestHeadline => 'خیاط';
 
   @override
   String get settingsPrinterTestDetail =>
@@ -3655,7 +3655,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get invoicePridePromoLine =>
-      'دا فاکتور د افغان پراید له لارې جوړ او لیږل شوی دی';
+      'دا فاکتور د خیاط له لارې جوړ او لیږل شوی دی';
 
   @override
   String get receiptStyleLabel => 'د سټایل یادښتونه';

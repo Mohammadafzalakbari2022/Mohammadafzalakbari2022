@@ -13,7 +13,7 @@ class CatalogBundleSeedEntry {
     required this.internalId,
     required this.assetFileName,
     required this.designName,
-    this.designerShopName = 'Afghan Pride',
+    this.designerShopName = 'Khayat',
   });
 
   final String internalId;

@@ -378,10 +378,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(36),
                       child: Image.asset(
-                        kAppBrandIconAsset,
+                        kLoginBrandLogoAsset,
                         width: 168,
                         height: 168,
-                        fit: BoxFit.cover,
+                        fit: BoxFit.contain,
                         errorBuilder: (context, error, stackTrace) => Icon(
                           Icons.storefront_rounded,
                           size: 96,

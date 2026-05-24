@@ -103,7 +103,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
-  /// **'Pride'**
+  /// **'Khayat'**
   String get appTitle;
 
   /// No description provided for @tabOrders.
@@ -4222,7 +4222,7 @@ abstract class AppLocalizations {
   /// No description provided for @notifSeedWelcomeTitle.
   ///
   /// In en, this message translates to:
-  /// **'Welcome to Afghan Pride'**
+  /// **'Welcome to Khayat'**
   String get notifSeedWelcomeTitle;
 
   /// No description provided for @notifSeedWelcomeBody.
@@ -6176,13 +6176,13 @@ abstract class AppLocalizations {
   /// No description provided for @devPortalCodesShareSubject.
   ///
   /// In en, this message translates to:
-  /// **'Afghan Pride activation code'**
+  /// **'Khayat activation code'**
   String get devPortalCodesShareSubject;
 
   /// No description provided for @devPortalCodesShareMessage.
   ///
   /// In en, this message translates to:
-  /// **'Afghan Pride — subscription activation\n\nCode: {code}\nPaid days when redeemed: {days}\n\nIn the shop app: Settings → Subscription → enter this code.\nSingle-use unless noted otherwise.'**
+  /// **'Khayat — subscription activation\n\nCode: {code}\nPaid days when redeemed: {days}\n\nIn the shop app: Settings → Subscription → enter this code.\nSingle-use unless noted otherwise.'**
   String devPortalCodesShareMessage(String code, int days);
 
   /// No description provided for @devPortalApiHealthPrompt.
@@ -6566,7 +6566,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsPrinterTestHeadline.
   ///
   /// In en, this message translates to:
-  /// **'Afghan Pride'**
+  /// **'Khayat'**
   String get settingsPrinterTestHeadline;
 
   /// No description provided for @settingsPrinterTestDetail.
@@ -6662,7 +6662,7 @@ abstract class AppLocalizations {
   /// No description provided for @invoicePridePromoLine.
   ///
   /// In en, this message translates to:
-  /// **'Invoice created and sent with Afghan Pride'**
+  /// **'Invoice created and sent with Khayat'**
   String get invoicePridePromoLine;
 
   /// No description provided for @receiptStyleLabel.

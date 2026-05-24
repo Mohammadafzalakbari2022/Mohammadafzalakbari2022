@@ -618,7 +618,7 @@ class _DevPortalShopsTabState extends ConsumerState<_DevPortalShopsTab> {
   }
 
   Future<void> _pushTest(String shopId, String shopLabel) async {
-    final titleCtrl = TextEditingController(text: 'Afghan Pride');
+    final titleCtrl = TextEditingController(text: widget.l10n.appTitle);
     final bodyCtrl = TextEditingController(text: 'Test: $shopLabel');
     final ok = await showDialog<bool>(
       context: context,
@@ -662,7 +662,7 @@ class _DevPortalShopsTabState extends ConsumerState<_DevPortalShopsTab> {
     final r = await postPrideApiAdminPushShop(
       accessToken: token,
       shopId: shopId,
-      title: titleCtrl.text.trim().isEmpty ? 'Afghan Pride' : titleCtrl.text.trim(),
+      title: titleCtrl.text.trim().isEmpty ? widget.l10n.appTitle : titleCtrl.text.trim(),
       bodyText: bodyCtrl.text.trim(),
     );
     if (!mounted) return;
