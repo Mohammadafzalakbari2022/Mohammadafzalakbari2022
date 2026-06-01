@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+<defs>
+<linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#d619dc"/>
+<stop offset=".46" stop-color="#7e0094"/>
+<stop offset="1" stop-color="#3e004d"/>
+</linearGradient>
+</defs>
+<rect width="1024" height="1024" fill="url(#g)"/>
+<g fill="#ffe260">
+<path d="M225 230 L251 230 L245 700 L238 835 L231 700 Z"/>
+</g>
+<ellipse cx="238" cy="236" rx="35" ry="49" fill="none" stroke="#ffe260" stroke-width="15"/>
+<ellipse cx="238" cy="237" rx="14" ry="25" fill="#7e0094"/>
+<path d="M285 335 C415 405 540 405 680 317" fill="none" stroke="#ffe260" stroke-width="24" stroke-linecap="round"/>
+<text x="545" y="622" direction="rtl" text-anchor="middle" font-size="205" font-family="Noto Kufi Arabic, Arial" font-weight="700" fill="#ffe260">خیاط</text>
+</svg>
