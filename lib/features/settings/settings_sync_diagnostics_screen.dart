@@ -21,7 +21,6 @@ import 'package:pride_v3/licensing/license_providers.dart';
 import '../../auth/auth_providers.dart';
 import '../../data/providers/local_data_providers.dart';
 import '../../shell/shell_sync_providers.dart';
-import 'settings_api_connection_card.dart';
 
 String _asyncListLen<T>(AsyncValue<List<T>> v, String loading) {
   return v.maybeWhen(data: (l) => '${l.length}', orElse: () => loading);
@@ -280,8 +279,6 @@ class _SettingsSyncDiagnosticsScreenState
               ],
             ),
           ),
-          const SizedBox(height: 12),
-          const SettingsApiConnectionCard(),
           const SizedBox(height: 12),
           Card(
             child: Padding(

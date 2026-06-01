@@ -2113,6 +2113,12 @@ class AppLocalizationsPs extends AppLocalizations {
   String get catalogDesignNameHint => 'بېلګه: کرزي کورتی';
 
   @override
+  String get catalogDesignerNameLabel => 'د ډیزاینر نوم';
+
+  @override
+  String get catalogDesignerNameHint => 'هغه نوم چې په ډیزاین کې ښکاري';
+
+  @override
   String get catalogNotesLabel => 'یادښتونه (اختیاري)';
 
   @override

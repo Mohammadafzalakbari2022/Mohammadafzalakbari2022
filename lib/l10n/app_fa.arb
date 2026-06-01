@@ -1020,6 +1020,8 @@
   "catalogEditMetadataTitle": "ویرایش اطلاعات",
   "catalogDesignNameLabel": "نام طرح",
   "catalogDesignNameHint": "مثال: کت کرزی",
+  "catalogDesignerNameLabel": "نام خیاط / دوخت‌خانه",
+  "catalogDesignerNameHint": "نامی که روی طرح نمایش داده می‌شود",
   "catalogNotesLabel": "یادداشت (اختیاری)",
   "catalogNotesHint": "هر جزئیاتی که می‌خواهید به‌خاطر بسپارید…",
   "catalogDeleteConfirmBody": "«{name}» حذف شود؟",

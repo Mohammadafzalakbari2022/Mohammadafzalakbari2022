@@ -41,16 +41,43 @@ class CatalogItemDetailScreen extends ConsumerWidget {
     }
 
     final nameCtrl = TextEditingController(text: item.designName);
+    final designerCtrl = TextEditingController(text: item.designerShopName);
+    final notesCtrl = TextEditingController(text: item.notes ?? '');
 
     final ok = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(l10n.catalogEditMetadataTitle),
-        content: TextField(
-          controller: nameCtrl,
-          decoration: InputDecoration(
-            labelText: l10n.catalogDesignNameLabel,
-            hintText: l10n.catalogDesignNameHint,
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameCtrl,
+                decoration: InputDecoration(
+                  labelText: l10n.catalogDesignNameLabel,
+                  hintText: l10n.catalogDesignNameHint,
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: designerCtrl,
+                decoration: InputDecoration(
+                  labelText: l10n.catalogDesignerNameLabel,
+                  hintText: l10n.catalogDesignerNameHint,
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: notesCtrl,
+                decoration: InputDecoration(
+                  labelText: l10n.catalogNotesLabel,
+                  hintText: l10n.catalogNotesHint,
+                ),
+                minLines: 2,
+                maxLines: 4,
+              ),
+            ],
           ),
         ),
         actions: [
@@ -68,12 +95,16 @@ class CatalogItemDetailScreen extends ConsumerWidget {
 
     if (ok != true) return;
     final nextName = nameCtrl.text.trim();
-    if (nextName.isEmpty) return;
+    final nextDesigner = designerCtrl.text.trim();
+    if (nextName.isEmpty || nextDesigner.isEmpty) return;
+    final notesRaw = notesCtrl.text.trim();
+    final nextNotes = notesRaw.isEmpty ? null : notesRaw;
     final repo = await ref.read(catalogRepositoryProvider.future);
     await repo.updateMetadata(
       internalId: item.internalId,
       designName: nextName,
-      notes: item.notes,
+      designerShopName: nextDesigner,
+      notes: nextNotes,
     );
     final shopId = ref.read(effectiveShopIdProvider);
     final now = DateTime.now();
@@ -85,7 +116,8 @@ class CatalogItemDetailScreen extends ConsumerWidget {
       payloadJson: _catalogItemUpsertPayloadJson(
         item,
         designName: nextName,
-        notes: item.notes,
+        designerShopName: nextDesigner,
+        notes: nextNotes,
         isSharedPublic: item.isSharedPublic,
         updatedAt: now,
       ),
@@ -321,6 +353,7 @@ class CatalogItemDetailScreen extends ConsumerWidget {
                                   payloadJson: _catalogItemUpsertPayloadJson(
                                     item,
                                     designName: item.designName,
+                                    designerShopName: item.designerShopName,
                                     notes: item.notes,
                                     isSharedPublic: v,
                                     updatedAt: now,
@@ -346,13 +379,14 @@ class CatalogItemDetailScreen extends ConsumerWidget {
 String _catalogItemUpsertPayloadJson(
   CatalogItemDetail item, {
   required String designName,
+  required String designerShopName,
   String? notes,
   required bool isSharedPublic,
   required DateTime updatedAt,
 }) {
   return jsonEncode({
     'design_name': designName,
-    'designer_shop_name': item.designerShopName,
+    'designer_shop_name': designerShopName,
     'notes': notes,
     'is_shared_public': isSharedPublic,
     'created_at': item.createdAt.toUtc().toIso8601String(),

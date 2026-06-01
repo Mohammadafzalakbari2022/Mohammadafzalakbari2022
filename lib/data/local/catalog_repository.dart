@@ -26,6 +26,7 @@ abstract class CatalogRepository {
   Future<void> updateMetadata({
     required String internalId,
     required String designName,
+    required String designerShopName,
     String? notes,
   });
 

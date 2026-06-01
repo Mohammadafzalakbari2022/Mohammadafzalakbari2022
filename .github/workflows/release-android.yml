@@ -46,7 +46,7 @@ jobs:
       - name: Build release APK
         run: |
           flutter build apk --release \
-            --dart-define=API_BASE_URL=https://pride-v3.onrender.com \
+            --dart-define=API_BASE_URL=https://mohammadafzalakbari2022.onrender.com \
             --dart-define=ENV=prod
         env:
           GRADLE_OPTS: -Dorg.gradle.jvmargs=-Xmx4g

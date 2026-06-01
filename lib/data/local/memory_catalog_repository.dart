@@ -205,6 +205,7 @@ class MemoryCatalogRepository implements CatalogRepository {
   Future<void> updateMetadata({
     required String internalId,
     required String designName,
+    required String designerShopName,
     String? notes,
   }) async {
     for (var i = 0; i < _details.length; i++) {
@@ -214,7 +215,7 @@ class MemoryCatalogRepository implements CatalogRepository {
         internalId: d.internalId,
         shopId: d.shopId,
         designName: designName,
-        designerShopName: d.designerShopName,
+        designerShopName: designerShopName,
         createdAt: d.createdAt,
         updatedAt: DateTime.now(),
         isSharedPublic: d.isSharedPublic,

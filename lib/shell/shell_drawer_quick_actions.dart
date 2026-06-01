@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pride_v3/core/calendar/app_calendar_format.dart';
-import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
 import 'package:pride_v3/core/sync/manual_sync_ui.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
@@ -10,7 +8,7 @@ import '../data/providers/local_data_providers.dart';
 import '../features/settings/settings_providers.dart';
 import 'shell_sync_providers.dart';
 
-/// Sync + notifications shortcuts for the dashboard drawer.
+/// Drawer shortcuts: manual sync and notifications inbox.
 class ShellDrawerQuickActions extends ConsumerStatefulWidget {
   const ShellDrawerQuickActions({super.key});
 
@@ -36,79 +34,33 @@ class _ShellDrawerQuickActionsState
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final locale = Localizations.localeOf(context).toString();
-    final calendar = ref.watch(dateCalendarSystemProvider);
     final online = ref.watch(connectivityOnlineProvider);
-    final lastSync = ref.watch(lastSuccessfulSyncAtProvider);
-    final queueAsync = ref.watch(syncPendingOutboxCountProvider);
-    final queue = queueAsync.maybeWhen(data: (n) => n, orElse: () => 0);
     final badgeCount = ref.watch(unreadAppNotificationCountProvider);
     final muted = ref.watch(notificationsMutedProvider);
-
     final syncInProgress = _syncBusy || ref.watch(syncInProgressProvider);
-    final syncSubtitle = syncInProgress
-        ? l10n.dashboardSyncRunning
-        : !online
-            ? l10n.shellSyncTooltipOffline
-            : lastSync == null
-                ? l10n.dashboardSyncTapToRun
-                : l10n.shellSyncTooltipLast(
-                    AppCalendarFormat.dateTimeMedium(
-                      l10n,
-                      calendar,
-                      lastSync,
-                      locale,
-                    ),
-                  );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ListTile(
           contentPadding: EdgeInsets.zero,
-          leading: Badge(
-            isLabelVisible: queue > 0,
-            label: Text(queue > 99 ? '99+' : '$queue'),
-            child: syncInProgress
-                ? SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  )
-                : Icon(
-                    Icons.sync_alt,
-                    color: online
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.outline,
-                  ),
-          ),
-          title: Text(l10n.shellAppBarSyncA11y),
-          subtitle: Text(syncSubtitle),
-          trailing: !online
-              ? Chip(
-                  label: Text(l10n.shellSyncStatusOfflineChip),
-                  visualDensity: VisualDensity.compact,
-                  labelStyle: TextStyle(
-                    color: Theme.of(context).colorScheme.error,
-                    fontWeight: FontWeight.w600,
+          leading: syncInProgress
+              ? SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 )
-              : IconButton(
-                  icon: const Icon(Icons.info_outline),
-                  tooltip: l10n.settingsSyncDiagnosticsTitle,
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    context.push('/app/settings/sync-diagnostics');
-                  },
+              : Icon(
+                  Icons.sync_alt,
+                  color: online
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.outline,
                 ),
+          title: Text(l10n.shellAppBarSyncA11y),
           onTap: syncInProgress ? null : _runSync,
-          onLongPress: () {
-            Navigator.of(context).pop();
-            context.push('/app/settings/sync-diagnostics');
-          },
         ),
         ListTile(
           contentPadding: EdgeInsets.zero,

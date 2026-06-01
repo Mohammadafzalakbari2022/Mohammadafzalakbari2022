@@ -2122,6 +2122,12 @@ class AppLocalizationsFa extends AppLocalizations {
   String get catalogDesignNameHint => 'مثال: کت کرزی';
 
   @override
+  String get catalogDesignerNameLabel => 'نام خیاط / دوخت‌خانه';
+
+  @override
+  String get catalogDesignerNameHint => 'نامی که روی طرح نمایش داده می‌شود';
+
+  @override
   String get catalogNotesLabel => 'یادداشت (اختیاری)';
 
   @override

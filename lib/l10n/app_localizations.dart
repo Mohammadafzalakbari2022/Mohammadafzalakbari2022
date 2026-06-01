@@ -3967,6 +3967,18 @@ abstract class AppLocalizations {
   /// **'Example: Karzai suit'**
   String get catalogDesignNameHint;
 
+  /// No description provided for @catalogDesignerNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Designer name'**
+  String get catalogDesignerNameLabel;
+
+  /// No description provided for @catalogDesignerNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tailor or shop name shown on the design'**
+  String get catalogDesignerNameHint;
+
   /// No description provided for @catalogNotesLabel.
   ///
   /// In en, this message translates to:

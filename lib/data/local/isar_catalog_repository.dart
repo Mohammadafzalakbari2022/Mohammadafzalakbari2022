@@ -156,6 +156,7 @@ class IsarCatalogRepository implements CatalogRepository {
   Future<void> updateMetadata({
     required String internalId,
     required String designName,
+    required String designerShopName,
     String? notes,
   }) async {
     await _isar.writeTxn(() async {
@@ -163,6 +164,7 @@ class IsarCatalogRepository implements CatalogRepository {
           await _isar.catalogItemEntitys.getByInternalId(internalId);
       if (existing == null) return;
       existing.designName = designName;
+      existing.designerShopName = designerShopName;
       existing.notes = notes;
       existing.updatedAt = DateTime.now();
       await _isar.catalogItemEntitys.putByInternalId(existing);

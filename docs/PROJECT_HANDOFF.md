@@ -8,7 +8,7 @@ This document is the **single entry point** for anyone resuming work on Afghan P
 |------|--------|
 | GitHub | https://github.com/Mohammadafzalakbari2022/Mohammadafzalakbari2022 |
 | Default branch | `main` |
-| Production API | `https://pride-v3.onrender.com` (see [`config/dart_defines_prod.json`](../config/dart_defines_prod.json)) |
+| Production API | `https://mohammadafzalakbari2022.onrender.com` (see [`config/dart_defines_prod.json`](../config/dart_defines_prod.json)) |
 | Web app | https://pride-v3-web.pages.dev |
 | App version (pubspec) | `3.5.5+35305` |
 

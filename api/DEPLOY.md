@@ -54,7 +54,7 @@ documented in [`api/.env.example`](.env.example).
 A **successful** deploy ends with:
 
 - `Nest application successfully started`
-- `Your service is live` and your URL (e.g. `https://pride-v3.onrender.com`)
+- `Your service is live` and your URL (e.g. `https://mohammadafzalakbari2022.onrender.com`)
 
 These lines are **not** errors:
 
@@ -96,7 +96,7 @@ flutter run \
   --dart-define-from-file=config/dart_defines_base.json \
   --dart-define-from-file=config/dart_defines_prod.json
 ```
-(production URL in repo: `https://pride-v3.onrender.com`)
+(production URL in repo: `https://mohammadafzalakbari2022.onrender.com`)
 
 **Settings → Sync & diagnostics → Test connection** should report OK against `GET /health`.
 
@@ -107,7 +107,7 @@ flutter run \
 After deploy, confirm billing routes exist (401 without JWT is OK; **404 means an old API build**):
 
 ```bash
-curl -s -o /dev/null -w "%{http_code}\n" https://pride-v3.onrender.com/admin/billing-info
+curl -s -o /dev/null -w "%{http_code}\n" https://mohammadafzalakbari2022.onrender.com/admin/billing-info
 ```
 
 Production Postgres must include `subscription_billing_config` and `subscription_payment_claims`, and `_prisma_migrations` must list all migrations in `api/prisma/migrations/` (use `npx prisma migrate deploy` or baseline per [Prisma baselining](https://www.prisma.io/docs/guides/migrate/developing-with-prisma-migrate/add-prisma-migrate-to-a-project#baseline-your-production-environment)).

@@ -9,7 +9,6 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:pride_v3/core/feedback/app_feedback.dart';
 import 'package:pride_v3/core/printing/invoice_pdf.dart';
 import 'package:pride_v3/core/printing/invoice_pdf_images.dart';
-import 'package:pride_v3/core/printing/invoice_pdf_promo_assets.dart';
 import 'package:pride_v3/core/printing/invoice_share_contact.dart';
 import 'package:pride_v3/core/printing/phone_whatsapp.dart';
 import 'package:pride_v3/core/printing/whatsapp_invoice_share.dart';
@@ -66,8 +65,6 @@ Future<void> shareOrderInvoice({
       styleSnap: styleSnap,
       catalogFigures: catalogFigures,
     );
-    final promoAssets = await loadInvoicePdfPromoAssets();
-
     final pdfBytes = await buildOrderInvoicePdf(
       l10n: l10n,
       shop: shop,
@@ -77,7 +74,6 @@ Future<void> shareOrderInvoice({
       statusText: statusText,
       textDirection: textDirection,
       designRail: designRail,
-      promoAssets: promoAssets,
       measurementSnap: measurementSnap,
     );
 

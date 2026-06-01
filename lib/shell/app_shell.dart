@@ -10,7 +10,6 @@ import '../dashboard/dashboard_drawer.dart';
 import '../data/providers/local_data_providers.dart';
 import '../features/settings/shop_profile_provider.dart';
 import 'shell_app_bar_branding.dart';
-import 'shell_app_bar_sync_button.dart';
 import 'shell_app_bar_title.dart';
 import 'shell_primary_tab.dart';
 
@@ -121,9 +120,6 @@ class _AppShellState extends ConsumerState<AppShell> {
                     onPressed: openDrawer,
                   )
                 : null,
-        actions: [
-          if (openDrawer != null) const ShellAppBarSyncIconButton(),
-        ],
       ),
       body: widget.navigationShell,
       bottomNavigationBar: NavigationBar(

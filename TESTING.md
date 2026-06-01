@@ -281,7 +281,7 @@ Output: `build/app/outputs/flutter-apk/app-release.apk`.
 
 Full steps: **[`api/DEPLOY.md`](api/DEPLOY.md)** (Blueprint, migrations, first shop / `PRIDE_AUTH_SEED`).
 
-1. Deploy the API and note the base URL (no trailing slash). Production example: `https://pride-v3.onrender.com`.
+1. Deploy the API and note the base URL (no trailing slash). Production example: `https://mohammadafzalakbari2022.onrender.com`.
 2. Run the app with that base URL baked in (stacked **`config/dart_defines_base.json`** + **`config/dart_defines_prod.json`** — no `.env`):
 
    ```powershell
@@ -296,7 +296,7 @@ Full steps: **[`api/DEPLOY.md`](api/DEPLOY.md)** (Blueprint, migrations, first s
 3. From a shell, confirm health:
 
    ```powershell
-   curl.exe -sS https://pride-v3.onrender.com/health
+   curl.exe -sS https://mohammadafzalakbari2022.onrender.com/health
    ```
 
 4. Sign in from the Flutter **Login** screen using credentials that exist on the server (either **`PRIDE_AUTH_SEED`** on the service, or the owner account from **`POST /shop/create`**).

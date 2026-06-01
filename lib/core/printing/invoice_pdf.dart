@@ -14,7 +14,6 @@ import 'invoice_pdf_font.dart';
 import 'invoice_pdf_icons.dart';
 import 'invoice_pdf_images.dart';
 import 'invoice_pdf_measurements.dart';
-import 'invoice_pdf_promo_assets.dart';
 import 'receipt_branding.dart';
 import 'shop_logo_raster.dart';
 
@@ -40,7 +39,6 @@ Future<Uint8List> buildOrderInvoicePdf({
   required String statusText,
   required pw.TextDirection textDirection,
   InvoicePdfDesignRail? designRail,
-  InvoicePdfPromoAssets? promoAssets,
   OrderMeasurementSnapshotView? measurementSnap,
 }) async {
   final fonts = await InvoicePdfFonts.load();
@@ -50,7 +48,6 @@ Future<Uint8List> buildOrderInvoicePdf({
     wrapChars: 56,
   );
   final rail = designRail ?? const InvoicePdfDesignRail();
-  final promo = promoAssets ?? await loadInvoicePdfPromoAssets();
 
   pw.ImageProvider? logoProvider;
   final logoRaster = await loadReceiptHeaderLogoRaster(
@@ -253,7 +250,6 @@ Future<Uint8List> buildOrderInvoicePdf({
                 _buildPridePromoFooter(
                   fonts: fonts,
                   l10n: l10n,
-                  promo: promo,
                 ),
               ],
             ),
@@ -293,45 +289,17 @@ pw.Widget _buildStyleFigureImages({
 pw.Widget _buildPridePromoFooter({
   required InvoicePdfFontSet fonts,
   required AppLocalizations l10n,
-  required InvoicePdfPromoAssets promo,
 }) {
-  return pw.Container(
-    margin: const pw.EdgeInsets.only(top: 4),
-    padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-    decoration: pw.BoxDecoration(
-      color: kInvoicePdfAccentLight,
-      borderRadius: pw.BorderRadius.circular(kInvoicePdfSectionRadius),
-      border: pw.Border.all(color: kInvoicePdfBorder, width: 0.5),
-    ),
-    child: pw.Center(
-      child: pw.Wrap(
-        crossAxisAlignment: pw.WrapCrossAlignment.center,
-        alignment: pw.WrapAlignment.center,
-        spacing: 6,
-        runSpacing: 4,
-        children: [
-          if (promo.prideIconProvider != null)
-            pw.SizedBox(
-              width: 14,
-              height: 14,
-              child: pw.Image(
-                promo.prideIconProvider!,
-                fit: pw.BoxFit.contain,
-              ),
-            ),
-          pw.Text(
-            l10n.invoicePridePromoLine,
-            style: pw.TextStyle(
-              font: fonts.regular,
-              fontSize: 7.5,
-              color: PdfColors.grey800,
-            ),
-            textAlign: pw.TextAlign.center,
-          ),
-          InvoicePdfIcons.android(size: 12, color: kInvoicePdfAccent),
-          InvoicePdfIcons.apple(size: 12, color: kInvoicePdfAccent),
-        ],
+  return pw.Padding(
+    padding: const pw.EdgeInsets.only(top: 6),
+    child: pw.Text(
+      l10n.invoicePridePromoLine,
+      style: pw.TextStyle(
+        font: fonts.regular,
+        fontSize: 8.5,
+        color: PdfColors.grey700,
       ),
+      textAlign: pw.TextAlign.center,
     ),
   );
 }

@@ -6,4 +6,4 @@
 
 **iPhone:** نصب مستقیم APK ممکن نیست — از TestFlight یا App Store استفاده کنید (راهنما در INSTALL_FA.md).
 
-API: `https://pride-v3.onrender.com`
+API: `https://mohammadafzalakbari2022.onrender.com`

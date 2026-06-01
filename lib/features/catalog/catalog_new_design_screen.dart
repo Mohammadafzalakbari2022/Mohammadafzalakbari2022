@@ -26,13 +26,29 @@ class CatalogNewDesignScreen extends ConsumerStatefulWidget {
 
 class _CatalogNewDesignScreenState extends ConsumerState<CatalogNewDesignScreen> {
   final _designName = TextEditingController();
+  final _designerName = TextEditingController();
+  final _notes = TextEditingController();
   bool _saving = false;
 
   Uint8List? _previewBytes;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final shopLabel = ref.read(shopDisplayNameProvider).trim();
+      if (shopLabel.isNotEmpty && _designerName.text.trim().isEmpty) {
+        _designerName.text = shopLabel;
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _designName.dispose();
+    _designerName.dispose();
+    _notes.dispose();
     super.dispose();
   }
 
@@ -73,6 +89,13 @@ class _CatalogNewDesignScreenState extends ConsumerState<CatalogNewDesignScreen>
           .showSnackBar(SnackBar(content: Text(l10n.catalogDesignNameRequired)));
       return;
     }
+    final designerName = _designerName.text.trim();
+    if (designerName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.loginFieldRequired)),
+      );
+      return;
+    }
     final bytes = _previewBytes;
     if (bytes == null) {
       ScaffoldMessenger.of(context)
@@ -80,22 +103,21 @@ class _CatalogNewDesignScreenState extends ConsumerState<CatalogNewDesignScreen>
       return;
     }
 
+    final notesRaw = _notes.text.trim();
+    final notes = notesRaw.isEmpty ? null : notesRaw;
+
     setState(() => _saving = true);
     try {
-      // Store bytes into app storage (native only).
       final stored = await storeCatalogImage(bytes);
       if (!mounted) return;
 
       final repo = await ref.read(catalogRepositoryProvider.future);
       final shopId = ref.read(effectiveShopIdProvider);
-      final shopLabel = ref.read(shopDisplayNameProvider);
-      final designerName = shopLabel.isNotEmpty
-          ? shopLabel
-          : l10n.catalogMyShopNameFallback;
       final id = await repo.createItem(
         shopId: shopId,
         designName: name,
         designerShopName: designerName,
+        notes: notes,
         imagePath: stored.imagePath,
         thumbnailPath: stored.thumbnailPath,
       );
@@ -108,6 +130,7 @@ class _CatalogNewDesignScreenState extends ConsumerState<CatalogNewDesignScreen>
         payloadJson: jsonEncode({
           'design_name': name,
           'designer_shop_name': designerName,
+          'notes': notes,
           'is_shared_public': false,
           'created_at': now.toUtc().toIso8601String(),
           'updated_at': now.toUtc().toIso8601String(),
@@ -201,6 +224,28 @@ class _CatalogNewDesignScreenState extends ConsumerState<CatalogNewDesignScreen>
             enabled: !_saving,
             onChanged: (_) => setState(() {}),
           ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _designerName,
+            decoration: InputDecoration(
+              labelText: l10n.catalogDesignerNameLabel,
+              hintText: l10n.catalogDesignerNameHint,
+              border: const OutlineInputBorder(),
+            ),
+            enabled: !_saving,
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _notes,
+            decoration: InputDecoration(
+              labelText: l10n.catalogNotesLabel,
+              hintText: l10n.catalogNotesHint,
+              border: const OutlineInputBorder(),
+            ),
+            enabled: !_saving,
+            minLines: 2,
+            maxLines: 4,
+          ),
           const SizedBox(height: 16),
           FilledButton.icon(
             onPressed: _saving ? null : () => _save(context, l10n),
@@ -218,4 +263,3 @@ class _CatalogNewDesignScreenState extends ConsumerState<CatalogNewDesignScreen>
     );
   }
 }
-

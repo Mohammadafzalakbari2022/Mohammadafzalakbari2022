@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pride_v3/core/printing/invoice_pdf.dart';
 import 'package:pride_v3/core/printing/invoice_pdf_font.dart';
-import 'package:pride_v3/core/printing/invoice_pdf_promo_assets.dart';
 import 'package:pride_v3/core/printing/receipt_branding.dart';
 import 'package:pride_v3/data/local/entities/order_status.dart';
 import 'package:pride_v3/data/local/order_summary.dart';
@@ -55,7 +54,7 @@ void main() {
     );
   }
 
-  test('Vazirmatn fonts load from assets', () async {
+  test('Invoice PDF fonts load from assets', () async {
     final fonts = await InvoicePdfFonts.load();
     expect(fonts.regular, isNotNull);
     expect(fonts.bold, isNotNull);
@@ -120,25 +119,8 @@ void main() {
       deliveryDateText: '2026-05-20',
       statusText: 'In progress',
       textDirection: pw.TextDirection.ltr,
-      promoAssets: await loadInvoicePdfPromoAssets(),
     );
     expect(bytes.length, greaterThan(12000));
-  });
-
-  test('buildOrderInvoicePdf includes Pride promo assets', () async {
-    final promo = await loadInvoicePdfPromoAssets();
-    expect(promo.prideIconProvider, isNotNull);
-    final bytes = await buildOrderInvoicePdf(
-      l10n: l10nEn,
-      shop: fullShopProfile(),
-      order: sampleOrder(),
-      payments: const [],
-      deliveryDateText: '2026-05-17',
-      statusText: 'In progress',
-      textDirection: pw.TextDirection.ltr,
-      promoAssets: promo,
-    );
-    expect(bytes.length, greaterThan(10000));
   });
 
   test('buildOrderInvoicePdf succeeds without shop or phone', () async {

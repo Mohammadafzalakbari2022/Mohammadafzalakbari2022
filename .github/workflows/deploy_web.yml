@@ -58,4 +58,4 @@ jobs:
       - name: Deploy summary
         run: |
           echo "Web deploy finished. Open your Cloudflare Pages URL (*.pages.dev) for project pride-v3-web."
-          echo "API (from dart_defines_prod.json): https://pride-v3.onrender.com"
+          echo "API (from dart_defines_prod.json): https://mohammadafzalakbari2022.onrender.com"

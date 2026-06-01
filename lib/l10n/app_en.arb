@@ -890,6 +890,8 @@
   "catalogEditMetadataTitle": "Edit metadata",
   "catalogDesignNameLabel": "Design name",
   "catalogDesignNameHint": "Example: Karzai suit",
+  "catalogDesignerNameLabel": "Designer name",
+  "catalogDesignerNameHint": "Tailor or shop name shown on the design",
   "catalogNotesLabel": "Notes (optional)",
   "catalogNotesHint": "Any details you want to remember…",
   "catalogDeleteConfirmBody": "Delete “{name}”?",

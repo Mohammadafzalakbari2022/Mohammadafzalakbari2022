@@ -2133,6 +2133,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get catalogDesignNameHint => 'Example: Karzai suit';
 
   @override
+  String get catalogDesignerNameLabel => 'Designer name';
+
+  @override
+  String get catalogDesignerNameHint =>
+      'Tailor or shop name shown on the design';
+
+  @override
   String get catalogNotesLabel => 'Notes (optional)';
 
   @override

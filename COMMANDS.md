@@ -15,7 +15,7 @@ cd C:\Users\Moh.Akbari\Desktop\Pride-v3
 cd ~/Desktop/Pride-v3
 ```
 
-**Production API URL** (baked into release builds): `https://pride-v3.onrender.com` — stacked [`config/dart_defines_base.json`](config/dart_defines_base.json) + [`config/dart_defines_prod.json`](config/dart_defines_prod.json) (no `.env`).
+**Production API URL** (baked into release builds): `https://mohammadafzalakbari2022.onrender.com` — stacked [`config/dart_defines_base.json`](config/dart_defines_base.json) + [`config/dart_defines_prod.json`](config/dart_defines_prod.json) (no `.env`).
 
 ---
 
@@ -322,7 +322,7 @@ npx prisma generate
 
 ```powershell
 curl.exe -sS http://localhost:3000/health
-curl.exe -sS https://pride-v3.onrender.com/health
+curl.exe -sS https://mohammadafzalakbari2022.onrender.com/health
 ```
 
 ### Windows: `npm install` fails (`ENOTEMPTY`)
@@ -524,10 +524,10 @@ Not a database column — controlled by API **environment variables** on Render:
 ```powershell
 # 1) Login
 $body = '{"shop_id":"YOUR_SHOP","username":"YOUR_USER","password":"YOUR_PASSWORD"}'
-$login = Invoke-RestMethod -Method POST -Uri "https://pride-v3.onrender.com/auth/login" -ContentType "application/json" -Body $body
+$login = Invoke-RestMethod -Method POST -Uri "https://mohammadafzalakbari2022.onrender.com/auth/login" -ContentType "application/json" -Body $body
 
 # 2) Check developer flag
-Invoke-RestMethod -Method GET -Uri "https://pride-v3.onrender.com/admin/me" -Headers @{ Authorization = "Bearer $($login.access_token)" }
+Invoke-RestMethod -Method GET -Uri "https://mohammadafzalakbari2022.onrender.com/admin/me" -Headers @{ Authorization = "Bearer $($login.access_token)" }
 ```
 
 Expect: `{ "is_developer": true }` for Developer Portal in **Settings**.
