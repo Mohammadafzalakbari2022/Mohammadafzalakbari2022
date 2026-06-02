@@ -1894,6 +1894,12 @@ class AppLocalizationsPs extends AppLocalizations {
   String get invoiceCatalogDesignerLabel => 'ډیزاینر';
 
   @override
+  String get invoiceDesignSectionTitle => 'ډیزاین او سټایل';
+
+  @override
+  String get invoiceStyleFiguresLabel => 'د سټایل شکلونه';
+
+  @override
   String get settingsStyleHubTitle => 'د امر سټایل';
 
   @override

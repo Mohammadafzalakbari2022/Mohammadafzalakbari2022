@@ -944,6 +944,8 @@
   "receiptCatalogDesignLabel": "طرح",
   "invoiceCatalogDesignLabel": "طرح کاتالوگ",
   "invoiceCatalogDesignerLabel": "طراح",
+  "invoiceDesignSectionTitle": "طراحی و استایل",
+  "invoiceStyleFiguresLabel": "اشکال استایل",
   "settingsStyleHubTitle": "استایل سفارش",
   "settingsStyleTileTitle": "استایل سفارش",
   "settingsStyleTileSubtitle": "نام‌های استایل و شکل‌های طرح",

@@ -12,9 +12,16 @@ import 'style_figure_raster.dart';
 /// Max style figure thumbnails on the invoice.
 const int kInvoicePdfMaxStyleFigures = 8;
 
-const int kInvoicePdfStyleFigurePx = 40;
-const int kInvoicePdfCatalogMaxWidthPx = 160;
-const int kInvoicePdfCatalogMaxHeightPx = 120;
+/// Style figure raster size (px) — loaded at this resolution for PDF clarity.
+const int kInvoicePdfStyleFigurePx = 140;
+
+/// Catalog image max bounds (px) for the design column.
+const int kInvoicePdfCatalogMaxWidthPx = 280;
+const int kInvoicePdfCatalogMaxHeightPx = 360;
+
+/// PDF layout height (points) for the image column.
+const double kInvoicePdfCatalogDisplayHeightPt = 200;
+const double kInvoicePdfStyleFigureDisplayPt = 88;
 
 /// Raster images for style figures and catalog design on the invoice.
 class InvoicePdfDesignRail {

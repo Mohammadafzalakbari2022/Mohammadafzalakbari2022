@@ -3541,6 +3541,18 @@ abstract class AppLocalizations {
   /// **'Designer'**
   String get invoiceCatalogDesignerLabel;
 
+  /// No description provided for @invoiceDesignSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Design & style'**
+  String get invoiceDesignSectionTitle;
+
+  /// No description provided for @invoiceStyleFiguresLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Style shapes'**
+  String get invoiceStyleFiguresLabel;
+
   /// No description provided for @settingsStyleHubTitle.
   ///
   /// In en, this message translates to:

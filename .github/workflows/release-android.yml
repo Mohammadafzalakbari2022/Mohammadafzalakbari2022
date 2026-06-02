@@ -8,9 +8,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Release tag (e.g. v1.0.3)"
+        description: "Release tag (e.g. v3.6.0)"
         required: true
-        default: "v3.5.3.2"
+        default: "v3.6.0"
 
 permissions:
   contents: write
@@ -46,16 +46,15 @@ jobs:
       - name: Build release APK
         run: |
           flutter build apk --release \
-            --dart-define=API_BASE_URL=https://mohammadafzalakbari2022.onrender.com \
-            --dart-define=ENV=prod
+            --dart-define-from-file=config/dart_defines_base.json \
+            --dart-define-from-file=config/dart_defines_prod.json
         env:
           GRADLE_OPTS: -Dorg.gradle.jvmargs=-Xmx4g
 
       - name: Rename APK
         run: |
-          SRC=build/app/outputs/flutter-apk/Pride.apk
-          if [ ! -f "$SRC" ]; then SRC=build/app/outputs/flutter-apk/app-release.apk; fi
-          cp "$SRC" Pride.apk
+          SRC=build/app/outputs/flutter-apk/app-release.apk
+          cp "$SRC" Khayat-android.apk
 
       - name: Resolve release tag
         id: tag
@@ -70,11 +69,11 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.tag.outputs.name }}
-          name: Pride ${{ steps.tag.outputs.name }}
+          name: Khayat ${{ steps.tag.outputs.name }}
           make_latest: true
           overwrite_files: true
           generate_release_notes: true
-          files: Pride.apk
+          files: Khayat-android.apk
           body_path: docs/RELEASE_NOTES_TEMPLATE.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

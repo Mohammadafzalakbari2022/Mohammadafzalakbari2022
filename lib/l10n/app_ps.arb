@@ -944,6 +944,8 @@
   "receiptCatalogDesignLabel": "ډیزاین",
   "invoiceCatalogDesignLabel": "کتلاګ ډیزاین",
   "invoiceCatalogDesignerLabel": "ډیزاینر",
+  "invoiceDesignSectionTitle": "ډیزاین او سټایل",
+  "invoiceStyleFiguresLabel": "د سټایل شکلونه",
   "settingsStyleHubTitle": "د امر سټایل",
   "settingsStyleTileTitle": "د امر سټایل",
   "settingsStyleTileSubtitle": "د سټایل نومونه او د ډیزاین شکلونه",

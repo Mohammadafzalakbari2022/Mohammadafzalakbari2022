@@ -1909,6 +1909,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get invoiceCatalogDesignerLabel => 'Designer';
 
   @override
+  String get invoiceDesignSectionTitle => 'Design & style';
+
+  @override
+  String get invoiceStyleFiguresLabel => 'Style shapes';
+
+  @override
   String get settingsStyleHubTitle => 'Order style';
 
   @override

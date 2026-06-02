@@ -14,6 +14,7 @@ import 'invoice_pdf_font.dart';
 import 'invoice_pdf_icons.dart';
 import 'invoice_pdf_images.dart';
 import 'invoice_pdf_measurements.dart';
+import 'invoice_payment_labels.dart';
 import 'receipt_branding.dart';
 import 'shop_logo_raster.dart';
 
@@ -120,99 +121,18 @@ Future<Uint8List> buildOrderInvoicePdf({
                     child: _bodyText(fonts, measurementsBody),
                   ),
                 ],
-                if (styleText.isNotEmpty) ...[
+                if (_hasDesignSectionContent(
+                  order: order,
+                  styleText: styleText,
+                  rail: rail,
+                )) ...[
                   pw.SizedBox(height: kInvoicePdfSectionGap),
-                  _sectionCard(
+                  _buildDesignAndStyleSection(
                     fonts: fonts,
-                    title: l10n.receiptStyleLabel,
-                    child: _bodyText(fonts, styleText),
-                  ),
-                ],
-                if (rail.figureProviders.isNotEmpty) ...[
-                  pw.SizedBox(height: 4),
-                  _buildStyleFigureImages(fonts: fonts, rail: rail),
-                ],
-                if (order.hasCustomerFabric) ...[
-                  pw.SizedBox(height: kInvoicePdfSectionGap),
-                  _sectionCard(
-                    fonts: fonts,
-                    title: l10n.receiptFabricLabel,
-                    child: pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      children: [
-                        if (order.fabricNameSnapshot.trim().isNotEmpty)
-                          _labelValue(
-                            fonts,
-                            l10n.receiptFabricNameLabel,
-                            order.fabricNameSnapshot.trim(),
-                          ),
-                        if (order.fabricColorSnapshot.trim().isNotEmpty)
-                          _labelValue(
-                            fonts,
-                            l10n.receiptFabricColorLabel,
-                            order.fabricColorSnapshot.trim(),
-                          ),
-                        if (order.fabricIdSnapshot.trim().isNotEmpty)
-                          _labelValue(
-                            fonts,
-                            l10n.receiptFabricIdLabel,
-                            order.fabricIdSnapshot.trim(),
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
-                if (order.catalogDesignNameSnapshot.trim().isNotEmpty ||
-                    rail.catalogProvider != null) ...[
-                  pw.SizedBox(height: kInvoicePdfSectionGap),
-                  _sectionCard(
-                    fonts: fonts,
-                    title: l10n.invoiceCatalogDesignLabel,
-                    child: pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.stretch,
-                      children: [
-                        if (rail.catalogProvider != null) ...[
-                          pw.Center(
-                            child: pw.Container(
-                              padding: const pw.EdgeInsets.all(4),
-                              decoration: pw.BoxDecoration(
-                                color: kInvoicePdfSurface,
-                                borderRadius: pw.BorderRadius.circular(4),
-                                border: pw.Border.all(
-                                  color: kInvoicePdfBorder,
-                                  width: 0.5,
-                                ),
-                              ),
-                              child: pw.SizedBox(
-                                width: kInvoicePdfCatalogMaxWidthPx.toDouble(),
-                                height: kInvoicePdfCatalogMaxHeightPx.toDouble(),
-                                child: pw.Image(
-                                  rail.catalogProvider!,
-                                  fit: pw.BoxFit.contain,
-                                ),
-                              ),
-                            ),
-                          ),
-                          pw.SizedBox(height: 4),
-                        ],
-                        if (order.catalogDesignNameSnapshot.trim().isNotEmpty)
-                          _bodyText(
-                            fonts,
-                            order.catalogDesignNameSnapshot.trim(),
-                            bold: true,
-                          ),
-                        if (order.catalogDesignerShopNameSnapshot
-                            .trim()
-                            .isNotEmpty) ...[
-                          pw.SizedBox(height: 2),
-                          _labelValue(
-                            fonts,
-                            l10n.invoiceCatalogDesignerLabel,
-                            order.catalogDesignerShopNameSnapshot.trim(),
-                          ),
-                        ],
-                      ],
-                    ),
+                    l10n: l10n,
+                    order: order,
+                    styleText: styleText,
+                    rail: rail,
                   ),
                 ],
                 if (order.internalNotes.trim().isNotEmpty) ...[
@@ -262,18 +182,182 @@ Future<Uint8List> buildOrderInvoicePdf({
   return doc.save();
 }
 
-pw.Widget _buildStyleFigureImages({
-  required InvoicePdfFontSet fonts,
+bool _hasDesignSectionContent({
+  required OrderSummary order,
+  required String styleText,
   required InvoicePdfDesignRail rail,
 }) {
+  return styleText.isNotEmpty ||
+      order.hasCustomerFabric ||
+      order.catalogDesignNameSnapshot.trim().isNotEmpty ||
+      order.catalogDesignerShopNameSnapshot.trim().isNotEmpty ||
+      rail.catalogProvider != null ||
+      rail.figureProviders.isNotEmpty;
+}
+
+/// Design/style text in one column; catalog + style shapes in the other (like customer meta row).
+pw.Widget _buildDesignAndStyleSection({
+  required InvoicePdfFontSet fonts,
+  required AppLocalizations l10n,
+  required OrderSummary order,
+  required String styleText,
+  required InvoicePdfDesignRail rail,
+}) {
+  final hasImages =
+      rail.catalogProvider != null || rail.figureProviders.isNotEmpty;
+
+  return _sectionCard(
+    fonts: fonts,
+    title: l10n.invoiceDesignSectionTitle,
+    child: pw.Row(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Expanded(
+          child: _buildDesignInfoColumn(
+            fonts: fonts,
+            l10n: l10n,
+            order: order,
+            styleText: styleText,
+          ),
+        ),
+        if (hasImages) ...[
+          pw.SizedBox(width: 6),
+          pw.Expanded(
+            child: _buildDesignImagesColumn(
+              fonts: fonts,
+              l10n: l10n,
+              rail: rail,
+            ),
+          ),
+        ],
+      ],
+    ),
+  );
+}
+
+pw.Widget _buildDesignInfoColumn({
+  required InvoicePdfFontSet fonts,
+  required AppLocalizations l10n,
+  required OrderSummary order,
+  required String styleText,
+}) {
+  return pw.Column(
+    crossAxisAlignment: pw.CrossAxisAlignment.start,
+    children: [
+      if (styleText.isNotEmpty) ...[
+        _subsectionLabel(fonts, l10n.receiptStyleLabel),
+        pw.SizedBox(height: 2),
+        _bodyText(fonts, styleText),
+        pw.SizedBox(height: 6),
+      ],
+      if (order.hasCustomerFabric) ...[
+        _subsectionLabel(fonts, l10n.receiptFabricLabel),
+        pw.SizedBox(height: 2),
+        if (order.fabricNameSnapshot.trim().isNotEmpty)
+          _labelValue(
+            fonts,
+            l10n.receiptFabricNameLabel,
+            order.fabricNameSnapshot.trim(),
+          ),
+        if (order.fabricColorSnapshot.trim().isNotEmpty) ...[
+          pw.SizedBox(height: 2),
+          _labelValue(
+            fonts,
+            l10n.receiptFabricColorLabel,
+            order.fabricColorSnapshot.trim(),
+          ),
+        ],
+        if (order.fabricIdSnapshot.trim().isNotEmpty) ...[
+          pw.SizedBox(height: 2),
+          _labelValue(
+            fonts,
+            l10n.receiptFabricIdLabel,
+            order.fabricIdSnapshot.trim(),
+          ),
+        ],
+        pw.SizedBox(height: 6),
+      ],
+      if (order.catalogDesignNameSnapshot.trim().isNotEmpty ||
+          order.catalogDesignerShopNameSnapshot.trim().isNotEmpty) ...[
+        _subsectionLabel(fonts, l10n.invoiceCatalogDesignLabel),
+        pw.SizedBox(height: 2),
+        if (order.catalogDesignNameSnapshot.trim().isNotEmpty)
+          _bodyText(
+            fonts,
+            order.catalogDesignNameSnapshot.trim(),
+            bold: true,
+          ),
+        if (order.catalogDesignerShopNameSnapshot.trim().isNotEmpty) ...[
+          pw.SizedBox(height: 2),
+          _labelValue(
+            fonts,
+            l10n.invoiceCatalogDesignerLabel,
+            order.catalogDesignerShopNameSnapshot.trim(),
+          ),
+        ],
+      ],
+    ],
+  );
+}
+
+pw.Widget _buildDesignImagesColumn({
+  required InvoicePdfFontSet fonts,
+  required AppLocalizations l10n,
+  required InvoicePdfDesignRail rail,
+}) {
+  return pw.Column(
+    crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+    children: [
+      if (rail.catalogProvider != null) ...[
+        _subsectionLabel(fonts, l10n.invoiceCatalogDesignLabel),
+        pw.SizedBox(height: 2),
+        pw.Container(
+          padding: const pw.EdgeInsets.all(4),
+          decoration: pw.BoxDecoration(
+            color: kInvoicePdfSurface,
+            borderRadius: pw.BorderRadius.circular(4),
+            border: pw.Border.all(color: kInvoicePdfBorder, width: 0.5),
+          ),
+          child: pw.SizedBox(
+            height: kInvoicePdfCatalogDisplayHeightPt,
+            width: double.infinity,
+            child: pw.Image(
+              rail.catalogProvider!,
+              fit: pw.BoxFit.contain,
+            ),
+          ),
+        ),
+        pw.SizedBox(height: 6),
+      ],
+      if (rail.figureProviders.isNotEmpty) ...[
+        _subsectionLabel(fonts, l10n.invoiceStyleFiguresLabel),
+        pw.SizedBox(height: 2),
+        _buildStyleFigureGrid(rail: rail),
+      ],
+    ],
+  );
+}
+
+pw.Widget _subsectionLabel(InvoicePdfFontSet fonts, String text) {
+  return pw.Text(
+    text,
+    style: pw.TextStyle(
+      font: fonts.bold,
+      fontSize: 8.5,
+      color: kInvoicePdfAccent,
+    ),
+  );
+}
+
+pw.Widget _buildStyleFigureGrid({required InvoicePdfDesignRail rail}) {
   return pw.Wrap(
     spacing: 4,
     runSpacing: 4,
     children: [
       for (final provider in rail.figureProviders)
         pw.Container(
-          width: kInvoicePdfStyleFigurePx.toDouble(),
-          height: kInvoicePdfStyleFigurePx.toDouble(),
+          width: kInvoicePdfStyleFigureDisplayPt,
+          height: kInvoicePdfStyleFigureDisplayPt,
           padding: const pw.EdgeInsets.all(2),
           decoration: pw.BoxDecoration(
             color: kInvoicePdfSurface,
@@ -546,7 +630,7 @@ pw.Widget _buildPaymentSummary({
                   if (i > 0) pw.SizedBox(height: 2),
                   _moneyRowTile(
                     fonts,
-                    payments[i].method,
+                    formatInvoicePaymentMethod(l10n, payments[i].method),
                     reportFormatMoney(l10n, payments[i].amountMinor),
                     altBackground: i.isOdd,
                   ),

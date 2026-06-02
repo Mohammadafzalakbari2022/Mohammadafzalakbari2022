@@ -1901,6 +1901,12 @@ class AppLocalizationsFa extends AppLocalizations {
   String get invoiceCatalogDesignerLabel => 'طراح';
 
   @override
+  String get invoiceDesignSectionTitle => 'طراحی و استایل';
+
+  @override
+  String get invoiceStyleFiguresLabel => 'اشکال استایل';
+
+  @override
   String get settingsStyleHubTitle => 'استایل سفارش';
 
   @override
