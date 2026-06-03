@@ -24,7 +24,7 @@ class AutoSyncHost extends ConsumerStatefulWidget {
 
 class _AutoSyncHostState extends ConsumerState<AutoSyncHost>
     with WidgetsBindingObserver {
-  static const _interval = Duration(minutes: 15);
+  static const _interval = Duration(minutes: 5);
   static const _minGapBetweenRuns = Duration(seconds: 60);
 
   Timer? _timer;

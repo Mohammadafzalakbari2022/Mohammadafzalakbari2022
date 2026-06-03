@@ -6,7 +6,7 @@ import 'package:pride_v3/l10n/app_localizations.dart';
 import '../../data/backup/backup_merge_result.dart';
 import '../../data/backup/backup_platform.dart';
 import '../../data/providers/local_data_providers.dart';
-import '../../security/owner_password_verify.dart';
+import '../../security/verify_owner_password.dart';
 import 'settings_owner_password_dialog.dart';
 
 void _invalidateAfterBackupRestore(WidgetRef ref) {
@@ -71,7 +71,7 @@ class _SettingsBackupRestoreScreenState
     final pw = await promptOwnerPasswordForSettings(context);
     if (!context.mounted) return;
     if (pw == null) return;
-    if (!verifyOwnerPasswordForLocalActions(pw)) {
+    if (!await verifyOwnerPasswordForBackup(ref, pw)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.ownerPasswordMismatch)),
       );
@@ -101,7 +101,7 @@ class _SettingsBackupRestoreScreenState
     final pw = await promptOwnerPasswordForSettings(context);
     if (!context.mounted) return;
     if (pw == null) return;
-    if (!verifyOwnerPasswordForLocalActions(pw)) {
+    if (!await verifyOwnerPasswordForBackup(ref, pw)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.ownerPasswordMismatch)),
       );

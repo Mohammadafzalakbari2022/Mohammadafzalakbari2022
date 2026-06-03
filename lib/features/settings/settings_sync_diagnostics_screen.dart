@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:pride_v3/core/api/pride_api_config.dart';
 import 'package:pride_v3/core/api/pride_api_devices.dart';
@@ -18,8 +19,11 @@ import 'package:pride_v3/l10n/app_localizations.dart';
 import 'package:pride_v3/licensing/license_notifier.dart';
 import 'package:pride_v3/licensing/license_providers.dart';
 
+import '../../auth/admin_me_provider.dart';
 import '../../auth/auth_providers.dart';
+import '../../auth/developer_portal_gate.dart';
 import '../../data/providers/local_data_providers.dart';
+import '../../features/settings/settings_providers.dart';
 import '../../shell/shell_sync_providers.dart';
 
 String _asyncListLen<T>(AsyncValue<List<T>> v, String loading) {
@@ -206,6 +210,28 @@ class _SettingsSyncDiagnosticsScreenState
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final auth = ref.watch(authSessionProvider);
+    final adminAsync = ref.watch(adminMeProvider);
+    final adminCheck = adminAsync.valueOrNull;
+    final persistedDev = ref.watch(persistedDeveloperPortalProvider);
+    final showDeveloperDiagnostics = showDeveloperDiagnosticsInSettings(
+      auth: auth,
+      adminCheck: adminCheck,
+      devSimulated: ref.watch(isDeveloperProvider),
+      persistedDeveloperFlag: persistedDev,
+    );
+    if (!showDeveloperDiagnostics) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted && context.canPop()) {
+          context.pop();
+        }
+      });
+      return Scaffold(
+        appBar: AppBar(title: Text(l10n.settingsSyncDiagnosticsTitle)),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
     final locale = Localizations.localeOf(context).toString();
     final calendar = ref.watch(dateCalendarSystemProvider);
     final lastSync = ref.watch(lastSuccessfulSyncAtProvider);

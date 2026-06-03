@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
+import '../../auth/admin_me_provider.dart';
 import '../../auth/auth_providers.dart';
+import '../../auth/developer_portal_gate.dart';
 import '../../core/sync/sync_conflict_helpers.dart';
 import '../../core/sync/sync_conflict_recorder.dart';
 import '../../core/sync/sync_conflict_record.dart';
 import '../../data/providers/local_data_providers.dart';
+import 'settings_providers.dart';
 
 /// Owner-facing sync conflict inspector (`plan-03`).
 class SettingsSyncConflictsScreen extends ConsumerWidget {
@@ -66,6 +70,28 @@ class SettingsSyncConflictsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
+    final auth = ref.watch(authSessionProvider);
+    final adminAsync = ref.watch(adminMeProvider);
+    final adminCheck = adminAsync.valueOrNull;
+    final persistedDev = ref.watch(persistedDeveloperPortalProvider);
+    final showDeveloperDiagnostics = showDeveloperDiagnosticsInSettings(
+      auth: auth,
+      adminCheck: adminCheck,
+      devSimulated: ref.watch(isDeveloperProvider),
+      persistedDeveloperFlag: persistedDev,
+    );
+    if (!showDeveloperDiagnostics) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted && context.canPop()) {
+          context.pop();
+        }
+      });
+      return Scaffold(
+        appBar: AppBar(title: Text(l10n.syncConflictsTitle)),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
     final shopId = ref.watch(effectiveShopIdProvider);
     final asyncConflicts = ref.watch(syncConflictsForShopProvider(shopId));
 

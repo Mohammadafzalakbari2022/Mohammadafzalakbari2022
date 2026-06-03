@@ -76,6 +76,37 @@ abstract final class OfflineCredentialStorage {
     }
   }
 
+  /// Owner username cached for [shopId] after a successful owner login on device.
+  static String? ownerUsernameForShop(SharedPreferences prefs, String shopId) {
+    final sid = shopId.trim();
+    if (sid.isEmpty) return null;
+    for (final e in _readList(prefs)) {
+      if ((e['shop_id'] as String? ?? '').trim() == sid &&
+          e['is_shop_owner'] == true) {
+        final u = (e['username'] as String? ?? '').trim();
+        if (u.isNotEmpty) return u;
+      }
+    }
+    return null;
+  }
+
+  /// True when [password] matches a cached **shop owner** login for [shopId].
+  static bool verifyOwnerPasswordForShop({
+    required SharedPreferences prefs,
+    required String shopId,
+    required String password,
+  }) {
+    final sid = shopId.trim();
+    if (sid.isEmpty || password.isEmpty) return false;
+    final hash = sha256PasswordHex(password);
+    return _readList(prefs).any(
+      (e) =>
+          (e['shop_id'] as String? ?? '').trim() == sid &&
+          e['is_shop_owner'] == true &&
+          (e['password_hash'] as String? ?? '') == hash,
+    );
+  }
+
   /// Verifies password against a cached credential (`plan-04`).
   static OfflineVerifyResult verify({
     required SharedPreferences prefs,

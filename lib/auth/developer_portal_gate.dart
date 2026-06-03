@@ -18,4 +18,18 @@ bool showDeveloperPortalInSettings({
   );
 }
 
+/// Whether Settings should show sync diagnostics, conflicts, and lab tooling.
+bool showDeveloperDiagnosticsInSettings({
+  required AuthSession auth,
+  required AdminMeCheckResult? adminCheck,
+  required bool devSimulated,
+  required bool persistedDeveloperFlag,
+}) =>
+    showDeveloperPortalInSettings(
+      auth: auth,
+      adminCheck: adminCheck,
+      devSimulated: devSimulated,
+      persistedDeveloperFlag: persistedDeveloperFlag,
+    );
+
 const pridePersistedDeveloperFlagKey = 'pride_persisted_developer_portal';

@@ -115,6 +115,12 @@ class SettingsTabScreen extends ConsumerWidget {
       devSimulated: devSimulated,
       persistedDeveloperFlag: persistedDev,
     );
+    final showDeveloperDiagnostics = showDeveloperDiagnosticsInSettings(
+      auth: auth,
+      adminCheck: adminCheck,
+      devSimulated: devSimulated,
+      persistedDeveloperFlag: persistedDev,
+    );
     final showAdminCheckFailed = apiOn &&
         auth.hasApiSession &&
         !devSimulated &&
@@ -340,28 +346,30 @@ class SettingsTabScreen extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 16),
-        _SettingsSection(
-          title: l10n.settingsSectionSyncDiagnostics,
-          children: [
-            _LockedTile(
-              leading: Icons.sync_outlined,
-              iconColor: prideSettingsIconColor(2),
-              title: l10n.settingsSyncDiagnosticsTitle,
-              subtitle: l10n.settingsSyncDiagnosticsSubtitle,
-              enabled: true,
-              onTap: () => context.push('/app/settings/sync-diagnostics'),
-            ),
-            _LockedTile(
-              leading: Icons.compare_arrows_outlined,
-              iconColor: prideSettingsIconColor(2),
-              title: l10n.settingsSyncConflictsTile,
-              subtitle: l10n.settingsSyncConflictsTileSubtitle,
-              enabled: true,
-              onTap: () => context.push('/app/settings/sync-conflicts'),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
+        if (showDeveloperDiagnostics) ...[
+          _SettingsSection(
+            title: l10n.settingsSectionSyncDiagnostics,
+            children: [
+              _LockedTile(
+                leading: Icons.sync_outlined,
+                iconColor: prideSettingsIconColor(2),
+                title: l10n.settingsSyncDiagnosticsTitle,
+                subtitle: l10n.settingsSyncDiagnosticsSubtitle,
+                enabled: true,
+                onTap: () => context.push('/app/settings/sync-diagnostics'),
+              ),
+              _LockedTile(
+                leading: Icons.compare_arrows_outlined,
+                iconColor: prideSettingsIconColor(2),
+                title: l10n.settingsSyncConflictsTile,
+                subtitle: l10n.settingsSyncConflictsTileSubtitle,
+                enabled: true,
+                onTap: () => context.push('/app/settings/sync-conflicts'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+        ],
         _SettingsSection(
           title: l10n.settingsSectionAbout,
           children: [
