@@ -72,6 +72,7 @@ class _SettingsBackupRestoreScreenState
     if (!context.mounted) return;
     if (pw == null) return;
     if (!await verifyOwnerPasswordForBackup(ref, pw)) {
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.ownerPasswordMismatch)),
       );
@@ -102,6 +103,7 @@ class _SettingsBackupRestoreScreenState
     if (!context.mounted) return;
     if (pw == null) return;
     if (!await verifyOwnerPasswordForBackup(ref, pw)) {
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.ownerPasswordMismatch)),
       );

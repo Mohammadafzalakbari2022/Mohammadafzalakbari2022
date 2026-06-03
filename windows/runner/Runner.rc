@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.pridev3" "\0"
-            VALUE "FileDescription", "pride_v3" "\0"
+            VALUE "FileDescription", "Khayat" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "pride_v3" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.pridev3. All rights reserved." "\0"
+            VALUE "InternalName", "khayat" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 Khayat. All rights reserved." "\0"
             VALUE "OriginalFilename", "pride_v3.exe" "\0"
-            VALUE "ProductName", "pride_v3" "\0"
+            VALUE "ProductName", "Khayat" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

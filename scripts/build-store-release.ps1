@@ -29,8 +29,17 @@ try {
         & $helper $Environment build web --release
     }
 
+    Write-Host "Building Windows desktop (x64) ..."
+    if ($Environment -eq "prod") {
+        & $helper build windows --release
+    } else {
+        & $helper $Environment build windows --release
+    }
+
     Write-Host "Done. Android: build\app\outputs\bundle\release\app-release.aab"
     Write-Host "Web: build\web\"
+    Write-Host "Windows: build\windows\x64\runner\Release\"
+    Write-Host "Full release (APK+AAB+Windows zip): .\scripts\build-all-release.ps1"
     Write-Host "iOS (macOS): ./scripts/build-ios-release.sh $Environment"
 }
 finally {

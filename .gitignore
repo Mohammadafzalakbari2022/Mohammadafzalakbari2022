@@ -34,6 +34,7 @@ migrate_working_dir/
 /Pride-android.apk
 /Khayat-android.apk
 /Khayat-release.aab
+/Khayat-windows-x64.zip
 /coverage/
 
 # Symbolication related

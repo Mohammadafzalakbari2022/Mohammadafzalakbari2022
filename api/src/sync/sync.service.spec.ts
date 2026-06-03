@@ -75,44 +75,41 @@ describe('SyncService', () => {
   });
 
   it('push with empty mutations does not call transaction body for inserts', async () => {
-    let lastRev = 3;
-    const tx = {
+    const create = jest.fn();
+    const prisma = {
       shop: {
-        findUnique: jest.fn().mockResolvedValue({ lastMutationRevision: lastRev }),
+        findUnique: jest
+          .fn()
+          .mockResolvedValueOnce({ id: 'shop-a', disabledAt: null })
+          .mockResolvedValueOnce({ lastMutationRevision: 3 }),
         update: jest.fn(),
       },
-      shopSyncMutation: { create: jest.fn() },
-    };
-    const prisma = {
-      shop: { findUnique: jest.fn().mockResolvedValue({ id: 'shop-a', disabledAt: null }) },
-      $transaction: jest.fn(async (fn: (t: typeof tx) => Promise<{ nextRev: number; newOrders: never[] }>) =>
-        fn(tx),
-      ),
+      shopSyncMutation: { create },
     } as unknown as PrismaService;
     const sync = new SyncService(makeLicense('trial_active'), prisma, makePush());
     const r = await sync.push('shop-a', []);
     expect(r.results).toEqual([]);
     expect(r.next_cursor).toBe('3');
-    expect(tx.shopSyncMutation.create).not.toHaveBeenCalled();
+    expect(create).not.toHaveBeenCalled();
   });
 
   it('push persists mutations and advances next_cursor', async () => {
-    const tx = {
-      shop: {
-        findUnique: jest.fn().mockResolvedValue({ lastMutationRevision: 1 }),
-        update: jest.fn().mockResolvedValue({}),
-      },
-      shopSyncMutation: {
-        count: jest.fn().mockResolvedValue(0),
-        create: jest.fn().mockResolvedValue({}),
-      },
-    };
+    const shopUpdate = jest.fn().mockResolvedValue({});
+    const mutationCreate = jest.fn().mockResolvedValue({});
     const push = makePush();
     const prisma = {
-      shop: { findUnique: jest.fn().mockResolvedValue({ id: 'shop-a', disabledAt: null, name: 'Shop A' }) },
-      $transaction: jest.fn(async (fn: (t: typeof tx) => Promise<{ nextRev: number; newOrders: never[] }>) =>
-        fn(tx),
-      ),
+      shop: {
+        findUnique: jest
+          .fn()
+          .mockResolvedValueOnce({ id: 'shop-a', disabledAt: null })
+          .mockResolvedValueOnce({ lastMutationRevision: 1 }),
+        update: shopUpdate,
+      },
+      shopSyncMutation: {
+        findFirst: jest.fn().mockResolvedValue(null),
+        count: jest.fn().mockResolvedValue(0),
+        create: mutationCreate,
+      },
     } as unknown as PrismaService;
     const sync = new SyncService(makeLicense('trial_active'), prisma, push);
     const iso = new Date().toISOString();
@@ -134,8 +131,8 @@ describe('SyncService', () => {
     await new Promise<void>((r) => setImmediate(r));
     expect(r.next_cursor).toBe('3');
     expect(r.results).toHaveLength(2);
-    expect(tx.shopSyncMutation.create).toHaveBeenCalledTimes(2);
-    expect(tx.shop.update).toHaveBeenCalledWith({
+    expect(mutationCreate).toHaveBeenCalledTimes(2);
+    expect(shopUpdate).toHaveBeenCalledWith({
       where: { id: 'shop-a' },
       data: { lastMutationRevision: 3 },
     });
@@ -144,21 +141,19 @@ describe('SyncService', () => {
 
   it('push sends FCM only for first order upsert per internal_id in batch', async () => {
     const push = makePush();
-    const tx = {
+    const prisma = {
       shop: {
-        findUnique: jest.fn().mockResolvedValue({ lastMutationRevision: 0 }),
+        findUnique: jest
+          .fn()
+          .mockResolvedValueOnce({ id: 'shop-a', disabledAt: null })
+          .mockResolvedValueOnce({ lastMutationRevision: 0 }),
         update: jest.fn().mockResolvedValue({}),
       },
       shopSyncMutation: {
+        findFirst: jest.fn().mockResolvedValue(null),
         count: jest.fn().mockResolvedValueOnce(0).mockResolvedValueOnce(1),
         create: jest.fn().mockResolvedValue({}),
       },
-    };
-    const prisma = {
-      shop: { findUnique: jest.fn().mockResolvedValue({ id: 'shop-a', disabledAt: null, name: 'Test Shop' }) },
-      $transaction: jest.fn(async (fn: (t: typeof tx) => Promise<{ nextRev: number; newOrders: never[] }>) =>
-        fn(tx),
-      ),
     } as unknown as PrismaService;
     const sync = new SyncService(makeLicense('trial_active'), prisma, push);
     const iso = new Date().toISOString();
@@ -234,15 +229,8 @@ describe('SyncService', () => {
   });
 
   it('push throws when shop is missing', async () => {
-    const tx = {
-      shop: { findUnique: jest.fn().mockResolvedValue(null), update: jest.fn() },
-      shopSyncMutation: { create: jest.fn() },
-    };
     const prisma = {
-      shop: { findUnique: jest.fn().mockResolvedValue({ id: 'missing', disabledAt: null }) },
-      $transaction: jest.fn(async (fn: (t: typeof tx) => Promise<{ nextRev: number; newOrders: never[] }>) =>
-        fn(tx),
-      ),
+      shop: { findUnique: jest.fn().mockResolvedValue(null) },
     } as unknown as PrismaService;
     const sync = new SyncService(makeLicense('trial_active'), prisma, makePush());
     await expect(

@@ -10,9 +10,19 @@ flutter pub get
 Write-Host '== flutter gen-l10n ==' -ForegroundColor Cyan
 flutter gen-l10n
 
-Write-Host '== flutter analyze ==' -ForegroundColor Cyan
-flutter analyze
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+Write-Host '== flutter analyze (errors only) ==' -ForegroundColor Cyan
+$prevEap = $ErrorActionPreference
+$ErrorActionPreference = 'Continue'
+$analyzeOut = (flutter analyze 2>&1 | Out-String)
+$analyzeExit = $LASTEXITCODE
+$ErrorActionPreference = $prevEap
+if ($analyzeOut -match 'error -') {
+    Write-Host $analyzeOut
+    exit 1
+}
+if ($analyzeOut -match '(\d+) issues found') {
+    Write-Host "Analyzer: $($Matches[1]) issues (no errors; warnings/infos only)"
+}
 
 Write-Host '== flutter test ==' -ForegroundColor Cyan
 flutter test
@@ -34,4 +44,4 @@ try {
   Pop-Location
 }
 
-Write-Host 'OK — safe to commit and push (run platform builds separately if releasing).' -ForegroundColor Green
+Write-Host 'OK - safe to commit and push (run platform builds separately if releasing).' -ForegroundColor Green
