@@ -13,6 +13,7 @@ import 'order_customer_history.dart';
 import 'order_summary.dart';
 import 'seed_data.dart';
 import 'catalog/catalog_order_snapshot.dart';
+import 'style/order_style_snapshot_persist.dart';
 import 'sync_pull_payload.dart';
 import '../../core/sync/sync_conflict_helpers.dart';
 
@@ -21,6 +22,7 @@ class MemoryOrderRepository implements OrderListRepository {
   final List<OrderSummary> _orders = [];
   final Map<String, OrderMeasurementSnapshotView> _measurementSnapshotsByOrder =
       {};
+  final Map<String, OrderStyleSnapshotView> _styleSnapshotsByOrder = {};
   final _controller = StreamController<List<OrderSummary>>.broadcast();
   final _snapshotController = StreamController<void>.broadcast();
   final _uuid = const Uuid();
@@ -108,6 +110,25 @@ class MemoryOrderRepository implements OrderListRepository {
     _snapshotController.add(null);
   }
 
+  void _persistStyleSnapshot({
+    required String orderInternalId,
+    required String styleName,
+    String? styleNameInternalId,
+    required String styleSelectionJson,
+  }) {
+    _styleSnapshotsByOrder.remove(orderInternalId);
+    final view = buildOrderStyleSnapshotView(
+      orderInternalId: orderInternalId,
+      styleName: styleName,
+      styleNameInternalId: styleNameInternalId,
+      styleSelectionJson: styleSelectionJson,
+      snapshotInternalId: _uuid.v4(),
+    );
+    if (view != null) {
+      _styleSnapshotsByOrder[orderInternalId] = view;
+    }
+  }
+
   @override
   Future<void> seedIfEmpty() async {
     if (_orders.isNotEmpty) return;
@@ -188,7 +209,10 @@ class MemoryOrderRepository implements OrderListRepository {
     String orderInternalId,
   ) async* {
     await seedIfEmpty();
-    yield null;
+    yield _styleSnapshotsByOrder[orderInternalId];
+    await for (final _ in _snapshotController.stream) {
+      yield _styleSnapshotsByOrder[orderInternalId];
+    }
   }
 
   @override
@@ -328,6 +352,14 @@ class MemoryOrderRepository implements OrderListRepository {
       );
       _emitSnapshots();
     }
+
+    _persistStyleSnapshot(
+      orderInternalId: internalId,
+      styleName: styleName.trim(),
+      styleNameInternalId: styleNameInternalId,
+      styleSelectionJson: styleSelectionJson,
+    );
+    _emitSnapshots();
 
     _emitOrders();
     return internalId;
@@ -537,6 +569,20 @@ class MemoryOrderRepository implements OrderListRepository {
         }
         _emitSnapshots();
       }
+
+      if (styleName != null ||
+          styleNameInternalId != null ||
+          styleSelectionJson != null ||
+          styleSummary != null) {
+        final updated = _orders[i];
+        _persistStyleSnapshot(
+          orderInternalId: orderInternalId,
+          styleName: updated.styleName,
+          styleNameInternalId: updated.styleNameInternalId,
+          styleSelectionJson: updated.styleSelectionJson,
+        );
+        _emitSnapshots();
+      }
       _emitOrders();
       return;
     }
@@ -553,6 +599,7 @@ class MemoryOrderRepository implements OrderListRepository {
   Future<void> softDeleteOrder(String orderInternalId) async {
     _orders.removeWhere((o) => o.internalId == orderInternalId);
     _measurementSnapshotsByOrder.remove(orderInternalId);
+    _styleSnapshotsByOrder.remove(orderInternalId);
     _emitOrders();
     _emitSnapshots();
   }
@@ -573,6 +620,7 @@ class MemoryOrderRepository implements OrderListRepository {
     if (operation == 'delete') {
       _orders.removeWhere((o) => o.internalId == internalId);
       _measurementSnapshotsByOrder.remove(internalId);
+      _styleSnapshotsByOrder.remove(internalId);
       _emitOrders();
       _emitSnapshots();
       return;
@@ -801,6 +849,13 @@ class MemoryOrderRepository implements OrderListRepository {
     } else {
       _orders[idx] = row;
     }
+    _persistStyleSnapshot(
+      orderInternalId: internalId,
+      styleName: row.styleName,
+      styleNameInternalId: row.styleNameInternalId,
+      styleSelectionJson: row.styleSelectionJson,
+    );
     _emitOrders();
+    _emitSnapshots();
   }
 }

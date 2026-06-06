@@ -5,8 +5,11 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../../data/local/order_measurement_snapshot_view.dart';
+import '../../data/local/order_style_snapshot_view.dart';
 import '../../data/local/order_summary.dart';
 import '../../data/local/payment_summary.dart';
+import '../../data/local/style/order_shape_selection_formatter.dart';
+import '../../data/local/style_figure_summary.dart';
 import '../../features/reports/report_money_format.dart';
 import '../../features/settings/shop_profile.dart';
 import '../../l10n/app_localizations.dart';
@@ -41,6 +44,8 @@ Future<Uint8List> buildOrderInvoicePdf({
   required pw.TextDirection textDirection,
   InvoicePdfDesignRail? designRail,
   OrderMeasurementSnapshotView? measurementSnap,
+  OrderStyleSnapshotView? styleSnap,
+  List<StyleFigureSummary> catalogFigures = const [],
 }) async {
   final fonts = await InvoicePdfFonts.load();
   final branding = ReceiptBranding.fromShop(
@@ -64,9 +69,23 @@ Future<Uint8List> buildOrderInvoicePdf({
   final paid = reportFormatMoney(l10n, order.paidAmountMinor);
   final balance = reportFormatMoney(l10n, order.remainingAmountMinor);
 
-  final styleText = order.styleSummary.trim().isNotEmpty
-      ? order.styleSummary.trim()
-      : order.styleName.trim();
+  final styleDisplay = formatOrderShapeSelectionDisplay(
+    snapshot: styleSnap,
+    styleName: order.styleName,
+    styleSelectionJson: order.styleSelectionJson,
+    styleSummary: order.styleSummary,
+    catalogFigures: catalogFigures,
+    labels: OrderShapeSelectionFormatLabels(
+      mainStyle: l10n.orderStyleDisplayMainStyleLabel,
+      shape: l10n.orderStyleDisplayShapeLabel,
+      preset: l10n.orderStyleDisplayPresetLabel,
+      text: l10n.orderStyleDisplayTextLabel,
+      size: l10n.orderStyleDisplaySizeLabel,
+    ),
+  );
+  final styleText = styleDisplay.detailedText.trim().isNotEmpty
+      ? styleDisplay.detailedText.trim()
+      : styleDisplay.summaryFallbackText.trim();
 
   final measurementsBody = formatInvoiceMeasurementsBody(
     l10n: l10n,
@@ -123,7 +142,7 @@ Future<Uint8List> buildOrderInvoicePdf({
                 ],
                 if (_hasDesignSectionContent(
                   order: order,
-                  styleText: styleText,
+                  styleDisplay: styleDisplay,
                   rail: rail,
                 )) ...[
                   pw.SizedBox(height: kInvoicePdfSectionGap),
@@ -184,10 +203,10 @@ Future<Uint8List> buildOrderInvoicePdf({
 
 bool _hasDesignSectionContent({
   required OrderSummary order,
-  required String styleText,
+  required OrderShapeSelectionDisplay styleDisplay,
   required InvoicePdfDesignRail rail,
 }) {
-  return styleText.isNotEmpty ||
+  return !styleDisplay.isEmpty ||
       order.hasCustomerFabric ||
       order.catalogDesignNameSnapshot.trim().isNotEmpty ||
       order.catalogDesignerShopNameSnapshot.trim().isNotEmpty ||

@@ -4,9 +4,10 @@ import '../../data/local/measurement_profile_formatting.dart';
 import '../../data/local/order_measurement_snapshot_view.dart';
 import '../../data/local/order_style_snapshot_view.dart';
 import '../../data/local/order_summary.dart';
-import '../../data/local/style/order_style_figures_resolver.dart';
+import '../../data/local/style/order_shape_selection_formatter.dart';
 import '../../data/local/style_figure_summary.dart';
 import '../../data/providers/local_data_providers.dart';
+import 'style_figure_raster.dart';
 import 'thermal_receipt_escpos.dart';
 
 /// Style label + figure rows for receipts (DB snapshot first, then order fields).
@@ -55,12 +56,15 @@ String? formatReceiptStyleBody({
   required OrderSummary order,
   OrderStyleSnapshotView? styleSnap,
   List<StyleFigureSummary> catalogFigures = const [],
+  OrderShapeSelectionFormatLabels labels =
+      OrderShapeSelectionFormatLabels.defaults,
 }) {
   final content = resolveOrderReceiptStyleContent(
     order: order,
     styleSnap: styleSnap,
     catalogFigures: catalogFigures,
     styleLabel: '',
+    formatLabels: labels,
   );
   final line = content.styleLine?.trim();
   if (line == null || line.isEmpty) return null;
@@ -72,41 +76,34 @@ OrderReceiptStyleContent resolveOrderReceiptStyleContent({
   OrderStyleSnapshotView? styleSnap,
   List<StyleFigureSummary> catalogFigures = const [],
   required String styleLabel,
+  OrderShapeSelectionFormatLabels formatLabels =
+      OrderShapeSelectionFormatLabels.defaults,
 }) {
-  final buf = StringBuffer();
-  final name = (styleSnap?.styleNameSnapshot ?? order.styleName).trim();
-  if (name.isNotEmpty) {
-    buf.writeln(name);
+  final display = formatOrderShapeSelectionDisplay(
+    snapshot: styleSnap,
+    styleName: order.styleName,
+    styleSelectionJson: order.styleSelectionJson,
+    styleSummary: order.styleSummary,
+    catalogFigures: catalogFigures,
+    labels: formatLabels,
+  );
+
+  if (display.isEmpty) {
+    return const OrderReceiptStyleContent(styleLine: null, figures: []);
   }
 
-  final receiptFigures = <ReceiptStyleFigure>[];
-  final snapFigures = styleSnap?.figures ?? [];
-  if (snapFigures.isNotEmpty) {
-    for (final f in snapFigures) {
-      final label = f.figureNameSnapshot.trim();
-      if (label.isNotEmpty) buf.writeln(label);
-      receiptFigures.add(ReceiptStyleFigure(name: label));
-    }
-  } else {
-    final selected = resolveOrderStyleFigures(
-      styleSelectionJson: order.styleSelectionJson,
-      allFigures: catalogFigures,
-    );
-    for (final f in selected) {
-      final label = f.name.trim();
-      if (label.isNotEmpty) buf.writeln(label);
-      receiptFigures.add(ReceiptStyleFigure(name: label));
-    }
-    if (receiptFigures.isEmpty && order.styleSummary.trim().isNotEmpty) {
-      buf.write(order.styleSummary.trim());
-    }
-  }
+  final body = display.detailedText.trim().isNotEmpty
+      ? display.detailedText.trim()
+      : display.summaryFallbackText.trim();
 
-  final text = buf.toString().trim();
+  final receiptFigures = display.figures
+      .map((figure) => ReceiptStyleFigure(name: figure.shapeName))
+      .toList(growable: false);
+
   return OrderReceiptStyleContent(
-    styleLine: text.isEmpty
+    styleLine: body.isEmpty
         ? null
-        : (text.contains('\n') ? '$styleLabel:\n$text' : '$styleLabel: $text'),
+        : (body.contains('\n') ? '$styleLabel:\n$body' : '$styleLabel: $body'),
     figures: receiptFigures,
   );
 }
@@ -115,6 +112,7 @@ OrderReceiptStyleContent watchOrderReceiptStyleContent(
   WidgetRef ref,
   OrderSummary order,
   String styleLabel,
+  OrderShapeSelectionFormatLabels formatLabels,
 ) {
   final styleSnap =
       ref.read(orderStyleSnapshotProvider(order.internalId)).valueOrNull;
@@ -125,5 +123,25 @@ OrderReceiptStyleContent watchOrderReceiptStyleContent(
     styleSnap: styleSnap,
     catalogFigures: catalogFigures,
     styleLabel: styleLabel,
+    formatLabels: formatLabels,
   );
+}
+
+/// Loads figure images for thermal output without repeating names in text.
+Future<List<ReceiptStyleFigure>> loadReceiptStyleFigureImages({
+  required OrderShapeSelectionDisplay display,
+  required int maxWidthPx,
+}) async {
+  final out = <ReceiptStyleFigure>[];
+  for (final figure in display.figures) {
+    if (figure.imageRef.trim().isEmpty) continue;
+    final image = await loadStyleFigureRaster(
+      imageRef: figure.imageRef,
+      maxWidthPx: maxWidthPx,
+    );
+    if (image != null) {
+      out.add(ReceiptStyleFigure(image: image));
+    }
+  }
+  return out;
 }

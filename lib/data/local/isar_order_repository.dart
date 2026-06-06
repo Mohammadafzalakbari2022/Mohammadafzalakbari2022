@@ -15,11 +15,13 @@ import 'order_measurement_snapshot_item_input.dart';
 import 'entities/order_style_snapshot_entity.dart';
 import 'entities/order_style_snapshot_figure_entity.dart';
 import 'order_measurement_snapshot_view.dart';
+import 'order_style_snapshot_figure_input.dart';
 import 'order_style_snapshot_view.dart';
 import 'order_customer_history.dart';
 import 'order_summary.dart';
 import 'seed_data.dart';
 import 'catalog/catalog_order_snapshot.dart';
+import 'style/order_style_snapshot_persist.dart';
 import 'sync_pull_payload.dart';
 import '../../core/sync/sync_conflict_helpers.dart';
 
@@ -242,12 +244,40 @@ class IsarOrderRepository implements OrderListRepository {
         .findAll();
     final figures = figureRows
         .map(
-          (e) => OrderStyleSnapshotFigureView(
-            styleFigureInternalId: e.styleFigureInternalId,
-            figureNameSnapshot: e.figureNameSnapshot,
-            imageRefSnapshot: e.imageRefSnapshot,
-            sortOrder: e.sortOrder,
-          ),
+          (e) {
+            final textOptions = decodeOrderShapeOptionSnapshots(
+              e.textOptionsSnapshotJson,
+            );
+            final sizeOptions = decodeOrderShapeSizeSnapshots(
+              e.sizeOptionsSnapshotJson,
+            );
+            return OrderStyleSnapshotFigureView(
+              styleFigureInternalId: e.styleFigureInternalId,
+              figureNameSnapshot: e.figureNameSnapshot,
+              imageRefSnapshot: e.imageRefSnapshot,
+              sortOrder: e.sortOrder,
+              presetInternalIdSnapshot: e.presetInternalIdSnapshot,
+              presetNameSnapshot: e.presetNameSnapshot,
+              textOptions: textOptions
+                  .map(
+                    (opt) => OrderShapeOptionSnapshotView(
+                      id: opt.id,
+                      labelSnapshot: opt.labelSnapshot,
+                    ),
+                  )
+                  .toList(growable: false),
+              sizeOptions: sizeOptions
+                  .map(
+                    (opt) => OrderShapeSizeSnapshotView(
+                      id: opt.id,
+                      valueSnapshot: opt.valueSnapshot,
+                      labelSnapshot: opt.labelSnapshot,
+                      unitSnapshot: opt.unitSnapshot,
+                    ),
+                  )
+                  .toList(growable: false),
+            );
+          },
         )
         .toList();
     return OrderStyleSnapshotView(
@@ -479,6 +509,17 @@ class IsarOrderRepository implements OrderListRepository {
           items: snap,
         );
       }
+      final figures = await loadStyleFiguresForShop(_isar, shopId);
+      await persistOrderStyleSnapshotInTxn(
+        isar: _isar,
+        shopId: shopId,
+        orderInternalId: internalId,
+        styleName: styleName,
+        styleNameInternalId: styleNameInternalId,
+        styleSelectionJson: styleSelectionJson,
+        allFigures: figures,
+        newSnapshotInternalId: () => _uuid.v4(),
+      );
     });
     return internalId;
   }
@@ -708,6 +749,24 @@ class IsarOrderRepository implements OrderListRepository {
             items: measurementSnapshotItems,
           );
         }
+      }
+
+      final styleFieldsChanged = styleName != null ||
+          styleNameInternalId != null ||
+          styleSelectionJson != null ||
+          styleSummary != null;
+      if (styleFieldsChanged) {
+        final figures = await loadStyleFiguresForShop(_isar, e.shopId);
+        await persistOrderStyleSnapshotInTxn(
+          isar: _isar,
+          shopId: e.shopId,
+          orderInternalId: orderInternalId,
+          styleName: e.styleName,
+          styleNameInternalId: e.styleNameInternalId,
+          styleSelectionJson: e.styleSelectionJson,
+          allFigures: figures,
+          newSnapshotInternalId: () => _uuid.v4(),
+        );
       }
     });
   }
@@ -1047,6 +1106,17 @@ class IsarOrderRepository implements OrderListRepository {
         e.createdAt ??= createdAt;
       }
       await _isar.orderEntitys.putByInternalId(e);
+      final figures = await loadStyleFiguresForShop(_isar, shopId);
+      await persistOrderStyleSnapshotInTxn(
+        isar: _isar,
+        shopId: shopId,
+        orderInternalId: internalId,
+        styleName: e.styleName,
+        styleNameInternalId: e.styleNameInternalId,
+        styleSelectionJson: e.styleSelectionJson,
+        allFigures: figures,
+        newSnapshotInternalId: () => _uuid.v4(),
+      );
     });
   }
 }

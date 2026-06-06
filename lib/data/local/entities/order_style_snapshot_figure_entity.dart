@@ -21,6 +21,16 @@ class OrderStyleSnapshotFigureEntity {
   /// Asset path or local file ref at order time (see [StyleFigureSummary.imageRef]).
   late String imageRefSnapshot;
 
+  String? presetInternalIdSnapshot;
+
+  String presetNameSnapshot = '';
+
+  /// JSON array of frozen text option snapshots.
+  String textOptionsSnapshotJson = '[]';
+
+  /// JSON array of frozen inch-size option snapshots.
+  String sizeOptionsSnapshotJson = '[]';
+
   @Index()
   late int sortOrder;
 }

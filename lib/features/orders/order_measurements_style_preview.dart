@@ -1,12 +1,15 @@
 import '../../data/local/order_measurement_snapshot_view.dart';
 import '../../data/local/order_style_snapshot_view.dart';
 import '../../data/local/order_summary.dart';
+import '../../data/local/style/order_shape_selection_formatter.dart';
 
 /// One-line preview for order lists (customer history, etc.).
 String orderMeasurementsStylePreview({
   required OrderSummary order,
   OrderMeasurementSnapshotView? measurementSnap,
   OrderStyleSnapshotView? styleSnap,
+  OrderShapeSelectionFormatLabels labels =
+      OrderShapeSelectionFormatLabels.defaults,
 }) {
   final parts = <String>[];
 
@@ -15,8 +18,7 @@ String orderMeasurementsStylePreview({
     parts.add(
       items
           .map(
-            (it) =>
-                '${it.typeName}: ${it.value.trim()}',
+            (it) => '${it.typeName}: ${it.value.trim()}',
           )
           .join(' · '),
     );
@@ -25,21 +27,16 @@ String orderMeasurementsStylePreview({
     parts.add(line);
   }
 
-  final styleName =
-      (styleSnap?.styleNameSnapshot ?? order.styleName).trim();
-  if (styleName.isNotEmpty) {
-    parts.add(styleName);
-  }
-
-  final figureNames = styleSnap?.figures
-          .map((f) => f.figureNameSnapshot.trim())
-          .where((n) => n.isNotEmpty)
-          .toList() ??
-      [];
-  if (figureNames.isNotEmpty) {
-    parts.add(figureNames.join(' · '));
-  } else if (order.styleSummary.trim().isNotEmpty) {
-    parts.add(order.styleSummary.trim().replaceAll('\n', ' · '));
+  final styleDisplay = formatOrderShapeSelectionDisplay(
+    snapshot: styleSnap,
+    styleName: order.styleName,
+    styleSelectionJson: order.styleSelectionJson,
+    styleSummary: order.styleSummary,
+    labels: labels,
+  );
+  final stylePreview = styleDisplay.compactPreview.trim();
+  if (stylePreview.isNotEmpty) {
+    parts.add(stylePreview);
   }
 
   if (parts.isEmpty) return '';

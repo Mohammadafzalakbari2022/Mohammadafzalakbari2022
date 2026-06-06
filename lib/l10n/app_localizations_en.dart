@@ -478,6 +478,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ordersDetailSectionStyle => 'Style';
 
   @override
+  String get orderStyleDisplayMainStyleLabel => 'Style';
+
+  @override
+  String get orderStyleDisplayShapeLabel => 'Shape';
+
+  @override
+  String get orderStyleDisplayPresetLabel => 'Preset';
+
+  @override
+  String get orderStyleDisplayTextLabel => 'Text';
+
+  @override
+  String get orderStyleDisplaySizeLabel => 'Size';
+
+  @override
+  String get orderStyleDetailsTitle => 'Style details';
+
+  @override
   String get ordersDetailSectionInternalNotes => 'Internal notes';
 
   @override
@@ -1875,6 +1893,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ordersComposerStyleClearFigures => 'Clear all selections';
 
   @override
+  String get ordersComposerShapeConfigureTitle => 'Configure selected shapes';
+
+  @override
+  String get ordersComposerShapePresetsTitle => 'Quick presets';
+
+  @override
+  String get ordersComposerShapeTextOptionsTitle => 'Text options';
+
+  @override
+  String get ordersComposerShapeSizeOptionsTitle => 'Inch-size options';
+
+  @override
+  String get ordersComposerShapeSelectedDetailsTitle => 'Selected details';
+
+  @override
+  String get ordersComposerShapeNoPresets => 'No presets configured';
+
+  @override
+  String get ordersComposerShapeNoTextOptions => 'No text options configured';
+
+  @override
+  String get ordersComposerShapeNoSizeOptions => 'No inch options configured';
+
+  @override
+  String get ordersComposerShapeClearPreset => 'Clear preset';
+
+  @override
+  String get ordersComposerShapeInactiveHint =>
+      'Inactive in settings — still kept for this order';
+
+  @override
   String get ordersComposerCatalogDesignTitle => 'Complete design from catalog';
 
   @override
@@ -1921,7 +1970,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsStyleTileTitle => 'Order style';
 
   @override
-  String get settingsStyleTileSubtitle => 'Style names and design figures';
+  String get settingsStyleTileSubtitle =>
+      'Style names, shape options, and design figures';
 
   @override
   String get settingsFabricHubTitle => 'Customer fabric';
@@ -2041,7 +2091,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsStyleFiguresTitle => 'Design figures';
 
   @override
-  String get settingsStyleFiguresSubtitle => 'All tailoring design images';
+  String get settingsStyleFiguresSubtitle =>
+      'Shape names, text options, inch sizes, and presets';
 
   @override
   String get settingsStyleFiguresEmpty => 'No design figures yet.';
@@ -2053,7 +2104,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsStyleFigureAddCta => 'Add figure';
 
   @override
-  String get settingsStyleFigureNameLabel => 'Figure name';
+  String get settingsStyleFigureNameLabel => 'Shape name';
 
   @override
   String get settingsStyleFigureDeleteTitle => 'Delete figure?';
@@ -2065,6 +2116,141 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsStyleFigureWebOnlyBody =>
       'Adding custom images is available on Android and iOS. Bundled figures still work on web.';
+
+  @override
+  String get settingsStyleFigureTapToConfigure => 'Tap to configure';
+
+  @override
+  String get settingsStyleFigureDetailTitle => 'Configure shape';
+
+  @override
+  String get settingsStyleFigurePreviewTitle => 'Shape preview';
+
+  @override
+  String get settingsStyleFigureNotFound => 'Shape not found.';
+
+  @override
+  String get settingsStyleFigureSaved => 'Shape settings saved.';
+
+  @override
+  String get settingsStyleFigureSortOrderLabel => 'Sort order';
+
+  @override
+  String get settingsStyleFigureSortOrderInvalid =>
+      'Enter a valid sort order number.';
+
+  @override
+  String get settingsStyleFigureActiveLabel => 'Active';
+
+  @override
+  String get settingsStyleFigureBundledHint =>
+      'Built-in shapes cannot be deleted. Deactivate instead if you do not need this shape.';
+
+  @override
+  String get settingsStyleFigureBundledDeleteBlocked =>
+      'Built-in shapes cannot be deleted. Deactivate instead.';
+
+  @override
+  String settingsStyleFigureNameHelper(String name) {
+    return 'Display name: $name';
+  }
+
+  @override
+  String get settingsStyleFigureTextOptionsTitle => 'Text options';
+
+  @override
+  String get settingsStyleFigureTextOptionsEmpty => 'No text options yet.';
+
+  @override
+  String get settingsStyleFigureTextOptionAddCta => 'Add text option';
+
+  @override
+  String get settingsStyleFigureTextOptionEditTitle => 'Edit text option';
+
+  @override
+  String get settingsStyleFigureTextOptionLabelField => 'Label';
+
+  @override
+  String get settingsStyleFigureTextOptionDeleteTitle => 'Delete text option?';
+
+  @override
+  String get settingsStyleFigureTextOptionDeleteBody =>
+      'This removes the option from the catalog. Existing orders are not changed.';
+
+  @override
+  String get settingsStyleFigureSizeOptionsTitle => 'Inch-size options';
+
+  @override
+  String get settingsStyleFigureSizeOptionsEmpty => 'No inch-size options yet.';
+
+  @override
+  String get settingsStyleFigureSizeOptionAddCta => 'Add inch option';
+
+  @override
+  String get settingsStyleFigureSizeOptionEditTitle => 'Edit inch option';
+
+  @override
+  String get settingsStyleFigureSizeOptionLabelField => 'Label';
+
+  @override
+  String get settingsStyleFigureValueInchesLabel => 'Value in inches';
+
+  @override
+  String get settingsStyleFigureSizeOptionDeleteTitle => 'Delete inch option?';
+
+  @override
+  String get settingsStyleFigureSizeOptionDeleteBody =>
+      'This removes the option from the catalog. Existing orders are not changed.';
+
+  @override
+  String get settingsStyleFigureLabelRequired => 'Label is required.';
+
+  @override
+  String get settingsStyleFigureValuePositiveRequired =>
+      'Value must be greater than zero.';
+
+  @override
+  String get settingsStyleFigurePresetsTitle => 'Presets';
+
+  @override
+  String get settingsStyleFigurePresetsEmpty => 'No presets yet.';
+
+  @override
+  String get settingsStyleFigurePresetAddCta => 'Add preset';
+
+  @override
+  String get settingsStyleFigurePresetEditTitle => 'Edit preset';
+
+  @override
+  String get settingsStyleFigurePresetNameLabel => 'Preset name';
+
+  @override
+  String get settingsStyleFigurePresetNameRequired =>
+      'Preset name is required.';
+
+  @override
+  String get settingsStyleFigurePresetSelectTextOptions =>
+      'Select text options';
+
+  @override
+  String get settingsStyleFigurePresetSelectSizeOptions =>
+      'Select inch options';
+
+  @override
+  String get settingsStyleFigurePresetDeleteTitle => 'Delete preset?';
+
+  @override
+  String get settingsStyleFigurePresetDeleteBody =>
+      'This removes the preset from the catalog. Existing orders are not changed.';
+
+  @override
+  String settingsStyleFigurePresetSummary(
+    int textCount,
+    int sizeCount,
+    String status,
+  ) {
+    return '$textCount text · $sizeCount inch · $status';
+  }
 
   @override
   String get settingsStyleActiveLabel => 'Active';

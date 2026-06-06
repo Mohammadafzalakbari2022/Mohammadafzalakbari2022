@@ -11,6 +11,7 @@ import 'package:pride_v3/l10n/app_localizations.dart';
 import '../../auth/auth_providers.dart';
 import '../../data/local/customer_summary.dart';
 import '../../data/local/entities/order_status.dart';
+import '../../data/local/style/order_shape_selection_formatter.dart';
 import '../../data/providers/local_data_providers.dart';
 import 'order_list_tile.dart';
 import 'order_payment_rules.dart';
@@ -320,6 +321,13 @@ class _OrdersFilteredListBodyState extends ConsumerState<OrdersFilteredListBody>
                     isSelected: isSelected,
                     detailed: detailed,
                     formatMoney: (minor) => _formatMoney(l10n, minor),
+                    stylePreviewLine: detailed
+                        ? formatOrderShapeSelectionDisplay(
+                            styleName: o.styleName,
+                            styleSelectionJson: o.styleSelectionJson,
+                            styleSummary: o.styleSummary,
+                          ).compactPreview
+                        : null,
                     onTap: () {
                       if (isSelected) {
                         context.push('/app/orders/${o.internalId}');

@@ -24,6 +24,12 @@ abstract final class SyncOutboxKinds {
   static const stylePartDelete = 'style_part_delete';
   static const styleFigureUpsert = 'style_figure_upsert';
   static const styleFigureDelete = 'style_figure_delete';
+  static const styleFigureTextOptionUpsert = 'style_figure_text_option_upsert';
+  static const styleFigureTextOptionDelete = 'style_figure_text_option_delete';
+  static const styleFigureSizeOptionUpsert = 'style_figure_size_option_upsert';
+  static const styleFigureSizeOptionDelete = 'style_figure_size_option_delete';
+  static const styleFigurePresetUpsert = 'style_figure_preset_upsert';
+  static const styleFigurePresetDelete = 'style_figure_preset_delete';
   static const fabricNameUpsert = 'fabric_name_upsert';
   static const fabricNameDelete = 'fabric_name_delete';
   static const fabricColorUpsert = 'fabric_color_upsert';

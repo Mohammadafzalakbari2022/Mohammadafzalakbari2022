@@ -2,10 +2,15 @@ import 'dart:async';
 
 import 'package:uuid/uuid.dart';
 
+import 'measurement_unit_codes.dart';
 import 'seed_data.dart';
 import 'style/style_figure_image_ref.dart';
 import 'style_catalog_repository.dart';
+import 'style_figure_config_summary.dart';
+import 'style_figure_preset_summary.dart';
+import 'style_figure_size_option_summary.dart';
 import 'style_figure_summary.dart';
+import 'style_figure_text_option_summary.dart';
 import 'style_name_summary.dart';
 import 'style_part_summary.dart';
 import 'sync_pull_payload.dart';
@@ -14,14 +19,28 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
   final List<StyleNameSummary> _names = [];
   final List<StylePartSummary> _parts = [];
   final List<StyleFigureSummary> _figures = [];
+  final List<StyleFigureTextOptionSummary> _textOptions = [];
+  final List<StyleFigureSizeOptionSummary> _sizeOptions = [];
+  final List<StyleFigurePresetSummary> _presets = [];
   final _namesCtrl = StreamController<List<StyleNameSummary>>.broadcast();
   final _partsCtrl = StreamController<List<StylePartSummary>>.broadcast();
   final _figuresCtrl = StreamController<List<StyleFigureSummary>>.broadcast();
+  final _textCtrl =
+      StreamController<List<StyleFigureTextOptionSummary>>.broadcast();
+  final _sizeCtrl =
+      StreamController<List<StyleFigureSizeOptionSummary>>.broadcast();
+  final _presetsCtrl =
+      StreamController<List<StyleFigurePresetSummary>>.broadcast();
   final _uuid = const Uuid();
 
   void _emitNames() => _namesCtrl.add(List.unmodifiable(_names));
   void _emitParts() => _partsCtrl.add(List.unmodifiable(_parts));
   void _emitFigures() => _figuresCtrl.add(List.unmodifiable(_figures));
+  void _emitTextOptions() =>
+      _textCtrl.add(List.unmodifiable(_textOptions));
+  void _emitSizeOptions() =>
+      _sizeCtrl.add(List.unmodifiable(_sizeOptions));
+  void _emitPresets() => _presetsCtrl.add(List.unmodifiable(_presets));
 
   @override
   Future<void> seedIfEmpty(String shopId) async {
@@ -408,8 +427,296 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
 
   @override
   Future<void> softDeleteStyleFigure(String internalId) async {
-    _figures.removeWhere((e) => e.internalId == internalId);
+    final i = _figures.indexWhere((e) => e.internalId == internalId);
+    if (i < 0) return;
+    if (StyleFigureImageRef.isBundledAssetRef(_figures[i].imageRef)) return;
+    _figures.removeAt(i);
+    _textOptions.removeWhere((e) => e.styleFigureInternalId == internalId);
+    _sizeOptions.removeWhere((e) => e.styleFigureInternalId == internalId);
+    _presets.removeWhere((e) => e.styleFigureInternalId == internalId);
     _emitFigures();
+    _emitTextOptions();
+    _emitSizeOptions();
+    _emitPresets();
+  }
+
+  List<StyleFigureTextOptionSummary> _textOptionsFor(
+    String shopId,
+    String styleFigureInternalId,
+  ) =>
+      _textOptions
+          .where(
+            (e) =>
+                e.shopId == shopId &&
+                e.styleFigureInternalId == styleFigureInternalId,
+          )
+          .toList()
+        ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+
+  List<StyleFigureSizeOptionSummary> _sizeOptionsFor(
+    String shopId,
+    String styleFigureInternalId,
+  ) =>
+      _sizeOptions
+          .where(
+            (e) =>
+                e.shopId == shopId &&
+                e.styleFigureInternalId == styleFigureInternalId,
+          )
+          .toList()
+        ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+
+  List<StyleFigurePresetSummary> _presetsFor(
+    String shopId,
+    String styleFigureInternalId,
+  ) =>
+      _presets
+          .where(
+            (e) =>
+                e.shopId == shopId &&
+                e.styleFigureInternalId == styleFigureInternalId,
+          )
+          .toList()
+        ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+
+  @override
+  Stream<List<StyleFigureTextOptionSummary>> watchTextOptionsForFigure(
+    String shopId,
+    String styleFigureInternalId,
+  ) async* {
+    await seedIfEmpty(shopId);
+    yield _textOptionsFor(shopId, styleFigureInternalId);
+    yield* _textCtrl.stream
+        .map((_) => _textOptionsFor(shopId, styleFigureInternalId));
+  }
+
+  @override
+  Stream<List<StyleFigureSizeOptionSummary>> watchSizeOptionsForFigure(
+    String shopId,
+    String styleFigureInternalId,
+  ) async* {
+    await seedIfEmpty(shopId);
+    yield _sizeOptionsFor(shopId, styleFigureInternalId);
+    yield* _sizeCtrl.stream
+        .map((_) => _sizeOptionsFor(shopId, styleFigureInternalId));
+  }
+
+  @override
+  Stream<List<StyleFigurePresetSummary>> watchPresetsForFigure(
+    String shopId,
+    String styleFigureInternalId,
+  ) async* {
+    await seedIfEmpty(shopId);
+    yield _presetsFor(shopId, styleFigureInternalId);
+    yield* _presetsCtrl.stream
+        .map((_) => _presetsFor(shopId, styleFigureInternalId));
+  }
+
+  @override
+  Future<Map<String, StyleFigureConfigSummary>> loadAllFigureConfigs(
+    String shopId, {
+    bool activeFiguresOnly = false,
+  }) async {
+    await seedIfEmpty(shopId);
+    final figures = _figuresFor(shopId);
+    final filtered =
+        activeFiguresOnly ? figures.where((f) => f.isActive) : figures;
+    final result = <String, StyleFigureConfigSummary>{};
+    for (final figure in filtered) {
+      result[figure.internalId] = StyleFigureConfigSummary(
+        figure: figure,
+        textOptions: _textOptionsFor(shopId, figure.internalId),
+        sizeOptions: _sizeOptionsFor(shopId, figure.internalId),
+        presets: _presetsFor(shopId, figure.internalId),
+      );
+    }
+    return result;
+  }
+
+  int _nextOptionSortOrder<T>(
+    Iterable<T> items,
+    int Function(T) readSortOrder,
+  ) =>
+      _maxOrder(items, readSortOrder);
+
+  List<String> _cleanIds(List<String> ids) =>
+      ids.map((e) => e.trim()).where((e) => e.isNotEmpty).toList(growable: false);
+
+  @override
+  Future<String> createStyleFigureTextOption({
+    required String shopId,
+    required String styleFigureInternalId,
+    required String label,
+    int? sortOrder,
+  }) async {
+    final id = _uuid.v4();
+    _textOptions.add(
+      StyleFigureTextOptionSummary(
+        internalId: id,
+        shopId: shopId,
+        styleFigureInternalId: styleFigureInternalId,
+        label: label.trim(),
+        sortOrder: sortOrder ??
+            _nextOptionSortOrder(
+              _textOptionsFor(shopId, styleFigureInternalId),
+              (e) => e.sortOrder,
+            ),
+        isActive: true,
+      ),
+    );
+    _emitTextOptions();
+    return id;
+  }
+
+  @override
+  Future<void> updateStyleFigureTextOption({
+    required String internalId,
+    String? label,
+    int? sortOrder,
+    bool? isActive,
+  }) async {
+    final i = _textOptions.indexWhere((e) => e.internalId == internalId);
+    if (i < 0) return;
+    final old = _textOptions[i];
+    _textOptions[i] = StyleFigureTextOptionSummary(
+      internalId: old.internalId,
+      shopId: old.shopId,
+      styleFigureInternalId: old.styleFigureInternalId,
+      label: label?.trim().isNotEmpty == true ? label!.trim() : old.label,
+      sortOrder: sortOrder ?? old.sortOrder,
+      isActive: isActive ?? old.isActive,
+    );
+    _emitTextOptions();
+  }
+
+  @override
+  Future<void> softDeleteStyleFigureTextOption(String internalId) async {
+    _textOptions.removeWhere((e) => e.internalId == internalId);
+    _emitTextOptions();
+  }
+
+  @override
+  Future<String> createStyleFigureSizeOption({
+    required String shopId,
+    required String styleFigureInternalId,
+    required String label,
+    required double valueInches,
+    int? unitCode,
+    int? sortOrder,
+  }) async {
+    final id = _uuid.v4();
+    _sizeOptions.add(
+      StyleFigureSizeOptionSummary(
+        internalId: id,
+        shopId: shopId,
+        styleFigureInternalId: styleFigureInternalId,
+        label: label.trim(),
+        valueInches: valueInches,
+        unitCode: unitCode ?? MeasurementUnitCodes.inch,
+        sortOrder: sortOrder ??
+            _nextOptionSortOrder(
+              _sizeOptionsFor(shopId, styleFigureInternalId),
+              (e) => e.sortOrder,
+            ),
+        isActive: true,
+      ),
+    );
+    _emitSizeOptions();
+    return id;
+  }
+
+  @override
+  Future<void> updateStyleFigureSizeOption({
+    required String internalId,
+    String? label,
+    double? valueInches,
+    int? unitCode,
+    int? sortOrder,
+    bool? isActive,
+  }) async {
+    final i = _sizeOptions.indexWhere((e) => e.internalId == internalId);
+    if (i < 0) return;
+    final old = _sizeOptions[i];
+    _sizeOptions[i] = StyleFigureSizeOptionSummary(
+      internalId: old.internalId,
+      shopId: old.shopId,
+      styleFigureInternalId: old.styleFigureInternalId,
+      label: label?.trim().isNotEmpty == true ? label!.trim() : old.label,
+      valueInches: valueInches ?? old.valueInches,
+      unitCode: unitCode ?? old.unitCode,
+      sortOrder: sortOrder ?? old.sortOrder,
+      isActive: isActive ?? old.isActive,
+    );
+    _emitSizeOptions();
+  }
+
+  @override
+  Future<void> softDeleteStyleFigureSizeOption(String internalId) async {
+    _sizeOptions.removeWhere((e) => e.internalId == internalId);
+    _emitSizeOptions();
+  }
+
+  @override
+  Future<String> createStyleFigurePreset({
+    required String shopId,
+    required String styleFigureInternalId,
+    required String name,
+    List<String>? textOptionInternalIds,
+    List<String>? sizeOptionInternalIds,
+    int? sortOrder,
+  }) async {
+    final id = _uuid.v4();
+    _presets.add(
+      StyleFigurePresetSummary(
+        internalId: id,
+        shopId: shopId,
+        styleFigureInternalId: styleFigureInternalId,
+        name: name.trim(),
+        textOptionInternalIds: _cleanIds(textOptionInternalIds ?? const []),
+        sizeOptionInternalIds: _cleanIds(sizeOptionInternalIds ?? const []),
+        sortOrder: sortOrder ??
+            _nextOptionSortOrder(
+              _presetsFor(shopId, styleFigureInternalId),
+              (e) => e.sortOrder,
+            ),
+        isActive: true,
+      ),
+    );
+    _emitPresets();
+    return id;
+  }
+
+  @override
+  Future<void> updateStyleFigurePreset({
+    required String internalId,
+    String? name,
+    List<String>? textOptionInternalIds,
+    List<String>? sizeOptionInternalIds,
+    int? sortOrder,
+    bool? isActive,
+  }) async {
+    final i = _presets.indexWhere((e) => e.internalId == internalId);
+    if (i < 0) return;
+    final old = _presets[i];
+    _presets[i] = StyleFigurePresetSummary(
+      internalId: old.internalId,
+      shopId: old.shopId,
+      styleFigureInternalId: old.styleFigureInternalId,
+      name: name?.trim().isNotEmpty == true ? name!.trim() : old.name,
+      textOptionInternalIds:
+          textOptionInternalIds != null ? _cleanIds(textOptionInternalIds) : old.textOptionInternalIds,
+      sizeOptionInternalIds:
+          sizeOptionInternalIds != null ? _cleanIds(sizeOptionInternalIds) : old.sizeOptionInternalIds,
+      sortOrder: sortOrder ?? old.sortOrder,
+      isActive: isActive ?? old.isActive,
+    );
+    _emitPresets();
+  }
+
+  @override
+  Future<void> softDeleteStyleFigurePreset(String internalId) async {
+    _presets.removeWhere((e) => e.internalId == internalId);
+    _emitPresets();
   }
 
   @override
@@ -490,5 +797,174 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
         imageRef: imageRef,
       );
     }
+  }
+
+  @override
+  Future<void> mergeRemoteStyleFigureTextOption({
+    required String shopId,
+    required String internalId,
+    required String operation,
+    Object? data,
+  }) async {
+    if (operation == 'delete') {
+      await softDeleteStyleFigureTextOption(internalId);
+      return;
+    }
+    final m = syncPullDataMap(data);
+    final figureId = syncPullString(
+      m,
+      const ['style_figure_internal_id', 'styleFigureInternalId'],
+    );
+    final label = syncPullString(m, const ['label']);
+    if (figureId == null ||
+        figureId.isEmpty ||
+        label == null ||
+        label.trim().isEmpty) {
+      return;
+    }
+    final sortOrder = syncPullInt(m, const ['sort_order', 'sortOrder']);
+    final isActive = syncPullBool(m, const ['is_active', 'isActive']) ?? true;
+    final i = _textOptions.indexWhere((e) => e.internalId == internalId);
+    final resolvedSort = sortOrder ??
+        (i >= 0
+            ? _textOptions[i].sortOrder
+            : _nextOptionSortOrder(
+                _textOptionsFor(shopId, figureId),
+                (e) => e.sortOrder,
+              ));
+    final summary = StyleFigureTextOptionSummary(
+      internalId: internalId,
+      shopId: shopId,
+      styleFigureInternalId: figureId,
+      label: label.trim(),
+      sortOrder: resolvedSort,
+      isActive: isActive,
+    );
+    if (i < 0) {
+      _textOptions.add(summary);
+    } else {
+      _textOptions[i] = summary;
+    }
+    _emitTextOptions();
+  }
+
+  @override
+  Future<void> mergeRemoteStyleFigureSizeOption({
+    required String shopId,
+    required String internalId,
+    required String operation,
+    Object? data,
+  }) async {
+    if (operation == 'delete') {
+      await softDeleteStyleFigureSizeOption(internalId);
+      return;
+    }
+    final m = syncPullDataMap(data);
+    final figureId = syncPullString(
+      m,
+      const ['style_figure_internal_id', 'styleFigureInternalId'],
+    );
+    final label = syncPullString(m, const ['label']);
+    final valueInches = syncPullDouble(
+      m,
+      const ['value_inches', 'valueInches'],
+    );
+    if (figureId == null ||
+        figureId.isEmpty ||
+        label == null ||
+        label.trim().isEmpty ||
+        valueInches == null) {
+      return;
+    }
+    final unitCode = syncPullInt(m, const ['unit_code', 'unitCode']) ??
+        MeasurementUnitCodes.inch;
+    final sortOrder = syncPullInt(m, const ['sort_order', 'sortOrder']);
+    final isActive = syncPullBool(m, const ['is_active', 'isActive']) ?? true;
+    final i = _sizeOptions.indexWhere((e) => e.internalId == internalId);
+    final resolvedSort = sortOrder ??
+        (i >= 0
+            ? _sizeOptions[i].sortOrder
+            : _nextOptionSortOrder(
+                _sizeOptionsFor(shopId, figureId),
+                (e) => e.sortOrder,
+              ));
+    final summary = StyleFigureSizeOptionSummary(
+      internalId: internalId,
+      shopId: shopId,
+      styleFigureInternalId: figureId,
+      label: label.trim(),
+      valueInches: valueInches,
+      unitCode: unitCode,
+      sortOrder: resolvedSort,
+      isActive: isActive,
+    );
+    if (i < 0) {
+      _sizeOptions.add(summary);
+    } else {
+      _sizeOptions[i] = summary;
+    }
+    _emitSizeOptions();
+  }
+
+  @override
+  Future<void> mergeRemoteStyleFigurePreset({
+    required String shopId,
+    required String internalId,
+    required String operation,
+    Object? data,
+  }) async {
+    if (operation == 'delete') {
+      await softDeleteStyleFigurePreset(internalId);
+      return;
+    }
+    final m = syncPullDataMap(data);
+    final figureId = syncPullString(
+      m,
+      const ['style_figure_internal_id', 'styleFigureInternalId'],
+    );
+    final name = syncPullString(m, const ['name']);
+    if (figureId == null ||
+        figureId.isEmpty ||
+        name == null ||
+        name.trim().isEmpty) {
+      return;
+    }
+    final textIds = syncPullStringList(
+      m,
+      const ['text_option_internal_ids', 'textOptionInternalIds'],
+    );
+    final sizeIds = syncPullStringList(
+      m,
+      const ['size_option_internal_ids', 'sizeOptionInternalIds'],
+    );
+    final sortOrder = syncPullInt(m, const ['sort_order', 'sortOrder']);
+    final isActive = syncPullBool(m, const ['is_active', 'isActive']) ?? true;
+    final i = _presets.indexWhere((e) => e.internalId == internalId);
+    final resolvedSort = sortOrder ??
+        (i >= 0
+            ? _presets[i].sortOrder
+            : _nextOptionSortOrder(
+                _presetsFor(shopId, figureId),
+                (e) => e.sortOrder,
+              ));
+    final existing = i >= 0 ? _presets[i] : null;
+    final summary = StyleFigurePresetSummary(
+      internalId: internalId,
+      shopId: shopId,
+      styleFigureInternalId: figureId,
+      name: name.trim(),
+      textOptionInternalIds:
+          textIds.isNotEmpty ? textIds : (existing?.textOptionInternalIds ?? []),
+      sizeOptionInternalIds:
+          sizeIds.isNotEmpty ? sizeIds : (existing?.sizeOptionInternalIds ?? []),
+      sortOrder: resolvedSort,
+      isActive: isActive,
+    );
+    if (i < 0) {
+      _presets.add(summary);
+    } else {
+      _presets[i] = summary;
+    }
+    _emitPresets();
   }
 }

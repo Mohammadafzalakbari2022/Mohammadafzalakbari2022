@@ -23,6 +23,7 @@ class OrderListTile extends StatelessWidget {
     required this.formatMoney,
     this.paidAmountMinor,
     this.remainingAmountMinor,
+    this.stylePreviewLine,
   });
 
   final OrderSummary order;
@@ -35,6 +36,7 @@ class OrderListTile extends StatelessWidget {
   final bool detailed;
   final VoidCallback onTap;
   final String Function(int minor) formatMoney;
+  final String? stylePreviewLine;
 
   @override
   Widget build(BuildContext context) {
@@ -139,6 +141,19 @@ class OrderListTile extends StatelessWidget {
                               fontWeight: FontWeight.w600,
                             ),
                             maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                        if (detailed &&
+                            stylePreviewLine != null &&
+                            stylePreviewLine!.trim().isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            stylePreviewLine!.trim(),
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: scheme.onSurfaceVariant,
+                            ),
+                            maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ],

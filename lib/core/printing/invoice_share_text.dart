@@ -1,6 +1,9 @@
+import '../../data/local/order_style_snapshot_view.dart';
 import '../../data/local/order_summary.dart';
 
 import '../../data/local/payment_summary.dart';
+
+import '../../data/local/style/order_shape_selection_formatter.dart';
 
 import '../../features/reports/report_money_format.dart';
 
@@ -96,6 +99,8 @@ String buildOrderInvoiceShareText({
 
   required String statusText,
 
+  OrderStyleSnapshotView? styleSnap,
+
 }) {
 
   const wrapChars = 32;
@@ -140,11 +145,22 @@ String buildOrderInvoiceShareText({
 
   }
 
-  final styleText = order.styleSummary.trim().isNotEmpty
-
-      ? order.styleSummary.trim()
-
-      : order.styleName.trim();
+  final styleDisplay = formatOrderShapeSelectionDisplay(
+    snapshot: styleSnap,
+    styleName: order.styleName,
+    styleSelectionJson: order.styleSelectionJson,
+    styleSummary: order.styleSummary,
+    labels: OrderShapeSelectionFormatLabels(
+      mainStyle: l10n.orderStyleDisplayMainStyleLabel,
+      shape: l10n.orderStyleDisplayShapeLabel,
+      preset: l10n.orderStyleDisplayPresetLabel,
+      text: l10n.orderStyleDisplayTextLabel,
+      size: l10n.orderStyleDisplaySizeLabel,
+    ),
+  );
+  final styleText = styleDisplay.detailedText.trim().isNotEmpty
+      ? styleDisplay.detailedText.trim()
+      : styleDisplay.summaryFallbackText.trim();
 
   if (styleText.isNotEmpty) {
 

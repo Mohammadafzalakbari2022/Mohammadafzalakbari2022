@@ -6,6 +6,17 @@ abstract final class StyleFigureImageRef {
   static String bundledAssetKey(int shapeNumber) =>
       '${assetPrefix}shape_$shapeNumber';
 
+  /// Bundled PNG index from refs like [assetPrefix]shape_3, or null.
+  static int? bundledShapeNumber(String imageRef) {
+    if (!imageRef.startsWith(assetPrefix)) return null;
+    final key = imageRef.substring(assetPrefix.length);
+    if (!key.startsWith('shape_')) return null;
+    return int.tryParse(key.substring('shape_'.length));
+  }
+
+  static bool isBundledAssetRef(String imageRef) =>
+      bundledShapeNumber(imageRef) != null;
+
   static String? assetPathFromRef(String imageRef) {
     if (!imageRef.startsWith(assetPrefix)) return null;
     final key = imageRef.substring(assetPrefix.length);

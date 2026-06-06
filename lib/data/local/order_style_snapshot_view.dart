@@ -23,10 +23,42 @@ class OrderStyleSnapshotFigureView {
     required this.figureNameSnapshot,
     required this.imageRefSnapshot,
     required this.sortOrder,
+    this.presetInternalIdSnapshot,
+    this.presetNameSnapshot = '',
+    this.textOptions = const [],
+    this.sizeOptions = const [],
   });
 
   final String styleFigureInternalId;
   final String figureNameSnapshot;
   final String imageRefSnapshot;
   final int sortOrder;
+  final String? presetInternalIdSnapshot;
+  final String presetNameSnapshot;
+  final List<OrderShapeOptionSnapshotView> textOptions;
+  final List<OrderShapeSizeSnapshotView> sizeOptions;
+}
+
+class OrderShapeOptionSnapshotView {
+  const OrderShapeOptionSnapshotView({
+    required this.id,
+    required this.labelSnapshot,
+  });
+
+  final String id;
+  final String labelSnapshot;
+}
+
+class OrderShapeSizeSnapshotView {
+  const OrderShapeSizeSnapshotView({
+    required this.id,
+    required this.valueSnapshot,
+    required this.labelSnapshot,
+    required this.unitSnapshot,
+  });
+
+  final String id;
+  final double valueSnapshot;
+  final String labelSnapshot;
+  final String unitSnapshot;
 }

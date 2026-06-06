@@ -1,12 +1,23 @@
+import 'dart:convert';
+
 import 'package:isar/isar.dart';
 import 'package:uuid/uuid.dart';
 
 import 'entities/style_figure_entity.dart';
+import 'entities/style_figure_preset_entity.dart';
+import 'entities/style_figure_size_option_entity.dart';
+import 'entities/style_figure_text_option_entity.dart';
 import 'entities/style_name_entity.dart';
 import 'entities/style_part_entity.dart';
+import 'measurement_unit_codes.dart';
 import 'style/style_catalog_seed.dart';
+import 'style/style_figure_image_ref.dart';
 import 'style_catalog_repository.dart';
+import 'style_figure_config_summary.dart';
+import 'style_figure_preset_summary.dart';
+import 'style_figure_size_option_summary.dart';
 import 'style_figure_summary.dart';
+import 'style_figure_text_option_summary.dart';
 import 'style_name_summary.dart';
 import 'style_part_summary.dart';
 import 'sync_pull_payload.dart';
@@ -325,9 +336,480 @@ class IsarStyleCatalogRepository implements StyleCatalogRepository {
 
   @override
   Future<void> softDeleteStyleFigure(String internalId) async {
+    final figure = await _isar.styleFigureEntitys.getByInternalId(internalId);
+    if (figure == null || figure.deletedAt != null) return;
+    if (StyleFigureImageRef.isBundledAssetRef(figure.imageRef)) return;
     await _softDelete(
       () => _isar.styleFigureEntitys.getByInternalId(internalId),
       (e) => _isar.styleFigureEntitys.putByInternalId(e as StyleFigureEntity),
+    );
+  }
+
+  @override
+  Stream<List<StyleFigureTextOptionSummary>> watchTextOptionsForFigure(
+    String shopId,
+    String styleFigureInternalId,
+  ) {
+    return _isar.styleFigureTextOptionEntitys
+        .filter()
+        .shopIdEqualTo(shopId)
+        .and()
+        .styleFigureInternalIdEqualTo(styleFigureInternalId)
+        .and()
+        .deletedAtIsNull()
+        .watch(fireImmediately: true)
+        .map(_mapTextOptions);
+  }
+
+  @override
+  Stream<List<StyleFigureSizeOptionSummary>> watchSizeOptionsForFigure(
+    String shopId,
+    String styleFigureInternalId,
+  ) {
+    return _isar.styleFigureSizeOptionEntitys
+        .filter()
+        .shopIdEqualTo(shopId)
+        .and()
+        .styleFigureInternalIdEqualTo(styleFigureInternalId)
+        .and()
+        .deletedAtIsNull()
+        .watch(fireImmediately: true)
+        .map(_mapSizeOptions);
+  }
+
+  @override
+  Stream<List<StyleFigurePresetSummary>> watchPresetsForFigure(
+    String shopId,
+    String styleFigureInternalId,
+  ) {
+    return _isar.styleFigurePresetEntitys
+        .filter()
+        .shopIdEqualTo(shopId)
+        .and()
+        .styleFigureInternalIdEqualTo(styleFigureInternalId)
+        .and()
+        .deletedAtIsNull()
+        .watch(fireImmediately: true)
+        .map(_mapPresets);
+  }
+
+  @override
+  Future<Map<String, StyleFigureConfigSummary>> loadAllFigureConfigs(
+    String shopId, {
+    bool activeFiguresOnly = false,
+  }) async {
+    final figureRows = await _isar.styleFigureEntitys
+        .filter()
+        .shopIdEqualTo(shopId)
+        .and()
+        .deletedAtIsNull()
+        .findAll();
+    final figures = _mapFigures(figureRows);
+    final filtered =
+        activeFiguresOnly ? figures.where((f) => f.isActive) : figures;
+
+    final textRows = await _isar.styleFigureTextOptionEntitys
+        .filter()
+        .shopIdEqualTo(shopId)
+        .and()
+        .deletedAtIsNull()
+        .findAll();
+    final sizeRows = await _isar.styleFigureSizeOptionEntitys
+        .filter()
+        .shopIdEqualTo(shopId)
+        .and()
+        .deletedAtIsNull()
+        .findAll();
+    final presetRows = await _isar.styleFigurePresetEntitys
+        .filter()
+        .shopIdEqualTo(shopId)
+        .and()
+        .deletedAtIsNull()
+        .findAll();
+
+    final textByFigure = _groupTextOptions(textRows);
+    final sizeByFigure = _groupSizeOptions(sizeRows);
+    final presetByFigure = _groupPresets(presetRows);
+
+    final result = <String, StyleFigureConfigSummary>{};
+    for (final figure in filtered) {
+      result[figure.internalId] = StyleFigureConfigSummary(
+        figure: figure,
+        textOptions: textByFigure[figure.internalId] ?? const [],
+        sizeOptions: sizeByFigure[figure.internalId] ?? const [],
+        presets: presetByFigure[figure.internalId] ?? const [],
+      );
+    }
+    return result;
+  }
+
+  List<StyleFigureTextOptionSummary> _mapTextOptions(
+    List<StyleFigureTextOptionEntity> rows,
+  ) {
+    final list = rows
+        .map(
+          (e) => StyleFigureTextOptionSummary(
+            internalId: e.internalId,
+            shopId: e.shopId,
+            styleFigureInternalId: e.styleFigureInternalId,
+            label: e.label,
+            sortOrder: e.sortOrder,
+            isActive: e.isActive,
+          ),
+        )
+        .toList()
+      ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+    return list;
+  }
+
+  List<StyleFigureSizeOptionSummary> _mapSizeOptions(
+    List<StyleFigureSizeOptionEntity> rows,
+  ) {
+    final list = rows
+        .map(
+          (e) => StyleFigureSizeOptionSummary(
+            internalId: e.internalId,
+            shopId: e.shopId,
+            styleFigureInternalId: e.styleFigureInternalId,
+            label: e.label,
+            valueInches: e.valueInches,
+            unitCode: e.unitCode,
+            sortOrder: e.sortOrder,
+            isActive: e.isActive,
+          ),
+        )
+        .toList()
+      ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+    return list;
+  }
+
+  List<StyleFigurePresetSummary> _mapPresets(
+    List<StyleFigurePresetEntity> rows,
+  ) {
+    final list = rows
+        .map(
+          (e) => StyleFigurePresetSummary(
+            internalId: e.internalId,
+            shopId: e.shopId,
+            styleFigureInternalId: e.styleFigureInternalId,
+            name: e.name,
+            textOptionInternalIds: _parseIdListJson(e.textOptionInternalIdsJson),
+            sizeOptionInternalIds: _parseIdListJson(e.sizeOptionInternalIdsJson),
+            sortOrder: e.sortOrder,
+            isActive: e.isActive,
+          ),
+        )
+        .toList()
+      ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+    return list;
+  }
+
+  Map<String, List<StyleFigureTextOptionSummary>> _groupTextOptions(
+    List<StyleFigureTextOptionEntity> rows,
+  ) {
+    final map = <String, List<StyleFigureTextOptionSummary>>{};
+    for (final row in _mapTextOptions(rows)) {
+      map.putIfAbsent(row.styleFigureInternalId, () => []).add(row);
+    }
+    for (final list in map.values) {
+      list.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+    }
+    return map;
+  }
+
+  Map<String, List<StyleFigureSizeOptionSummary>> _groupSizeOptions(
+    List<StyleFigureSizeOptionEntity> rows,
+  ) {
+    final map = <String, List<StyleFigureSizeOptionSummary>>{};
+    for (final row in _mapSizeOptions(rows)) {
+      map.putIfAbsent(row.styleFigureInternalId, () => []).add(row);
+    }
+    for (final list in map.values) {
+      list.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+    }
+    return map;
+  }
+
+  Map<String, List<StyleFigurePresetSummary>> _groupPresets(
+    List<StyleFigurePresetEntity> rows,
+  ) {
+    final map = <String, List<StyleFigurePresetSummary>>{};
+    for (final row in _mapPresets(rows)) {
+      map.putIfAbsent(row.styleFigureInternalId, () => []).add(row);
+    }
+    for (final list in map.values) {
+      list.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+    }
+    return map;
+  }
+
+  Future<int> _nextTextOptionSortOrder(
+    String shopId,
+    String styleFigureInternalId,
+  ) async {
+    final rows = await _isar.styleFigureTextOptionEntitys
+        .filter()
+        .shopIdEqualTo(shopId)
+        .and()
+        .styleFigureInternalIdEqualTo(styleFigureInternalId)
+        .and()
+        .deletedAtIsNull()
+        .findAll();
+    return _maxSortOrder(rows, (e) => e.sortOrder) + 10;
+  }
+
+  Future<int> _nextSizeOptionSortOrder(
+    String shopId,
+    String styleFigureInternalId,
+  ) async {
+    final rows = await _isar.styleFigureSizeOptionEntitys
+        .filter()
+        .shopIdEqualTo(shopId)
+        .and()
+        .styleFigureInternalIdEqualTo(styleFigureInternalId)
+        .and()
+        .deletedAtIsNull()
+        .findAll();
+    return _maxSortOrder(rows, (e) => e.sortOrder) + 10;
+  }
+
+  Future<int> _nextPresetSortOrder(
+    String shopId,
+    String styleFigureInternalId,
+  ) async {
+    final rows = await _isar.styleFigurePresetEntitys
+        .filter()
+        .shopIdEqualTo(shopId)
+        .and()
+        .styleFigureInternalIdEqualTo(styleFigureInternalId)
+        .and()
+        .deletedAtIsNull()
+        .findAll();
+    return _maxSortOrder(rows, (e) => e.sortOrder) + 10;
+  }
+
+  int _maxSortOrder<T>(List<T> rows, int Function(T) read) {
+    var max = 0;
+    for (final e in rows) {
+      final value = read(e);
+      if (value > max) max = value;
+    }
+    return max;
+  }
+
+  List<String> _parseIdListJson(String json) {
+    if (json.trim().isEmpty) return const [];
+    try {
+      final decoded = jsonDecode(json);
+      if (decoded is! List) return const [];
+      return decoded
+          .map((e) => e.toString())
+          .where((e) => e.isNotEmpty)
+          .toList(growable: false);
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  String _encodeIdListJson(List<String> ids) {
+    final cleaned = ids.map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+    return jsonEncode(cleaned);
+  }
+
+  @override
+  Future<String> createStyleFigureTextOption({
+    required String shopId,
+    required String styleFigureInternalId,
+    required String label,
+    int? sortOrder,
+  }) async {
+    final trimmed = label.trim();
+    if (trimmed.isEmpty) throw ArgumentError.value(label, 'label');
+    final now = DateTime.now();
+    final so = sortOrder ??
+        await _nextTextOptionSortOrder(shopId, styleFigureInternalId);
+    final id = _uuid.v4();
+    final e = StyleFigureTextOptionEntity()
+      ..internalId = id
+      ..shopId = shopId
+      ..styleFigureInternalId = styleFigureInternalId
+      ..label = trimmed
+      ..sortOrder = so
+      ..isActive = true
+      ..createdAt = now
+      ..updatedAt = now;
+    await _isar.writeTxn(() async {
+      await _isar.styleFigureTextOptionEntitys.putByInternalId(e);
+    });
+    return id;
+  }
+
+  @override
+  Future<void> updateStyleFigureTextOption({
+    required String internalId,
+    String? label,
+    int? sortOrder,
+    bool? isActive,
+  }) async {
+    await _isar.writeTxn(() async {
+      final e =
+          await _isar.styleFigureTextOptionEntitys.getByInternalId(internalId);
+      if (e == null || e.deletedAt != null) return;
+      if (label != null) {
+        final trimmed = label.trim();
+        if (trimmed.isNotEmpty) e.label = trimmed;
+      }
+      if (sortOrder != null) e.sortOrder = sortOrder;
+      if (isActive != null) e.isActive = isActive;
+      e.updatedAt = DateTime.now();
+      await _isar.styleFigureTextOptionEntitys.putByInternalId(e);
+    });
+  }
+
+  @override
+  Future<void> softDeleteStyleFigureTextOption(String internalId) async {
+    await _softDelete(
+      () => _isar.styleFigureTextOptionEntitys.getByInternalId(internalId),
+      (e) =>
+          _isar.styleFigureTextOptionEntitys.putByInternalId(e as StyleFigureTextOptionEntity),
+    );
+  }
+
+  @override
+  Future<String> createStyleFigureSizeOption({
+    required String shopId,
+    required String styleFigureInternalId,
+    required String label,
+    required double valueInches,
+    int? unitCode,
+    int? sortOrder,
+  }) async {
+    final trimmed = label.trim();
+    if (trimmed.isEmpty) throw ArgumentError.value(label, 'label');
+    final now = DateTime.now();
+    final so = sortOrder ??
+        await _nextSizeOptionSortOrder(shopId, styleFigureInternalId);
+    final id = _uuid.v4();
+    final e = StyleFigureSizeOptionEntity()
+      ..internalId = id
+      ..shopId = shopId
+      ..styleFigureInternalId = styleFigureInternalId
+      ..label = trimmed
+      ..valueInches = valueInches
+      ..unitCode = unitCode ?? MeasurementUnitCodes.inch
+      ..sortOrder = so
+      ..isActive = true
+      ..createdAt = now
+      ..updatedAt = now;
+    await _isar.writeTxn(() async {
+      await _isar.styleFigureSizeOptionEntitys.putByInternalId(e);
+    });
+    return id;
+  }
+
+  @override
+  Future<void> updateStyleFigureSizeOption({
+    required String internalId,
+    String? label,
+    double? valueInches,
+    int? unitCode,
+    int? sortOrder,
+    bool? isActive,
+  }) async {
+    await _isar.writeTxn(() async {
+      final e =
+          await _isar.styleFigureSizeOptionEntitys.getByInternalId(internalId);
+      if (e == null || e.deletedAt != null) return;
+      if (label != null) {
+        final trimmed = label.trim();
+        if (trimmed.isNotEmpty) e.label = trimmed;
+      }
+      if (valueInches != null) e.valueInches = valueInches;
+      if (unitCode != null) e.unitCode = unitCode;
+      if (sortOrder != null) e.sortOrder = sortOrder;
+      if (isActive != null) e.isActive = isActive;
+      e.updatedAt = DateTime.now();
+      await _isar.styleFigureSizeOptionEntitys.putByInternalId(e);
+    });
+  }
+
+  @override
+  Future<void> softDeleteStyleFigureSizeOption(String internalId) async {
+    await _softDelete(
+      () => _isar.styleFigureSizeOptionEntitys.getByInternalId(internalId),
+      (e) =>
+          _isar.styleFigureSizeOptionEntitys.putByInternalId(e as StyleFigureSizeOptionEntity),
+    );
+  }
+
+  @override
+  Future<String> createStyleFigurePreset({
+    required String shopId,
+    required String styleFigureInternalId,
+    required String name,
+    List<String>? textOptionInternalIds,
+    List<String>? sizeOptionInternalIds,
+    int? sortOrder,
+  }) async {
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) throw ArgumentError.value(name, 'name');
+    final now = DateTime.now();
+    final so =
+        sortOrder ?? await _nextPresetSortOrder(shopId, styleFigureInternalId);
+    final id = _uuid.v4();
+    final e = StyleFigurePresetEntity()
+      ..internalId = id
+      ..shopId = shopId
+      ..styleFigureInternalId = styleFigureInternalId
+      ..name = trimmed
+      ..textOptionInternalIdsJson =
+          _encodeIdListJson(textOptionInternalIds ?? const [])
+      ..sizeOptionInternalIdsJson =
+          _encodeIdListJson(sizeOptionInternalIds ?? const [])
+      ..sortOrder = so
+      ..isActive = true
+      ..createdAt = now
+      ..updatedAt = now;
+    await _isar.writeTxn(() async {
+      await _isar.styleFigurePresetEntitys.putByInternalId(e);
+    });
+    return id;
+  }
+
+  @override
+  Future<void> updateStyleFigurePreset({
+    required String internalId,
+    String? name,
+    List<String>? textOptionInternalIds,
+    List<String>? sizeOptionInternalIds,
+    int? sortOrder,
+    bool? isActive,
+  }) async {
+    await _isar.writeTxn(() async {
+      final e = await _isar.styleFigurePresetEntitys.getByInternalId(internalId);
+      if (e == null || e.deletedAt != null) return;
+      if (name != null) {
+        final trimmed = name.trim();
+        if (trimmed.isNotEmpty) e.name = trimmed;
+      }
+      if (textOptionInternalIds != null) {
+        e.textOptionInternalIdsJson = _encodeIdListJson(textOptionInternalIds);
+      }
+      if (sizeOptionInternalIds != null) {
+        e.sizeOptionInternalIdsJson = _encodeIdListJson(sizeOptionInternalIds);
+      }
+      if (sortOrder != null) e.sortOrder = sortOrder;
+      if (isActive != null) e.isActive = isActive;
+      e.updatedAt = DateTime.now();
+      await _isar.styleFigurePresetEntitys.putByInternalId(e);
+    });
+  }
+
+  @override
+  Future<void> softDeleteStyleFigurePreset(String internalId) async {
+    await _softDelete(
+      () => _isar.styleFigurePresetEntitys.getByInternalId(internalId),
+      (e) => _isar.styleFigurePresetEntitys.putByInternalId(e as StyleFigurePresetEntity),
     );
   }
 
@@ -499,6 +981,213 @@ class IsarStyleCatalogRepository implements StyleCatalogRepository {
         ..updatedAt = updated
         ..deletedAt = null;
       await _isar.styleFigureEntitys.putByInternalId(existing);
+    });
+  }
+
+  @override
+  Future<void> mergeRemoteStyleFigureTextOption({
+    required String shopId,
+    required String internalId,
+    required String operation,
+    Object? data,
+  }) async {
+    if (operation == 'delete') {
+      await softDeleteStyleFigureTextOption(internalId);
+      return;
+    }
+    final m = syncPullDataMap(data);
+    final figureId = syncPullString(
+      m,
+      const ['style_figure_internal_id', 'styleFigureInternalId'],
+    );
+    final label = syncPullString(m, const ['label']);
+    if (figureId == null ||
+        figureId.isEmpty ||
+        label == null ||
+        label.trim().isEmpty) {
+      return;
+    }
+    final sortOrder = syncPullInt(m, const ['sort_order', 'sortOrder']);
+    final isActive = syncPullBool(m, const ['is_active', 'isActive']) ?? true;
+    final now = DateTime.now();
+    final created =
+        syncPullDateTime(m, const ['created_at', 'createdAt']) ?? now;
+    final updated =
+        syncPullDateTime(m, const ['updated_at', 'updatedAt']) ?? now;
+    await _isar.writeTxn(() async {
+      final existing = await _isar.styleFigureTextOptionEntitys
+          .getByInternalId(internalId);
+      if (existing == null) {
+        final so = sortOrder ??
+            await _nextTextOptionSortOrder(shopId, figureId);
+        final e = StyleFigureTextOptionEntity()
+          ..internalId = internalId
+          ..shopId = shopId
+          ..styleFigureInternalId = figureId
+          ..label = label.trim()
+          ..sortOrder = so
+          ..isActive = isActive
+          ..createdAt = created
+          ..updatedAt = updated;
+        await _isar.styleFigureTextOptionEntitys.putByInternalId(e);
+        return;
+      }
+      existing
+        ..shopId = shopId
+        ..styleFigureInternalId = figureId
+        ..label = label.trim()
+        ..sortOrder = sortOrder ?? existing.sortOrder
+        ..isActive = isActive
+        ..updatedAt = updated
+        ..deletedAt = null;
+      await _isar.styleFigureTextOptionEntitys.putByInternalId(existing);
+    });
+  }
+
+  @override
+  Future<void> mergeRemoteStyleFigureSizeOption({
+    required String shopId,
+    required String internalId,
+    required String operation,
+    Object? data,
+  }) async {
+    if (operation == 'delete') {
+      await softDeleteStyleFigureSizeOption(internalId);
+      return;
+    }
+    final m = syncPullDataMap(data);
+    final figureId = syncPullString(
+      m,
+      const ['style_figure_internal_id', 'styleFigureInternalId'],
+    );
+    final label = syncPullString(m, const ['label']);
+    final valueInches = syncPullDouble(
+      m,
+      const ['value_inches', 'valueInches'],
+    );
+    if (figureId == null ||
+        figureId.isEmpty ||
+        label == null ||
+        label.trim().isEmpty ||
+        valueInches == null) {
+      return;
+    }
+    final unitCode = syncPullInt(m, const ['unit_code', 'unitCode']) ??
+        MeasurementUnitCodes.inch;
+    final sortOrder = syncPullInt(m, const ['sort_order', 'sortOrder']);
+    final isActive = syncPullBool(m, const ['is_active', 'isActive']) ?? true;
+    final now = DateTime.now();
+    final created =
+        syncPullDateTime(m, const ['created_at', 'createdAt']) ?? now;
+    final updated =
+        syncPullDateTime(m, const ['updated_at', 'updatedAt']) ?? now;
+    await _isar.writeTxn(() async {
+      final existing = await _isar.styleFigureSizeOptionEntitys
+          .getByInternalId(internalId);
+      if (existing == null) {
+        final so = sortOrder ??
+            await _nextSizeOptionSortOrder(shopId, figureId);
+        final e = StyleFigureSizeOptionEntity()
+          ..internalId = internalId
+          ..shopId = shopId
+          ..styleFigureInternalId = figureId
+          ..label = label.trim()
+          ..valueInches = valueInches
+          ..unitCode = unitCode
+          ..sortOrder = so
+          ..isActive = isActive
+          ..createdAt = created
+          ..updatedAt = updated;
+        await _isar.styleFigureSizeOptionEntitys.putByInternalId(e);
+        return;
+      }
+      existing
+        ..shopId = shopId
+        ..styleFigureInternalId = figureId
+        ..label = label.trim()
+        ..valueInches = valueInches
+        ..unitCode = unitCode
+        ..sortOrder = sortOrder ?? existing.sortOrder
+        ..isActive = isActive
+        ..updatedAt = updated
+        ..deletedAt = null;
+      await _isar.styleFigureSizeOptionEntitys.putByInternalId(existing);
+    });
+  }
+
+  @override
+  Future<void> mergeRemoteStyleFigurePreset({
+    required String shopId,
+    required String internalId,
+    required String operation,
+    Object? data,
+  }) async {
+    if (operation == 'delete') {
+      await softDeleteStyleFigurePreset(internalId);
+      return;
+    }
+    final m = syncPullDataMap(data);
+    final figureId = syncPullString(
+      m,
+      const ['style_figure_internal_id', 'styleFigureInternalId'],
+    );
+    final name = syncPullString(m, const ['name']);
+    if (figureId == null ||
+        figureId.isEmpty ||
+        name == null ||
+        name.trim().isEmpty) {
+      return;
+    }
+    final textIds = syncPullStringList(
+      m,
+      const ['text_option_internal_ids', 'textOptionInternalIds'],
+    );
+    final sizeIds = syncPullStringList(
+      m,
+      const ['size_option_internal_ids', 'sizeOptionInternalIds'],
+    );
+    final sortOrder = syncPullInt(m, const ['sort_order', 'sortOrder']);
+    final isActive = syncPullBool(m, const ['is_active', 'isActive']) ?? true;
+    final now = DateTime.now();
+    final created =
+        syncPullDateTime(m, const ['created_at', 'createdAt']) ?? now;
+    final updated =
+        syncPullDateTime(m, const ['updated_at', 'updatedAt']) ?? now;
+    await _isar.writeTxn(() async {
+      final existing =
+          await _isar.styleFigurePresetEntitys.getByInternalId(internalId);
+      if (existing == null) {
+        final so = sortOrder ??
+            await _nextPresetSortOrder(shopId, figureId);
+        final e = StyleFigurePresetEntity()
+          ..internalId = internalId
+          ..shopId = shopId
+          ..styleFigureInternalId = figureId
+          ..name = name.trim()
+          ..textOptionInternalIdsJson = _encodeIdListJson(textIds)
+          ..sizeOptionInternalIdsJson = _encodeIdListJson(sizeIds)
+          ..sortOrder = so
+          ..isActive = isActive
+          ..createdAt = created
+          ..updatedAt = updated;
+        await _isar.styleFigurePresetEntitys.putByInternalId(e);
+        return;
+      }
+      existing
+        ..shopId = shopId
+        ..styleFigureInternalId = figureId
+        ..name = name.trim()
+        ..textOptionInternalIdsJson = textIds.isNotEmpty
+            ? _encodeIdListJson(textIds)
+            : existing.textOptionInternalIdsJson
+        ..sizeOptionInternalIdsJson = sizeIds.isNotEmpty
+            ? _encodeIdListJson(sizeIds)
+            : existing.sizeOptionInternalIdsJson
+        ..sortOrder = sortOrder ?? existing.sortOrder
+        ..isActive = isActive
+        ..updatedAt = updated
+        ..deletedAt = null;
+      await _isar.styleFigurePresetEntitys.putByInternalId(existing);
     });
   }
 }

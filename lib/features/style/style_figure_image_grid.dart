@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../data/local/style/style_figure_display_name.dart';
 import '../../data/local/style_figure_summary.dart';
 import '../settings/style/style_figure_image.dart';
 
@@ -14,6 +15,7 @@ class StyleFigureImageGrid extends StatelessWidget {
     this.onMultiSelectionChanged,
     this.crossAxisCount = 3,
     this.padding = const EdgeInsets.all(4),
+    this.showDisplayNames = false,
   });
 
   final List<StyleFigureSummary> figures;
@@ -23,6 +25,7 @@ class StyleFigureImageGrid extends StatelessWidget {
   final ValueChanged<Set<String>>? onMultiSelectionChanged;
   final int crossAxisCount;
   final EdgeInsets padding;
+  final bool showDisplayNames;
 
   bool _isSelected(String figureId) {
     if (selectedFigureIds != null) {
@@ -66,7 +69,7 @@ class StyleFigureImageGrid extends StatelessWidget {
         crossAxisCount: crossAxisCount,
         mainAxisSpacing: 8,
         crossAxisSpacing: 8,
-        childAspectRatio: 1,
+        childAspectRatio: showDisplayNames ? 0.78 : 1,
       ),
       itemCount: figures.length,
       itemBuilder: (context, index) {
@@ -85,29 +88,80 @@ class StyleFigureImageGrid extends StatelessWidget {
           clipBehavior: Clip.antiAlias,
           child: InkWell(
             onTap: interactive ? () => _onTap(f.internalId) : null,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(6),
-                  child: StyleFigureImage(
-                    imageRef: f.imageRef,
-                    fit: BoxFit.contain,
-                    expand: true,
+            child: showDisplayNames
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(6),
+                              child: StyleFigureImage(
+                                imageRef: f.imageRef,
+                                fit: BoxFit.contain,
+                                expand: true,
+                              ),
+                            ),
+                            if (selected)
+                              Positioned(
+                                top: 4,
+                                right: 4,
+                                child: Icon(
+                                  Icons.check_circle,
+                                  color: scheme.primary,
+                                  size: 22,
+                                ),
+                              ),
+                            if (!f.isActive)
+                              Positioned(
+                                top: 4,
+                                left: 4,
+                                child: Icon(
+                                  Icons.visibility_off_outlined,
+                                  size: 16,
+                                  color: scheme.outline,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(6, 0, 6, 6),
+                        child: Text(
+                          resolveStyleFigureSummaryDisplayName(f),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.labelSmall,
+                        ),
+                      ),
+                    ],
+                  )
+                : Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(6),
+                        child: StyleFigureImage(
+                          imageRef: f.imageRef,
+                          fit: BoxFit.contain,
+                          expand: true,
+                        ),
+                      ),
+                      if (selected)
+                        Positioned(
+                          top: 4,
+                          right: 4,
+                          child: Icon(
+                            Icons.check_circle,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 22,
+                          ),
+                        ),
+                    ],
                   ),
-                ),
-                if (selected)
-                  Positioned(
-                    top: 4,
-                    right: 4,
-                    child: Icon(
-                      Icons.check_circle,
-                      color: Theme.of(context).colorScheme.primary,
-                      size: 22,
-                    ),
-                  ),
-              ],
-            ),
           ),
         );
       },

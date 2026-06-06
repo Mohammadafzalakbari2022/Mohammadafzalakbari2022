@@ -17,6 +17,7 @@ import 'package:pride_v3/l10n/app_localizations.dart';
 import '../../auth/auth_providers.dart';
 import '../../data/local/customer_summary.dart';
 import '../../data/local/order_summary.dart';
+import '../../data/local/style/order_shape_selection_formatter.dart';
 import 'package:pride_v3/core/calendar/date_calendar_system.dart';
 import '../../data/local/measurement_profile_item_input.dart';
 import '../../data/local/measurement_profile_summary.dart';
@@ -960,6 +961,11 @@ OrderListTile _customerOrderHistoryTile({
     isSelected: false,
     detailed: true,
     formatMoney: formatMoney,
+    stylePreviewLine: formatOrderShapeSelectionDisplay(
+      styleName: order.styleName,
+      styleSelectionJson: order.styleSelectionJson,
+      styleSummary: order.styleSummary,
+    ).compactPreview,
     onTap: onTap,
   );
 }

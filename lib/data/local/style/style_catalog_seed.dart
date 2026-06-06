@@ -145,6 +145,7 @@ Future<void> _ensureBundledStyleFigures(
     }
 
     if (existing != null) {
+      final preservedName = existing.name;
       existing
         ..shopId = shopId
         ..partInternalId = partIds[i]
@@ -152,7 +153,8 @@ Future<void> _ensureBundledStyleFigures(
         ..sortOrder = (i + 1) * 10
         ..isActive = true
         ..updatedAt = now
-        ..deletedAt = null;
+        ..deletedAt = null
+        ..name = preservedName;
       toWrite.add(existing);
       continue;
     }

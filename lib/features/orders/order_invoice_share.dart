@@ -75,6 +75,8 @@ Future<void> shareOrderInvoice({
       textDirection: textDirection,
       designRail: designRail,
       measurementSnap: measurementSnap,
+      styleSnap: styleSnap,
+      catalogFigures: catalogFigures,
     );
 
     final rawPhone = order.customerPhone?.trim();

@@ -58,3 +58,25 @@ DateTime? syncPullDateTime(Map<String, dynamic> m, List<String> keys) {
   }
   return null;
 }
+
+double? syncPullDouble(Map<String, dynamic> m, List<String> keys) {
+  for (final k in keys) {
+    final v = m[k];
+    if (v == null) continue;
+    if (v is num) return v.toDouble();
+    if (v is String) return double.tryParse(v.trim());
+  }
+  return null;
+}
+
+List<String> syncPullStringList(Map<String, dynamic> m, List<String> keys) {
+  for (final k in keys) {
+    final v = m[k];
+    if (v is! List) continue;
+    return v
+        .map((e) => e.toString().trim())
+        .where((e) => e.isNotEmpty)
+        .toList(growable: false);
+  }
+  return const [];
+}

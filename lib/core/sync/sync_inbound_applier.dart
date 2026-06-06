@@ -147,6 +147,30 @@ class SyncInboundApplier {
           data: raw['data'],
         );
         applied++;
+      } else if (et == 'style_figure_text_option') {
+        await styleCatalog.mergeRemoteStyleFigureTextOption(
+          shopId: shopId,
+          internalId: id,
+          operation: op,
+          data: raw['data'],
+        );
+        applied++;
+      } else if (et == 'style_figure_size_option') {
+        await styleCatalog.mergeRemoteStyleFigureSizeOption(
+          shopId: shopId,
+          internalId: id,
+          operation: op,
+          data: raw['data'],
+        );
+        applied++;
+      } else if (et == 'style_figure_preset') {
+        await styleCatalog.mergeRemoteStyleFigurePreset(
+          shopId: shopId,
+          internalId: id,
+          operation: op,
+          data: raw['data'],
+        );
+        applied++;
       } else if (et == 'fabric_name') {
         await fabricPresets.mergeRemoteFabricName(
           shopId: shopId,

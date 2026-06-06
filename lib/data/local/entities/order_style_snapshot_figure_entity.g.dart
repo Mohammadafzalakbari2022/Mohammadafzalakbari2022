@@ -28,24 +28,44 @@ const OrderStyleSnapshotFigureEntitySchema = CollectionSchema(
       name: r'imageRefSnapshot',
       type: IsarType.string,
     ),
-    r'shopId': PropertySchema(
+    r'presetInternalIdSnapshot': PropertySchema(
       id: 2,
+      name: r'presetInternalIdSnapshot',
+      type: IsarType.string,
+    ),
+    r'presetNameSnapshot': PropertySchema(
+      id: 3,
+      name: r'presetNameSnapshot',
+      type: IsarType.string,
+    ),
+    r'shopId': PropertySchema(
+      id: 4,
       name: r'shopId',
       type: IsarType.string,
     ),
+    r'sizeOptionsSnapshotJson': PropertySchema(
+      id: 5,
+      name: r'sizeOptionsSnapshotJson',
+      type: IsarType.string,
+    ),
     r'snapshotInternalId': PropertySchema(
-      id: 3,
+      id: 6,
       name: r'snapshotInternalId',
       type: IsarType.string,
     ),
     r'sortOrder': PropertySchema(
-      id: 4,
+      id: 7,
       name: r'sortOrder',
       type: IsarType.long,
     ),
     r'styleFigureInternalId': PropertySchema(
-      id: 5,
+      id: 8,
       name: r'styleFigureInternalId',
+      type: IsarType.string,
+    ),
+    r'textOptionsSnapshotJson': PropertySchema(
+      id: 9,
+      name: r'textOptionsSnapshotJson',
       type: IsarType.string,
     )
   },
@@ -124,9 +144,18 @@ int _orderStyleSnapshotFigureEntityEstimateSize(
   var bytesCount = offsets.last;
   bytesCount += 3 + object.figureNameSnapshot.length * 3;
   bytesCount += 3 + object.imageRefSnapshot.length * 3;
+  {
+    final value = object.presetInternalIdSnapshot;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  bytesCount += 3 + object.presetNameSnapshot.length * 3;
   bytesCount += 3 + object.shopId.length * 3;
+  bytesCount += 3 + object.sizeOptionsSnapshotJson.length * 3;
   bytesCount += 3 + object.snapshotInternalId.length * 3;
   bytesCount += 3 + object.styleFigureInternalId.length * 3;
+  bytesCount += 3 + object.textOptionsSnapshotJson.length * 3;
   return bytesCount;
 }
 
@@ -138,10 +167,14 @@ void _orderStyleSnapshotFigureEntitySerialize(
 ) {
   writer.writeString(offsets[0], object.figureNameSnapshot);
   writer.writeString(offsets[1], object.imageRefSnapshot);
-  writer.writeString(offsets[2], object.shopId);
-  writer.writeString(offsets[3], object.snapshotInternalId);
-  writer.writeLong(offsets[4], object.sortOrder);
-  writer.writeString(offsets[5], object.styleFigureInternalId);
+  writer.writeString(offsets[2], object.presetInternalIdSnapshot);
+  writer.writeString(offsets[3], object.presetNameSnapshot);
+  writer.writeString(offsets[4], object.shopId);
+  writer.writeString(offsets[5], object.sizeOptionsSnapshotJson);
+  writer.writeString(offsets[6], object.snapshotInternalId);
+  writer.writeLong(offsets[7], object.sortOrder);
+  writer.writeString(offsets[8], object.styleFigureInternalId);
+  writer.writeString(offsets[9], object.textOptionsSnapshotJson);
 }
 
 OrderStyleSnapshotFigureEntity _orderStyleSnapshotFigureEntityDeserialize(
@@ -154,10 +187,14 @@ OrderStyleSnapshotFigureEntity _orderStyleSnapshotFigureEntityDeserialize(
   object.figureNameSnapshot = reader.readString(offsets[0]);
   object.id = id;
   object.imageRefSnapshot = reader.readString(offsets[1]);
-  object.shopId = reader.readString(offsets[2]);
-  object.snapshotInternalId = reader.readString(offsets[3]);
-  object.sortOrder = reader.readLong(offsets[4]);
-  object.styleFigureInternalId = reader.readString(offsets[5]);
+  object.presetInternalIdSnapshot = reader.readStringOrNull(offsets[2]);
+  object.presetNameSnapshot = reader.readString(offsets[3]);
+  object.shopId = reader.readString(offsets[4]);
+  object.sizeOptionsSnapshotJson = reader.readString(offsets[5]);
+  object.snapshotInternalId = reader.readString(offsets[6]);
+  object.sortOrder = reader.readLong(offsets[7]);
+  object.styleFigureInternalId = reader.readString(offsets[8]);
+  object.textOptionsSnapshotJson = reader.readString(offsets[9]);
   return object;
 }
 
@@ -173,12 +210,20 @@ P _orderStyleSnapshotFigureEntityDeserializeProp<P>(
     case 1:
       return (reader.readString(offset)) as P;
     case 2:
-      return (reader.readString(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 3:
       return (reader.readString(offset)) as P;
     case 4:
-      return (reader.readLong(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 5:
+      return (reader.readString(offset)) as P;
+    case 6:
+      return (reader.readString(offset)) as P;
+    case 7:
+      return (reader.readLong(offset)) as P;
+    case 8:
+      return (reader.readString(offset)) as P;
+    case 9:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -859,6 +904,302 @@ extension OrderStyleSnapshotFigureEntityQueryFilter on QueryBuilder<
   }
 
   QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> presetInternalIdSnapshotIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'presetInternalIdSnapshot',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> presetInternalIdSnapshotIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'presetInternalIdSnapshot',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> presetInternalIdSnapshotEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'presetInternalIdSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> presetInternalIdSnapshotGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'presetInternalIdSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> presetInternalIdSnapshotLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'presetInternalIdSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> presetInternalIdSnapshotBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'presetInternalIdSnapshot',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> presetInternalIdSnapshotStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'presetInternalIdSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> presetInternalIdSnapshotEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'presetInternalIdSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+          QAfterFilterCondition>
+      presetInternalIdSnapshotContains(String value,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'presetInternalIdSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+          QAfterFilterCondition>
+      presetInternalIdSnapshotMatches(String pattern,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'presetInternalIdSnapshot',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> presetInternalIdSnapshotIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'presetInternalIdSnapshot',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> presetInternalIdSnapshotIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'presetInternalIdSnapshot',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> presetNameSnapshotEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'presetNameSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> presetNameSnapshotGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'presetNameSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> presetNameSnapshotLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'presetNameSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> presetNameSnapshotBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'presetNameSnapshot',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> presetNameSnapshotStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'presetNameSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> presetNameSnapshotEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'presetNameSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+          QAfterFilterCondition>
+      presetNameSnapshotContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'presetNameSnapshot',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+          QAfterFilterCondition>
+      presetNameSnapshotMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'presetNameSnapshot',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> presetNameSnapshotIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'presetNameSnapshot',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> presetNameSnapshotIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'presetNameSnapshot',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
       QAfterFilterCondition> shopIdEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -991,6 +1332,146 @@ extension OrderStyleSnapshotFigureEntityQueryFilter on QueryBuilder<
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'shopId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> sizeOptionsSnapshotJsonEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'sizeOptionsSnapshotJson',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> sizeOptionsSnapshotJsonGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'sizeOptionsSnapshotJson',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> sizeOptionsSnapshotJsonLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'sizeOptionsSnapshotJson',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> sizeOptionsSnapshotJsonBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'sizeOptionsSnapshotJson',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> sizeOptionsSnapshotJsonStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'sizeOptionsSnapshotJson',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> sizeOptionsSnapshotJsonEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'sizeOptionsSnapshotJson',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+          QAfterFilterCondition>
+      sizeOptionsSnapshotJsonContains(String value,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'sizeOptionsSnapshotJson',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+          QAfterFilterCondition>
+      sizeOptionsSnapshotJsonMatches(String pattern,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'sizeOptionsSnapshotJson',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> sizeOptionsSnapshotJsonIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'sizeOptionsSnapshotJson',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> sizeOptionsSnapshotJsonIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'sizeOptionsSnapshotJson',
         value: '',
       ));
     });
@@ -1328,6 +1809,146 @@ extension OrderStyleSnapshotFigureEntityQueryFilter on QueryBuilder<
       ));
     });
   }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> textOptionsSnapshotJsonEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'textOptionsSnapshotJson',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> textOptionsSnapshotJsonGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'textOptionsSnapshotJson',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> textOptionsSnapshotJsonLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'textOptionsSnapshotJson',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> textOptionsSnapshotJsonBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'textOptionsSnapshotJson',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> textOptionsSnapshotJsonStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'textOptionsSnapshotJson',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> textOptionsSnapshotJsonEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'textOptionsSnapshotJson',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+          QAfterFilterCondition>
+      textOptionsSnapshotJsonContains(String value,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'textOptionsSnapshotJson',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+          QAfterFilterCondition>
+      textOptionsSnapshotJsonMatches(String pattern,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'textOptionsSnapshotJson',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> textOptionsSnapshotJsonIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'textOptionsSnapshotJson',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterFilterCondition> textOptionsSnapshotJsonIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'textOptionsSnapshotJson',
+        value: '',
+      ));
+    });
+  }
 }
 
 extension OrderStyleSnapshotFigureEntityQueryObject on QueryBuilder<
@@ -1371,6 +1992,34 @@ extension OrderStyleSnapshotFigureEntityQuerySortBy on QueryBuilder<
   }
 
   QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterSortBy> sortByPresetInternalIdSnapshot() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'presetInternalIdSnapshot', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterSortBy> sortByPresetInternalIdSnapshotDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'presetInternalIdSnapshot', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterSortBy> sortByPresetNameSnapshot() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'presetNameSnapshot', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterSortBy> sortByPresetNameSnapshotDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'presetNameSnapshot', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
       QAfterSortBy> sortByShopId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'shopId', Sort.asc);
@@ -1381,6 +2030,20 @@ extension OrderStyleSnapshotFigureEntityQuerySortBy on QueryBuilder<
       QAfterSortBy> sortByShopIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'shopId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterSortBy> sortBySizeOptionsSnapshotJson() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'sizeOptionsSnapshotJson', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterSortBy> sortBySizeOptionsSnapshotJsonDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'sizeOptionsSnapshotJson', Sort.desc);
     });
   }
 
@@ -1423,6 +2086,20 @@ extension OrderStyleSnapshotFigureEntityQuerySortBy on QueryBuilder<
       QAfterSortBy> sortByStyleFigureInternalIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'styleFigureInternalId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterSortBy> sortByTextOptionsSnapshotJson() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'textOptionsSnapshotJson', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterSortBy> sortByTextOptionsSnapshotJsonDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'textOptionsSnapshotJson', Sort.desc);
     });
   }
 }
@@ -1474,6 +2151,34 @@ extension OrderStyleSnapshotFigureEntityQuerySortThenBy on QueryBuilder<
   }
 
   QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterSortBy> thenByPresetInternalIdSnapshot() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'presetInternalIdSnapshot', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterSortBy> thenByPresetInternalIdSnapshotDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'presetInternalIdSnapshot', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterSortBy> thenByPresetNameSnapshot() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'presetNameSnapshot', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterSortBy> thenByPresetNameSnapshotDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'presetNameSnapshot', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
       QAfterSortBy> thenByShopId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'shopId', Sort.asc);
@@ -1484,6 +2189,20 @@ extension OrderStyleSnapshotFigureEntityQuerySortThenBy on QueryBuilder<
       QAfterSortBy> thenByShopIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'shopId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterSortBy> thenBySizeOptionsSnapshotJson() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'sizeOptionsSnapshotJson', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterSortBy> thenBySizeOptionsSnapshotJsonDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'sizeOptionsSnapshotJson', Sort.desc);
     });
   }
 
@@ -1528,6 +2247,20 @@ extension OrderStyleSnapshotFigureEntityQuerySortThenBy on QueryBuilder<
       return query.addSortBy(r'styleFigureInternalId', Sort.desc);
     });
   }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterSortBy> thenByTextOptionsSnapshotJson() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'textOptionsSnapshotJson', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QAfterSortBy> thenByTextOptionsSnapshotJsonDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'textOptionsSnapshotJson', Sort.desc);
+    });
+  }
 }
 
 extension OrderStyleSnapshotFigureEntityQueryWhereDistinct on QueryBuilder<
@@ -1549,9 +2282,35 @@ extension OrderStyleSnapshotFigureEntityQueryWhereDistinct on QueryBuilder<
   }
 
   QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+          QDistinct>
+      distinctByPresetInternalIdSnapshot({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'presetInternalIdSnapshot',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+      QDistinct> distinctByPresetNameSnapshot({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'presetNameSnapshot',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
       QDistinct> distinctByShopId({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'shopId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+          QDistinct>
+      distinctBySizeOptionsSnapshotJson({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'sizeOptionsSnapshotJson',
+          caseSensitive: caseSensitive);
     });
   }
 
@@ -1574,6 +2333,15 @@ extension OrderStyleSnapshotFigureEntityQueryWhereDistinct on QueryBuilder<
       QDistinct> distinctByStyleFigureInternalId({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'styleFigureInternalId',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, OrderStyleSnapshotFigureEntity,
+          QDistinct>
+      distinctByTextOptionsSnapshotJson({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'textOptionsSnapshotJson',
           caseSensitive: caseSensitive);
     });
   }
@@ -1604,10 +2372,31 @@ extension OrderStyleSnapshotFigureEntityQueryProperty on QueryBuilder<
     });
   }
 
+  QueryBuilder<OrderStyleSnapshotFigureEntity, String?, QQueryOperations>
+      presetInternalIdSnapshotProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'presetInternalIdSnapshot');
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, String, QQueryOperations>
+      presetNameSnapshotProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'presetNameSnapshot');
+    });
+  }
+
   QueryBuilder<OrderStyleSnapshotFigureEntity, String, QQueryOperations>
       shopIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'shopId');
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, String, QQueryOperations>
+      sizeOptionsSnapshotJsonProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'sizeOptionsSnapshotJson');
     });
   }
 
@@ -1629,6 +2418,13 @@ extension OrderStyleSnapshotFigureEntityQueryProperty on QueryBuilder<
       styleFigureInternalIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'styleFigureInternalId');
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotFigureEntity, String, QQueryOperations>
+      textOptionsSnapshotJsonProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'textOptionsSnapshotJson');
     });
   }
 }

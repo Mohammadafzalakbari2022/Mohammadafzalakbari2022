@@ -10,7 +10,7 @@ import '../../data/local/order_summary.dart';
 
 import '../../data/local/payment_summary.dart';
 
-import '../../data/local/style/order_style_figures_resolver.dart';
+import '../../data/local/style/order_shape_selection_formatter.dart';
 
 import '../../data/providers/local_data_providers.dart';
 
@@ -24,11 +24,11 @@ import '../persistence/shared_preferences_provider.dart';
 
 import 'receipt_branding.dart';
 
+import 'order_receipt_style_content.dart';
+
 import 'receipt_line_wrap.dart';
 
 import 'shop_logo_raster.dart';
-
-import 'style_figure_raster.dart';
 
 import 'thermal_printer_prefs.dart';
 
@@ -166,23 +166,42 @@ Future<void> printThermalOrderReceipt({
 
     );
 
+    final styleSnap =
+        ref.read(orderStyleSnapshotProvider(order.internalId)).valueOrNull;
+    final measurementSnap = ref
+        .read(orderMeasurementSnapshotProvider(order.internalId))
+        .valueOrNull;
     final allFigures =
         ref.read(styleAllFiguresStreamProvider).valueOrNull ?? const [];
-    final selectedFigures = resolveOrderStyleFigures(
-      styleSelectionJson: order.styleSelectionJson,
-      allFigures: allFigures,
+
+    final formatLabels = OrderShapeSelectionFormatLabels(
+      mainStyle: l10n.orderStyleDisplayMainStyleLabel,
+      shape: l10n.orderStyleDisplayShapeLabel,
+      preset: l10n.orderStyleDisplayPresetLabel,
+      text: l10n.orderStyleDisplayTextLabel,
+      size: l10n.orderStyleDisplaySizeLabel,
     );
-    final figureThumbWidth = (paper.width * 0.42).round().clamp(80, paper.width);
-    final receiptFigures = <ReceiptStyleFigure>[];
-    for (final figure in selectedFigures) {
-      final image = await loadStyleFigureRaster(
-        imageRef: figure.imageRef,
-        maxWidthPx: figureThumbWidth,
-      );
-      receiptFigures.add(
-        ReceiptStyleFigure(image: image, name: figure.name),
-      );
-    }
+    final styleDisplay = formatOrderShapeSelectionDisplay(
+      snapshot: styleSnap,
+      styleName: order.styleName,
+      styleSelectionJson: order.styleSelectionJson,
+      styleSummary: order.styleSummary,
+      catalogFigures: allFigures,
+      labels: formatLabels,
+    );
+    final styleContent = resolveOrderReceiptStyleContent(
+      order: order,
+      styleSnap: styleSnap,
+      catalogFigures: allFigures,
+      styleLabel: l10n.receiptStyleLabel,
+      formatLabels: formatLabels,
+    );
+    final figureThumbWidth =
+        (paper.width * 0.42).round().clamp(80, paper.width);
+    final receiptFigures = await loadReceiptStyleFigureImages(
+      display: styleDisplay,
+      maxWidthPx: figureThumbWidth,
+    );
 
     final content = OrderReceiptEscPosContent(
 
@@ -208,21 +227,13 @@ Future<void> printThermalOrderReceipt({
 
       statusLine: '${l10n.receiptStatusLabel}: $statusText',
 
-      measurementsLine: order.measurementsSnapshot.trim().isEmpty
+      measurementsLine: formatReceiptMeasurementsLine(
+        order: order,
+        measurementSnap: measurementSnap,
+        label: l10n.receiptMeasurementsLabel,
+      ),
 
-          ? null
-
-          : '${l10n.receiptMeasurementsLabel}: ${order.measurementsSnapshot.trim()}',
-
-      styleLine: order.styleSummary.trim().isEmpty
-
-          ? (order.styleName.trim().isEmpty
-
-              ? null
-
-              : '${l10n.receiptStyleLabel}: ${order.styleName.trim()}')
-
-          : '${l10n.receiptStyleLabel}:\n${order.styleSummary.trim()}',
+      styleLine: styleContent.styleLine,
 
       catalogDesignLine: order.catalogDesignNameSnapshot.trim().isEmpty
 

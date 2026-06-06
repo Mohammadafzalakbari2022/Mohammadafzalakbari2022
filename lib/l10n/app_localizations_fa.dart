@@ -476,6 +476,24 @@ class AppLocalizationsFa extends AppLocalizations {
   String get ordersDetailSectionStyle => 'استایل';
 
   @override
+  String get orderStyleDisplayMainStyleLabel => 'استایل';
+
+  @override
+  String get orderStyleDisplayShapeLabel => 'شکل';
+
+  @override
+  String get orderStyleDisplayPresetLabel => 'پیش‌تنظیم';
+
+  @override
+  String get orderStyleDisplayTextLabel => 'متن';
+
+  @override
+  String get orderStyleDisplaySizeLabel => 'سایز';
+
+  @override
+  String get orderStyleDetailsTitle => 'جزئیات استایل';
+
+  @override
   String get ordersDetailSectionInternalNotes => 'یادداشت داخلی';
 
   @override
@@ -1867,6 +1885,37 @@ class AppLocalizationsFa extends AppLocalizations {
   String get ordersComposerStyleClearFigures => 'پاک کردن همه انتخاب‌ها';
 
   @override
+  String get ordersComposerShapeConfigureTitle => 'پیکربندی شکل‌های انتخاب‌شده';
+
+  @override
+  String get ordersComposerShapePresetsTitle => 'الگوهای سریع';
+
+  @override
+  String get ordersComposerShapeTextOptionsTitle => 'گزینه‌های متن';
+
+  @override
+  String get ordersComposerShapeSizeOptionsTitle => 'گزینه‌های اندازه (اینچ)';
+
+  @override
+  String get ordersComposerShapeSelectedDetailsTitle => 'جزئیات انتخاب‌شده';
+
+  @override
+  String get ordersComposerShapeNoPresets => 'الگویی پیکربندی نشده';
+
+  @override
+  String get ordersComposerShapeNoTextOptions => 'گزینه متنی پیکربندی نشده';
+
+  @override
+  String get ordersComposerShapeNoSizeOptions => 'گزینه اینچ پیکربندی نشده';
+
+  @override
+  String get ordersComposerShapeClearPreset => 'پاک کردن الگو';
+
+  @override
+  String get ordersComposerShapeInactiveHint =>
+      'در تنظیمات غیرفعال — برای این سفارش حفظ می‌شود';
+
+  @override
   String get ordersComposerCatalogDesignTitle => 'طرح کامل از کاتالوگ';
 
   @override
@@ -2031,7 +2080,8 @@ class AppLocalizationsFa extends AppLocalizations {
   String get settingsStyleFiguresTitle => 'شکل‌های طرح';
 
   @override
-  String get settingsStyleFiguresSubtitle => 'همه تصاویر طرح دوزی';
+  String get settingsStyleFiguresSubtitle =>
+      'نام شکل، گزینه‌های متن، اندازه اینچ و الگوها';
 
   @override
   String get settingsStyleFiguresEmpty => 'هنوز شکل طرح نیست.';
@@ -2054,6 +2104,140 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get settingsStyleFigureWebOnlyBody =>
       'افزودن تصویر سفارشی روی اندروید و iOS است. شکل‌های پیش‌فرض در وب کار می‌کنند.';
+
+  @override
+  String get settingsStyleFigureTapToConfigure => 'برای پیکربندی لمس کنید';
+
+  @override
+  String get settingsStyleFigureDetailTitle => 'پیکربندی شکل';
+
+  @override
+  String get settingsStyleFigurePreviewTitle => 'پیش‌نمایش شکل';
+
+  @override
+  String get settingsStyleFigureNotFound => 'شکل یافت نشد.';
+
+  @override
+  String get settingsStyleFigureSaved => 'تنظیمات شکل ذخیره شد.';
+
+  @override
+  String get settingsStyleFigureSortOrderLabel => 'ترتیب';
+
+  @override
+  String get settingsStyleFigureSortOrderInvalid =>
+      'یک عدد ترتیب معتبر وارد کنید.';
+
+  @override
+  String get settingsStyleFigureActiveLabel => 'فعال';
+
+  @override
+  String get settingsStyleFigureBundledHint =>
+      'شکل‌های پیش‌فرض حذف نمی‌شوند. در صورت نیاز غیرفعال کنید.';
+
+  @override
+  String get settingsStyleFigureBundledDeleteBlocked =>
+      'شکل‌های پیش‌فرض حذف نمی‌شوند. به جای آن غیرفعال کنید.';
+
+  @override
+  String settingsStyleFigureNameHelper(String name) {
+    return 'نام نمایشی: $name';
+  }
+
+  @override
+  String get settingsStyleFigureTextOptionsTitle => 'گزینه‌های متن';
+
+  @override
+  String get settingsStyleFigureTextOptionsEmpty => 'هنوز گزینه متنی نیست.';
+
+  @override
+  String get settingsStyleFigureTextOptionAddCta => 'افزودن گزینه متن';
+
+  @override
+  String get settingsStyleFigureTextOptionEditTitle => 'ویرایش گزینه متن';
+
+  @override
+  String get settingsStyleFigureTextOptionLabelField => 'برچسب';
+
+  @override
+  String get settingsStyleFigureTextOptionDeleteTitle => 'حذف گزینه متن؟';
+
+  @override
+  String get settingsStyleFigureTextOptionDeleteBody =>
+      'از فهرست حذف می‌شود. سفارش‌های قبلی تغییر نمی‌کنند.';
+
+  @override
+  String get settingsStyleFigureSizeOptionsTitle => 'گزینه‌های اندازه (اینچ)';
+
+  @override
+  String get settingsStyleFigureSizeOptionsEmpty => 'هنوز گزینه اندازه نیست.';
+
+  @override
+  String get settingsStyleFigureSizeOptionAddCta => 'افزودن گزینه اینچ';
+
+  @override
+  String get settingsStyleFigureSizeOptionEditTitle => 'ویرایش گزینه اینچ';
+
+  @override
+  String get settingsStyleFigureSizeOptionLabelField => 'برچسب';
+
+  @override
+  String get settingsStyleFigureValueInchesLabel => 'مقدار به اینچ';
+
+  @override
+  String get settingsStyleFigureSizeOptionDeleteTitle => 'حذف گزینه اینچ؟';
+
+  @override
+  String get settingsStyleFigureSizeOptionDeleteBody =>
+      'از فهرست حذف می‌شود. سفارش‌های قبلی تغییر نمی‌کنند.';
+
+  @override
+  String get settingsStyleFigureLabelRequired => 'برچسب الزامی است.';
+
+  @override
+  String get settingsStyleFigureValuePositiveRequired =>
+      'مقدار باید بزرگ‌تر از صفر باشد.';
+
+  @override
+  String get settingsStyleFigurePresetsTitle => 'الگوها';
+
+  @override
+  String get settingsStyleFigurePresetsEmpty => 'هنوز الگویی نیست.';
+
+  @override
+  String get settingsStyleFigurePresetAddCta => 'افزودن الگو';
+
+  @override
+  String get settingsStyleFigurePresetEditTitle => 'ویرایش الگو';
+
+  @override
+  String get settingsStyleFigurePresetNameLabel => 'نام الگو';
+
+  @override
+  String get settingsStyleFigurePresetNameRequired => 'نام الگو الزامی است.';
+
+  @override
+  String get settingsStyleFigurePresetSelectTextOptions =>
+      'گزینه‌های متن را انتخاب کنید';
+
+  @override
+  String get settingsStyleFigurePresetSelectSizeOptions =>
+      'گزینه‌های اینچ را انتخاب کنید';
+
+  @override
+  String get settingsStyleFigurePresetDeleteTitle => 'حذف الگو؟';
+
+  @override
+  String get settingsStyleFigurePresetDeleteBody =>
+      'از فهرست حذف می‌شود. سفارش‌های قبلی تغییر نمی‌کنند.';
+
+  @override
+  String settingsStyleFigurePresetSummary(
+    int textCount,
+    int sizeCount,
+    String status,
+  ) {
+    return '$textCount متن · $sizeCount اینچ · $status';
+  }
 
   @override
   String get settingsStyleActiveLabel => 'فعال';
