@@ -1,0 +1,513 @@
+{
+  "meta": {
+    "sourceProject": "Khayat (pride_v3)",
+    "extractedAt": "2026-06-06",
+    "themeEngine": "Material 3 (useMaterial3: true)",
+    "seedColor": "#7C3AED"
+  },
+  "colors": {
+    "seed": "#7C3AED",
+    "light": {
+      "primary": "#7C3AED",
+      "onPrimary": "#FFFFFF",
+      "primaryContainer": "#EDE9FE",
+      "onPrimaryContainer": "#4C1D95",
+      "secondary": "#0D9488",
+      "onSecondary": "#FFFFFF",
+      "secondaryContainer": "#CCFBF1",
+      "onSecondaryContainer": "#042F2E",
+      "tertiary": "#EA580C",
+      "onTertiary": "#FFFFFF",
+      "tertiaryContainer": "#FFEDD5",
+      "onTertiaryContainer": "#431407",
+      "error": "#DC2626",
+      "onError": "#FFFFFF",
+      "errorContainer": "#FEE2E2",
+      "onErrorContainer": "#7F1D1D",
+      "surface": "#F8FAFC",
+      "surfaceContainerLowest": "#FFFFFF",
+      "surfaceContainerLow": "#F1F5F9",
+      "surfaceContainer": "#E8EDF4",
+      "surfaceContainerHigh": "#CBD5E1",
+      "surfaceContainerHighest": "#94A3B8",
+      "outline": "#94A3B8",
+      "outlineVariant": "#CBD5E1",
+      "onSurface": "#0F172A",
+      "onSurfaceVariant": "#475569",
+      "surfaceTint": "#7C3AED",
+      "shadow": "#0F172A"
+    },
+    "dark": {
+      "primary": "#A78BFA",
+      "onPrimary": "#2E1065",
+      "primaryContainer": "#5B21B6",
+      "onPrimaryContainer": "#EDE9FE",
+      "secondary": "#2DD4BF",
+      "onSecondary": "#042F2E",
+      "secondaryContainer": "#115E59",
+      "onSecondaryContainer": "#CCFBF1",
+      "tertiary": "#FDBA74",
+      "onTertiary": "#431407",
+      "tertiaryContainer": "#9A3412",
+      "onTertiaryContainer": "#FFEDD5",
+      "error": "#F87171",
+      "onError": "#450A0A",
+      "errorContainer": "#991B1B",
+      "onErrorContainer": "#FEE2E2",
+      "surface": "#12131A",
+      "surfaceContainerLowest": "#0C0D12",
+      "surfaceContainerLow": "#181924",
+      "surfaceContainer": "#1F2230",
+      "surfaceContainerHigh": "#282C3D",
+      "surfaceContainerHighest": "#32374A",
+      "outline": "#64748B",
+      "outlineVariant": "#3D4458",
+      "onSurface": "#E8EDF4",
+      "onSurfaceVariant": "#94A3B8",
+      "surfaceTint": "#7C3AED"
+    },
+    "semanticActions": {
+      "light": {
+        "add": "#059669",
+        "onAdd": "#FFFFFF",
+        "addContainer": "#D1FAE5",
+        "onAddContainer": "#064E3B",
+        "edit": "#2563EB",
+        "onEdit": "#FFFFFF",
+        "editContainer": "#DBEAFE",
+        "onEditContainer": "#1E3A8A",
+        "delete": "#DC2626",
+        "onDelete": "#FFFFFF",
+        "deleteContainer": "#FEE2E2",
+        "onDeleteContainer": "#7F1D1D",
+        "cancel": "#64748B",
+        "onCancel": "#334155",
+        "cancelContainer": "#F1F5F9",
+        "onCancelContainer": "#334155",
+        "warning": "#D97706",
+        "onWarning": "#FFFFFF",
+        "warningContainer": "#FEF3C7",
+        "onWarningContainer": "#78350F",
+        "payment": "#0D9488",
+        "onPayment": "#FFFFFF",
+        "paymentContainer": "#CCFBF1",
+        "onPaymentContainer": "#042F2E"
+      },
+      "dark": {
+        "add": "#34D399",
+        "onAdd": "#022C22",
+        "addContainer": "#065F46",
+        "onAddContainer": "#D1FAE5",
+        "edit": "#60A5FA",
+        "onEdit": "#172554",
+        "editContainer": "#1E40AF",
+        "onEditContainer": "#DBEAFE",
+        "delete": "#F87171",
+        "onDelete": "#450A0A",
+        "deleteContainer": "#991B1B",
+        "onDeleteContainer": "#FEE2E2",
+        "cancel": "#94A3B8",
+        "onCancel": "#E2E8F0",
+        "cancelContainer": "#334155",
+        "onCancelContainer": "#F1F5F9",
+        "warning": "#FBBF24",
+        "onWarning": "#422006",
+        "warningContainer": "#92400E",
+        "onWarningContainer": "#FEF3C7",
+        "payment": "#2DD4BF",
+        "onPayment": "#042F2E",
+        "paymentContainer": "#115E59",
+        "onPaymentContainer": "#CCFBF1"
+      }
+    },
+    "navTabPalette": [
+      "#7C3AED",
+      "#2563EB",
+      "#EA580C",
+      "#0D9488",
+      "#64748B"
+    ],
+    "settingsIconPalette": [
+      "#7C3AED",
+      "#059669",
+      "#2563EB",
+      "#0D9488",
+      "#EA580C",
+      "#DB2777",
+      "#CA8A04",
+      "#DC2626",
+      "#4F46E5",
+      "#0891B2"
+    ],
+    "orderPipelineChart": {
+      "new": "#7C3AED",
+      "inProgress": "#2563EB",
+      "ready": "#059669"
+    },
+    "listSelection": {
+      "fillAlpha": 0.42,
+      "borderAlpha": 0.55,
+      "shadowAlpha": 0.18,
+      "borderWidthSelected": 1.75,
+      "borderWidthDefault": 1
+    },
+    "coloredLeadingBackgroundAlpha": 0.14,
+    "settingsSectionBorderAlpha": 0.38,
+    "cardBorderAlpha": 0.6,
+    "dividerAlpha": 0.5
+  },
+  "gradients": {
+    "dashboardHeader": {
+      "direction": "topStartToBottomEnd",
+      "stops": [
+        { "color": "scheme.primary", "alpha": 1.0 },
+        { "color": "scheme.primary", "alpha": 0.82 },
+        { "color": "scheme.secondary", "alpha": 0.9 }
+      ]
+    },
+    "heroCardOrder": {
+      "direction": "topStartToBottomEnd",
+      "stops": [
+        { "color": "statusColor", "alpha": 0.14 },
+        { "color": "scheme.primaryContainer", "alpha": 0.35 }
+      ]
+    },
+    "heroCardCustomer": {
+      "direction": "topStartToBottomEnd",
+      "stops": [
+        { "color": "scheme.secondary", "alpha": 0.12 },
+        { "color": "scheme.primaryContainer", "alpha": 0.35 }
+      ]
+    },
+    "dashboardIncomeBar": {
+      "direction": "bottomToTop",
+      "colors": ["scheme.secondary", "scheme.secondaryContainer"]
+    },
+    "loginLogoShadow": {
+      "color": "scheme.primary",
+      "alpha": 0.18,
+      "blurRadius": 28,
+      "offsetY": 10
+    }
+  },
+  "typography": {
+    "engine": "Typography.material2021(platform: TargetPlatform.android)",
+    "bodyColor": "colorScheme.onSurface",
+    "displayColor": "colorScheme.onSurface",
+    "customFontFamilyInTheme": null,
+    "note": "UI uses system/Material default fonts. Vazirmatn and Noto Naskh Arabic are PDF-only assets."
+  },
+  "fontFamilies": {
+    "ui": "Material default (Roboto on Android, system on iOS)",
+    "pdfNotoNaskhArabic": "assets/fonts/NotoNaskhArabic-Regular.ttf",
+    "pdfVazirmatnBold": "assets/fonts/Vazirmatn-Bold.ttf",
+    "pdfVazirmatnRegular": "assets/fonts/Vazirmatn-Regular.ttf",
+    "monospaceDevOnly": "monospace"
+  },
+  "fontSizes": {
+    "navigationBarLabel": 12,
+    "chipLabel": 12,
+    "dashboardBarDayLabel": 10,
+    "pieChartSectionTitle": 10,
+    "listMetaIcon": 16,
+    "appBarIcon": 22,
+    "coloredLeadingIcon": 22,
+    "fabIcon": null,
+    "heroIcon": 26,
+    "dashboardHeaderIcon": 28,
+    "alertDialogIcon": 28,
+    "materialDefaults": {
+      "displayLarge": 57,
+      "displayMedium": 45,
+      "displaySmall": 36,
+      "headlineLarge": 32,
+      "headlineMedium": 28,
+      "headlineSmall": 24,
+      "titleLarge": 22,
+      "titleMedium": 16,
+      "titleSmall": 14,
+      "bodyLarge": 16,
+      "bodyMedium": 14,
+      "bodySmall": 12,
+      "labelLarge": 14,
+      "labelMedium": 12,
+      "labelSmall": 11
+    }
+  },
+  "fontWeights": {
+    "navigationBarSelected": 700,
+    "navigationBarUnselected": 500,
+    "sectionTitle": 700,
+    "listTileNameBadge": 700,
+    "kpiValue": 800,
+    "dashboardHeaderTitle": 800,
+    "chipLabel": 500,
+    "listMetaPrimary": 600,
+    "authBannerTitle": 600,
+    "loginAppTitle": 700
+  },
+  "spacing": {
+    "pagePadding": 16,
+    "pagePaddingLarge": 24,
+    "formScrollPadding": { "left": 16, "top": 16, "right": 16, "bottomBase": 96 },
+    "loginPadding": { "horizontal": 24, "top": 24, "bottom": 24 },
+    "listTileHorizontal": 10,
+    "listTileVertical": 3,
+    "listTileInner": { "left": 14, "top": 12, "right": 12, "bottom": 12 },
+    "carvedSectionOuter": { "horizontal": 16, "vertical": 6 },
+    "carvedSectionInner": { "horizontal": 14, "bottom": 14 },
+    "dashboardSectionHeader": { "horizontal": 14, "top": 12, "bottom": 10 },
+    "dashboardSectionBody": 14,
+    "dashboardSectionGap": 12,
+    "settingsSectionTitleGap": 8,
+    "settingsSectionGap": 24,
+    "buttonRowGap": 12,
+    "iconTextGapSmall": 6,
+    "iconTextGapMedium": 10,
+    "iconTextGapLarge": 12,
+    "compactSearchToolbar": { "horizontal": 12, "top": 8 },
+    "bottomBarMinimum": 16,
+    "dialogActions": { "horizontal": 16, "bottom": 16 },
+    "snackbarInset": { "horizontal": 16, "vertical": 12 },
+    "keyboardSafeScrollPaddingBottom": 140
+  },
+  "radius": {
+    "button": 12,
+    "textButton": 10,
+    "input": 12,
+    "chip": 10,
+    "iconAction": 10,
+    "coloredLeading": 12,
+    "iconButtonTheme": 12,
+    "closeButton": 12,
+    "carvedSection": 14,
+    "listTile": 14,
+    "kpiTile": 14,
+    "dashboardHeaderIcon": 14,
+    "heroCardIcon": 14,
+    "alertDialogIcon": 14,
+    "card": 16,
+    "fab": 16,
+    "settingsSection": 16,
+    "dashboardSection": 16,
+    "dialog": 20,
+    "heroCard": 20,
+    "loginLogo": 36,
+    "nameBadge": 10,
+    "pipelineChartBar": 8,
+    "reportBar": 2,
+    "dashboardIncomeBar": 6,
+    "shopLogoSmall": 8,
+    "appBarInkWell": 8,
+    "snackbar": 12,
+    "snackbarProgressTop": 4
+  },
+  "shadows": {
+    "cardElevation": 0,
+    "filledButtonElevation": 0,
+    "fabElevation": 4,
+    "fabHighlightElevation": 8,
+    "appBarScrolledUnderLight": 0.5,
+    "appBarScrolledUnderDark": 1,
+    "snackbarElevation": 6,
+    "guideBannerElevation": 8,
+    "listTileSelected": {
+      "color": "scheme.primary",
+      "alpha": 0.18,
+      "blurRadius": 10,
+      "offsetY": 3
+    },
+    "loginLogo": {
+      "color": "scheme.primary",
+      "alpha": 0.18,
+      "blurRadius": 28,
+      "offsetY": 10
+    }
+  },
+  "borders": {
+    "card": { "width": 1, "color": "outlineVariant", "alpha": 0.6 },
+    "carvedSection": { "width": 1, "color": "outlineVariant" },
+    "settingsSection": { "width": 1.5, "color": "primary", "alpha": 0.38 },
+    "dashboardSection": { "width": 1, "color": "outlineVariant", "alpha": 0.65 },
+    "outlinedButton": { "width": 1.5, "color": "actions.cancel" },
+    "inputEnabled": { "width": 1, "color": "outlineVariant", "alpha": 0.85 },
+    "inputFocused": { "width": 2, "color": "primary" },
+    "heroCard": { "width": 1.25 },
+    "kpiTile": { "width": 1, "alpha": 0.35 },
+    "nameBadge": { "width": 1, "alpha": 0.65 },
+    "divider": { "width": 1, "alpha": 0.5 }
+  },
+  "icons": {
+    "pack": "Material Icons (Icons.*)",
+    "style": "Outlined when inactive, filled when active/selected",
+    "sizes": {
+      "navigationUnselected": 24,
+      "navigationSelected": 26,
+      "appBar": 22,
+      "coloredLeading": 22,
+      "listMeta": 16,
+      "kpi": 18,
+      "kpiChevron": 12,
+      "dashboardQuickLink": 16,
+      "alertDialog": 28,
+      "hero": 26,
+      "checkSelected": 20,
+      "legendDot": 10
+    },
+    "navTabColorsByIndex": "prideNavTabColor(index)",
+    "settingsColorsByIndex": "prideSettingsIconColor(index)",
+    "inactiveNavIconAlpha": 0.72
+  },
+  "chartColors": {
+    "expensePieDaily": "scheme.primary",
+    "expensePieFoodDrinks": "scheme.secondary",
+    "expensePieOther": "scheme.tertiary",
+    "reportDailyIncomeBar": "scheme.primaryContainer",
+    "dashboardPipelineNew": "#7C3AED",
+    "dashboardPipelineProgress": "#2563EB",
+    "dashboardPipelineReady": "#059669",
+    "dashboardIncomeBars": ["scheme.secondary", "scheme.secondaryContainer"]
+  },
+  "tableStyles": {
+    "note": "Khayat does not use DataTable. Lists use custom tiles and ListTile.",
+    "listTileTheme": {
+      "iconColor": "onSurfaceVariant",
+      "contentPaddingStart": 16,
+      "contentPaddingEnd": 12,
+      "minVerticalPadding": 12
+    },
+    "dataRowPattern": "Custom bordered tile with 14px radius, surfaceContainerLow fill"
+  },
+  "buttonStyles": {
+    "filledDefault": {
+      "paddingHorizontal": 22,
+      "paddingVertical": 14,
+      "minSize": { "width": 64, "height": 44 },
+      "radius": 12,
+      "elevation": 0
+    },
+    "semanticVariant": {
+      "paddingHorizontal": 20,
+      "paddingVertical": 12,
+      "radius": 12,
+      "elevation": 0
+    },
+    "outlinedCancel": {
+      "paddingHorizontal": 22,
+      "paddingVertical": 14,
+      "minSize": { "width": 64, "height": 44 },
+      "radius": 12,
+      "borderWidth": 1.5
+    },
+    "textButton": {
+      "paddingHorizontal": 14,
+      "paddingVertical": 10,
+      "radius": 10
+    },
+    "iconButtonTheme": {
+      "minSize": { "width": 44, "height": 44 },
+      "padding": 8,
+      "radius": 12,
+      "background": "actions.cancelContainer",
+      "foreground": "actions.onCancelContainer"
+    },
+    "fab": {
+      "background": "actions.add",
+      "foreground": "actions.onAdd",
+      "radius": 16
+    },
+    "variants": ["primary", "add", "edit", "delete", "cancel", "warning", "payment"]
+  },
+  "inputStyles": {
+    "filled": true,
+    "fillColorLight": "surfaceContainerLowest",
+    "fillColorDark": "surfaceContainerLow",
+    "radius": 12,
+    "labelColor": "onSurfaceVariant",
+    "hintAlpha": 0.85,
+    "ltrFields": {
+      "textDirection": "ltr",
+      "textAlign": "left",
+      "digitPattern": "Western + Persian + Arabic-Indic numerals"
+    }
+  },
+  "cardStyles": {
+    "elevation": 0,
+    "color": "surfaceContainerLowest",
+    "radius": 16,
+    "margin": 0,
+    "clipBehavior": "antiAlias",
+    "border": "outlineVariant @ 0.6 alpha"
+  },
+  "listStyles": {
+    "selectionAnimationMs": 220,
+    "selectionCurve": "easeOutCubic",
+    "tileRadius": 14,
+    "tileBackground": "surfaceContainerLow",
+    "selectedBackground": "primaryContainer @ 0.42 alpha",
+    "nameBadgeBackground": "surfaceContainerHigh"
+  },
+  "navigationStyles": {
+    "bottomNavigationBar": {
+      "widget": "NavigationBar",
+      "height": 72,
+      "backgroundColor": "surfaceContainerLowest",
+      "surfaceTint": "transparent",
+      "indicatorColor": "primaryContainer",
+      "selectedLabelWeight": 700,
+      "unselectedLabelWeight": 500
+    },
+    "appBar": {
+      "centerTitle": false,
+      "backgroundColor": "surfaceContainerLow",
+      "foregroundColor": "onSurface",
+      "leadingDashboardIconColor": "primary"
+    },
+    "drawer": {
+      "widthPercent": 0.92,
+      "backgroundColor": "surface"
+    },
+    "settingsSection": {
+      "radius": 16,
+      "borderWidth": 1.5,
+      "borderColor": "primary @ 0.38 alpha"
+    }
+  },
+  "breakpoints": {
+    "note": "No formal responsive framework. Ad-hoc MediaQuery thresholds.",
+    "drawerWidth": "92% of screen width",
+    "catalogGridCrossAxisCount": {
+      "widthLessThan360": 2,
+      "widthLessThan600": 3,
+      "default": 4
+    },
+    "styleFigureGridCrossAxisCount": {
+      "widthLessThan400": 2,
+      "widthLessThan700": 3,
+      "default": 4
+    },
+    "bottomSheetHeight": {
+      "customerProfileSheet": "88% of screen height",
+      "developerCodesPreview": "30% of screen height"
+    },
+    "primaryTarget": "mobile phone portrait; tablet/desktop use same layouts with wider grids"
+  },
+  "lightTheme": {
+    "builder": "buildPrideLightTheme()",
+    "colorSchemeSource": "ColorScheme.fromSeed(seed: #7C3AED, brightness: light, dynamicSchemeVariant: vibrant) + manual overrides",
+    "scaffoldBackground": "surface",
+    "extensions": ["PrideActionColors.light"]
+  },
+  "darkTheme": {
+    "builder": "buildPrideDarkTheme()",
+    "colorSchemeSource": "ColorScheme.fromSeed(seed: #7C3AED, brightness: dark, dynamicSchemeVariant: vibrant) + manual overrides",
+    "scaffoldBackground": "surface",
+    "extensions": ["PrideActionColors.dark"]
+  },
+  "systemTheme": {
+    "defaultMode": "ThemeMode.system",
+    "persistenceKey": "pride_theme_mode",
+    "provider": "themeModeProvider (Riverpod StateProvider)",
+    "uiControl": "SegmentedButton<ThemeMode> on settings appearance screen"
+  }
+}

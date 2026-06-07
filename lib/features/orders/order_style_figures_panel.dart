@@ -8,6 +8,7 @@ import '../../data/local/style/order_shape_selection_formatter.dart';
 import '../../data/local/style_figure_summary.dart';
 import '../../data/providers/local_data_providers.dart';
 import 'order_shape_display_section.dart';
+import '../../data/local/style/order_shape_format_labels.dart';
 
 /// Order style section: main label plus selected figure thumbnails and details.
 class OrderStyleFiguresPanel extends ConsumerWidget {
@@ -21,15 +22,8 @@ class OrderStyleFiguresPanel extends ConsumerWidget {
     return 3;
   }
 
-  OrderShapeSelectionFormatLabels _labels(AppLocalizations l10n) {
-    return OrderShapeSelectionFormatLabels(
-      mainStyle: l10n.orderStyleDisplayMainStyleLabel,
-      shape: l10n.orderStyleDisplayShapeLabel,
-      preset: l10n.orderStyleDisplayPresetLabel,
-      text: l10n.orderStyleDisplayTextLabel,
-      size: l10n.orderStyleDisplaySizeLabel,
-    );
-  }
+  OrderShapeSelectionFormatLabels _labels(AppLocalizations l10n) =>
+      orderShapeFormatLabels(l10n);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

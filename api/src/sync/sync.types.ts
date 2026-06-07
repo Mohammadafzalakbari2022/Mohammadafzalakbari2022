@@ -13,7 +13,6 @@ export const SYNC_ENTITY_TYPES = [
   'style_figure',
   'style_figure_text_option',
   'style_figure_size_option',
-  'style_figure_preset',
   'fabric_name',
   'fabric_color',
   'shop_rent',

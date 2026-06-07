@@ -10,7 +10,7 @@ import '../../auth/auth_providers.dart';
 import '../../data/local/measurement_unit_codes.dart';
 import '../../data/local/style/style_figure_display_name.dart';
 import '../../data/local/style/style_figure_image_ref.dart';
-import '../../data/local/style_figure_preset_summary.dart';
+import '../../data/local/style/style_figure_inch_display.dart';
 import '../../data/local/style_figure_size_option_summary.dart';
 import '../../data/local/style_figure_summary.dart';
 import '../../data/local/style_figure_text_option_summary.dart';
@@ -27,65 +27,35 @@ Future<void> showStyleFigureTextOptionDialog({
   StyleFigureTextOptionSummary? existing,
   required Future<void> Function({
     required String label,
-    required int sortOrder,
     required bool isActive,
   }) onSubmit,
 }) async {
   final labelCtrl = TextEditingController(text: existing?.label ?? '');
-  final sortCtrl =
-      TextEditingController(text: '${existing?.sortOrder ?? 10}');
-  var isActive = existing?.isActive ?? true;
+  final isActive = existing?.isActive ?? true;
 
   final ok = await showDialog<bool>(
     context: context,
-    builder: (ctx) => StatefulBuilder(
-      builder: (context, setDialogState) => AlertDialog(
-        title: Text(title),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: labelCtrl,
-                decoration: InputDecoration(
-                  labelText: l10n.settingsStyleFigureTextOptionLabelField,
-                  border: const OutlineInputBorder(),
-                ),
-                autofocus: true,
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: sortCtrl,
-                decoration: InputDecoration(
-                  labelText: l10n.settingsStyleFigureSortOrderLabel,
-                  border: const OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number,
-              ),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(l10n.settingsStyleFigureActiveLabel),
-                value: isActive,
-                onChanged: (v) => setDialogState(() => isActive = v),
-              ),
-            ],
-          ),
+    builder: (ctx) => AlertDialog(
+      title: Text(title),
+      content: TextField(
+        controller: labelCtrl,
+        decoration: InputDecoration(
+          labelText: l10n.settingsStyleFigureTextOptionLabelField,
+          border: const OutlineInputBorder(),
         ),
-        actions: prideDialogCancelSave(
-          context: ctx,
-          onCancel: () => Navigator.pop(ctx, false),
-          onConfirm: () => Navigator.pop(ctx, true),
-          saveLabel: l10n.saveCta,
-        ),
+        autofocus: true,
+      ),
+      actions: prideDialogCancelSave(
+        context: ctx,
+        onCancel: () => Navigator.pop(ctx, false),
+        onConfirm: () => Navigator.pop(ctx, true),
+        saveLabel: l10n.saveCta,
       ),
     ),
   );
 
   final label = labelCtrl.text.trim();
-  final sortOrder =
-      int.tryParse(sortCtrl.text.trim()) ?? existing?.sortOrder ?? 10;
   labelCtrl.dispose();
-  sortCtrl.dispose();
 
   if (ok != true || !context.mounted) return;
   if (!isNonEmptyShapeOptionLabel(label)) {
@@ -94,7 +64,7 @@ Future<void> showStyleFigureTextOptionDialog({
     );
     return;
   }
-  await onSubmit(label: label, sortOrder: sortOrder, isActive: isActive);
+  await onSubmit(label: label, isActive: isActive);
 }
 
 Future<void> showStyleFigureSizeOptionDialog({
@@ -105,98 +75,54 @@ Future<void> showStyleFigureSizeOptionDialog({
   required Future<void> Function({
     required String label,
     required double valueInches,
-    required int sortOrder,
     required bool isActive,
   }) onSubmit,
 }) async {
-  final labelCtrl = TextEditingController(text: existing?.label ?? '');
   final valueCtrl = TextEditingController(
-    text: existing != null ? '${existing.valueInches}' : '',
+    text: existing != null
+        ? displayInchOptionLabel(
+            valueInches: existing.valueInches,
+            label: existing.label,
+          )
+        : '',
   );
-  final sortCtrl =
-      TextEditingController(text: '${existing?.sortOrder ?? 10}');
-  var isActive = existing?.isActive ?? true;
+  final isActive = existing?.isActive ?? true;
 
   final ok = await showDialog<bool>(
     context: context,
-    builder: (ctx) => StatefulBuilder(
-      builder: (context, setDialogState) => AlertDialog(
-        title: Text(title),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: labelCtrl,
-                decoration: InputDecoration(
-                  labelText: l10n.settingsStyleFigureSizeOptionLabelField,
-                  border: const OutlineInputBorder(),
-                ),
-                autofocus: true,
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: valueCtrl,
-                decoration: InputDecoration(
-                  labelText: l10n.settingsStyleFigureValueInchesLabel,
-                  border: const OutlineInputBorder(),
-                ),
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: sortCtrl,
-                decoration: InputDecoration(
-                  labelText: l10n.settingsStyleFigureSortOrderLabel,
-                  border: const OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number,
-              ),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(l10n.settingsStyleFigureActiveLabel),
-                value: isActive,
-                onChanged: (v) => setDialogState(() => isActive = v),
-              ),
-            ],
-          ),
+    builder: (ctx) => AlertDialog(
+      title: Text(title),
+      content: TextField(
+        controller: valueCtrl,
+        decoration: InputDecoration(
+          labelText: l10n.settingsStyleFigureValueInchesLabel,
+          border: const OutlineInputBorder(),
         ),
-        actions: prideDialogCancelSave(
-          context: ctx,
-          onCancel: () => Navigator.pop(ctx, false),
-          onConfirm: () => Navigator.pop(ctx, true),
-          saveLabel: l10n.saveCta,
-        ),
+        autofocus: true,
+      ),
+      actions: prideDialogCancelSave(
+        context: ctx,
+        onCancel: () => Navigator.pop(ctx, false),
+        onConfirm: () => Navigator.pop(ctx, true),
+        saveLabel: l10n.saveCta,
       ),
     ),
   );
 
-  final label = labelCtrl.text.trim();
   final valueText = valueCtrl.text.trim();
-  final sortOrder =
-      int.tryParse(sortCtrl.text.trim()) ?? existing?.sortOrder ?? 10;
-  labelCtrl.dispose();
   valueCtrl.dispose();
-  sortCtrl.dispose();
 
   if (ok != true || !context.mounted) return;
-  if (!isNonEmptyShapeOptionLabel(label)) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.settingsStyleFigureLabelRequired)),
-    );
-    return;
-  }
-  if (!isPositiveInchesValue(valueText)) {
+  if (!isValidInchMeasurementText(valueText)) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(l10n.settingsStyleFigureValuePositiveRequired)),
     );
     return;
   }
+  final stored = parseInchMeasurementForStorage(valueText);
   await onSubmit(
-    label: label,
-    valueInches: double.parse(valueText),
-    sortOrder: sortOrder,
+    label: stored.label,
+    valueInches: stored.valueInches,
     isActive: isActive,
   );
 }
@@ -217,14 +143,12 @@ class SettingsStyleFigureDetailScreen extends ConsumerStatefulWidget {
 class _SettingsStyleFigureDetailScreenState
     extends ConsumerState<SettingsStyleFigureDetailScreen> {
   final _nameCtrl = TextEditingController();
-  final _sortCtrl = TextEditingController();
   String? _loadedFigureId;
   bool _savingMeta = false;
 
   @override
   void dispose() {
     _nameCtrl.dispose();
-    _sortCtrl.dispose();
     super.dispose();
   }
 
@@ -232,7 +156,6 @@ class _SettingsStyleFigureDetailScreenState
     if (_loadedFigureId == figure.internalId) return;
     _loadedFigureId = figure.internalId;
     _nameCtrl.text = figure.name;
-    _sortCtrl.text = '${figure.sortOrder}';
   }
 
   Future<void> _saveFigureMeta(StyleFigureSummary figure) async {
@@ -244,20 +167,13 @@ class _SettingsStyleFigureDetailScreenState
       );
       return;
     }
-    final sortOrder = int.tryParse(_sortCtrl.text.trim());
-    if (sortOrder == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.settingsStyleFigureSortOrderInvalid)),
-      );
-      return;
-    }
     setState(() => _savingMeta = true);
     try {
       final repo = await ref.read(styleCatalogRepositoryProvider.future);
       await repo.updateStyleFigure(
         internalId: figure.internalId,
         name: _nameCtrl.text.trim(),
-        sortOrder: sortOrder,
+        sortOrder: figure.sortOrder,
         isActive: figure.isActive,
       );
       enqueueStyleFigureUpsert(
@@ -266,7 +182,7 @@ class _SettingsStyleFigureDetailScreenState
         partInternalId: figure.partInternalId,
         name: _nameCtrl.text.trim(),
         imageRef: figure.imageRef,
-        sortOrder: sortOrder,
+        sortOrder: figure.sortOrder,
         isActive: figure.isActive,
       );
       if (mounted) {
@@ -318,9 +234,6 @@ class _SettingsStyleFigureDetailScreenState
         ref.watch(styleFigureTextOptionsProvider(widget.figureId));
     final sizeOptionsAsync =
         ref.watch(styleFigureSizeOptionsProvider(widget.figureId));
-    final presetsAsync =
-        ref.watch(styleFigurePresetsProvider(widget.figureId));
-
     return figuresAsync.when(
       data: (figures) {
         StyleFigureSummary? figure;
@@ -357,13 +270,13 @@ class _SettingsStyleFigureDetailScreenState
           ),
           body: ListView(
             children: [
-              PrideCarvedPanel(
-                title: l10n.settingsStyleFigurePreviewTitle,
+              PrideCarvedSection(
+                title: l10n.settingsStyleFigureDetailTitle,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     AspectRatio(
-                      aspectRatio: 1.4,
+                      aspectRatio: 1.2,
                       child: DecoratedBox(
                         decoration: BoxDecoration(
                           color: Theme.of(context)
@@ -382,56 +295,19 @@ class _SettingsStyleFigureDetailScreenState
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Text(
-                      displayName,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      f.isActive
-                          ? l10n.settingsStyleActiveLabel
-                          : l10n.settingsStyleInactiveLabel,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: f.isActive
-                                ? Theme.of(context).colorScheme.primary
-                                : Theme.of(context).colorScheme.outline,
-                          ),
-                    ),
-                  ],
-                ),
-              ),
-              PrideCarvedSection(
-                title: l10n.settingsStyleFigureNameLabel,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
                     TextField(
                       controller: _nameCtrl,
                       enabled: canEdit,
                       decoration: InputDecoration(
                         labelText: l10n.settingsStyleFigureNameLabel,
                         helperText: l10n.settingsStyleFigureNameHelper(
-                          resolveStyleFigureDisplayName(
-                            name: _nameCtrl.text,
-                            imageRef: f.imageRef,
-                            sortOrder: f.sortOrder,
-                          ),
+                          displayName,
                         ),
                         border: const OutlineInputBorder(),
                       ),
                       onChanged: (_) => setState(() {}),
                     ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: _sortCtrl,
-                      enabled: canEdit,
-                      decoration: InputDecoration(
-                        labelText: l10n.settingsStyleFigureSortOrderLabel,
-                        border: const OutlineInputBorder(),
-                      ),
-                      keyboardType: TextInputType.number,
-                    ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 8),
                     SwitchListTile(
                       contentPadding: EdgeInsets.zero,
                       title: Text(l10n.settingsStyleFigureActiveLabel),
@@ -518,70 +394,6 @@ class _SettingsStyleFigureDetailScreenState
                   error: (e, _) => Text('$e'),
                 ),
               ),
-              PrideCarvedSection(
-                title: l10n.settingsStyleFigurePresetsTitle,
-                trailing: canEdit
-                    ? IconButton(
-                        icon: const Icon(Icons.add),
-                        tooltip: l10n.settingsStyleFigurePresetAddCta,
-                        onPressed: () => _openPresetEditor(context, f, null),
-                      )
-                    : null,
-                child: presetsAsync.when(
-                  data: (presets) {
-                    if (presets.isEmpty) {
-                      return Text(l10n.settingsStyleFigurePresetsEmpty);
-                    }
-                    return Column(
-                      children: [
-                        for (final preset in presets)
-                          Card(
-                            margin: const EdgeInsets.only(bottom: 8),
-                            child: ListTile(
-                              title: Text(preset.name),
-                              subtitle: Text(
-                                l10n.settingsStyleFigurePresetSummary(
-                                  preset.textOptionInternalIds.length,
-                                  preset.sizeOptionInternalIds.length,
-                                  preset.isActive
-                                      ? l10n.settingsStyleActiveLabel
-                                      : l10n.settingsStyleInactiveLabel,
-                                ),
-                              ),
-                              onTap: canEdit
-                                  ? () => _openPresetEditor(context, f, preset)
-                                  : null,
-                              trailing: canEdit
-                                  ? Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        PrideIconAction(
-                                          icon: Icons.edit_outlined,
-                                          variant: PrideButtonVariant.edit,
-                                          onPressed: () => _openPresetEditor(
-                                            context,
-                                            f,
-                                            preset,
-                                          ),
-                                        ),
-                                        PrideIconAction(
-                                          icon: Icons.delete_outline,
-                                          variant: PrideButtonVariant.delete,
-                                          onPressed: () =>
-                                              _deletePreset(context, preset),
-                                        ),
-                                      ],
-                                    )
-                                  : null,
-                            ),
-                          ),
-                      ],
-                    );
-                  },
-                  loading: () => const LinearProgressIndicator(),
-                  error: (e, _) => Text('$e'),
-                ),
-              ),
               const SizedBox(height: 24),
             ],
           ),
@@ -610,17 +422,6 @@ class _SettingsStyleFigureDetailScreenState
     );
   }
 
-  void _openPresetEditor(
-    BuildContext context,
-    StyleFigureSummary figure,
-    StyleFigurePresetSummary? preset,
-  ) {
-    final path = preset == null
-        ? '/app/settings/style/figures/${figure.internalId}/preset/new'
-        : '/app/settings/style/figures/${figure.internalId}/preset/${preset.internalId}';
-    context.push(path);
-  }
-
   Future<void> _addTextOption(
     BuildContext context,
     StyleFigureSummary figure,
@@ -632,7 +433,6 @@ class _SettingsStyleFigureDetailScreenState
       title: l10n.settingsStyleFigureTextOptionAddCta,
       onSubmit: ({
         required label,
-        required sortOrder,
         required isActive,
       }) async {
         final repo = await ref.read(styleCatalogRepositoryProvider.future);
@@ -640,8 +440,20 @@ class _SettingsStyleFigureDetailScreenState
           shopId: ref.read(effectiveShopIdProvider),
           styleFigureInternalId: figure.internalId,
           label: label,
-          sortOrder: sortOrder,
         );
+        final options = await repo
+            .watchTextOptionsForFigure(
+              ref.read(effectiveShopIdProvider),
+              figure.internalId,
+            )
+            .first;
+        var sortOrder = 10;
+        for (final o in options) {
+          if (o.internalId == id) {
+            sortOrder = o.sortOrder;
+            break;
+          }
+        }
         if (!isActive) {
           await repo.updateStyleFigureTextOption(
             internalId: id,
@@ -672,14 +484,13 @@ class _SettingsStyleFigureDetailScreenState
       existing: option,
       onSubmit: ({
         required label,
-        required sortOrder,
         required isActive,
       }) async {
         final repo = await ref.read(styleCatalogRepositoryProvider.future);
         await repo.updateStyleFigureTextOption(
           internalId: option.internalId,
           label: label,
-          sortOrder: sortOrder,
+          sortOrder: option.sortOrder,
           isActive: isActive,
         );
         enqueueStyleFigureTextOptionUpsert(
@@ -687,7 +498,7 @@ class _SettingsStyleFigureDetailScreenState
           internalId: option.internalId,
           styleFigureInternalId: option.styleFigureInternalId,
           label: label,
-          sortOrder: sortOrder,
+          sortOrder: option.sortOrder,
           isActive: isActive,
         );
       },
@@ -751,7 +562,6 @@ class _SettingsStyleFigureDetailScreenState
       onSubmit: ({
         required label,
         required valueInches,
-        required sortOrder,
         required isActive,
       }) async {
         final repo = await ref.read(styleCatalogRepositoryProvider.future);
@@ -761,8 +571,20 @@ class _SettingsStyleFigureDetailScreenState
           label: label,
           valueInches: valueInches,
           unitCode: MeasurementUnitCodes.inch,
-          sortOrder: sortOrder,
         );
+        final options = await repo
+            .watchSizeOptionsForFigure(
+              ref.read(effectiveShopIdProvider),
+              figure.internalId,
+            )
+            .first;
+        var sortOrder = 10;
+        for (final o in options) {
+          if (o.internalId == id) {
+            sortOrder = o.sortOrder;
+            break;
+          }
+        }
         if (!isActive) {
           await repo.updateStyleFigureSizeOption(
             internalId: id,
@@ -796,7 +618,6 @@ class _SettingsStyleFigureDetailScreenState
       onSubmit: ({
         required label,
         required valueInches,
-        required sortOrder,
         required isActive,
       }) async {
         final repo = await ref.read(styleCatalogRepositoryProvider.future);
@@ -804,7 +625,7 @@ class _SettingsStyleFigureDetailScreenState
           internalId: option.internalId,
           label: label,
           valueInches: valueInches,
-          sortOrder: sortOrder,
+          sortOrder: option.sortOrder,
           isActive: isActive,
         );
         enqueueStyleFigureSizeOptionUpsert(
@@ -814,7 +635,7 @@ class _SettingsStyleFigureDetailScreenState
           label: label,
           valueInches: valueInches,
           unitCode: option.unitCode,
-          sortOrder: sortOrder,
+          sortOrder: option.sortOrder,
           isActive: isActive,
         );
       },
@@ -869,29 +690,6 @@ class _SettingsStyleFigureDetailScreenState
     );
   }
 
-  Future<void> _deletePreset(
-    BuildContext context,
-    StyleFigurePresetSummary preset,
-  ) async {
-    final l10n = AppLocalizations.of(context)!;
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l10n.settingsStyleFigurePresetDeleteTitle),
-        content: Text(l10n.settingsStyleFigurePresetDeleteBody),
-        actions: prideDialogCancelDelete(
-          context: ctx,
-          onCancel: () => Navigator.pop(ctx, false),
-          onConfirm: () => Navigator.pop(ctx, true),
-          deleteLabel: l10n.deleteCta,
-        ),
-      ),
-    );
-    if (ok != true || !mounted) return;
-    final repo = await ref.read(styleCatalogRepositoryProvider.future);
-    await repo.softDeleteStyleFigurePreset(preset.internalId);
-    enqueueStyleFigurePresetDelete(ref, internalId: preset.internalId);
-  }
 }
 
 class _TextOptionList extends StatelessWidget {
@@ -984,9 +782,16 @@ class _SizeOptionList extends StatelessWidget {
           Card(
             margin: const EdgeInsets.only(bottom: 8),
             child: ListTile(
-              title: Text(option.label),
+              title: Text(
+                displayInchOptionLabel(
+                  valueInches: option.valueInches,
+                  label: option.label,
+                ),
+              ),
               subtitle: Text(
-                '${option.valueInches} · ${option.isActive ? l10n.settingsStyleActiveLabel : l10n.settingsStyleInactiveLabel}',
+                option.isActive
+                    ? l10n.settingsStyleActiveLabel
+                    : l10n.settingsStyleInactiveLabel,
               ),
               trailing: canEdit
                   ? Row(

@@ -10,6 +10,7 @@ import '../../data/local/order_summary.dart';
 
 import '../../data/local/payment_summary.dart';
 
+import '../../data/local/style/order_shape_format_labels.dart';
 import '../../data/local/style/order_shape_selection_formatter.dart';
 
 import '../../data/providers/local_data_providers.dart';
@@ -174,13 +175,7 @@ Future<void> printThermalOrderReceipt({
     final allFigures =
         ref.read(styleAllFiguresStreamProvider).valueOrNull ?? const [];
 
-    final formatLabels = OrderShapeSelectionFormatLabels(
-      mainStyle: l10n.orderStyleDisplayMainStyleLabel,
-      shape: l10n.orderStyleDisplayShapeLabel,
-      preset: l10n.orderStyleDisplayPresetLabel,
-      text: l10n.orderStyleDisplayTextLabel,
-      size: l10n.orderStyleDisplaySizeLabel,
-    );
+    final formatLabels = orderShapeFormatLabels(l10n);
     final styleDisplay = formatOrderShapeSelectionDisplay(
       snapshot: styleSnap,
       styleName: order.styleName,

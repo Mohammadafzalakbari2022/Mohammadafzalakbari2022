@@ -477,13 +477,16 @@ class AppLocalizationsPs extends AppLocalizations {
   String get orderStyleDisplayShapeLabel => 'بڼه';
 
   @override
-  String get orderStyleDisplayPresetLabel => 'پریسیټ';
-
-  @override
   String get orderStyleDisplayTextLabel => 'متن';
 
   @override
+  String get orderStyleDisplayDetailLabel => 'تفصیل';
+
+  @override
   String get orderStyleDisplaySizeLabel => 'اندازه';
+
+  @override
+  String get orderStyleDisplayNoteLabel => 'یادداشت';
 
   @override
   String get orderStyleDetailsTitle => 'د سټایل جزئیات';
@@ -1878,24 +1881,6 @@ class AppLocalizationsPs extends AppLocalizations {
   String get ordersComposerStyleClearFigures => 'ټول انتخابونه پاک کړئ';
 
   @override
-  String get ordersComposerShapeConfigureTitle => 'غوره شکلونه تنظیم کړئ';
-
-  @override
-  String get ordersComposerShapePresetsTitle => 'چټک الگوګانې';
-
-  @override
-  String get ordersComposerShapeTextOptionsTitle => 'د متن اختیارونه';
-
-  @override
-  String get ordersComposerShapeSizeOptionsTitle => 'د انچ اختیارونه';
-
-  @override
-  String get ordersComposerShapeSelectedDetailsTitle => 'غوره جزئیات';
-
-  @override
-  String get ordersComposerShapeNoPresets => 'الگو تنظیم شوی نه دی';
-
-  @override
   String get ordersComposerShapeNoTextOptions =>
       'د متن اختیارونه تنظیم شوي نه دي';
 
@@ -1904,11 +1889,31 @@ class AppLocalizationsPs extends AppLocalizations {
       'د انچ اختیارونه تنظیم شوي نه دي';
 
   @override
-  String get ordersComposerShapeClearPreset => 'الگو پاک کړئ';
-
-  @override
   String get ordersComposerShapeInactiveHint =>
       'په تنظیماتو کې غیرفعال — د دې امر لپاره ساتل کېږي';
+
+  @override
+  String get ordersComposerShapeDetailTitle => 'تفصیل';
+
+  @override
+  String get ordersComposerShapeInchTitle => 'انچ';
+
+  @override
+  String get ordersComposerShapeNoteLabel => 'د شکل یادداشت';
+
+  @override
+  String get ordersComposerShapeNoteHint => 'د دې شکل لپاره اختیاري یادداشت';
+
+  @override
+  String get ordersComposerShapeRemoveShape => 'شکل لرې کړئ';
+
+  @override
+  String get ordersComposerShapeNoDetailOptions =>
+      'د تفصیل اختیارونه تنظیم شوي نه دي.';
+
+  @override
+  String get ordersComposerShapeNoInchOptions =>
+      'د انچ اختیارونه تنظیم شوي نه دي.';
 
   @override
   String get ordersComposerCatalogDesignTitle => 'بشپړ ډیزاین له کتلاګ';
@@ -2074,7 +2079,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get settingsStyleFiguresTitle => 'د ډیزاین شکلونه';
 
   @override
-  String get settingsStyleFiguresSubtitle => 'د شکل نوم، متن، انچ او الگوګانې';
+  String get settingsStyleFiguresSubtitle => 'د شکل نوم، متن او انچ';
 
   @override
   String get settingsStyleFiguresEmpty => 'لا ډیزاین شکل نشته.';
@@ -2114,13 +2119,6 @@ class AppLocalizationsPs extends AppLocalizations {
   String get settingsStyleFigureSaved => 'د شکل تنظیمات خوندي شول.';
 
   @override
-  String get settingsStyleFigureSortOrderLabel => 'ترتیب';
-
-  @override
-  String get settingsStyleFigureSortOrderInvalid =>
-      'د ترتیب معتبر شمېره ولیکئ.';
-
-  @override
   String get settingsStyleFigureActiveLabel => 'فعال';
 
   @override
@@ -2137,19 +2135,19 @@ class AppLocalizationsPs extends AppLocalizations {
   }
 
   @override
-  String get settingsStyleFigureTextOptionsTitle => 'د متن اختیارونه';
+  String get settingsStyleFigureTextOptionsTitle => 'د جزئیات اختیارونه';
 
   @override
-  String get settingsStyleFigureTextOptionsEmpty => 'لا د متن اختیار نشته.';
+  String get settingsStyleFigureTextOptionsEmpty => 'لا د جزئیات اختیار نشته.';
 
   @override
-  String get settingsStyleFigureTextOptionAddCta => 'د متن اختیار زیات کړئ';
+  String get settingsStyleFigureTextOptionAddCta => 'جزئیات زیات کړئ';
 
   @override
-  String get settingsStyleFigureTextOptionEditTitle => 'د متن اختیار سمون';
+  String get settingsStyleFigureTextOptionEditTitle => 'جزئیات سمون';
 
   @override
-  String get settingsStyleFigureTextOptionLabelField => 'لیبل';
+  String get settingsStyleFigureTextOptionLabelField => 'د جزئیات نوم';
 
   @override
   String get settingsStyleFigureTextOptionDeleteTitle =>
@@ -2166,16 +2164,16 @@ class AppLocalizationsPs extends AppLocalizations {
   String get settingsStyleFigureSizeOptionsEmpty => 'لا د انچ اختیار نشته.';
 
   @override
-  String get settingsStyleFigureSizeOptionAddCta => 'د انچ اختیار زیات کړئ';
+  String get settingsStyleFigureSizeOptionAddCta => 'انچ زیات کړئ';
 
   @override
-  String get settingsStyleFigureSizeOptionEditTitle => 'د انچ اختیار سمون';
+  String get settingsStyleFigureSizeOptionEditTitle => 'انچ سمون';
 
   @override
   String get settingsStyleFigureSizeOptionLabelField => 'لیبل';
 
   @override
-  String get settingsStyleFigureValueInchesLabel => 'ارزښت په انچ';
+  String get settingsStyleFigureValueInchesLabel => 'د انچ ارزښت';
 
   @override
   String get settingsStyleFigureSizeOptionDeleteTitle =>
@@ -2186,53 +2184,11 @@ class AppLocalizationsPs extends AppLocalizations {
       'له کتلاګ څخه لرې کېږي. پخواني امرونه بدل نه کېږي.';
 
   @override
-  String get settingsStyleFigureLabelRequired => 'لیبل اړین دی.';
+  String get settingsStyleFigureLabelRequired => 'د جزئیات نوم اړین دی.';
 
   @override
   String get settingsStyleFigureValuePositiveRequired =>
-      'ارزښت باید له صفر څخه لوی وي.';
-
-  @override
-  String get settingsStyleFigurePresetsTitle => 'الگوګانې';
-
-  @override
-  String get settingsStyleFigurePresetsEmpty => 'لا الگو نشته.';
-
-  @override
-  String get settingsStyleFigurePresetAddCta => 'الگو زیات کړئ';
-
-  @override
-  String get settingsStyleFigurePresetEditTitle => 'الگو سمون';
-
-  @override
-  String get settingsStyleFigurePresetNameLabel => 'د الگو نوم';
-
-  @override
-  String get settingsStyleFigurePresetNameRequired => 'د الگو نوم اړین دی.';
-
-  @override
-  String get settingsStyleFigurePresetSelectTextOptions =>
-      'د متن اختیارونه وټاکئ';
-
-  @override
-  String get settingsStyleFigurePresetSelectSizeOptions =>
-      'د انچ اختیارونه وټاکئ';
-
-  @override
-  String get settingsStyleFigurePresetDeleteTitle => 'الگو ړنګ کړئ؟';
-
-  @override
-  String get settingsStyleFigurePresetDeleteBody =>
-      'له کتلاګ څخه لرې کېږي. پخواني امرونه بدل نه کېږي.';
-
-  @override
-  String settingsStyleFigurePresetSummary(
-    int textCount,
-    int sizeCount,
-    String status,
-  ) {
-    return '$textCount متن · $sizeCount انچ · $status';
-  }
+      'معتبر اندازه ولیکئ، لکه 5 1/2 x 7 1/2 inch.';
 
   @override
   String get settingsStyleActiveLabel => 'فعال';

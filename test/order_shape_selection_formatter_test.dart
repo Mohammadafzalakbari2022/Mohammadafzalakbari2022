@@ -9,9 +9,9 @@ void main() {
   const labels = OrderShapeSelectionFormatLabels(
     mainStyle: 'Style',
     shape: 'Shape',
-    preset: 'Preset',
-    text: 'Text',
+    detail: 'Detail',
     size: 'Size',
+    note: 'Note',
   );
 
   const figures = [
@@ -32,7 +32,6 @@ void main() {
         shapeId: 'fig-a',
         shapeNameSnapshot: 'Classic Collar',
         imageRefSnapshot: 'asset:shape_1',
-        presetNameSnapshot: 'Normal Style',
         textOptions: [
           OrderShapeOptionSnapshot(
             id: 'text-1',
@@ -64,7 +63,6 @@ void main() {
             figureNameSnapshot: 'Frozen Collar',
             imageRefSnapshot: 'asset:shape_1',
             sortOrder: 0,
-            presetNameSnapshot: 'Frozen Preset',
           ),
         ],
       );
@@ -79,7 +77,6 @@ void main() {
 
       expect(display.mainStyleName, 'Frozen Style');
       expect(display.figures.single.shapeName, 'Frozen Collar');
-      expect(display.figures.single.presetName, 'Frozen Preset');
       expect(display.detailedLines.first, 'Style: Frozen Style');
       expect(display.detailedLines.any((l) => l.contains('Frozen Collar')), isTrue);
     });
@@ -93,8 +90,7 @@ void main() {
 
       expect(display.mainStyleName, 'Modern Style');
       expect(display.figures.single.shapeName, 'Classic Collar');
-      expect(display.detailedLines, contains('Preset: Normal Style'));
-      expect(display.detailedLines, contains('Text: Round front'));
+      expect(display.detailedLines, contains('Detail: Round front'));
       expect(display.detailedLines, contains('Size: 2.5 inch'));
       expect(display.compactPreview, contains('Classic Collar'));
     });
@@ -110,13 +106,12 @@ void main() {
       expect(display.detailedLines, isNotEmpty);
     });
 
-    test('handles multiple shapes with preset and options', () {
+    test('handles multiple shapes with options', () {
       final selection = StyleOrderSelection.withItems(
         shapeItems: [
           const OrderShapeSelectionItem(
             shapeId: 'fig-a',
             shapeNameSnapshot: 'Classic Collar',
-            presetNameSnapshot: 'Normal Style',
           ),
           const OrderShapeSelectionItem(
             shapeId: 'fig-b',
@@ -176,6 +171,128 @@ void main() {
       expect(display.figures, isEmpty);
     });
 
+    test('shows note when present in v2 JSON', () {
+      final selection = StyleOrderSelection.withItems(
+        shapeItems: const [
+          OrderShapeSelectionItem(
+            shapeId: 'fig-a',
+            shapeNameSnapshot: 'Classic Collar',
+            textOptions: [
+              OrderShapeOptionSnapshot(
+                id: 'text-1',
+                labelSnapshot: 'Curved cut',
+              ),
+            ],
+            sizeOptions: [
+              OrderShapeSizeSnapshot(
+                id: 'size-1',
+                valueSnapshot: 5.5,
+                labelSnapshot: '5.5 inch',
+                unitSnapshot: 'inch',
+              ),
+            ],
+            noteSnapshot: 'Customer wants it slightly wider',
+          ),
+        ],
+      );
+
+      final display = formatOrderShapeSelectionDisplay(
+        styleName: 'Qasimi',
+        styleSelectionJson: selection.toJsonString(),
+        labels: labels,
+      );
+
+      expect(display.detailedLines, contains('Shape: Classic Collar'));
+      expect(display.detailedLines, contains('Detail: Curved cut'));
+      expect(display.detailedLines, contains('Size: 5.5 inch'));
+      expect(
+        display.detailedLines,
+        contains('Note: Customer wants it slightly wider'),
+      );
+      expect(display.detailedLines.any((l) => l == 'Detail:'), isFalse);
+      expect(display.detailedLines.any((l) => l == 'Size:'), isFalse);
+      expect(display.detailedLines.any((l) => l == 'Note:'), isFalse);
+    });
+
+    test('inch display uses saved label text', () {
+      final selection = StyleOrderSelection.withItems(
+        shapeItems: const [
+          OrderShapeSelectionItem(
+            shapeId: 'fig-a',
+            shapeNameSnapshot: 'Collar',
+            sizeOptions: [
+              OrderShapeSizeSnapshot(
+                id: 'size-1',
+                valueSnapshot: 0,
+                labelSnapshot: '5 1/2 x 7 1/2 inch',
+                unitSnapshot: 'inch',
+              ),
+            ],
+          ),
+        ],
+      );
+
+      final display = formatOrderShapeSelectionDisplay(
+        styleSelectionJson: selection.toJsonString(),
+        labels: labels,
+      );
+
+      expect(display.figures.single.sizeLabel, '5 1/2 x 7 1/2 inch');
+      expect(display.detailedLines, contains('Size: 5 1/2 x 7 1/2 inch'));
+    });
+
+    test('inch display shows legacy numeric label', () {
+      final selection = StyleOrderSelection.withItems(
+        shapeItems: const [
+          OrderShapeSelectionItem(
+            shapeId: 'fig-a',
+            shapeNameSnapshot: 'Collar',
+            sizeOptions: [
+              OrderShapeSizeSnapshot(
+                id: 'size-1',
+                valueSnapshot: 6,
+                labelSnapshot: '6 inch',
+                unitSnapshot: 'inch',
+              ),
+            ],
+          ),
+        ],
+      );
+
+      final display = formatOrderShapeSelectionDisplay(
+        styleSelectionJson: selection.toJsonString(),
+        labels: labels,
+      );
+
+      expect(display.figures.single.sizeLabel, '6 inch');
+    });
+
+    test('inch display falls back to valueSnapshot when label missing', () {
+      final selection = StyleOrderSelection.withItems(
+        shapeItems: const [
+          OrderShapeSelectionItem(
+            shapeId: 'fig-a',
+            shapeNameSnapshot: 'Collar',
+            sizeOptions: [
+              OrderShapeSizeSnapshot(
+                id: 'size-1',
+                valueSnapshot: 0,
+                labelSnapshot: 'Legacy size',
+                unitSnapshot: '',
+              ),
+            ],
+          ),
+        ],
+      );
+
+      final display = formatOrderShapeSelectionDisplay(
+        styleSelectionJson: selection.toJsonString(),
+        labels: labels,
+      );
+
+      expect(display.figures.single.sizeLabel, 'Legacy size');
+    });
+
     test('does not append styleSummary when snapshot figures exist', () {
       const selection = StyleOrderSelection.withItems(shapeItems: [v2Item]);
       final view = buildOrderStyleSnapshotView(
@@ -202,5 +319,4 @@ void main() {
 const v2Item = OrderShapeSelectionItem(
   shapeId: 'fig-a',
   shapeNameSnapshot: 'Classic Collar',
-  presetNameSnapshot: 'Normal Style',
 );

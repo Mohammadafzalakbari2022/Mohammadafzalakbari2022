@@ -22,7 +22,7 @@ void main() {
         payloadJson: payloadJson,
       );
 
-  group('style figure option/preset outbox push mapping', () {
+  group('style figure option outbox push mapping', () {
     test('text option upsert maps to style_figure_text_option upsert', () {
       final meta = syncPushMetaForOutboxKind(
         SyncOutboxKinds.styleFigureTextOptionUpsert,
@@ -97,43 +97,26 @@ void main() {
       expect(data['unit_code'], MeasurementUnitCodes.inch);
     });
 
-    test('preset upsert sends option id arrays not JSON string field names', () {
+    test('size option upsert accepts value_inches zero for tailor text', () {
+      const tailorLabel = '5 1/2 x 7 1/2 inch';
       final batch = buildOutboxPushBatch([
         pending(
-          kind: SyncOutboxKinds.styleFigurePresetUpsert,
-          entityRef: 'preset-1',
+          kind: SyncOutboxKinds.styleFigureSizeOptionUpsert,
+          entityRef: 'size-opt-tailor',
           payloadJson: jsonEncode({
             'style_figure_internal_id': 'fig-1',
-            'name': 'Normal Style',
-            'text_option_internal_ids': ['text-1', 'text-2'],
-            'size_option_internal_ids': ['size-1'],
-            'sort_order': 10,
+            'label': tailorLabel,
+            'value_inches': 0,
+            'unit_code': MeasurementUnitCodes.inch,
+            'sort_order': 30,
             'is_active': true,
           }),
         ),
       ]);
 
       final data = batch.mutations.single['data'] as Map<String, dynamic>;
-      expect(batch.mutations.single['entity_type'], 'style_figure_preset');
-      expect(data['text_option_internal_ids'], ['text-1', 'text-2']);
-      expect(data['size_option_internal_ids'], ['size-1']);
-      expect(data.containsKey('textOptionInternalIdsJson'), isFalse);
-      expect(data.containsKey('sizeOptionInternalIdsJson'), isFalse);
-    });
-
-    test('preset delete follows existing delete pattern', () {
-      final batch = buildOutboxPushBatch([
-        pending(
-          kind: SyncOutboxKinds.styleFigurePresetDelete,
-          entityRef: 'preset-1',
-          payloadJson: '{}',
-        ),
-      ]);
-
-      final row = batch.mutations.single;
-      expect(row['entity_type'], 'style_figure_preset');
-      expect(row['operation'], 'delete');
-      expect(row.containsKey('data'), isFalse);
+      expect(data['label'], tailorLabel);
+      expect(data['value_inches'], 0);
     });
   });
 }

@@ -946,23 +946,29 @@ abstract class AppLocalizations {
   /// **'Shape'**
   String get orderStyleDisplayShapeLabel;
 
-  /// No description provided for @orderStyleDisplayPresetLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Preset'**
-  String get orderStyleDisplayPresetLabel;
-
   /// No description provided for @orderStyleDisplayTextLabel.
   ///
   /// In en, this message translates to:
   /// **'Text'**
   String get orderStyleDisplayTextLabel;
 
+  /// No description provided for @orderStyleDisplayDetailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Detail'**
+  String get orderStyleDisplayDetailLabel;
+
   /// No description provided for @orderStyleDisplaySizeLabel.
   ///
   /// In en, this message translates to:
   /// **'Size'**
   String get orderStyleDisplaySizeLabel;
+
+  /// No description provided for @orderStyleDisplayNoteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get orderStyleDisplayNoteLabel;
 
   /// No description provided for @orderStyleDetailsTitle.
   ///
@@ -3511,42 +3517,6 @@ abstract class AppLocalizations {
   /// **'Clear all selections'**
   String get ordersComposerStyleClearFigures;
 
-  /// No description provided for @ordersComposerShapeConfigureTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Configure selected shapes'**
-  String get ordersComposerShapeConfigureTitle;
-
-  /// No description provided for @ordersComposerShapePresetsTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Quick presets'**
-  String get ordersComposerShapePresetsTitle;
-
-  /// No description provided for @ordersComposerShapeTextOptionsTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Text options'**
-  String get ordersComposerShapeTextOptionsTitle;
-
-  /// No description provided for @ordersComposerShapeSizeOptionsTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Inch-size options'**
-  String get ordersComposerShapeSizeOptionsTitle;
-
-  /// No description provided for @ordersComposerShapeSelectedDetailsTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Selected details'**
-  String get ordersComposerShapeSelectedDetailsTitle;
-
-  /// No description provided for @ordersComposerShapeNoPresets.
-  ///
-  /// In en, this message translates to:
-  /// **'No presets configured'**
-  String get ordersComposerShapeNoPresets;
-
   /// No description provided for @ordersComposerShapeNoTextOptions.
   ///
   /// In en, this message translates to:
@@ -3559,17 +3529,53 @@ abstract class AppLocalizations {
   /// **'No inch options configured'**
   String get ordersComposerShapeNoSizeOptions;
 
-  /// No description provided for @ordersComposerShapeClearPreset.
-  ///
-  /// In en, this message translates to:
-  /// **'Clear preset'**
-  String get ordersComposerShapeClearPreset;
-
   /// No description provided for @ordersComposerShapeInactiveHint.
   ///
   /// In en, this message translates to:
   /// **'Inactive in settings — still kept for this order'**
   String get ordersComposerShapeInactiveHint;
+
+  /// No description provided for @ordersComposerShapeDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Detail'**
+  String get ordersComposerShapeDetailTitle;
+
+  /// No description provided for @ordersComposerShapeInchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Inch'**
+  String get ordersComposerShapeInchTitle;
+
+  /// No description provided for @ordersComposerShapeNoteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Shape note'**
+  String get ordersComposerShapeNoteLabel;
+
+  /// No description provided for @ordersComposerShapeNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional note for this shape'**
+  String get ordersComposerShapeNoteHint;
+
+  /// No description provided for @ordersComposerShapeRemoveShape.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove shape'**
+  String get ordersComposerShapeRemoveShape;
+
+  /// No description provided for @ordersComposerShapeNoDetailOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'No detail options configured.'**
+  String get ordersComposerShapeNoDetailOptions;
+
+  /// No description provided for @ordersComposerShapeNoInchOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'No inch options configured.'**
+  String get ordersComposerShapeNoInchOptions;
 
   /// No description provided for @ordersComposerCatalogDesignTitle.
   ///
@@ -3892,7 +3898,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsStyleFiguresSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Shape names, text options, inch sizes, and presets'**
+  /// **'Shape names, text options, and inch sizes'**
   String get settingsStyleFiguresSubtitle;
 
   /// No description provided for @settingsStyleFiguresEmpty.
@@ -3967,18 +3973,6 @@ abstract class AppLocalizations {
   /// **'Shape settings saved.'**
   String get settingsStyleFigureSaved;
 
-  /// No description provided for @settingsStyleFigureSortOrderLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Sort order'**
-  String get settingsStyleFigureSortOrderLabel;
-
-  /// No description provided for @settingsStyleFigureSortOrderInvalid.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter a valid sort order number.'**
-  String get settingsStyleFigureSortOrderInvalid;
-
   /// No description provided for @settingsStyleFigureActiveLabel.
   ///
   /// In en, this message translates to:
@@ -4006,31 +4000,31 @@ abstract class AppLocalizations {
   /// No description provided for @settingsStyleFigureTextOptionsTitle.
   ///
   /// In en, this message translates to:
-  /// **'Text options'**
+  /// **'Detail options'**
   String get settingsStyleFigureTextOptionsTitle;
 
   /// No description provided for @settingsStyleFigureTextOptionsEmpty.
   ///
   /// In en, this message translates to:
-  /// **'No text options yet.'**
+  /// **'No detail options yet.'**
   String get settingsStyleFigureTextOptionsEmpty;
 
   /// No description provided for @settingsStyleFigureTextOptionAddCta.
   ///
   /// In en, this message translates to:
-  /// **'Add text option'**
+  /// **'Add detail'**
   String get settingsStyleFigureTextOptionAddCta;
 
   /// No description provided for @settingsStyleFigureTextOptionEditTitle.
   ///
   /// In en, this message translates to:
-  /// **'Edit text option'**
+  /// **'Edit detail'**
   String get settingsStyleFigureTextOptionEditTitle;
 
   /// No description provided for @settingsStyleFigureTextOptionLabelField.
   ///
   /// In en, this message translates to:
-  /// **'Label'**
+  /// **'Detail name'**
   String get settingsStyleFigureTextOptionLabelField;
 
   /// No description provided for @settingsStyleFigureTextOptionDeleteTitle.
@@ -4048,25 +4042,25 @@ abstract class AppLocalizations {
   /// No description provided for @settingsStyleFigureSizeOptionsTitle.
   ///
   /// In en, this message translates to:
-  /// **'Inch-size options'**
+  /// **'Inch options'**
   String get settingsStyleFigureSizeOptionsTitle;
 
   /// No description provided for @settingsStyleFigureSizeOptionsEmpty.
   ///
   /// In en, this message translates to:
-  /// **'No inch-size options yet.'**
+  /// **'No inch options yet.'**
   String get settingsStyleFigureSizeOptionsEmpty;
 
   /// No description provided for @settingsStyleFigureSizeOptionAddCta.
   ///
   /// In en, this message translates to:
-  /// **'Add inch option'**
+  /// **'Add inch'**
   String get settingsStyleFigureSizeOptionAddCta;
 
   /// No description provided for @settingsStyleFigureSizeOptionEditTitle.
   ///
   /// In en, this message translates to:
-  /// **'Edit inch option'**
+  /// **'Edit inch'**
   String get settingsStyleFigureSizeOptionEditTitle;
 
   /// No description provided for @settingsStyleFigureSizeOptionLabelField.
@@ -4078,7 +4072,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsStyleFigureValueInchesLabel.
   ///
   /// In en, this message translates to:
-  /// **'Value in inches'**
+  /// **'Inch value'**
   String get settingsStyleFigureValueInchesLabel;
 
   /// No description provided for @settingsStyleFigureSizeOptionDeleteTitle.
@@ -4096,84 +4090,14 @@ abstract class AppLocalizations {
   /// No description provided for @settingsStyleFigureLabelRequired.
   ///
   /// In en, this message translates to:
-  /// **'Label is required.'**
+  /// **'Detail name is required.'**
   String get settingsStyleFigureLabelRequired;
 
   /// No description provided for @settingsStyleFigureValuePositiveRequired.
   ///
   /// In en, this message translates to:
-  /// **'Value must be greater than zero.'**
+  /// **'Enter a valid measurement, for example 5 1/2 x 7 1/2 inch.'**
   String get settingsStyleFigureValuePositiveRequired;
-
-  /// No description provided for @settingsStyleFigurePresetsTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Presets'**
-  String get settingsStyleFigurePresetsTitle;
-
-  /// No description provided for @settingsStyleFigurePresetsEmpty.
-  ///
-  /// In en, this message translates to:
-  /// **'No presets yet.'**
-  String get settingsStyleFigurePresetsEmpty;
-
-  /// No description provided for @settingsStyleFigurePresetAddCta.
-  ///
-  /// In en, this message translates to:
-  /// **'Add preset'**
-  String get settingsStyleFigurePresetAddCta;
-
-  /// No description provided for @settingsStyleFigurePresetEditTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Edit preset'**
-  String get settingsStyleFigurePresetEditTitle;
-
-  /// No description provided for @settingsStyleFigurePresetNameLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Preset name'**
-  String get settingsStyleFigurePresetNameLabel;
-
-  /// No description provided for @settingsStyleFigurePresetNameRequired.
-  ///
-  /// In en, this message translates to:
-  /// **'Preset name is required.'**
-  String get settingsStyleFigurePresetNameRequired;
-
-  /// No description provided for @settingsStyleFigurePresetSelectTextOptions.
-  ///
-  /// In en, this message translates to:
-  /// **'Select text options'**
-  String get settingsStyleFigurePresetSelectTextOptions;
-
-  /// No description provided for @settingsStyleFigurePresetSelectSizeOptions.
-  ///
-  /// In en, this message translates to:
-  /// **'Select inch options'**
-  String get settingsStyleFigurePresetSelectSizeOptions;
-
-  /// No description provided for @settingsStyleFigurePresetDeleteTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete preset?'**
-  String get settingsStyleFigurePresetDeleteTitle;
-
-  /// No description provided for @settingsStyleFigurePresetDeleteBody.
-  ///
-  /// In en, this message translates to:
-  /// **'This removes the preset from the catalog. Existing orders are not changed.'**
-  String get settingsStyleFigurePresetDeleteBody;
-
-  /// No description provided for @settingsStyleFigurePresetSummary.
-  ///
-  /// In en, this message translates to:
-  /// **'{textCount} text · {sizeCount} inch · {status}'**
-  String settingsStyleFigurePresetSummary(
-    int textCount,
-    int sizeCount,
-    String status,
-  );
 
   /// No description provided for @settingsStyleActiveLabel.
   ///

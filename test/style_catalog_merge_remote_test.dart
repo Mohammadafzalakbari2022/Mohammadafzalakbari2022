@@ -109,46 +109,6 @@ void main() {
       expect(options, isEmpty);
     });
 
-    test('preset upsert stores referenced option ids before options exist', () async {
-      await repo.mergeRemoteStyleFigurePreset(
-        shopId: shopId,
-        internalId: 'preset-remote-1',
-        operation: 'upsert',
-        data: {
-          'style_figure_internal_id': figureId,
-          'name': 'Normal Style',
-          'text_option_internal_ids': ['missing-text-1'],
-          'size_option_internal_ids': ['missing-size-1'],
-          'sort_order': 10,
-          'is_active': true,
-        },
-      );
-
-      final presets = await repo.watchPresetsForFigure(shopId, figureId).first;
-      expect(presets.single.textOptionInternalIds, ['missing-text-1']);
-      expect(presets.single.sizeOptionInternalIds, ['missing-size-1']);
-    });
-
-    test('preset delete removes entity', () async {
-      await repo.mergeRemoteStyleFigurePreset(
-        shopId: shopId,
-        internalId: 'preset-remote-1',
-        operation: 'upsert',
-        data: {
-          'style_figure_internal_id': figureId,
-          'name': 'Normal Style',
-        },
-      );
-      await repo.mergeRemoteStyleFigurePreset(
-        shopId: shopId,
-        internalId: 'preset-remote-1',
-        operation: 'delete',
-      );
-
-      final presets = await repo.watchPresetsForFigure(shopId, figureId).first;
-      expect(presets, isEmpty);
-    });
-
     test('remote delete for missing entity does not crash', () async {
       await repo.mergeRemoteStyleFigureTextOption(
         shopId: shopId,
@@ -158,11 +118,6 @@ void main() {
       await repo.mergeRemoteStyleFigureSizeOption(
         shopId: shopId,
         internalId: 'missing-size',
-        operation: 'delete',
-      );
-      await repo.mergeRemoteStyleFigurePreset(
-        shopId: shopId,
-        internalId: 'missing-preset',
         operation: 'delete',
       );
     });

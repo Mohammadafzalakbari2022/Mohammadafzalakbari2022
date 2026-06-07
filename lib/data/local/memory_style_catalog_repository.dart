@@ -4,10 +4,10 @@ import 'package:uuid/uuid.dart';
 
 import 'measurement_unit_codes.dart';
 import 'seed_data.dart';
+import 'style/style_catalog_bundled_figures.dart';
 import 'style/style_figure_image_ref.dart';
 import 'style_catalog_repository.dart';
 import 'style_figure_config_summary.dart';
-import 'style_figure_preset_summary.dart';
 import 'style_figure_size_option_summary.dart';
 import 'style_figure_summary.dart';
 import 'style_figure_text_option_summary.dart';
@@ -21,7 +21,6 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
   final List<StyleFigureSummary> _figures = [];
   final List<StyleFigureTextOptionSummary> _textOptions = [];
   final List<StyleFigureSizeOptionSummary> _sizeOptions = [];
-  final List<StyleFigurePresetSummary> _presets = [];
   final _namesCtrl = StreamController<List<StyleNameSummary>>.broadcast();
   final _partsCtrl = StreamController<List<StylePartSummary>>.broadcast();
   final _figuresCtrl = StreamController<List<StyleFigureSummary>>.broadcast();
@@ -29,8 +28,6 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
       StreamController<List<StyleFigureTextOptionSummary>>.broadcast();
   final _sizeCtrl =
       StreamController<List<StyleFigureSizeOptionSummary>>.broadcast();
-  final _presetsCtrl =
-      StreamController<List<StyleFigurePresetSummary>>.broadcast();
   final _uuid = const Uuid();
 
   void _emitNames() => _namesCtrl.add(List.unmodifiable(_names));
@@ -40,7 +37,6 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
       _textCtrl.add(List.unmodifiable(_textOptions));
   void _emitSizeOptions() =>
       _sizeCtrl.add(List.unmodifiable(_sizeOptions));
-  void _emitPresets() => _presetsCtrl.add(List.unmodifiable(_presets));
 
   @override
   Future<void> seedIfEmpty(String shopId) async {
@@ -88,49 +84,15 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
         ),
       );
     }
-    final partIds = [
-      DevSeedIds.stylePartSleeve,
-      DevSeedIds.stylePartSleeve,
-      DevSeedIds.stylePartSleeve,
-      DevSeedIds.stylePartCollar,
-      DevSeedIds.stylePartCollar,
-      DevSeedIds.stylePartPocket,
-      DevSeedIds.stylePartPocket,
-      DevSeedIds.stylePartCuff,
-      DevSeedIds.stylePartCuff,
-      DevSeedIds.stylePartNeck,
-      DevSeedIds.stylePartNeck,
-      DevSeedIds.stylePartFront,
-      DevSeedIds.stylePartFront,
-      DevSeedIds.stylePartBottom,
-      DevSeedIds.stylePartBottom,
-    ];
-    final figureIds = [
-      DevSeedIds.styleFigure1,
-      DevSeedIds.styleFigure2,
-      DevSeedIds.styleFigure3,
-      DevSeedIds.styleFigure4,
-      DevSeedIds.styleFigure5,
-      DevSeedIds.styleFigure6,
-      DevSeedIds.styleFigure7,
-      DevSeedIds.styleFigure8,
-      DevSeedIds.styleFigure9,
-      DevSeedIds.styleFigure10,
-      DevSeedIds.styleFigure11,
-      DevSeedIds.styleFigure12,
-      DevSeedIds.styleFigure13,
-      DevSeedIds.styleFigure14,
-      DevSeedIds.styleFigure15,
-    ];
-    for (var i = 0; i < 15; i++) {
+    for (final template in bundledStyleFigureTemplates) {
       _figures.add(
         StyleFigureSummary(
-          internalId: figureIds[i],
+          internalId: template.internalId,
           shopId: shopId,
-          partInternalId: partIds[i],
+          partInternalId: template.partInternalId,
           name: '',
-          imageRef: StyleFigureImageRef.bundledAssetKey(i + 1),
-          sortOrder: (i + 1) * 10,
+          imageRef: template.imageRef,
+          sortOrder: template.sortOrder,
           isActive: true,
         ),
       );
@@ -166,61 +128,51 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
   }
 
   void _ensureBundledFigures(String shopId) {
-    final partIds = [
-      DevSeedIds.stylePartSleeve,
-      DevSeedIds.stylePartSleeve,
-      DevSeedIds.stylePartSleeve,
-      DevSeedIds.stylePartCollar,
-      DevSeedIds.stylePartCollar,
-      DevSeedIds.stylePartPocket,
-      DevSeedIds.stylePartPocket,
-      DevSeedIds.stylePartCuff,
-      DevSeedIds.stylePartCuff,
-      DevSeedIds.stylePartNeck,
-      DevSeedIds.stylePartNeck,
-      DevSeedIds.stylePartFront,
-      DevSeedIds.stylePartFront,
-      DevSeedIds.stylePartBottom,
-      DevSeedIds.stylePartBottom,
-    ];
-    final figureIds = [
-      DevSeedIds.styleFigure1,
-      DevSeedIds.styleFigure2,
-      DevSeedIds.styleFigure3,
-      DevSeedIds.styleFigure4,
-      DevSeedIds.styleFigure5,
-      DevSeedIds.styleFigure6,
-      DevSeedIds.styleFigure7,
-      DevSeedIds.styleFigure8,
-      DevSeedIds.styleFigure9,
-      DevSeedIds.styleFigure10,
-      DevSeedIds.styleFigure11,
-      DevSeedIds.styleFigure12,
-      DevSeedIds.styleFigure13,
-      DevSeedIds.styleFigure14,
-      DevSeedIds.styleFigure15,
-    ];
-    var added = false;
-    for (var i = 0; i < 15; i++) {
-      if (_figures.any(
-        (f) => f.internalId == figureIds[i] && f.shopId == shopId,
-      )) {
+    var changed = false;
+    for (final template in bundledStyleFigureTemplates) {
+      final idx = _figures.indexWhere(
+        (f) => f.internalId == template.internalId,
+      );
+      if (idx < 0) {
+        _figures.add(
+          StyleFigureSummary(
+            internalId: template.internalId,
+            shopId: shopId,
+            partInternalId: template.partInternalId,
+            name: '',
+            imageRef: template.imageRef,
+            sortOrder: template.sortOrder,
+            isActive: true,
+          ),
+        );
+        changed = true;
         continue;
       }
-      _figures.add(
-        StyleFigureSummary(
-          internalId: figureIds[i],
-          shopId: shopId,
-          partInternalId: partIds[i],
-          name: '',
-          imageRef: StyleFigureImageRef.bundledAssetKey(i + 1),
-          sortOrder: (i + 1) * 10,
-          isActive: true,
-        ),
+
+      final old = _figures[idx];
+      final needsRepair = bundledStyleFigureNeedsRepair(
+        shopId: shopId,
+        template: template,
+        existingShopId: old.shopId,
+        existingImageRef: old.imageRef,
+        existingPartInternalId: old.partInternalId,
+        existingSortOrder: old.sortOrder,
+        isDeleted: false,
       );
-      added = true;
+      if (!needsRepair) continue;
+
+      _figures[idx] = StyleFigureSummary(
+        internalId: old.internalId,
+        shopId: shopId,
+        partInternalId: template.partInternalId,
+        name: old.name,
+        imageRef: template.imageRef,
+        sortOrder: template.sortOrder,
+        isActive: old.isActive,
+      );
+      changed = true;
     }
-    if (added) _emitFigures();
+    if (changed) _emitFigures();
   }
 
   List<StyleNameSummary> _namesFor(String shopId) =>
@@ -433,11 +385,9 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
     _figures.removeAt(i);
     _textOptions.removeWhere((e) => e.styleFigureInternalId == internalId);
     _sizeOptions.removeWhere((e) => e.styleFigureInternalId == internalId);
-    _presets.removeWhere((e) => e.styleFigureInternalId == internalId);
     _emitFigures();
     _emitTextOptions();
     _emitSizeOptions();
-    _emitPresets();
   }
 
   List<StyleFigureTextOptionSummary> _textOptionsFor(
@@ -458,19 +408,6 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
     String styleFigureInternalId,
   ) =>
       _sizeOptions
-          .where(
-            (e) =>
-                e.shopId == shopId &&
-                e.styleFigureInternalId == styleFigureInternalId,
-          )
-          .toList()
-        ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
-
-  List<StyleFigurePresetSummary> _presetsFor(
-    String shopId,
-    String styleFigureInternalId,
-  ) =>
-      _presets
           .where(
             (e) =>
                 e.shopId == shopId &&
@@ -502,17 +439,6 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
   }
 
   @override
-  Stream<List<StyleFigurePresetSummary>> watchPresetsForFigure(
-    String shopId,
-    String styleFigureInternalId,
-  ) async* {
-    await seedIfEmpty(shopId);
-    yield _presetsFor(shopId, styleFigureInternalId);
-    yield* _presetsCtrl.stream
-        .map((_) => _presetsFor(shopId, styleFigureInternalId));
-  }
-
-  @override
   Future<Map<String, StyleFigureConfigSummary>> loadAllFigureConfigs(
     String shopId, {
     bool activeFiguresOnly = false,
@@ -527,7 +453,6 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
         figure: figure,
         textOptions: _textOptionsFor(shopId, figure.internalId),
         sizeOptions: _sizeOptionsFor(shopId, figure.internalId),
-        presets: _presetsFor(shopId, figure.internalId),
       );
     }
     return result;
@@ -538,9 +463,6 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
     int Function(T) readSortOrder,
   ) =>
       _maxOrder(items, readSortOrder);
-
-  List<String> _cleanIds(List<String> ids) =>
-      ids.map((e) => e.trim()).where((e) => e.isNotEmpty).toList(growable: false);
 
   @override
   Future<String> createStyleFigureTextOption({
@@ -654,69 +576,6 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
   Future<void> softDeleteStyleFigureSizeOption(String internalId) async {
     _sizeOptions.removeWhere((e) => e.internalId == internalId);
     _emitSizeOptions();
-  }
-
-  @override
-  Future<String> createStyleFigurePreset({
-    required String shopId,
-    required String styleFigureInternalId,
-    required String name,
-    List<String>? textOptionInternalIds,
-    List<String>? sizeOptionInternalIds,
-    int? sortOrder,
-  }) async {
-    final id = _uuid.v4();
-    _presets.add(
-      StyleFigurePresetSummary(
-        internalId: id,
-        shopId: shopId,
-        styleFigureInternalId: styleFigureInternalId,
-        name: name.trim(),
-        textOptionInternalIds: _cleanIds(textOptionInternalIds ?? const []),
-        sizeOptionInternalIds: _cleanIds(sizeOptionInternalIds ?? const []),
-        sortOrder: sortOrder ??
-            _nextOptionSortOrder(
-              _presetsFor(shopId, styleFigureInternalId),
-              (e) => e.sortOrder,
-            ),
-        isActive: true,
-      ),
-    );
-    _emitPresets();
-    return id;
-  }
-
-  @override
-  Future<void> updateStyleFigurePreset({
-    required String internalId,
-    String? name,
-    List<String>? textOptionInternalIds,
-    List<String>? sizeOptionInternalIds,
-    int? sortOrder,
-    bool? isActive,
-  }) async {
-    final i = _presets.indexWhere((e) => e.internalId == internalId);
-    if (i < 0) return;
-    final old = _presets[i];
-    _presets[i] = StyleFigurePresetSummary(
-      internalId: old.internalId,
-      shopId: old.shopId,
-      styleFigureInternalId: old.styleFigureInternalId,
-      name: name?.trim().isNotEmpty == true ? name!.trim() : old.name,
-      textOptionInternalIds:
-          textOptionInternalIds != null ? _cleanIds(textOptionInternalIds) : old.textOptionInternalIds,
-      sizeOptionInternalIds:
-          sizeOptionInternalIds != null ? _cleanIds(sizeOptionInternalIds) : old.sizeOptionInternalIds,
-      sortOrder: sortOrder ?? old.sortOrder,
-      isActive: isActive ?? old.isActive,
-    );
-    _emitPresets();
-  }
-
-  @override
-  Future<void> softDeleteStyleFigurePreset(String internalId) async {
-    _presets.removeWhere((e) => e.internalId == internalId);
-    _emitPresets();
   }
 
   @override
@@ -904,67 +763,5 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
       _sizeOptions[i] = summary;
     }
     _emitSizeOptions();
-  }
-
-  @override
-  Future<void> mergeRemoteStyleFigurePreset({
-    required String shopId,
-    required String internalId,
-    required String operation,
-    Object? data,
-  }) async {
-    if (operation == 'delete') {
-      await softDeleteStyleFigurePreset(internalId);
-      return;
-    }
-    final m = syncPullDataMap(data);
-    final figureId = syncPullString(
-      m,
-      const ['style_figure_internal_id', 'styleFigureInternalId'],
-    );
-    final name = syncPullString(m, const ['name']);
-    if (figureId == null ||
-        figureId.isEmpty ||
-        name == null ||
-        name.trim().isEmpty) {
-      return;
-    }
-    final textIds = syncPullStringList(
-      m,
-      const ['text_option_internal_ids', 'textOptionInternalIds'],
-    );
-    final sizeIds = syncPullStringList(
-      m,
-      const ['size_option_internal_ids', 'sizeOptionInternalIds'],
-    );
-    final sortOrder = syncPullInt(m, const ['sort_order', 'sortOrder']);
-    final isActive = syncPullBool(m, const ['is_active', 'isActive']) ?? true;
-    final i = _presets.indexWhere((e) => e.internalId == internalId);
-    final resolvedSort = sortOrder ??
-        (i >= 0
-            ? _presets[i].sortOrder
-            : _nextOptionSortOrder(
-                _presetsFor(shopId, figureId),
-                (e) => e.sortOrder,
-              ));
-    final existing = i >= 0 ? _presets[i] : null;
-    final summary = StyleFigurePresetSummary(
-      internalId: internalId,
-      shopId: shopId,
-      styleFigureInternalId: figureId,
-      name: name.trim(),
-      textOptionInternalIds:
-          textIds.isNotEmpty ? textIds : (existing?.textOptionInternalIds ?? []),
-      sizeOptionInternalIds:
-          sizeIds.isNotEmpty ? sizeIds : (existing?.sizeOptionInternalIds ?? []),
-      sortOrder: resolvedSort,
-      isActive: isActive,
-    );
-    if (i < 0) {
-      _presets.add(summary);
-    } else {
-      _presets[i] = summary;
-    }
-    _emitPresets();
   }
 }

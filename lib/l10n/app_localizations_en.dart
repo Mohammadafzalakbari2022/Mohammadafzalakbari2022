@@ -484,13 +484,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get orderStyleDisplayShapeLabel => 'Shape';
 
   @override
-  String get orderStyleDisplayPresetLabel => 'Preset';
-
-  @override
   String get orderStyleDisplayTextLabel => 'Text';
 
   @override
+  String get orderStyleDisplayDetailLabel => 'Detail';
+
+  @override
   String get orderStyleDisplaySizeLabel => 'Size';
+
+  @override
+  String get orderStyleDisplayNoteLabel => 'Note';
 
   @override
   String get orderStyleDetailsTitle => 'Style details';
@@ -1893,35 +1896,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ordersComposerStyleClearFigures => 'Clear all selections';
 
   @override
-  String get ordersComposerShapeConfigureTitle => 'Configure selected shapes';
-
-  @override
-  String get ordersComposerShapePresetsTitle => 'Quick presets';
-
-  @override
-  String get ordersComposerShapeTextOptionsTitle => 'Text options';
-
-  @override
-  String get ordersComposerShapeSizeOptionsTitle => 'Inch-size options';
-
-  @override
-  String get ordersComposerShapeSelectedDetailsTitle => 'Selected details';
-
-  @override
-  String get ordersComposerShapeNoPresets => 'No presets configured';
-
-  @override
   String get ordersComposerShapeNoTextOptions => 'No text options configured';
 
   @override
   String get ordersComposerShapeNoSizeOptions => 'No inch options configured';
 
   @override
-  String get ordersComposerShapeClearPreset => 'Clear preset';
-
-  @override
   String get ordersComposerShapeInactiveHint =>
       'Inactive in settings — still kept for this order';
+
+  @override
+  String get ordersComposerShapeDetailTitle => 'Detail';
+
+  @override
+  String get ordersComposerShapeInchTitle => 'Inch';
+
+  @override
+  String get ordersComposerShapeNoteLabel => 'Shape note';
+
+  @override
+  String get ordersComposerShapeNoteHint => 'Optional note for this shape';
+
+  @override
+  String get ordersComposerShapeRemoveShape => 'Remove shape';
+
+  @override
+  String get ordersComposerShapeNoDetailOptions =>
+      'No detail options configured.';
+
+  @override
+  String get ordersComposerShapeNoInchOptions => 'No inch options configured.';
 
   @override
   String get ordersComposerCatalogDesignTitle => 'Complete design from catalog';
@@ -2092,7 +2096,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsStyleFiguresSubtitle =>
-      'Shape names, text options, inch sizes, and presets';
+      'Shape names, text options, and inch sizes';
 
   @override
   String get settingsStyleFiguresEmpty => 'No design figures yet.';
@@ -2133,13 +2137,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsStyleFigureSaved => 'Shape settings saved.';
 
   @override
-  String get settingsStyleFigureSortOrderLabel => 'Sort order';
-
-  @override
-  String get settingsStyleFigureSortOrderInvalid =>
-      'Enter a valid sort order number.';
-
-  @override
   String get settingsStyleFigureActiveLabel => 'Active';
 
   @override
@@ -2156,19 +2153,19 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get settingsStyleFigureTextOptionsTitle => 'Text options';
+  String get settingsStyleFigureTextOptionsTitle => 'Detail options';
 
   @override
-  String get settingsStyleFigureTextOptionsEmpty => 'No text options yet.';
+  String get settingsStyleFigureTextOptionsEmpty => 'No detail options yet.';
 
   @override
-  String get settingsStyleFigureTextOptionAddCta => 'Add text option';
+  String get settingsStyleFigureTextOptionAddCta => 'Add detail';
 
   @override
-  String get settingsStyleFigureTextOptionEditTitle => 'Edit text option';
+  String get settingsStyleFigureTextOptionEditTitle => 'Edit detail';
 
   @override
-  String get settingsStyleFigureTextOptionLabelField => 'Label';
+  String get settingsStyleFigureTextOptionLabelField => 'Detail name';
 
   @override
   String get settingsStyleFigureTextOptionDeleteTitle => 'Delete text option?';
@@ -2178,22 +2175,22 @@ class AppLocalizationsEn extends AppLocalizations {
       'This removes the option from the catalog. Existing orders are not changed.';
 
   @override
-  String get settingsStyleFigureSizeOptionsTitle => 'Inch-size options';
+  String get settingsStyleFigureSizeOptionsTitle => 'Inch options';
 
   @override
-  String get settingsStyleFigureSizeOptionsEmpty => 'No inch-size options yet.';
+  String get settingsStyleFigureSizeOptionsEmpty => 'No inch options yet.';
 
   @override
-  String get settingsStyleFigureSizeOptionAddCta => 'Add inch option';
+  String get settingsStyleFigureSizeOptionAddCta => 'Add inch';
 
   @override
-  String get settingsStyleFigureSizeOptionEditTitle => 'Edit inch option';
+  String get settingsStyleFigureSizeOptionEditTitle => 'Edit inch';
 
   @override
   String get settingsStyleFigureSizeOptionLabelField => 'Label';
 
   @override
-  String get settingsStyleFigureValueInchesLabel => 'Value in inches';
+  String get settingsStyleFigureValueInchesLabel => 'Inch value';
 
   @override
   String get settingsStyleFigureSizeOptionDeleteTitle => 'Delete inch option?';
@@ -2203,54 +2200,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'This removes the option from the catalog. Existing orders are not changed.';
 
   @override
-  String get settingsStyleFigureLabelRequired => 'Label is required.';
+  String get settingsStyleFigureLabelRequired => 'Detail name is required.';
 
   @override
   String get settingsStyleFigureValuePositiveRequired =>
-      'Value must be greater than zero.';
-
-  @override
-  String get settingsStyleFigurePresetsTitle => 'Presets';
-
-  @override
-  String get settingsStyleFigurePresetsEmpty => 'No presets yet.';
-
-  @override
-  String get settingsStyleFigurePresetAddCta => 'Add preset';
-
-  @override
-  String get settingsStyleFigurePresetEditTitle => 'Edit preset';
-
-  @override
-  String get settingsStyleFigurePresetNameLabel => 'Preset name';
-
-  @override
-  String get settingsStyleFigurePresetNameRequired =>
-      'Preset name is required.';
-
-  @override
-  String get settingsStyleFigurePresetSelectTextOptions =>
-      'Select text options';
-
-  @override
-  String get settingsStyleFigurePresetSelectSizeOptions =>
-      'Select inch options';
-
-  @override
-  String get settingsStyleFigurePresetDeleteTitle => 'Delete preset?';
-
-  @override
-  String get settingsStyleFigurePresetDeleteBody =>
-      'This removes the preset from the catalog. Existing orders are not changed.';
-
-  @override
-  String settingsStyleFigurePresetSummary(
-    int textCount,
-    int sizeCount,
-    String status,
-  ) {
-    return '$textCount text · $sizeCount inch · $status';
-  }
+      'Enter a valid measurement, for example 5 1/2 x 7 1/2 inch.';
 
   @override
   String get settingsStyleActiveLabel => 'Active';

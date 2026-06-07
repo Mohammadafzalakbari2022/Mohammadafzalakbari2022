@@ -7,6 +7,7 @@ import '../../data/local/order_summary.dart';
 import '../../data/local/style/order_shape_selection_formatter.dart';
 import '../../data/providers/local_data_providers.dart';
 import 'order_shape_display_section.dart';
+import '../../data/local/style/order_shape_format_labels.dart';
 import 'order_style_figures_panel.dart';
 
 /// Measurements and style in one block (order detail, customer history, receipts).
@@ -26,15 +27,8 @@ class OrderMeasurementsStylePanel extends ConsumerWidget {
     return 3;
   }
 
-  OrderShapeSelectionFormatLabels _labels(AppLocalizations l10n) {
-    return OrderShapeSelectionFormatLabels(
-      mainStyle: l10n.orderStyleDisplayMainStyleLabel,
-      shape: l10n.orderStyleDisplayShapeLabel,
-      preset: l10n.orderStyleDisplayPresetLabel,
-      text: l10n.orderStyleDisplayTextLabel,
-      size: l10n.orderStyleDisplaySizeLabel,
-    );
-  }
+  OrderShapeSelectionFormatLabels _labels(AppLocalizations l10n) =>
+      orderShapeFormatLabels(l10n);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -63,7 +63,8 @@ class SyncConflictRecorder {
         direction: 'push_rejected',
         localSnapshotJson: encodeSyncConflictSnapshot(localSnapshot),
         remoteSnapshotJson: encodeSyncConflictSnapshot({
-          'message': ?message,
+          // ignore: use_null_aware_elements -- isar_generator cannot parse `?message`.
+          if (message != null) 'message': message,
         }),
         detectedAt: DateTime.now(),
         displayLabel: displayLabel,

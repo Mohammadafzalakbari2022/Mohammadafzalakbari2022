@@ -8,6 +8,7 @@ import '../../data/local/order_measurement_snapshot_view.dart';
 import '../../data/local/order_style_snapshot_view.dart';
 import '../../data/local/order_summary.dart';
 import '../../data/local/payment_summary.dart';
+import '../../data/local/style/order_shape_format_labels.dart';
 import '../../data/local/style/order_shape_selection_formatter.dart';
 import '../../data/local/style_figure_summary.dart';
 import '../../features/reports/report_money_format.dart';
@@ -75,13 +76,7 @@ Future<Uint8List> buildOrderInvoicePdf({
     styleSelectionJson: order.styleSelectionJson,
     styleSummary: order.styleSummary,
     catalogFigures: catalogFigures,
-    labels: OrderShapeSelectionFormatLabels(
-      mainStyle: l10n.orderStyleDisplayMainStyleLabel,
-      shape: l10n.orderStyleDisplayShapeLabel,
-      preset: l10n.orderStyleDisplayPresetLabel,
-      text: l10n.orderStyleDisplayTextLabel,
-      size: l10n.orderStyleDisplaySizeLabel,
-    ),
+    labels: orderShapeFormatLabels(l10n),
   );
   final styleText = styleDisplay.detailedText.trim().isNotEmpty
       ? styleDisplay.detailedText.trim()

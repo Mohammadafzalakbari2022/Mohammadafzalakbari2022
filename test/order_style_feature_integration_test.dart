@@ -15,17 +15,15 @@ void main() {
   const labels = OrderShapeSelectionFormatLabels(
     mainStyle: 'Style',
     shape: 'Shape',
-    preset: 'Preset',
-    text: 'Text',
+    detail: 'Detail',
     size: 'Size',
+    note: 'Note',
   );
 
   const v2Item = OrderShapeSelectionItem(
     shapeId: 'fig-a',
     shapeNameSnapshot: 'Classic Collar',
     imageRefSnapshot: 'asset:shape_1',
-    presetId: 'preset-1',
-    presetNameSnapshot: 'Normal Style',
     textOptions: [
       OrderShapeOptionSnapshot(
         id: 'text-1',
@@ -84,8 +82,7 @@ void main() {
       );
 
       expect(display.figures.single.shapeName, 'Classic Collar');
-      expect(display.figures.single.presetName, 'Normal Style');
-      expect(display.detailedLines, contains('Text: Round front, Double stitch'));
+      expect(display.detailedLines, contains('Detail: Round front'));
       expect(display.detailedLines, contains('Size: 2.5 inch'));
       expect(display.detailedLines.any((l) => l.contains('Renamed Collar')),
           isFalse);
@@ -101,7 +98,7 @@ void main() {
       );
 
       expect(display.figures.single.shapeName, 'Classic Collar');
-      expect(display.detailedLines, contains('Preset: Normal Style'));
+      expect(display.detailedLines, contains('Detail: Round front'));
       expect(display.detailedLines.any((l) => l.contains('Renamed Collar')),
           isFalse);
     });
@@ -153,7 +150,6 @@ void main() {
       expect(snap, isNotNull);
       expect(snap!.styleNameSnapshot, 'Qasimi');
       expect(snap.figures.single.figureNameSnapshot, 'Classic Collar');
-      expect(snap.figures.single.presetNameSnapshot, 'Normal Style');
     });
 
     test('update order replaces snapshot figure rows', () async {
@@ -229,7 +225,6 @@ void main() {
       final snap = await repo.watchOrderStyleSnapshot(orderId).first;
       expect(snap, isNotNull);
       expect(snap!.figures.single.figureNameSnapshot, 'Classic Collar');
-      expect(snap.figures.single.presetNameSnapshot, 'Normal Style');
 
       final display = formatOrderShapeSelectionDisplay(
         snapshot: snap,
@@ -237,7 +232,7 @@ void main() {
         styleSelectionJson: selection.toJsonString(),
         labels: labels,
       );
-      expect(display.detailedLines, contains('Text: Round front, Double stitch'));
+      expect(display.detailedLines, contains('Detail: Round front'));
       expect(display.detailedLines, contains('Size: 2.5 inch'));
     });
 
@@ -268,7 +263,7 @@ void main() {
       );
 
       expect(display.figures.single.shapeName, 'Classic Collar');
-      expect(display.detailedLines, contains('Preset: Normal Style'));
+      expect(display.detailedLines, contains('Detail: Round front'));
     });
 
     test('remote order with invalid styleSelectionJson falls back safely', () async {
@@ -361,7 +356,6 @@ void main() {
             figureNameSnapshot: 'Classic Collar',
             imageRefSnapshot: 'asset:shape_1',
             sortOrder: 0,
-            presetNameSnapshot: 'Normal Style',
           ),
         ],
       );
@@ -383,7 +377,7 @@ void main() {
       );
 
       expect(display.figures.single.shapeName, 'Classic Collar');
-      expect(display.detailedLines, contains('Preset: Normal Style'));
+      expect(display.detailedLines, contains('Shape: Classic Collar'));
     });
   });
 }

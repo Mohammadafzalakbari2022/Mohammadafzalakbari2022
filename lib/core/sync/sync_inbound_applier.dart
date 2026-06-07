@@ -163,14 +163,6 @@ class SyncInboundApplier {
           data: raw['data'],
         );
         applied++;
-      } else if (et == 'style_figure_preset') {
-        await styleCatalog.mergeRemoteStyleFigurePreset(
-          shopId: shopId,
-          internalId: id,
-          operation: op,
-          data: raw['data'],
-        );
-        applied++;
       } else if (et == 'fabric_name') {
         await fabricPresets.mergeRemoteFabricName(
           shopId: shopId,

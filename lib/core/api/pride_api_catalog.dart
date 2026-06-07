@@ -166,7 +166,8 @@ Future<bool> postCatalogItemShare({
             'shared': shared,
             'design_name': designName,
             'designer_shop_name': designerShopName,
-            'notes': ?notes,
+            // ignore: use_null_aware_elements -- isar_generator cannot parse `?notes`.
+            if (notes != null) 'notes': notes,
           }),
         )
         .timeout(const Duration(seconds: 15));

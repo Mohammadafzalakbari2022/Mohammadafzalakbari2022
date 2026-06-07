@@ -125,7 +125,8 @@ class PrideCarvedPanel extends StatelessWidget {
                       ],
                     ),
                   ),
-                  ?trailing,
+                  // ignore: use_null_aware_elements -- isar_generator cannot parse `?trailing`.
+                  if (trailing != null) trailing!,
                 ],
               ),
               const SizedBox(height: 12),

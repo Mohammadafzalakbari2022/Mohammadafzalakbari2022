@@ -82,7 +82,8 @@ class ShopBrandingHeader extends ConsumerWidget {
                   ),
                 ),
               ),
-              ?trailing,
+              // ignore: use_null_aware_elements -- isar_generator cannot parse `?trailing`.
+              if (trailing != null) trailing!,
             ],
           ),
         ),

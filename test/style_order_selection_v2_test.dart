@@ -55,8 +55,6 @@ void main() {
         shapeId: 'fig-a',
         shapeNameSnapshot: 'Classic Collar',
         imageRefSnapshot: 'asset:shape_1',
-        presetId: 'preset-1',
-        presetNameSnapshot: 'Normal Style',
         textOptions: [
           OrderShapeOptionSnapshot(
             id: 'text-1',
@@ -79,7 +77,6 @@ void main() {
       expect(restored.selectedFigureIds, {'fig-a'});
       expect(restored.shapeItems.length, 1);
       expect(restored.shapeItems.first.shapeNameSnapshot, 'Classic Collar');
-      expect(restored.shapeItems.first.presetNameSnapshot, 'Normal Style');
       expect(restored.shapeItems.first.textOptions.single.labelSnapshot,
           'Round front');
       expect(restored.shapeItems.first.sizeOptions.single.valueSnapshot, 2.5);
@@ -91,7 +88,6 @@ void main() {
           OrderShapeSelectionItem(
             shapeId: 'fig-a',
             shapeNameSnapshot: 'Classic Collar',
-            presetNameSnapshot: 'Normal Style',
             textOptions: [
               OrderShapeOptionSnapshot(
                 id: 'text-1',
@@ -115,12 +111,22 @@ void main() {
         figures: const [],
       );
       expect(summary, contains('Classic Collar'));
-      expect(summary, contains('Normal Style'));
       expect(summary, contains('Double stitch'));
       expect(summary, contains('3 inch'));
     });
 
-    test('empty options and presets do not crash summary', () {
+    test('note_snapshot round trips in v2 JSON', () {
+      const item = OrderShapeSelectionItem(
+        shapeId: 'fig-a',
+        shapeNameSnapshot: 'Classic Collar',
+        noteSnapshot: 'Slightly wider',
+      );
+      const selection = StyleOrderSelection.withItems(shapeItems: [item]);
+      final restored = StyleOrderSelection.fromJsonString(selection.toJsonString());
+      expect(restored.shapeItems.first.noteSnapshot, 'Slightly wider');
+    });
+
+    test('empty options do not crash summary', () {
       const selection = StyleOrderSelection.withItems(
         shapeItems: [
           OrderShapeSelectionItem(

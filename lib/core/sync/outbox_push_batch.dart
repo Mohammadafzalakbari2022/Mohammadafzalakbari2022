@@ -60,10 +60,6 @@ const int kSyncPushOutboxBatchLimit = 100;
       return (entityType: 'style_figure_size_option', operation: 'upsert');
     case SyncOutboxKinds.styleFigureSizeOptionDelete:
       return (entityType: 'style_figure_size_option', operation: 'delete');
-    case SyncOutboxKinds.styleFigurePresetUpsert:
-      return (entityType: 'style_figure_preset', operation: 'upsert');
-    case SyncOutboxKinds.styleFigurePresetDelete:
-      return (entityType: 'style_figure_preset', operation: 'delete');
     case SyncOutboxKinds.fabricNameUpsert:
       return (entityType: 'fabric_name', operation: 'upsert');
     case SyncOutboxKinds.fabricNameDelete:

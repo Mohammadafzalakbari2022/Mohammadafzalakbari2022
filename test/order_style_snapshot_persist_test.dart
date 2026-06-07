@@ -35,8 +35,6 @@ void main() {
             shapeId: 'fig-a',
             shapeNameSnapshot: 'Classic Collar',
             imageRefSnapshot: 'asset:shape_1',
-            presetId: 'preset-1',
-            presetNameSnapshot: 'Normal Style',
             textOptions: [
               OrderShapeOptionSnapshot(
                 id: 'text-1',
@@ -75,8 +73,6 @@ void main() {
       final first = data.figureInputs.first;
       expect(first.figureNameSnapshot, 'Classic Collar');
       expect(first.imageRefSnapshot, 'asset:shape_1');
-      expect(first.presetInternalIdSnapshot, 'preset-1');
-      expect(first.presetNameSnapshot, 'Normal Style');
       expect(first.textOptionsSnapshotJson, contains('Round front'));
       expect(first.sizeOptionsSnapshotJson, contains('2.5'));
     });
@@ -93,7 +89,6 @@ void main() {
       expect(data.figureInputs[0].styleFigureInternalId, 'fig-a');
       expect(data.figureInputs[0].figureNameSnapshot, 'Collar A');
       expect(data.figureInputs[1].styleFigureInternalId, 'fig-b');
-      expect(data.figureInputs[1].presetNameSnapshot, isEmpty);
       expect(data.figureInputs[1].textOptionsSnapshotJson, '[]');
     });
 
@@ -116,6 +111,36 @@ void main() {
       expect(data.hasContent, isTrue);
       expect(data.styleNameSnapshot, 'Qasimi');
       expect(data.figureInputs, isEmpty);
+    });
+
+    test('note snapshot persists on figure input and view', () {
+      const selection = StyleOrderSelection.withItems(
+        shapeItems: [
+          OrderShapeSelectionItem(
+            shapeId: 'fig-a',
+            shapeNameSnapshot: 'Classic Collar',
+            noteSnapshot: 'Two pockets',
+          ),
+        ],
+      );
+
+      final data = prepareOrderStyleSnapshotPersistData(
+        styleName: 'Qasimi',
+        styleSelectionJson: selection.toJsonString(),
+        allFigures: figures,
+      );
+
+      expect(data.figureInputs.single.noteSnapshot, 'Two pockets');
+
+      final view = buildOrderStyleSnapshotView(
+        orderInternalId: 'order-1',
+        styleName: 'Qasimi',
+        styleSelectionJson: selection.toJsonString(),
+        snapshotInternalId: 'snap-1',
+        allFigures: figures,
+      );
+
+      expect(view!.figures.single.noteSnapshot, 'Two pockets');
     });
 
     test('style name only persists header data without figures', () {

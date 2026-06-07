@@ -73,19 +73,17 @@ class OrderShapeSelectionItem {
     required this.shapeId,
     this.shapeNameSnapshot = '',
     this.imageRefSnapshot = '',
-    this.presetId,
-    this.presetNameSnapshot,
     this.textOptions = const [],
     this.sizeOptions = const [],
+    this.noteSnapshot,
   });
 
   final String shapeId;
   final String shapeNameSnapshot;
   final String imageRefSnapshot;
-  final String? presetId;
-  final String? presetNameSnapshot;
   final List<OrderShapeOptionSnapshot> textOptions;
   final List<OrderShapeSizeSnapshot> sizeOptions;
+  final String? noteSnapshot;
 
   factory OrderShapeSelectionItem.fromJson(Map<String, dynamic> json) {
     final textRaw = json['text_options'] ?? json['textOptions'];
@@ -100,11 +98,10 @@ class OrderShapeSelectionItem {
       imageRefSnapshot: json['image_ref_snapshot']?.toString() ??
           json['imageRefSnapshot']?.toString() ??
           '',
-      presetId: json['preset_id']?.toString() ?? json['presetId']?.toString(),
-      presetNameSnapshot: json['preset_name_snapshot']?.toString() ??
-          json['presetNameSnapshot']?.toString(),
       textOptions: _parseOptionList(textRaw),
       sizeOptions: _parseSizeList(sizeRaw),
+      noteSnapshot: json['note_snapshot']?.toString() ??
+          json['noteSnapshot']?.toString(),
     );
   }
 
@@ -132,13 +129,12 @@ class OrderShapeSelectionItem {
           'shape_name_snapshot': shapeNameSnapshot,
         if (imageRefSnapshot.isNotEmpty)
           'image_ref_snapshot': imageRefSnapshot,
-        if (presetId != null && presetId!.isNotEmpty) 'preset_id': presetId,
-        if (presetNameSnapshot != null && presetNameSnapshot!.trim().isNotEmpty)
-          'preset_name_snapshot': presetNameSnapshot,
         if (textOptions.isNotEmpty)
           'text_options': textOptions.map((e) => e.toJson()).toList(),
         if (sizeOptions.isNotEmpty)
           'size_options': sizeOptions.map((e) => e.toJson()).toList(),
+        if (noteSnapshot != null && noteSnapshot!.trim().isNotEmpty)
+          'note_snapshot': noteSnapshot!.trim(),
       };
 }
 
@@ -300,11 +296,6 @@ class StyleOrderSelection {
         buf.writeln(shapeLine);
       }
 
-      final preset = item.presetNameSnapshot?.trim() ?? '';
-      if (preset.isNotEmpty) {
-        buf.writeln('  $preset');
-      }
-
       for (final text in item.textOptions) {
         final label = text.labelSnapshot.trim();
         if (label.isNotEmpty) {
@@ -319,6 +310,11 @@ class StyleOrderSelection {
         } else if (size.valueSnapshot > 0) {
           buf.writeln('  · ${size.valueSnapshot} ${size.unitSnapshot}');
         }
+      }
+
+      final note = item.noteSnapshot?.trim() ?? '';
+      if (note.isNotEmpty) {
+        buf.writeln('  · $note');
       }
     }
   }

@@ -148,10 +148,9 @@ Future<void> persistOrderStyleSnapshotInTxn({
         ..styleFigureInternalId = input.styleFigureInternalId
         ..figureNameSnapshot = input.figureNameSnapshot
         ..imageRefSnapshot = input.imageRefSnapshot
-        ..presetInternalIdSnapshot = input.presetInternalIdSnapshot
-        ..presetNameSnapshot = input.presetNameSnapshot
         ..textOptionsSnapshotJson = input.textOptionsSnapshotJson
         ..sizeOptionsSnapshotJson = input.sizeOptionsSnapshotJson
+        ..noteSnapshot = input.noteSnapshot
         ..sortOrder = input.sortOrder,
     );
   }
@@ -182,8 +181,6 @@ OrderStyleSnapshotView? buildOrderStyleSnapshotView({
           figureNameSnapshot: input.figureNameSnapshot,
           imageRefSnapshot: input.imageRefSnapshot,
           sortOrder: input.sortOrder,
-          presetInternalIdSnapshot: input.presetInternalIdSnapshot,
-          presetNameSnapshot: input.presetNameSnapshot,
           textOptions: decodeOrderShapeOptionSnapshots(
             input.textOptionsSnapshotJson,
           )
@@ -206,6 +203,7 @@ OrderStyleSnapshotView? buildOrderStyleSnapshotView({
                 ),
               )
               .toList(growable: false),
+          noteSnapshot: input.noteSnapshot,
         ),
       )
       .toList(growable: false);

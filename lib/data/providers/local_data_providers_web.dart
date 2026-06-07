@@ -38,7 +38,6 @@ import '../local/style_catalog_repository.dart';
 import '../local/style_name_summary.dart';
 import '../local/style_part_summary.dart';
 import '../local/style_figure_config_summary.dart';
-import '../local/style_figure_preset_summary.dart';
 import '../local/style_figure_size_option_summary.dart';
 import '../local/style_figure_summary.dart';
 import '../local/style_figure_text_option_summary.dart';
@@ -260,13 +259,6 @@ final styleFigureSizeOptionsProvider = StreamProvider.family<
   final repo = await ref.watch(styleCatalogRepositoryProvider.future);
   final shopId = ref.watch(effectiveShopIdProvider);
   yield* repo.watchSizeOptionsForFigure(shopId, figureId);
-});
-
-final styleFigurePresetsProvider = StreamProvider.family<
-    List<StyleFigurePresetSummary>, String>((ref, figureId) async* {
-  final repo = await ref.watch(styleCatalogRepositoryProvider.future);
-  final shopId = ref.watch(effectiveShopIdProvider);
-  yield* repo.watchPresetsForFigure(shopId, figureId);
 });
 
 final styleAllFigureConfigsProvider =

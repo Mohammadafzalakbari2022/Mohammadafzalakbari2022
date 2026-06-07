@@ -256,8 +256,6 @@ class IsarOrderRepository implements OrderListRepository {
               figureNameSnapshot: e.figureNameSnapshot,
               imageRefSnapshot: e.imageRefSnapshot,
               sortOrder: e.sortOrder,
-              presetInternalIdSnapshot: e.presetInternalIdSnapshot,
-              presetNameSnapshot: e.presetNameSnapshot,
               textOptions: textOptions
                   .map(
                     (opt) => OrderShapeOptionSnapshotView(
@@ -276,6 +274,7 @@ class IsarOrderRepository implements OrderListRepository {
                     ),
                   )
                   .toList(growable: false),
+              noteSnapshot: e.noteSnapshot,
             );
           },
         )

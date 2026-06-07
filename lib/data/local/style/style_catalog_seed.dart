@@ -4,9 +4,9 @@ import '../entities/style_figure_entity.dart';
 import '../entities/style_name_entity.dart';
 import '../entities/style_part_entity.dart';
 import '../seed_data.dart';
-import 'style_figure_image_ref.dart';
+import 'style_catalog_bundled_figures.dart';
 
-/// First-run defaults for style catalog (names, parts, bundled figures).
+/// First-run defaults and upgrade repair for style catalog (names, parts, bundled figures).
 Future<void> seedStyleCatalogIfEmpty(Isar isar, String shopId) async {
   final now = DateTime.now();
   await _seedStyleNamesIfMissing(isar, shopId, now);
@@ -99,78 +99,58 @@ Future<void> _ensureBundledStyleFigures(
   String shopId,
   DateTime now,
 ) async {
-  final partIds = [
-    DevSeedIds.stylePartSleeve,
-    DevSeedIds.stylePartSleeve,
-    DevSeedIds.stylePartSleeve,
-    DevSeedIds.stylePartCollar,
-    DevSeedIds.stylePartCollar,
-    DevSeedIds.stylePartPocket,
-    DevSeedIds.stylePartPocket,
-    DevSeedIds.stylePartCuff,
-    DevSeedIds.stylePartCuff,
-    DevSeedIds.stylePartNeck,
-    DevSeedIds.stylePartNeck,
-    DevSeedIds.stylePartFront,
-    DevSeedIds.stylePartFront,
-    DevSeedIds.stylePartBottom,
-    DevSeedIds.stylePartBottom,
-  ];
-
-  final figureIds = [
-    DevSeedIds.styleFigure1,
-    DevSeedIds.styleFigure2,
-    DevSeedIds.styleFigure3,
-    DevSeedIds.styleFigure4,
-    DevSeedIds.styleFigure5,
-    DevSeedIds.styleFigure6,
-    DevSeedIds.styleFigure7,
-    DevSeedIds.styleFigure8,
-    DevSeedIds.styleFigure9,
-    DevSeedIds.styleFigure10,
-    DevSeedIds.styleFigure11,
-    DevSeedIds.styleFigure12,
-    DevSeedIds.styleFigure13,
-    DevSeedIds.styleFigure14,
-    DevSeedIds.styleFigure15,
-  ];
+  final figureIds =
+      bundledStyleFigureTemplates.map((t) => t.internalId).toList();
+  final existingRows =
+      await isar.styleFigureEntitys.getAllByInternalId(figureIds);
 
   final toWrite = <StyleFigureEntity>[];
-  for (var i = 0; i < 15; i++) {
-    final existing = await isar.styleFigureEntitys.getByInternalId(figureIds[i]);
-    if (existing != null &&
-        existing.shopId == shopId &&
-        existing.deletedAt == null) {
+  for (var i = 0; i < bundledStyleFigureTemplates.length; i++) {
+    final template = bundledStyleFigureTemplates[i];
+    final existing = existingRows[i];
+
+    if (existing == null) {
+      toWrite.add(
+        StyleFigureEntity()
+          ..internalId = template.internalId
+          ..shopId = shopId
+          ..partInternalId = template.partInternalId
+          ..name = ''
+          ..imageRef = template.imageRef
+          ..sortOrder = template.sortOrder
+          ..isActive = true
+          ..createdAt = now
+          ..updatedAt = now,
+      );
       continue;
     }
 
-    if (existing != null) {
-      final preservedName = existing.name;
-      existing
-        ..shopId = shopId
-        ..partInternalId = partIds[i]
-        ..imageRef = StyleFigureImageRef.bundledAssetKey(i + 1)
-        ..sortOrder = (i + 1) * 10
-        ..isActive = true
-        ..updatedAt = now
-        ..deletedAt = null
-        ..name = preservedName;
-      toWrite.add(existing);
-      continue;
-    }
-
-    toWrite.add(
-      StyleFigureEntity()
-        ..internalId = figureIds[i]
-        ..shopId = shopId
-        ..partInternalId = partIds[i]
-        ..name = ''
-        ..imageRef = StyleFigureImageRef.bundledAssetKey(i + 1)
-        ..sortOrder = (i + 1) * 10
-        ..isActive = true
-        ..createdAt = now
-        ..updatedAt = now,
+    final preservedName = existing.name;
+    final preservedActive = existing.isActive;
+    final needsRepair = bundledStyleFigureNeedsRepair(
+      shopId: shopId,
+      template: template,
+      existingShopId: existing.shopId,
+      existingImageRef: existing.imageRef,
+      existingPartInternalId: existing.partInternalId,
+      existingSortOrder: existing.sortOrder,
+      isDeleted: existing.deletedAt != null,
     );
+    if (!needsRepair) continue;
+
+    existing
+      ..shopId = shopId
+      ..partInternalId = template.partInternalId
+      ..imageRef = template.imageRef
+      ..sortOrder = template.sortOrder
+      ..name = preservedName
+      ..isActive = preservedActive
+      ..updatedAt = now
+      ..deletedAt = null;
+    if (existing.createdAt.millisecondsSinceEpoch <= 0) {
+      existing.createdAt = now;
+    }
+    toWrite.add(existing);
   }
 
   if (toWrite.isEmpty) return;

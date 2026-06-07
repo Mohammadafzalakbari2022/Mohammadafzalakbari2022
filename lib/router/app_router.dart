@@ -38,7 +38,6 @@ import '../features/settings/settings_style_names_screen.dart';
 import '../features/settings/settings_style_parts_screen.dart';
 import '../features/settings/settings_style_figures_screen.dart';
 import '../features/settings/settings_style_figure_detail_screen.dart';
-import '../features/settings/settings_style_figure_preset_editor.dart';
 import '../features/settings/settings_tasks_screen.dart';
 import '../features/settings/settings_tab_screen.dart';
 import '../features/settings/settings_printer_screen.dart';
@@ -339,23 +338,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                                 figureId: figureId,
                               );
                             },
-                            routes: [
-                              GoRoute(
-                                path: 'preset/:presetId',
-                                parentNavigatorKey: appRootNavigatorKey,
-                                builder: (context, state) {
-                                  final figureId =
-                                      state.pathParameters['figureId']!;
-                                  final presetId =
-                                      state.pathParameters['presetId']!;
-                                  return SettingsStyleFigurePresetEditor(
-                                    figureId: figureId,
-                                    presetId:
-                                        presetId == 'new' ? null : presetId,
-                                  );
-                                },
-                              ),
-                            ],
                           ),
                         ],
                       ),
