@@ -11,15 +11,17 @@ import '../local/entities/measurement_profile_entity.dart';
 import '../local/entities/measurement_profile_item_entity.dart';
 import '../local/entities/measurement_type_entity.dart';
 import '../local/entities/order_entity.dart';
+import '../local/entities/order_item_entity.dart';
 import '../local/entities/order_measurement_snapshot_entity.dart';
 import '../local/entities/order_measurement_snapshot_item_entity.dart';
 import '../local/entities/payment_entity.dart';
+import '../local/isar_order_migration_v4.dart';
 import 'backup_merge_result.dart';
 
 /// JSON backup (plan-15). Exports as [currentExportVersion]; imports v1 and v2.
 abstract final class IsarBackupV1 {
   static const schemaKey = 'afghan_pride_backup';
-  static const currentExportVersion = 3;
+  static const currentExportVersion = 4;
   static const minImportVersion = 1;
 
   static int _versionFromRoot(Map<String, dynamic> root) {
@@ -46,6 +48,10 @@ abstract final class IsarBackupV1 {
         .findAll();
     final orders =
         await isar.orderEntitys.filter().shopIdEqualTo(shopId).findAll();
+    final orderItems = await isar.orderItemEntitys
+        .filter()
+        .shopIdEqualTo(shopId)
+        .findAll();
     final payments = await isar.paymentEntitys
         .filter()
         .shopIdEqualTo(shopId)
@@ -111,6 +117,7 @@ abstract final class IsarBackupV1 {
       ],
       'customers': [for (final c in customers) _customerToMap(c)],
       'orders': [for (final o in orders) _orderToMap(o)],
+      'orderItems': [for (final i in orderItems) _orderItemToMap(i)],
       'payments': [for (final p in payments) _paymentToMap(p)],
       'orderMeasurementSnapshots': [
         for (final s in snapshots) _snapshotToMap(s),
@@ -153,6 +160,7 @@ abstract final class IsarBackupV1 {
     var measurementProfilesUpserted = 0;
     var measurementProfileItemsWritten = 0;
     var ordersUpserted = 0;
+    var orderItemsUpserted = 0;
     var paymentsInserted = 0;
     var paymentsSkippedExisting = 0;
     var snapshotsUpserted = 0;
@@ -218,6 +226,13 @@ abstract final class IsarBackupV1 {
         if (shopId.isNotEmpty && e.shopId != shopId) continue;
         await isar.orderEntitys.putByInternalId(e);
         ordersUpserted++;
+      }
+
+      for (final raw in _asMapList(root['orderItems'])) {
+        final e = _orderItemFromMap(raw);
+        if (shopId.isNotEmpty && e.shopId != shopId) continue;
+        await isar.orderItemEntitys.putByInternalId(e);
+        orderItemsUpserted++;
       }
 
       for (final raw in _asMapList(root['payments'])) {
@@ -304,6 +319,8 @@ abstract final class IsarBackupV1 {
       }
     });
 
+    await IsarOrderMigrationV4.runIfNeeded(isar: isar);
+
     return BackupMergeResult(
       customersInserted: customersInserted,
       customersUpdated: customersUpdated,
@@ -364,6 +381,9 @@ abstract final class IsarBackupV1 {
         'internalId': o.internalId,
         'shopId': o.shopId,
         'customerInternalId': o.customerInternalId,
+        'customerNameSnapshot': o.customerNameSnapshot,
+        'customerPhoneSnapshot': o.customerPhoneSnapshot,
+        'customerChangeHistoryJson': o.customerChangeHistoryJson,
         'displayOrderNo': o.displayOrderNo,
         'statusIndex': o.statusIndex,
         'deliveryDate': o.deliveryDate.toUtc().toIso8601String(),
@@ -378,6 +398,16 @@ abstract final class IsarBackupV1 {
         'styleNameInternalId': o.styleNameInternalId,
         'styleSelectionJson': o.styleSelectionJson,
         'styleSummary': o.styleSummary,
+        'catalogItemInternalId': o.catalogItemInternalId,
+        'catalogDesignNameSnapshot': o.catalogDesignNameSnapshot,
+        'catalogDesignerShopNameSnapshot': o.catalogDesignerShopNameSnapshot,
+        'catalogImagePathSnapshot': o.catalogImagePathSnapshot,
+        'catalogThumbnailPathSnapshot': o.catalogThumbnailPathSnapshot,
+        'fabricNameSnapshot': o.fabricNameSnapshot,
+        'fabricColorSnapshot': o.fabricColorSnapshot,
+        'fabricIdSnapshot': o.fabricIdSnapshot,
+        'fabricNamePresetInternalId': o.fabricNamePresetInternalId,
+        'fabricColorPresetInternalId': o.fabricColorPresetInternalId,
         'deletedAt': o.deletedAt?.toUtc().toIso8601String(),
       };
 
@@ -400,7 +430,25 @@ abstract final class IsarBackupV1 {
       ..styleName = m['styleName'] as String? ?? ''
       ..styleNameInternalId = m['styleNameInternalId'] as String?
       ..styleSelectionJson = m['styleSelectionJson'] as String? ?? ''
-      ..styleSummary = m['styleSummary'] as String? ?? '';
+      ..styleSummary = m['styleSummary'] as String? ?? ''
+      ..catalogItemInternalId = m['catalogItemInternalId'] as String?
+      ..catalogDesignNameSnapshot =
+          m['catalogDesignNameSnapshot'] as String? ?? ''
+      ..catalogDesignerShopNameSnapshot =
+          m['catalogDesignerShopNameSnapshot'] as String? ?? ''
+      ..catalogImagePathSnapshot = m['catalogImagePathSnapshot'] as String?
+      ..catalogThumbnailPathSnapshot =
+          m['catalogThumbnailPathSnapshot'] as String?
+      ..fabricNameSnapshot = m['fabricNameSnapshot'] as String? ?? ''
+      ..fabricColorSnapshot = m['fabricColorSnapshot'] as String? ?? ''
+      ..fabricIdSnapshot = m['fabricIdSnapshot'] as String? ?? ''
+      ..fabricNamePresetInternalId = m['fabricNamePresetInternalId'] as String?
+      ..fabricColorPresetInternalId =
+          m['fabricColorPresetInternalId'] as String?
+      ..customerNameSnapshot = m['customerNameSnapshot'] as String? ?? ''
+      ..customerPhoneSnapshot = m['customerPhoneSnapshot'] as String? ?? ''
+      ..customerChangeHistoryJson =
+          m['customerChangeHistoryJson'] as String? ?? '';
     final createdRaw = m['createdAt'] as String?;
     o.createdAt =
         createdRaw == null ? null : DateTime.parse(createdRaw).toLocal();
@@ -430,10 +478,80 @@ abstract final class IsarBackupV1 {
       ..createdAt = DateTime.parse(m['createdAt']! as String).toLocal();
   }
 
+  static Map<String, dynamic> _orderItemToMap(OrderItemEntity i) => {
+        'internalId': i.internalId,
+        'shopId': i.shopId,
+        'orderInternalId': i.orderInternalId,
+        'garmentTypeIndex': i.garmentTypeIndex,
+        'sortOrder': i.sortOrder,
+        'priceAmountMinor': i.priceAmountMinor,
+        'itemNotes': i.itemNotes,
+        'measurementsSnapshot': i.measurementsSnapshot,
+        'sourceMeasurementProfileId': i.sourceMeasurementProfileId,
+        'sourceMeasurementProfileLabel': i.sourceMeasurementProfileLabel,
+        'styleName': i.styleName,
+        'styleNameInternalId': i.styleNameInternalId,
+        'styleSelectionJson': i.styleSelectionJson,
+        'styleSummary': i.styleSummary,
+        'catalogItemInternalId': i.catalogItemInternalId,
+        'catalogDesignNameSnapshot': i.catalogDesignNameSnapshot,
+        'catalogDesignerShopNameSnapshot': i.catalogDesignerShopNameSnapshot,
+        'catalogImagePathSnapshot': i.catalogImagePathSnapshot,
+        'catalogThumbnailPathSnapshot': i.catalogThumbnailPathSnapshot,
+        'fabricNameSnapshot': i.fabricNameSnapshot,
+        'fabricColorSnapshot': i.fabricColorSnapshot,
+        'fabricIdSnapshot': i.fabricIdSnapshot,
+        'fabricNamePresetInternalId': i.fabricNamePresetInternalId,
+        'fabricColorPresetInternalId': i.fabricColorPresetInternalId,
+        'createdAt': i.createdAt.toUtc().toIso8601String(),
+        'updatedAt': i.updatedAt.toUtc().toIso8601String(),
+        'deletedAt': i.deletedAt?.toUtc().toIso8601String(),
+      };
+
+  static OrderItemEntity _orderItemFromMap(Map<String, dynamic> m) {
+    final i = OrderItemEntity()
+      ..internalId = m['internalId']! as String
+      ..shopId = m['shopId']! as String
+      ..orderInternalId = m['orderInternalId']! as String
+      ..garmentTypeIndex = (m['garmentTypeIndex'] as num).toInt()
+      ..sortOrder = (m['sortOrder'] as num?)?.toInt() ?? 0
+      ..priceAmountMinor = (m['priceAmountMinor'] as num).toInt()
+      ..itemNotes = m['itemNotes'] as String? ?? ''
+      ..measurementsSnapshot = m['measurementsSnapshot'] as String? ?? ''
+      ..sourceMeasurementProfileId =
+          m['sourceMeasurementProfileId'] as String?
+      ..sourceMeasurementProfileLabel =
+          m['sourceMeasurementProfileLabel'] as String? ?? ''
+      ..styleName = m['styleName'] as String? ?? ''
+      ..styleNameInternalId = m['styleNameInternalId'] as String?
+      ..styleSelectionJson = m['styleSelectionJson'] as String? ?? ''
+      ..styleSummary = m['styleSummary'] as String? ?? ''
+      ..catalogItemInternalId = m['catalogItemInternalId'] as String?
+      ..catalogDesignNameSnapshot =
+          m['catalogDesignNameSnapshot'] as String? ?? ''
+      ..catalogDesignerShopNameSnapshot =
+          m['catalogDesignerShopNameSnapshot'] as String? ?? ''
+      ..catalogImagePathSnapshot = m['catalogImagePathSnapshot'] as String?
+      ..catalogThumbnailPathSnapshot =
+          m['catalogThumbnailPathSnapshot'] as String?
+      ..fabricNameSnapshot = m['fabricNameSnapshot'] as String? ?? ''
+      ..fabricColorSnapshot = m['fabricColorSnapshot'] as String? ?? ''
+      ..fabricIdSnapshot = m['fabricIdSnapshot'] as String? ?? ''
+      ..fabricNamePresetInternalId = m['fabricNamePresetInternalId'] as String?
+      ..fabricColorPresetInternalId =
+          m['fabricColorPresetInternalId'] as String?
+      ..createdAt = DateTime.parse(m['createdAt']! as String).toLocal()
+      ..updatedAt = DateTime.parse(m['updatedAt']! as String).toLocal();
+    final del = m['deletedAt'] as String?;
+    i.deletedAt = del == null ? null : DateTime.parse(del).toLocal();
+    return i;
+  }
+
   static Map<String, dynamic> _snapshotToMap(OrderMeasurementSnapshotEntity s) =>
       {
         'internalId': s.internalId,
         'orderInternalId': s.orderInternalId,
+        'orderItemInternalId': s.orderItemInternalId,
         'shopId': s.shopId,
         'sourceMeasurementProfileId': s.sourceMeasurementProfileId,
         'createdAt': s.createdAt.toUtc().toIso8601String(),
@@ -445,6 +563,7 @@ abstract final class IsarBackupV1 {
     return OrderMeasurementSnapshotEntity()
       ..internalId = m['internalId']! as String
       ..orderInternalId = m['orderInternalId']! as String
+      ..orderItemInternalId = m['orderItemInternalId'] as String? ?? ''
       ..shopId = m['shopId']! as String
       ..sourceMeasurementProfileId =
           m['sourceMeasurementProfileId'] as String?

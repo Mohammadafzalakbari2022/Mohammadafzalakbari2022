@@ -33,18 +33,23 @@ const OrderStyleSnapshotEntitySchema = CollectionSchema(
       name: r'orderInternalId',
       type: IsarType.string,
     ),
-    r'shopId': PropertySchema(
+    r'orderItemInternalId': PropertySchema(
       id: 3,
+      name: r'orderItemInternalId',
+      type: IsarType.string,
+    ),
+    r'shopId': PropertySchema(
+      id: 4,
       name: r'shopId',
       type: IsarType.string,
     ),
     r'styleNameInternalIdSnapshot': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'styleNameInternalIdSnapshot',
       type: IsarType.string,
     ),
     r'styleNameSnapshot': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'styleNameSnapshot',
       type: IsarType.string,
     )
@@ -71,11 +76,24 @@ const OrderStyleSnapshotEntitySchema = CollectionSchema(
     r'orderInternalId': IndexSchema(
       id: -7258485722081298256,
       name: r'orderInternalId',
-      unique: true,
-      replace: true,
+      unique: false,
+      replace: false,
       properties: [
         IndexPropertySchema(
           name: r'orderInternalId',
+          type: IndexType.hash,
+          caseSensitive: true,
+        )
+      ],
+    ),
+    r'orderItemInternalId': IndexSchema(
+      id: -2202692246088717177,
+      name: r'orderItemInternalId',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'orderItemInternalId',
           type: IndexType.hash,
           caseSensitive: true,
         )
@@ -111,6 +129,7 @@ int _orderStyleSnapshotEntityEstimateSize(
   var bytesCount = offsets.last;
   bytesCount += 3 + object.internalId.length * 3;
   bytesCount += 3 + object.orderInternalId.length * 3;
+  bytesCount += 3 + object.orderItemInternalId.length * 3;
   bytesCount += 3 + object.shopId.length * 3;
   {
     final value = object.styleNameInternalIdSnapshot;
@@ -131,9 +150,10 @@ void _orderStyleSnapshotEntitySerialize(
   writer.writeDateTime(offsets[0], object.createdAt);
   writer.writeString(offsets[1], object.internalId);
   writer.writeString(offsets[2], object.orderInternalId);
-  writer.writeString(offsets[3], object.shopId);
-  writer.writeString(offsets[4], object.styleNameInternalIdSnapshot);
-  writer.writeString(offsets[5], object.styleNameSnapshot);
+  writer.writeString(offsets[3], object.orderItemInternalId);
+  writer.writeString(offsets[4], object.shopId);
+  writer.writeString(offsets[5], object.styleNameInternalIdSnapshot);
+  writer.writeString(offsets[6], object.styleNameSnapshot);
 }
 
 OrderStyleSnapshotEntity _orderStyleSnapshotEntityDeserialize(
@@ -147,9 +167,10 @@ OrderStyleSnapshotEntity _orderStyleSnapshotEntityDeserialize(
   object.id = id;
   object.internalId = reader.readString(offsets[1]);
   object.orderInternalId = reader.readString(offsets[2]);
-  object.shopId = reader.readString(offsets[3]);
-  object.styleNameInternalIdSnapshot = reader.readStringOrNull(offsets[4]);
-  object.styleNameSnapshot = reader.readString(offsets[5]);
+  object.orderItemInternalId = reader.readString(offsets[3]);
+  object.shopId = reader.readString(offsets[4]);
+  object.styleNameInternalIdSnapshot = reader.readStringOrNull(offsets[5]);
+  object.styleNameSnapshot = reader.readString(offsets[6]);
   return object;
 }
 
@@ -169,8 +190,10 @@ P _orderStyleSnapshotEntityDeserializeProp<P>(
     case 3:
       return (reader.readString(offset)) as P;
     case 4:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 5:
+      return (reader.readStringOrNull(offset)) as P;
+    case 6:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -247,64 +270,6 @@ extension OrderStyleSnapshotEntityByIndex
   List<Id> putAllByInternalIdSync(List<OrderStyleSnapshotEntity> objects,
       {bool saveLinks = true}) {
     return putAllByIndexSync(r'internalId', objects, saveLinks: saveLinks);
-  }
-
-  Future<OrderStyleSnapshotEntity?> getByOrderInternalId(
-      String orderInternalId) {
-    return getByIndex(r'orderInternalId', [orderInternalId]);
-  }
-
-  OrderStyleSnapshotEntity? getByOrderInternalIdSync(String orderInternalId) {
-    return getByIndexSync(r'orderInternalId', [orderInternalId]);
-  }
-
-  Future<bool> deleteByOrderInternalId(String orderInternalId) {
-    return deleteByIndex(r'orderInternalId', [orderInternalId]);
-  }
-
-  bool deleteByOrderInternalIdSync(String orderInternalId) {
-    return deleteByIndexSync(r'orderInternalId', [orderInternalId]);
-  }
-
-  Future<List<OrderStyleSnapshotEntity?>> getAllByOrderInternalId(
-      List<String> orderInternalIdValues) {
-    final values = orderInternalIdValues.map((e) => [e]).toList();
-    return getAllByIndex(r'orderInternalId', values);
-  }
-
-  List<OrderStyleSnapshotEntity?> getAllByOrderInternalIdSync(
-      List<String> orderInternalIdValues) {
-    final values = orderInternalIdValues.map((e) => [e]).toList();
-    return getAllByIndexSync(r'orderInternalId', values);
-  }
-
-  Future<int> deleteAllByOrderInternalId(List<String> orderInternalIdValues) {
-    final values = orderInternalIdValues.map((e) => [e]).toList();
-    return deleteAllByIndex(r'orderInternalId', values);
-  }
-
-  int deleteAllByOrderInternalIdSync(List<String> orderInternalIdValues) {
-    final values = orderInternalIdValues.map((e) => [e]).toList();
-    return deleteAllByIndexSync(r'orderInternalId', values);
-  }
-
-  Future<Id> putByOrderInternalId(OrderStyleSnapshotEntity object) {
-    return putByIndex(r'orderInternalId', object);
-  }
-
-  Id putByOrderInternalIdSync(OrderStyleSnapshotEntity object,
-      {bool saveLinks = true}) {
-    return putByIndexSync(r'orderInternalId', object, saveLinks: saveLinks);
-  }
-
-  Future<List<Id>> putAllByOrderInternalId(
-      List<OrderStyleSnapshotEntity> objects) {
-    return putAllByIndex(r'orderInternalId', objects);
-  }
-
-  List<Id> putAllByOrderInternalIdSync(List<OrderStyleSnapshotEntity> objects,
-      {bool saveLinks = true}) {
-    return putAllByIndexSync(r'orderInternalId', objects, saveLinks: saveLinks);
   }
 }
 
@@ -472,6 +437,53 @@ extension OrderStyleSnapshotEntityQueryWhere on QueryBuilder<
               indexName: r'orderInternalId',
               lower: [],
               upper: [orderInternalId],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotEntity, OrderStyleSnapshotEntity,
+          QAfterWhereClause>
+      orderItemInternalIdEqualTo(String orderItemInternalId) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'orderItemInternalId',
+        value: [orderItemInternalId],
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotEntity, OrderStyleSnapshotEntity,
+          QAfterWhereClause>
+      orderItemInternalIdNotEqualTo(String orderItemInternalId) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'orderItemInternalId',
+              lower: [],
+              upper: [orderItemInternalId],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'orderItemInternalId',
+              lower: [orderItemInternalId],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'orderItemInternalId',
+              lower: [orderItemInternalId],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'orderItemInternalId',
+              lower: [],
+              upper: [orderItemInternalId],
               includeUpper: false,
             ));
       }
@@ -909,6 +921,144 @@ extension OrderStyleSnapshotEntityQueryFilter on QueryBuilder<
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'orderInternalId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotEntity, OrderStyleSnapshotEntity,
+      QAfterFilterCondition> orderItemInternalIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'orderItemInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotEntity, OrderStyleSnapshotEntity,
+      QAfterFilterCondition> orderItemInternalIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'orderItemInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotEntity, OrderStyleSnapshotEntity,
+      QAfterFilterCondition> orderItemInternalIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'orderItemInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotEntity, OrderStyleSnapshotEntity,
+      QAfterFilterCondition> orderItemInternalIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'orderItemInternalId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotEntity, OrderStyleSnapshotEntity,
+      QAfterFilterCondition> orderItemInternalIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'orderItemInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotEntity, OrderStyleSnapshotEntity,
+      QAfterFilterCondition> orderItemInternalIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'orderItemInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotEntity, OrderStyleSnapshotEntity,
+          QAfterFilterCondition>
+      orderItemInternalIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'orderItemInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotEntity, OrderStyleSnapshotEntity,
+          QAfterFilterCondition>
+      orderItemInternalIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'orderItemInternalId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotEntity, OrderStyleSnapshotEntity,
+      QAfterFilterCondition> orderItemInternalIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'orderItemInternalId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotEntity, OrderStyleSnapshotEntity,
+      QAfterFilterCondition> orderItemInternalIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'orderItemInternalId',
         value: '',
       ));
     });
@@ -1400,6 +1550,20 @@ extension OrderStyleSnapshotEntityQuerySortBy on QueryBuilder<
   }
 
   QueryBuilder<OrderStyleSnapshotEntity, OrderStyleSnapshotEntity, QAfterSortBy>
+      sortByOrderItemInternalId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'orderItemInternalId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotEntity, OrderStyleSnapshotEntity, QAfterSortBy>
+      sortByOrderItemInternalIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'orderItemInternalId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotEntity, OrderStyleSnapshotEntity, QAfterSortBy>
       sortByShopId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'shopId', Sort.asc);
@@ -1501,6 +1665,20 @@ extension OrderStyleSnapshotEntityQuerySortThenBy on QueryBuilder<
   }
 
   QueryBuilder<OrderStyleSnapshotEntity, OrderStyleSnapshotEntity, QAfterSortBy>
+      thenByOrderItemInternalId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'orderItemInternalId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotEntity, OrderStyleSnapshotEntity, QAfterSortBy>
+      thenByOrderItemInternalIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'orderItemInternalId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotEntity, OrderStyleSnapshotEntity, QAfterSortBy>
       thenByShopId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'shopId', Sort.asc);
@@ -1568,6 +1746,14 @@ extension OrderStyleSnapshotEntityQueryWhereDistinct on QueryBuilder<
   }
 
   QueryBuilder<OrderStyleSnapshotEntity, OrderStyleSnapshotEntity, QDistinct>
+      distinctByOrderItemInternalId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'orderItemInternalId',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotEntity, OrderStyleSnapshotEntity, QDistinct>
       distinctByShopId({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'shopId', caseSensitive: caseSensitive);
@@ -1617,6 +1803,13 @@ extension OrderStyleSnapshotEntityQueryProperty on QueryBuilder<
       orderInternalIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'orderInternalId');
+    });
+  }
+
+  QueryBuilder<OrderStyleSnapshotEntity, String, QQueryOperations>
+      orderItemInternalIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'orderItemInternalId');
     });
   }
 

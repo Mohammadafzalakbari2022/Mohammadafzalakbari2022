@@ -4,13 +4,17 @@ import 'package:uuid/uuid.dart';
 
 import 'dev_shop_constants.dart';
 import 'entities/order_status.dart';
+import 'entities/garment_type.dart';
 import 'measurement_unit_codes.dart';
+import 'order_item_input.dart';
+import 'order_item_summary.dart';
 import 'order_list_repository.dart';
 import 'order_measurement_snapshot_item_input.dart';
 import 'order_measurement_snapshot_view.dart';
 import 'order_style_snapshot_view.dart';
 import 'order_customer_history.dart';
 import 'order_summary.dart';
+import 'order_sync_payload.dart';
 import 'seed_data.dart';
 import 'catalog/catalog_order_snapshot.dart';
 import 'style/order_style_snapshot_persist.dart';
@@ -25,6 +29,7 @@ class MemoryOrderRepository implements OrderListRepository {
   final Map<String, OrderStyleSnapshotView> _styleSnapshotsByOrder = {};
   final _controller = StreamController<List<OrderSummary>>.broadcast();
   final _snapshotController = StreamController<void>.broadcast();
+  final _itemsController = StreamController<void>.broadcast();
   final _uuid = const Uuid();
 
   void _emitOrders() {
@@ -60,6 +65,7 @@ class MemoryOrderRepository implements OrderListRepository {
     String? fabricIdSnapshot,
     String? fabricNamePresetInternalId,
     String? fabricColorPresetInternalId,
+    List<OrderItemSummary>? items,
   }) {
     return OrderSummary(
       shopId: o.shopId,
@@ -97,6 +103,7 @@ class MemoryOrderRepository implements OrderListRepository {
           fabricNamePresetInternalId ?? o.fabricNamePresetInternalId,
       fabricColorPresetInternalId:
           fabricColorPresetInternalId ?? o.fabricColorPresetInternalId,
+      items: items ?? o.items,
       status: status ?? o.status,
       deliveryDate: deliveryDate ?? o.deliveryDate,
       createdAt: o.createdAt,
@@ -108,6 +115,51 @@ class MemoryOrderRepository implements OrderListRepository {
 
   void _emitSnapshots() {
     _snapshotController.add(null);
+  }
+
+  void _emitItems() {
+    _itemsController.add(null);
+  }
+
+  void _migrateMemoryItemsIfNeeded() {
+    for (var i = 0; i < _orders.length; i++) {
+      final o = _orders[i];
+      if (o.items.isNotEmpty) continue;
+      final view = o.legacyPerahanTunbanItemView();
+      if (view == null) {
+        _orders[i] = _copyOrder(
+          o,
+          items: [
+            OrderItemSummary(
+              internalId: _uuid.v4(),
+              orderInternalId: o.internalId,
+              garmentType: GarmentType.perahanTunban,
+              sortOrder: GarmentType.perahanTunban.defaultSortOrder,
+              priceAmountMinor: o.totalAmountMinor,
+              createdAt: o.createdAt,
+              updatedAt: o.updatedAt,
+            ),
+          ],
+        );
+      } else {
+        _orders[i] = _copyOrder(
+          o,
+          items: [view.copyWith(internalId: _uuid.v4())],
+        );
+      }
+    }
+  }
+
+  OrderItemSummary? _itemOf(String orderInternalId, GarmentType type) {
+    final order = _orders.cast<OrderSummary?>().firstWhere(
+          (o) => o!.internalId == orderInternalId,
+          orElse: () => null,
+        );
+    return order?.itemOf(type);
+  }
+
+  int _indexOfOrder(String orderInternalId) {
+    return _orders.indexWhere((o) => o.internalId == orderInternalId);
   }
 
   void _persistStyleSnapshot({
@@ -134,6 +186,7 @@ class MemoryOrderRepository implements OrderListRepository {
     if (_orders.isNotEmpty) return;
     final now = DateTime.now();
     _orders.addAll(devOrderSummaries(now));
+    _migrateMemoryItemsIfNeeded();
 
     _measurementSnapshotsByOrder[DevSeedIds.order1] =
         OrderMeasurementSnapshotView(
@@ -216,6 +269,17 @@ class MemoryOrderRepository implements OrderListRepository {
   }
 
   @override
+  Stream<List<OrderItemSummary>> watchOrderItems(String orderInternalId) async* {
+    await seedIfEmpty();
+    final idx = _indexOfOrder(orderInternalId);
+    yield idx < 0 ? const [] : OrderItemSummary.sorted(_orders[idx].items);
+    await for (final _ in _itemsController.stream) {
+      final i = _indexOfOrder(orderInternalId);
+      yield i < 0 ? const [] : OrderItemSummary.sorted(_orders[i].items);
+    }
+  }
+
+  @override
   Stream<List<OrderSummary>> watchOrders([String shopId = kDevShopId]) async* {
     await seedIfEmpty();
     yield _sortedForShop(shopId);
@@ -271,26 +335,118 @@ class MemoryOrderRepository implements OrderListRepository {
     String fabricIdSnapshot = '',
     String? fabricNamePresetInternalId,
     String? fabricColorPresetInternalId,
+  }) {
+    return createOrderWithItems(
+      shopId: shopId,
+      customerInternalId: customerInternalId,
+      deliveryDate: deliveryDate,
+      customerSnapshotName: customerSnapshotName,
+      customerSnapshotPhone: customerSnapshotPhone,
+      items: [
+        OrderItemCreateInput(
+          garmentType: GarmentType.perahanTunban,
+          priceAmountMinor: totalAmountMinor,
+          measurementsSnapshot: measurementsSnapshot,
+          sourceMeasurementProfileId: sourceMeasurementProfileId,
+          sourceMeasurementProfileLabel: sourceMeasurementProfileLabel,
+          measurementSnapshotItems: measurementSnapshotItems,
+          styleName: styleName,
+          styleNameInternalId: styleNameInternalId,
+          styleSelectionJson: styleSelectionJson,
+          styleSummary: styleSummary,
+          catalogItemInternalId: catalogItemInternalId,
+          catalogDesignNameSnapshot: catalogDesignNameSnapshot,
+          catalogDesignerShopNameSnapshot: catalogDesignerShopNameSnapshot,
+          catalogImagePathSnapshot: catalogImagePathSnapshot,
+          catalogThumbnailPathSnapshot: catalogThumbnailPathSnapshot,
+          catalogSourceImagePath: catalogSourceImagePath,
+          catalogSourceThumbnailPath: catalogSourceThumbnailPath,
+          fabricNameSnapshot: fabricNameSnapshot,
+          fabricColorSnapshot: fabricColorSnapshot,
+          fabricIdSnapshot: fabricIdSnapshot,
+          fabricNamePresetInternalId: fabricNamePresetInternalId,
+          fabricColorPresetInternalId: fabricColorPresetInternalId,
+        ),
+      ],
+    );
+  }
+
+  @override
+  Future<String> createOrderWithItems({
+    required String shopId,
+    required String customerInternalId,
+    required DateTime deliveryDate,
+    required List<OrderItemCreateInput> items,
+    String? customerSnapshotName,
+    String? customerSnapshotPhone,
   }) async {
     await seedIfEmpty();
+    assertAtLeastOneItem(items);
+    assertUniqueGarmentTypes(items);
+    assertItemPricesValid(items);
+
     final nextNo = _nextOrderNo();
     final internalId = _uuid.v4();
     final now = DateTime.now();
+    final totalAmountMinor =
+        items.fold<int>(0, (sum, item) => sum + item.priceAmountMinor);
+    final primary = items.firstWhere(
+      (i) => i.garmentType == GarmentType.perahanTunban,
+      orElse: () => items.first,
+    );
 
-    String? resolvedImagePath = catalogImagePathSnapshot;
-    String? resolvedThumbPath = catalogThumbnailPathSnapshot;
-    if (catalogDesignNameSnapshot.trim().isNotEmpty &&
-        catalogSourceImagePath != null &&
-        catalogSourceImagePath.isNotEmpty) {
+    String? resolvedImagePath = primary.catalogImagePathSnapshot;
+    String? resolvedThumbPath = primary.catalogThumbnailPathSnapshot;
+    if (primary.catalogDesignNameSnapshot.trim().isNotEmpty &&
+        primary.catalogSourceImagePath != null &&
+        primary.catalogSourceImagePath!.isNotEmpty) {
       final copied = await copyCatalogPathsToOrderSnapshot(
         orderInternalId: internalId,
-        imagePath: catalogSourceImagePath,
-        thumbnailPath: catalogSourceThumbnailPath,
+        imagePath: primary.catalogSourceImagePath!,
+        thumbnailPath: primary.catalogSourceThumbnailPath,
       );
       if (copied != null) {
         resolvedImagePath = copied.imagePath;
         resolvedThumbPath = copied.thumbnailPath;
       }
+    }
+
+    final itemSummaries = <OrderItemSummary>[];
+    for (final input in items) {
+      itemSummaries.add(
+        OrderItemSummary(
+          internalId: input.internalId ?? _uuid.v4(),
+          orderInternalId: internalId,
+          garmentType: input.garmentType,
+          sortOrder: input.sortOrder ?? input.garmentType.defaultSortOrder,
+          priceAmountMinor: input.priceAmountMinor,
+          itemNotes: input.itemNotes,
+          measurementsSnapshot: input.measurementsSnapshot,
+          sourceMeasurementProfileId: input.sourceMeasurementProfileId,
+          sourceMeasurementProfileLabel: input.sourceMeasurementProfileLabel,
+          styleName: input.styleName,
+          styleNameInternalId: input.styleNameInternalId,
+          styleSelectionJson: input.styleSelectionJson,
+          styleSummary: input.styleSummary,
+          catalogItemInternalId: input.catalogItemInternalId,
+          catalogDesignNameSnapshot: input.catalogDesignNameSnapshot,
+          catalogDesignerShopNameSnapshot:
+              input.catalogDesignerShopNameSnapshot,
+          catalogImagePathSnapshot: input.garmentType == primary.garmentType
+              ? resolvedImagePath
+              : input.catalogImagePathSnapshot,
+          catalogThumbnailPathSnapshot: input.garmentType == primary.garmentType
+              ? resolvedThumbPath
+              : input.catalogThumbnailPathSnapshot,
+          fabricNameSnapshot: input.fabricNameSnapshot,
+          fabricColorSnapshot: input.fabricColorSnapshot,
+          fabricIdSnapshot: input.fabricIdSnapshot,
+          fabricNamePresetInternalId: input.fabricNamePresetInternalId,
+          fabricColorPresetInternalId: input.fabricColorPresetInternalId,
+          createdAt: now,
+          updatedAt: now,
+        ),
+      );
     }
 
     _orders.add(
@@ -302,25 +458,26 @@ class MemoryOrderRepository implements OrderListRepository {
         customerName:
             customerSnapshotName ?? _resolveCustomerName(customerInternalId),
         customerPhone: customerSnapshotPhone,
-        measurementsSnapshot: measurementsSnapshot,
+        measurementsSnapshot: primary.measurementsSnapshot,
         internalNotes: '',
-        sourceMeasurementProfileId: sourceMeasurementProfileId,
-        sourceMeasurementProfileLabel: sourceMeasurementProfileLabel,
-        styleName: styleName.trim(),
-        styleNameInternalId: styleNameInternalId,
-        styleSelectionJson: styleSelectionJson,
-        styleSummary: styleSummary,
-        catalogItemInternalId: catalogItemInternalId,
-        catalogDesignNameSnapshot: catalogDesignNameSnapshot.trim(),
+        sourceMeasurementProfileId: primary.sourceMeasurementProfileId,
+        sourceMeasurementProfileLabel: primary.sourceMeasurementProfileLabel,
+        styleName: primary.styleName.trim(),
+        styleNameInternalId: primary.styleNameInternalId,
+        styleSelectionJson: primary.styleSelectionJson,
+        styleSummary: primary.styleSummary,
+        catalogItemInternalId: primary.catalogItemInternalId,
+        catalogDesignNameSnapshot: primary.catalogDesignNameSnapshot.trim(),
         catalogDesignerShopNameSnapshot:
-            catalogDesignerShopNameSnapshot.trim(),
+            primary.catalogDesignerShopNameSnapshot.trim(),
         catalogImagePathSnapshot: resolvedImagePath,
         catalogThumbnailPathSnapshot: resolvedThumbPath,
-        fabricNameSnapshot: fabricNameSnapshot.trim(),
-        fabricColorSnapshot: fabricColorSnapshot.trim(),
-        fabricIdSnapshot: fabricIdSnapshot.trim(),
-        fabricNamePresetInternalId: fabricNamePresetInternalId,
-        fabricColorPresetInternalId: fabricColorPresetInternalId,
+        fabricNameSnapshot: primary.fabricNameSnapshot.trim(),
+        fabricColorSnapshot: primary.fabricColorSnapshot.trim(),
+        fabricIdSnapshot: primary.fabricIdSnapshot.trim(),
+        fabricNamePresetInternalId: primary.fabricNamePresetInternalId,
+        fabricColorPresetInternalId: primary.fabricColorPresetInternalId,
+        items: itemSummaries,
         status: OrderLocalStatus.newOrder,
         deliveryDate: deliveryDate,
         createdAt: now,
@@ -330,14 +487,13 @@ class MemoryOrderRepository implements OrderListRepository {
       ),
     );
 
-    final snap = measurementSnapshotItems;
+    final snap = primary.measurementSnapshotItems;
     if (snap != null && snap.isNotEmpty) {
       final snapId = _uuid.v4();
-      final now = DateTime.now();
       _measurementSnapshotsByOrder[internalId] = OrderMeasurementSnapshotView(
         orderInternalId: internalId,
         snapshotInternalId: snapId,
-        sourceMeasurementProfileId: sourceMeasurementProfileId,
+        sourceMeasurementProfileId: primary.sourceMeasurementProfileId,
         createdAt: now,
         items: [
           for (final it in snap)
@@ -350,19 +506,157 @@ class MemoryOrderRepository implements OrderListRepository {
             ),
         ],
       );
-      _emitSnapshots();
     }
 
     _persistStyleSnapshot(
       orderInternalId: internalId,
-      styleName: styleName.trim(),
-      styleNameInternalId: styleNameInternalId,
-      styleSelectionJson: styleSelectionJson,
+      styleName: primary.styleName.trim(),
+      styleNameInternalId: primary.styleNameInternalId,
+      styleSelectionJson: primary.styleSelectionJson,
     );
     _emitSnapshots();
-
+    _emitItems();
     _emitOrders();
     return internalId;
+  }
+
+  @override
+  Future<void> upsertOrderItem({
+    required String orderInternalId,
+    required OrderItemCreateInput input,
+  }) async {
+    if (input.priceAmountMinor <= 0) {
+      throw const OrderItemRepositoryException('item_price_required');
+    }
+    final idx = _indexOfOrder(orderInternalId);
+    if (idx < 0) return;
+    final order = _orders[idx];
+    final items = List<OrderItemSummary>.from(order.items);
+    final existingIndex = items.indexWhere(
+      (item) => item.garmentType == input.garmentType,
+    );
+    final now = DateTime.now();
+    final summary = OrderItemSummary(
+      internalId: existingIndex >= 0
+          ? items[existingIndex].internalId
+          : (input.internalId ?? _uuid.v4()),
+      orderInternalId: orderInternalId,
+      garmentType: input.garmentType,
+      sortOrder: input.sortOrder ?? input.garmentType.defaultSortOrder,
+      priceAmountMinor: input.priceAmountMinor,
+      itemNotes: input.itemNotes,
+      measurementsSnapshot: input.measurementsSnapshot,
+      sourceMeasurementProfileId: input.sourceMeasurementProfileId,
+      sourceMeasurementProfileLabel: input.sourceMeasurementProfileLabel,
+      styleName: input.styleName,
+      styleNameInternalId: input.styleNameInternalId,
+      styleSelectionJson: input.styleSelectionJson,
+      styleSummary: input.styleSummary,
+      catalogItemInternalId: input.catalogItemInternalId,
+      catalogDesignNameSnapshot: input.catalogDesignNameSnapshot,
+      catalogDesignerShopNameSnapshot: input.catalogDesignerShopNameSnapshot,
+      catalogImagePathSnapshot: input.catalogImagePathSnapshot,
+      catalogThumbnailPathSnapshot: input.catalogThumbnailPathSnapshot,
+      fabricNameSnapshot: input.fabricNameSnapshot,
+      fabricColorSnapshot: input.fabricColorSnapshot,
+      fabricIdSnapshot: input.fabricIdSnapshot,
+      fabricNamePresetInternalId: input.fabricNamePresetInternalId,
+      fabricColorPresetInternalId: input.fabricColorPresetInternalId,
+      createdAt: existingIndex >= 0 ? items[existingIndex].createdAt : now,
+      updatedAt: now,
+    );
+    if (existingIndex >= 0) {
+      items[existingIndex] = summary;
+    } else {
+      items.add(summary);
+    }
+    final total = sumOrderItemPriceSummaries(items);
+    if (total <= 0 || total < order.paidAmountMinor) {
+      throw const OrderItemRepositoryException('order_total_below_paid');
+    }
+    final primary = primaryPerahanItemSummary(items);
+    _orders[idx] = _copyOrder(
+      order,
+      items: items,
+      totalAmountMinor: total,
+      updatedAt: now,
+      measurementsSnapshot: primary?.measurementsSnapshot,
+      sourceMeasurementProfileId: primary?.sourceMeasurementProfileId,
+      sourceMeasurementProfileLabel: primary?.sourceMeasurementProfileLabel,
+      styleName: primary?.styleName,
+      styleNameInternalId: primary?.styleNameInternalId,
+      styleSelectionJson: primary?.styleSelectionJson,
+      styleSummary: primary?.styleSummary,
+      catalogItemInternalId: primary?.catalogItemInternalId,
+      catalogDesignNameSnapshot: primary?.catalogDesignNameSnapshot,
+      catalogDesignerShopNameSnapshot: primary?.catalogDesignerShopNameSnapshot,
+      catalogImagePathSnapshot: primary?.catalogImagePathSnapshot,
+      catalogThumbnailPathSnapshot: primary?.catalogThumbnailPathSnapshot,
+      fabricNameSnapshot: primary?.fabricNameSnapshot,
+      fabricColorSnapshot: primary?.fabricColorSnapshot,
+      fabricIdSnapshot: primary?.fabricIdSnapshot,
+      fabricNamePresetInternalId: primary?.fabricNamePresetInternalId,
+      fabricColorPresetInternalId: primary?.fabricColorPresetInternalId,
+    );
+    _emitItems();
+    _emitOrders();
+  }
+
+  @override
+  Future<void> addOrderItem({
+    required String orderInternalId,
+    required OrderItemCreateInput input,
+  }) async {
+    if (_itemOf(orderInternalId, input.garmentType) != null) {
+      throw const OrderItemRepositoryException('duplicate_garment_type');
+    }
+    await upsertOrderItem(orderInternalId: orderInternalId, input: input);
+  }
+
+  @override
+  Future<void> removeOrderItem({
+    required String orderInternalId,
+    required GarmentType garmentType,
+  }) async {
+    final idx = _indexOfOrder(orderInternalId);
+    if (idx < 0) return;
+    final order = _orders[idx];
+    if (order.items.length <= 1) {
+      throw const OrderItemRepositoryException('cannot_remove_last_item');
+    }
+    final items = order.items
+        .where((item) => item.garmentType != garmentType)
+        .toList(growable: false);
+    final total = sumOrderItemPriceSummaries(items);
+    if (total < order.paidAmountMinor) {
+      throw const OrderItemRepositoryException('order_total_below_paid');
+    }
+    final primary = primaryPerahanItemSummary(items);
+    _orders[idx] = _copyOrder(
+      order,
+      items: items,
+      totalAmountMinor: total,
+      updatedAt: DateTime.now(),
+      measurementsSnapshot: primary?.measurementsSnapshot,
+      sourceMeasurementProfileId: primary?.sourceMeasurementProfileId,
+      sourceMeasurementProfileLabel: primary?.sourceMeasurementProfileLabel,
+      styleName: primary?.styleName,
+      styleNameInternalId: primary?.styleNameInternalId,
+      styleSelectionJson: primary?.styleSelectionJson,
+      styleSummary: primary?.styleSummary,
+      catalogItemInternalId: primary?.catalogItemInternalId,
+      catalogDesignNameSnapshot: primary?.catalogDesignNameSnapshot,
+      catalogDesignerShopNameSnapshot: primary?.catalogDesignerShopNameSnapshot,
+      catalogImagePathSnapshot: primary?.catalogImagePathSnapshot,
+      catalogThumbnailPathSnapshot: primary?.catalogThumbnailPathSnapshot,
+      fabricNameSnapshot: primary?.fabricNameSnapshot,
+      fabricColorSnapshot: primary?.fabricColorSnapshot,
+      fabricIdSnapshot: primary?.fabricIdSnapshot,
+      fabricNamePresetInternalId: primary?.fabricNamePresetInternalId,
+      fabricColorPresetInternalId: primary?.fabricColorPresetInternalId,
+    );
+    _emitItems();
+    _emitOrders();
   }
 
   String _nextOrderNo() {
@@ -849,13 +1143,118 @@ class MemoryOrderRepository implements OrderListRepository {
     } else {
       _orders[idx] = row;
     }
+
+    final remoteItems = parseOrderItemsFromSyncData(m);
+    final itemSummaries = <OrderItemSummary>[];
+    if (remoteItems != null) {
+      for (final itemMap in remoteItems) {
+        final input = orderItemCreateInputFromSyncMap(
+          itemMap,
+          fallbackInternalId: _uuid.v4(),
+        );
+        itemSummaries.add(
+          OrderItemSummary(
+            internalId: input.internalId ?? _uuid.v4(),
+            orderInternalId: internalId,
+            garmentType: input.garmentType,
+            sortOrder: input.sortOrder ?? input.garmentType.defaultSortOrder,
+            priceAmountMinor: input.priceAmountMinor,
+            itemNotes: input.itemNotes,
+            measurementsSnapshot: input.measurementsSnapshot,
+            sourceMeasurementProfileId: input.sourceMeasurementProfileId,
+            sourceMeasurementProfileLabel: input.sourceMeasurementProfileLabel,
+            styleName: input.styleName,
+            styleNameInternalId: input.styleNameInternalId,
+            styleSelectionJson: input.styleSelectionJson,
+            styleSummary: input.styleSummary,
+            catalogItemInternalId: input.catalogItemInternalId,
+            catalogDesignNameSnapshot: input.catalogDesignNameSnapshot,
+            catalogDesignerShopNameSnapshot: input.catalogDesignerShopNameSnapshot,
+            fabricNameSnapshot: input.fabricNameSnapshot,
+            fabricColorSnapshot: input.fabricColorSnapshot,
+            fabricIdSnapshot: input.fabricIdSnapshot,
+            fabricNamePresetInternalId: input.fabricNamePresetInternalId,
+            fabricColorPresetInternalId: input.fabricColorPresetInternalId,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+          ),
+        );
+      }
+    } else {
+      final legacy = orderItemCreateInputFromLegacyFlatSummary(order: row);
+      itemSummaries.add(
+        OrderItemSummary(
+          internalId: _uuid.v4(),
+          orderInternalId: internalId,
+          garmentType: legacy.garmentType,
+          sortOrder: legacy.sortOrder ?? legacy.garmentType.defaultSortOrder,
+          priceAmountMinor: legacy.priceAmountMinor,
+          measurementsSnapshot: legacy.measurementsSnapshot,
+          sourceMeasurementProfileId: legacy.sourceMeasurementProfileId,
+          sourceMeasurementProfileLabel: legacy.sourceMeasurementProfileLabel,
+          styleName: legacy.styleName,
+          styleNameInternalId: legacy.styleNameInternalId,
+          styleSelectionJson: legacy.styleSelectionJson,
+          styleSummary: legacy.styleSummary,
+          catalogItemInternalId: legacy.catalogItemInternalId,
+          catalogDesignNameSnapshot: legacy.catalogDesignNameSnapshot,
+          catalogDesignerShopNameSnapshot: legacy.catalogDesignerShopNameSnapshot,
+          fabricNameSnapshot: legacy.fabricNameSnapshot,
+          fabricColorSnapshot: legacy.fabricColorSnapshot,
+          fabricIdSnapshot: legacy.fabricIdSnapshot,
+          fabricNamePresetInternalId: legacy.fabricNamePresetInternalId,
+          fabricColorPresetInternalId: legacy.fabricColorPresetInternalId,
+          createdAt: createdAt,
+          updatedAt: updatedAt,
+        ),
+      );
+    }
+
+    final mergedIdx = _indexOfOrder(internalId);
+    if (mergedIdx >= 0) {
+      final mergedTotal = itemSummaries.isEmpty
+          ? total
+          : sumOrderItemPriceSummaries(itemSummaries);
+      final primary = primaryPerahanItemSummary(itemSummaries);
+      _orders[mergedIdx] = _copyOrder(
+        _orders[mergedIdx],
+        items: itemSummaries,
+        totalAmountMinor: mergedTotal,
+        measurementsSnapshot: primary?.measurementsSnapshot ?? measurements,
+        sourceMeasurementProfileId:
+            primary?.sourceMeasurementProfileId ?? profileId,
+        sourceMeasurementProfileLabel:
+            primary?.sourceMeasurementProfileLabel ?? profileLabel ?? '',
+        styleName: primary?.styleName ?? styleName,
+        styleNameInternalId:
+            primary?.styleNameInternalId ?? styleNameInternalId,
+        styleSelectionJson: primary?.styleSelectionJson ?? styleSelectionJson,
+        styleSummary: primary?.styleSummary ?? styleSummary,
+        catalogItemInternalId:
+            primary?.catalogItemInternalId ?? catalogItemInternalId,
+        catalogDesignNameSnapshot:
+            primary?.catalogDesignNameSnapshot ?? catalogDesignNameSnapshot,
+        catalogDesignerShopNameSnapshot: primary
+                ?.catalogDesignerShopNameSnapshot ??
+            catalogDesignerShopNameSnapshot,
+        fabricNameSnapshot: primary?.fabricNameSnapshot ?? fabricNameSnapshot,
+        fabricColorSnapshot: primary?.fabricColorSnapshot ?? fabricColorSnapshot,
+        fabricIdSnapshot: primary?.fabricIdSnapshot ?? fabricIdSnapshot,
+        fabricNamePresetInternalId: primary?.fabricNamePresetInternalId ??
+            fabricNamePresetInternalId,
+        fabricColorPresetInternalId: primary?.fabricColorPresetInternalId ??
+            fabricColorPresetInternalId,
+      );
+    }
+
     _persistStyleSnapshot(
       orderInternalId: internalId,
-      styleName: row.styleName,
-      styleNameInternalId: row.styleNameInternalId,
-      styleSelectionJson: row.styleSelectionJson,
+      styleName: _orders[_indexOfOrder(internalId)].styleName,
+      styleNameInternalId: _orders[_indexOfOrder(internalId)].styleNameInternalId,
+      styleSelectionJson: _orders[_indexOfOrder(internalId)].styleSelectionJson,
     );
     _emitOrders();
     _emitSnapshots();
+    _emitItems();
   }
 }

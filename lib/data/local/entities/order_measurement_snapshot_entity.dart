@@ -10,8 +10,12 @@ class OrderMeasurementSnapshotEntity {
   @Index(unique: true, replace: true)
   late String internalId;
 
-  @Index(unique: true, replace: true)
+  @Index()
   late String orderInternalId;
+
+  /// Item-scoped snapshot (Phase 2+). Empty for legacy order-level rows.
+  @Index()
+  String orderItemInternalId = '';
 
   @Index()
   late String shopId;

@@ -94,6 +94,24 @@ Future<void> deleteOrderStyleSnapshotsForOrder(
       .orderInternalIdEqualTo(orderInternalId)
       .findAll();
   for (final h in headers) {
+    if (h.orderItemInternalId.trim().isNotEmpty) continue;
+    await isar.orderStyleSnapshotFigureEntitys
+        .filter()
+        .snapshotInternalIdEqualTo(h.internalId)
+        .deleteAll();
+    await isar.orderStyleSnapshotEntitys.delete(h.id);
+  }
+}
+
+Future<void> deleteOrderStyleSnapshotsForOrderItem(
+  Isar isar,
+  String orderItemInternalId,
+) async {
+  final headers = await isar.orderStyleSnapshotEntitys
+      .filter()
+      .orderItemInternalIdEqualTo(orderItemInternalId)
+      .findAll();
+  for (final h in headers) {
     await isar.orderStyleSnapshotFigureEntitys
         .filter()
         .snapshotInternalIdEqualTo(h.internalId)
@@ -101,7 +119,7 @@ Future<void> deleteOrderStyleSnapshotsForOrder(
   }
   await isar.orderStyleSnapshotEntitys
       .filter()
-      .orderInternalIdEqualTo(orderInternalId)
+      .orderItemInternalIdEqualTo(orderItemInternalId)
       .deleteAll();
 }
 
@@ -110,13 +128,19 @@ Future<void> persistOrderStyleSnapshotInTxn({
   required Isar isar,
   required String shopId,
   required String orderInternalId,
+  String? orderItemInternalId,
   required String styleName,
   String? styleNameInternalId,
   required String styleSelectionJson,
   required List<StyleFigureSummary> allFigures,
   required String Function() newSnapshotInternalId,
 }) async {
-  await deleteOrderStyleSnapshotsForOrder(isar, orderInternalId);
+  final itemId = orderItemInternalId?.trim() ?? '';
+  if (itemId.isNotEmpty) {
+    await deleteOrderStyleSnapshotsForOrderItem(isar, itemId);
+  } else {
+    await deleteOrderStyleSnapshotsForOrder(isar, orderInternalId);
+  }
 
   final data = prepareOrderStyleSnapshotPersistData(
     styleName: styleName,
@@ -131,6 +155,7 @@ Future<void> persistOrderStyleSnapshotInTxn({
   final header = OrderStyleSnapshotEntity()
     ..internalId = snapId
     ..orderInternalId = orderInternalId
+    ..orderItemInternalId = itemId
     ..shopId = shopId
     ..styleNameSnapshot = data.styleNameSnapshot
     ..styleNameInternalIdSnapshot = data.styleNameInternalIdSnapshot

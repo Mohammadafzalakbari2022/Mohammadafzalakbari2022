@@ -1,5 +1,8 @@
 import 'dev_shop_constants.dart';
+import 'entities/garment_type.dart';
 import 'entities/order_status.dart';
+import 'order_item_input.dart';
+import 'order_item_summary.dart';
 import 'order_measurement_snapshot_item_input.dart';
 import 'order_measurement_snapshot_view.dart';
 import 'order_style_snapshot_view.dart';
@@ -17,6 +20,9 @@ abstract class OrderListRepository {
   Stream<OrderStyleSnapshotView?> watchOrderStyleSnapshot(
     String orderInternalId,
   );
+
+  /// Garment lines on an order (Phase 2+).
+  Stream<List<OrderItemSummary>> watchOrderItems(String orderInternalId);
 
   /// Inserts demo rows when DB is empty (dev / first run).
   Future<void> seedIfEmpty();
@@ -57,6 +63,34 @@ abstract class OrderListRepository {
     String fabricIdSnapshot = '',
     String? fabricNamePresetInternalId,
     String? fabricColorPresetInternalId,
+  });
+
+  /// Creates an order with one or more garment items (Phase 2+).
+  Future<String> createOrderWithItems({
+    required String shopId,
+    required String customerInternalId,
+    required DateTime deliveryDate,
+    required List<OrderItemCreateInput> items,
+    String? customerSnapshotName,
+    String? customerSnapshotPhone,
+  });
+
+  /// Creates or replaces the item for [input.garmentType] on an existing order.
+  Future<void> upsertOrderItem({
+    required String orderInternalId,
+    required OrderItemCreateInput input,
+  });
+
+  /// Adds a new garment item; throws if the garment type already exists.
+  Future<void> addOrderItem({
+    required String orderInternalId,
+    required OrderItemCreateInput input,
+  });
+
+  /// Removes one garment item; throws if it is the last item on the order.
+  Future<void> removeOrderItem({
+    required String orderInternalId,
+    required GarmentType garmentType,
   });
 
   /// Update order status locally (plan-12).

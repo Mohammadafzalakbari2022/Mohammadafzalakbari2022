@@ -1,42 +1,117 @@
-/// Planning stub for multi-garment order migration (Phase 2+).
-///
-/// **Not wired into app startup in Phase 1.** Do not call from providers or
-/// repository code until Phase 2 implements and tests the migration.
-abstract final class IsarOrderMigrationV4 {
-  /// Human-readable migration version label for docs and future logs.
-  static const migrationLabel = 'order_items_v4';
+import 'package:isar/isar.dart';
+import 'package:uuid/uuid.dart';
 
-  /// Planned steps (documentation only — no active behavior):
-  ///
-  /// 1. **Flat order → first item**
-  ///    - For each existing [OrderEntity] with legacy garment fields populated,
-  ///      create one [OrderItemEntity] with `garmentType = perahanTunban`.
-  ///    - Copy measurements, style, catalog, and fabric snapshots from the
-  ///      order row onto that item.
-  ///
-  /// 2. **Price**
-  ///    - Set the migrated item's `priceAmountMinor` from the order's existing
-  ///      `totalAmountMinor` (single-garment orders today).
-  ///    - Keep `OrderEntity.totalAmountMinor` as the sum of item prices.
-  ///
-  /// 3. **Measurement/style snapshots**
-  ///    - Retarget [OrderMeasurementSnapshotEntity] and [OrderStyleSnapshotEntity]
-  ///      from unique `orderInternalId` to unique `orderItemInternalId`.
-  ///    - One snapshot header (+ items/figures) per order item.
-  ///
-  /// 4. **Backup**
-  ///    - Bump [IsarBackupV1.currentExportVersion] to **4**.
-  ///    - Export/import `orderItems`, style snapshot tables, and order fields
-  ///      currently missing from backup v3 (fabric, catalog, customer snapshots).
-  ///
-  /// 5. **Sync**
-  ///    - **Dual-read:** `mergeRemoteOrder` accepts legacy flat payloads and
-  ///      new `items[]` arrays; flat payloads map to one `perahanTunban` item.
-  ///    - **Transitional dual-write:** new clients may send both `items[]` and
-  ///      flat fields (copied from the first Perahan item) for one release window.
-  ///
-  /// 6. **Constraints**
-  ///    - At most one item per [GarmentType] per order (unique composite index).
-  ///
-  /// Phase 1 does not register schemas, run migration, or change repositories.
+import 'entities/garment_type.dart';
+import 'entities/order_entity.dart';
+import 'entities/order_item_entity.dart';
+import 'entities/order_measurement_snapshot_entity.dart';
+import 'entities/order_style_snapshot_entity.dart';
+import 'order_item_input.dart';
+
+/// One-time migration: flat orders → [OrderItemEntity] rows (Phase 2).
+abstract final class IsarOrderMigrationV4 {
+  static const migrationLabel = 'order_items_v4';
+  static const _uuid = Uuid();
+
+  /// Idempotent: safe to call after Isar open and after seed.
+  static Future<void> runIfNeeded({required Isar isar}) async {
+    final orders = await isar.orderEntitys.filter().deletedAtIsNull().findAll();
+    if (orders.isEmpty) return;
+
+    await isar.writeTxn(() async {
+      for (final order in orders) {
+        await _migrateOrderInTxn(isar, order);
+      }
+    });
+  }
+
+  static Future<void> _migrateOrderInTxn(
+    Isar isar,
+    OrderEntity order,
+  ) async {
+    final existingItems = await isar.orderItemEntitys
+        .filter()
+        .orderInternalIdEqualTo(order.internalId)
+        .and()
+        .deletedAtIsNull()
+        .findAll();
+
+    OrderItemEntity perahanItem;
+    if (existingItems.isEmpty) {
+      final itemId = _uuid.v4();
+      final now = DateTime.now();
+      perahanItem = orderItemEntityFromOrderFlat(
+        internalId: itemId,
+        shopId: order.shopId,
+        orderInternalId: order.internalId,
+        garmentType: GarmentType.perahanTunban,
+        order: order,
+        priceAmountMinor: order.totalAmountMinor,
+        now: now,
+      );
+      await isar.orderItemEntitys.putByInternalId(perahanItem);
+    } else {
+      perahanItem = _pickPerahanItem(existingItems);
+    }
+
+    await _backfillMeasurementSnapshots(isar, order.internalId, perahanItem);
+    await _backfillStyleSnapshots(isar, order.internalId, perahanItem);
+
+    final activeItems = await isar.orderItemEntitys
+        .filter()
+        .orderInternalIdEqualTo(order.internalId)
+        .and()
+        .deletedAtIsNull()
+        .findAll();
+    if (activeItems.isNotEmpty) {
+      final sum = sumOrderItemPrices(activeItems);
+      if (order.totalAmountMinor != sum) {
+        order.totalAmountMinor = sum;
+        await isar.orderEntitys.putByInternalId(order);
+      }
+    }
+  }
+
+  static OrderItemEntity _pickPerahanItem(List<OrderItemEntity> items) {
+    for (final item in items) {
+      if (item.garmentTypeIndex == GarmentType.perahanTunban.code) {
+        return item;
+      }
+    }
+    return items.first;
+  }
+
+  static Future<void> _backfillMeasurementSnapshots(
+    Isar isar,
+    String orderInternalId,
+    OrderItemEntity perahanItem,
+  ) async {
+    final headers = await isar.orderMeasurementSnapshotEntitys
+        .filter()
+        .orderInternalIdEqualTo(orderInternalId)
+        .findAll();
+    for (final header in headers) {
+      if (header.orderItemInternalId.trim().isEmpty) {
+        header.orderItemInternalId = perahanItem.internalId;
+        await isar.orderMeasurementSnapshotEntitys.putByInternalId(header);
+      }
+    }
+  }
+
+  static Future<void> _backfillStyleSnapshots(
+    Isar isar,
+    String orderInternalId,
+    OrderItemEntity perahanItem,
+  ) async {
+    final headers = await isar.orderStyleSnapshotEntitys
+        .filter()
+        .orderInternalIdEqualTo(orderInternalId)
+        .findAll();
+    for (final header in headers) {
+      if (header.orderItemInternalId.trim().isEmpty) {
+        header.orderItemInternalId = perahanItem.internalId;
+        await isar.orderStyleSnapshotEntitys.putByInternalId(header);
+      }
+    }
+  }
 }

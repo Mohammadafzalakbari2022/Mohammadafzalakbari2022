@@ -5,6 +5,8 @@ import '../../core/defaults/afghan_market_defaults.dart';
 import 'dev_shop_constants.dart';
 import 'entities/customer_entity.dart';
 import 'entities/order_entity.dart';
+import 'entities/order_item_entity.dart';
+import 'entities/garment_type.dart';
 import 'entities/order_measurement_snapshot_entity.dart';
 import 'entities/order_measurement_snapshot_item_entity.dart';
 import 'entities/order_status.dart';
@@ -18,6 +20,10 @@ import 'order_measurement_snapshot_view.dart';
 import 'order_style_snapshot_figure_input.dart';
 import 'order_style_snapshot_view.dart';
 import 'order_customer_history.dart';
+import 'order_item_input.dart';
+import 'order_item_persist.dart';
+import 'order_item_summary.dart';
+import 'order_sync_payload.dart';
 import 'order_summary.dart';
 import 'seed_data.dart';
 import 'catalog/catalog_order_snapshot.dart';
@@ -197,7 +203,10 @@ class IsarOrderRepository implements OrderListRepository {
     List<OrderMeasurementSnapshotEntity> snapshots,
   ) async {
     if (snapshots.isEmpty) return null;
-    final s = snapshots.first;
+    final legacy = snapshots
+        .where((s) => s.orderItemInternalId.trim().isEmpty)
+        .toList();
+    final s = legacy.isNotEmpty ? legacy.first : snapshots.first;
     final raw = await _isar.orderMeasurementSnapshotItemEntitys
         .filter()
         .snapshotInternalIdEqualTo(s.internalId)
@@ -238,7 +247,10 @@ class IsarOrderRepository implements OrderListRepository {
     List<OrderStyleSnapshotEntity> headers,
   ) async {
     if (headers.isEmpty) return null;
-    final s = headers.first;
+    final legacy = headers
+        .where((s) => s.orderItemInternalId.trim().isEmpty)
+        .toList();
+    final s = legacy.isNotEmpty ? legacy.first : headers.first;
     final figureRows = await _isar.orderStyleSnapshotFigureEntitys
         .filter()
         .snapshotInternalIdEqualTo(s.internalId)
@@ -303,6 +315,52 @@ class IsarOrderRepository implements OrderListRepository {
   }
 
   @override
+  Stream<List<OrderItemSummary>> watchOrderItems(String orderInternalId) {
+    return _isar.orderItemEntitys
+        .filter()
+        .orderInternalIdEqualTo(orderInternalId)
+        .and()
+        .deletedAtIsNull()
+        .watch(fireImmediately: true)
+        .map((rows) {
+      final items = rows.map(orderItemSummaryFromEntity).toList();
+      return OrderItemSummary.sorted(items);
+    });
+  }
+
+  Future<void> _syncPrimaryItemFlatFieldsOnOrder(
+    Isar isar,
+    OrderEntity order,
+  ) async {
+    final items = await loadActiveOrderItems(isar, order.internalId);
+    OrderItemEntity? primary;
+    for (final item in items) {
+      if (item.garmentTypeIndex == GarmentType.perahanTunban.code) {
+        primary = item;
+        break;
+      }
+    }
+    primary ??= items.isEmpty ? null : items.first;
+    if (primary != null) {
+      copyOrderItemFieldsOntoOrderEntity(order, primary);
+    }
+  }
+
+  Future<void> _recomputeOrderTotalInTxn(
+    Isar isar,
+    OrderEntity order,
+    int paidMinor,
+  ) async {
+    final items = await loadActiveOrderItems(isar, order.internalId);
+    if (items.isEmpty) return;
+    final sum = sumOrderItemPrices(items);
+    if (sum <= 0 || sum < paidMinor) {
+      throw const OrderItemRepositoryException('order_total_below_paid');
+    }
+    order.totalAmountMinor = sum;
+  }
+
+  @override
   Stream<List<OrderSummary>> watchOrders([String shopId = kDevShopId]) {
     return _isar.orderEntitys
         .filter()
@@ -327,6 +385,9 @@ class IsarOrderRepository implements OrderListRepository {
       final paidMinor = payments.fold<int>(0, (sum, p) => sum + p.amountMinor);
       final snapName = o.customerNameSnapshot.trim();
       final snapPhone = o.customerPhoneSnapshot.trim();
+      final itemRows = await loadActiveOrderItems(_isar, o.internalId);
+      final items = itemRows.map(orderItemSummaryFromEntity).toList();
+      final flat = flatGarmentFieldsForOrderSummary(order: o, items: items);
       list.add(
         OrderSummary(
           shopId: o.shopId,
@@ -338,24 +399,25 @@ class IsarOrderRepository implements OrderListRepository {
           customerPhone: snapPhone.isNotEmpty ? snapPhone : c?.phone,
           customerChangeHistory:
               parseOrderCustomerHistoryJson(o.customerChangeHistoryJson),
-          measurementsSnapshot: o.measurementsSnapshot,
+          measurementsSnapshot: flat.measurementsSnapshot,
           internalNotes: o.internalNotes,
-          sourceMeasurementProfileId: o.sourceMeasurementProfileId,
-          sourceMeasurementProfileLabel: o.sourceMeasurementProfileLabel,
-          styleName: o.styleName,
-          styleNameInternalId: o.styleNameInternalId,
-          styleSelectionJson: o.styleSelectionJson,
-          styleSummary: o.styleSummary,
-          catalogItemInternalId: o.catalogItemInternalId,
-          catalogDesignNameSnapshot: o.catalogDesignNameSnapshot,
-          catalogDesignerShopNameSnapshot: o.catalogDesignerShopNameSnapshot,
-          catalogImagePathSnapshot: o.catalogImagePathSnapshot,
-          catalogThumbnailPathSnapshot: o.catalogThumbnailPathSnapshot,
-          fabricNameSnapshot: o.fabricNameSnapshot,
-          fabricColorSnapshot: o.fabricColorSnapshot,
-          fabricIdSnapshot: o.fabricIdSnapshot,
-          fabricNamePresetInternalId: o.fabricNamePresetInternalId,
-          fabricColorPresetInternalId: o.fabricColorPresetInternalId,
+          sourceMeasurementProfileId: flat.sourceMeasurementProfileId,
+          sourceMeasurementProfileLabel: flat.sourceMeasurementProfileLabel,
+          styleName: flat.styleName,
+          styleNameInternalId: flat.styleNameInternalId,
+          styleSelectionJson: flat.styleSelectionJson,
+          styleSummary: flat.styleSummary,
+          catalogItemInternalId: flat.catalogItemInternalId,
+          catalogDesignNameSnapshot: flat.catalogDesignNameSnapshot,
+          catalogDesignerShopNameSnapshot: flat.catalogDesignerShopNameSnapshot,
+          catalogImagePathSnapshot: flat.catalogImagePathSnapshot,
+          catalogThumbnailPathSnapshot: flat.catalogThumbnailPathSnapshot,
+          fabricNameSnapshot: flat.fabricNameSnapshot,
+          fabricColorSnapshot: flat.fabricColorSnapshot,
+          fabricIdSnapshot: flat.fabricIdSnapshot,
+          fabricNamePresetInternalId: flat.fabricNamePresetInternalId,
+          fabricColorPresetInternalId: flat.fabricColorPresetInternalId,
+          items: items,
           status: orderStatusFromCode(o.statusIndex),
           deliveryDate: o.deliveryDate,
           createdAt: o.createdAt ?? o.updatedAt,
@@ -377,6 +439,7 @@ class IsarOrderRepository implements OrderListRepository {
     required Isar isar,
     required String shopId,
     required String orderInternalId,
+    String? orderItemInternalId,
     String? sourceMeasurementProfileId,
     required List<OrderMeasurementSnapshotItemInput> items,
   }) async {
@@ -386,6 +449,7 @@ class IsarOrderRepository implements OrderListRepository {
     final header = OrderMeasurementSnapshotEntity()
       ..internalId = snapId
       ..orderInternalId = orderInternalId
+      ..orderItemInternalId = orderItemInternalId?.trim() ?? ''
       ..shopId = shopId
       ..sourceMeasurementProfileId = sourceMeasurementProfileId
       ..createdAt = created;
@@ -434,24 +498,61 @@ class IsarOrderRepository implements OrderListRepository {
     String fabricIdSnapshot = '',
     String? fabricNamePresetInternalId,
     String? fabricColorPresetInternalId,
+  }) {
+    return createOrderWithItems(
+      shopId: shopId,
+      customerInternalId: customerInternalId,
+      deliveryDate: deliveryDate,
+      customerSnapshotName: customerSnapshotName,
+      customerSnapshotPhone: customerSnapshotPhone,
+      items: [
+        OrderItemCreateInput(
+          garmentType: GarmentType.perahanTunban,
+          priceAmountMinor: totalAmountMinor,
+          measurementsSnapshot: measurementsSnapshot,
+          sourceMeasurementProfileId: sourceMeasurementProfileId,
+          sourceMeasurementProfileLabel: sourceMeasurementProfileLabel,
+          measurementSnapshotItems: measurementSnapshotItems,
+          styleName: styleName,
+          styleNameInternalId: styleNameInternalId,
+          styleSelectionJson: styleSelectionJson,
+          styleSummary: styleSummary,
+          catalogItemInternalId: catalogItemInternalId,
+          catalogDesignNameSnapshot: catalogDesignNameSnapshot,
+          catalogDesignerShopNameSnapshot: catalogDesignerShopNameSnapshot,
+          catalogImagePathSnapshot: catalogImagePathSnapshot,
+          catalogThumbnailPathSnapshot: catalogThumbnailPathSnapshot,
+          catalogSourceImagePath: catalogSourceImagePath,
+          catalogSourceThumbnailPath: catalogSourceThumbnailPath,
+          fabricNameSnapshot: fabricNameSnapshot,
+          fabricColorSnapshot: fabricColorSnapshot,
+          fabricIdSnapshot: fabricIdSnapshot,
+          fabricNamePresetInternalId: fabricNamePresetInternalId,
+          fabricColorPresetInternalId: fabricColorPresetInternalId,
+        ),
+      ],
+    );
+  }
+
+  @override
+  Future<String> createOrderWithItems({
+    required String shopId,
+    required String customerInternalId,
+    required DateTime deliveryDate,
+    required List<OrderItemCreateInput> items,
+    String? customerSnapshotName,
+    String? customerSnapshotPhone,
   }) async {
+    assertAtLeastOneItem(items);
+    assertUniqueGarmentTypes(items);
+    assertItemPricesValid(items);
+
     final now = DateTime.now();
     final internalId = _uuid.v4();
-
-    String? resolvedImagePath = catalogImagePathSnapshot;
-    String? resolvedThumbPath = catalogThumbnailPathSnapshot;
-    if (catalogDesignNameSnapshot.trim().isNotEmpty &&
-        (catalogSourceImagePath != null && catalogSourceImagePath.isNotEmpty)) {
-      final copied = await copyCatalogPathsToOrderSnapshot(
-        orderInternalId: internalId,
-        imagePath: catalogSourceImagePath,
-        thumbnailPath: catalogSourceThumbnailPath,
-      );
-      if (copied != null) {
-        resolvedImagePath = copied.imagePath;
-        resolvedThumbPath = copied.thumbnailPath;
-      }
-    }
+    final totalAmountMinor = items.fold<int>(
+      0,
+      (sum, item) => sum + item.priceAmountMinor,
+    );
 
     final count = await _isar.orderEntitys
         .filter()
@@ -472,6 +573,11 @@ class IsarOrderRepository implements OrderListRepository {
         ? customerSnapshotPhone!.trim()
         : (customerRow?.phone ?? '');
 
+    final primary = items.firstWhere(
+      (i) => i.garmentType == GarmentType.perahanTunban,
+      orElse: () => items.first,
+    );
+
     final e = OrderEntity()
       ..internalId = internalId
       ..shopId = shopId
@@ -484,49 +590,130 @@ class IsarOrderRepository implements OrderListRepository {
       ..createdAt = now
       ..updatedAt = now
       ..totalAmountMinor = totalAmountMinor
-      ..measurementsSnapshot = measurementsSnapshot
-      ..sourceMeasurementProfileId = sourceMeasurementProfileId
-      ..sourceMeasurementProfileLabel = sourceMeasurementProfileLabel
-      ..styleName = styleName.trim()
-      ..styleNameInternalId = styleNameInternalId
-      ..styleSelectionJson = styleSelectionJson
-      ..styleSummary = styleSummary
-      ..catalogItemInternalId = catalogItemInternalId
-      ..catalogDesignNameSnapshot = catalogDesignNameSnapshot.trim()
-      ..catalogDesignerShopNameSnapshot = catalogDesignerShopNameSnapshot.trim()
-      ..catalogImagePathSnapshot = resolvedImagePath
-      ..catalogThumbnailPathSnapshot = resolvedThumbPath
-      ..fabricNameSnapshot = fabricNameSnapshot.trim()
-      ..fabricColorSnapshot = fabricColorSnapshot.trim()
-      ..fabricIdSnapshot = fabricIdSnapshot.trim()
-      ..fabricNamePresetInternalId = fabricNamePresetInternalId
-      ..fabricColorPresetInternalId = fabricColorPresetInternalId;
+      ..measurementsSnapshot = primary.measurementsSnapshot
+      ..sourceMeasurementProfileId = primary.sourceMeasurementProfileId
+      ..sourceMeasurementProfileLabel = primary.sourceMeasurementProfileLabel
+      ..styleName = primary.styleName.trim()
+      ..styleNameInternalId = primary.styleNameInternalId
+      ..styleSelectionJson = primary.styleSelectionJson
+      ..styleSummary = primary.styleSummary
+      ..catalogItemInternalId = primary.catalogItemInternalId
+      ..catalogDesignNameSnapshot = primary.catalogDesignNameSnapshot.trim()
+      ..catalogDesignerShopNameSnapshot =
+          primary.catalogDesignerShopNameSnapshot.trim()
+      ..fabricNameSnapshot = primary.fabricNameSnapshot.trim()
+      ..fabricColorSnapshot = primary.fabricColorSnapshot.trim()
+      ..fabricIdSnapshot = primary.fabricIdSnapshot.trim()
+      ..fabricNamePresetInternalId = primary.fabricNamePresetInternalId
+      ..fabricColorPresetInternalId = primary.fabricColorPresetInternalId;
 
-    final snap = measurementSnapshotItems;
     await _isar.writeTxn(() async {
       await _isar.orderEntitys.putByInternalId(e);
-      if (snap != null && snap.isNotEmpty) {
-        await _insertSnapshotInTxn(
+      for (final input in items) {
+        await upsertOrderItemInTxn(
           isar: _isar,
           shopId: shopId,
           orderInternalId: internalId,
-          sourceMeasurementProfileId: sourceMeasurementProfileId,
-          items: snap,
+          input: input,
+          newId: _uuid.v4,
+          newSnapshotInternalId: _uuid.v4,
         );
       }
-      final figures = await loadStyleFiguresForShop(_isar, shopId);
-      await persistOrderStyleSnapshotInTxn(
-        isar: _isar,
-        shopId: shopId,
-        orderInternalId: internalId,
-        styleName: styleName,
-        styleNameInternalId: styleNameInternalId,
-        styleSelectionJson: styleSelectionJson,
-        allFigures: figures,
-        newSnapshotInternalId: () => _uuid.v4(),
-      );
+      await _syncPrimaryItemFlatFieldsOnOrder(_isar, e);
+      await _isar.orderEntitys.putByInternalId(e);
     });
     return internalId;
+  }
+
+  @override
+  Future<void> upsertOrderItem({
+    required String orderInternalId,
+    required OrderItemCreateInput input,
+  }) async {
+    if (input.priceAmountMinor <= 0) {
+      throw const OrderItemRepositoryException('item_price_required');
+    }
+    final order = await _isar.orderEntitys.getByInternalId(orderInternalId);
+    if (order == null) return;
+
+    final payments = await _isar.paymentEntitys
+        .filter()
+        .orderInternalIdEqualTo(orderInternalId)
+        .findAll();
+    final paidMinor = payments.fold<int>(0, (sum, p) => sum + p.amountMinor);
+
+    await _isar.writeTxn(() async {
+      await upsertOrderItemInTxn(
+        isar: _isar,
+        shopId: order.shopId,
+        orderInternalId: orderInternalId,
+        input: input,
+        newId: _uuid.v4,
+        newSnapshotInternalId: _uuid.v4,
+      );
+      final row = await _isar.orderEntitys.getByInternalId(orderInternalId);
+      if (row == null) return;
+      await _recomputeOrderTotalInTxn(_isar, row, paidMinor);
+      await _syncPrimaryItemFlatFieldsOnOrder(_isar, row);
+      row.updatedAt = DateTime.now();
+      await _isar.orderEntitys.putByInternalId(row);
+    });
+  }
+
+  @override
+  Future<void> addOrderItem({
+    required String orderInternalId,
+    required OrderItemCreateInput input,
+  }) async {
+    final existing = await findActiveOrderItemByGarmentType(
+      _isar,
+      orderInternalId,
+      input.garmentType.code,
+    );
+    if (existing != null) {
+      throw const OrderItemRepositoryException('duplicate_garment_type');
+    }
+    await upsertOrderItem(orderInternalId: orderInternalId, input: input);
+  }
+
+  @override
+  Future<void> removeOrderItem({
+    required String orderInternalId,
+    required GarmentType garmentType,
+  }) async {
+    final items = await loadActiveOrderItems(_isar, orderInternalId);
+    if (items.length <= 1) {
+      throw const OrderItemRepositoryException('cannot_remove_last_item');
+    }
+    final target = await findActiveOrderItemByGarmentType(
+      _isar,
+      orderInternalId,
+      garmentType.code,
+    );
+    if (target == null) return;
+
+    final payments = await _isar.paymentEntitys
+        .filter()
+        .orderInternalIdEqualTo(orderInternalId)
+        .findAll();
+    final paidMinor = payments.fold<int>(0, (sum, p) => sum + p.amountMinor);
+
+    await _isar.writeTxn(() async {
+      final now = DateTime.now();
+      target
+        ..deletedAt = now
+        ..updatedAt = now;
+      await _isar.orderItemEntitys.putByInternalId(target);
+      await deleteMeasurementSnapshotsForItem(_isar, target.internalId);
+      await deleteOrderStyleSnapshotsForOrderItem(_isar, target.internalId);
+
+      final row = await _isar.orderEntitys.getByInternalId(orderInternalId);
+      if (row == null) return;
+      await _recomputeOrderTotalInTxn(_isar, row, paidMinor);
+      await _syncPrimaryItemFlatFieldsOnOrder(_isar, row);
+      row.updatedAt = now;
+      await _isar.orderEntitys.putByInternalId(row);
+    });
   }
 
   @override
@@ -743,16 +930,86 @@ class IsarOrderRepository implements OrderListRepository {
       e.updatedAt = now;
       await _isar.orderEntitys.putByInternalId(e);
 
+      final perahanItem = await findActiveOrderItemByGarmentType(
+        _isar,
+        orderInternalId,
+        GarmentType.perahanTunban.code,
+      );
+
+      if (totalAmountMinor != null && perahanItem != null) {
+        final activeItems = await loadActiveOrderItems(_isar, orderInternalId);
+        if (activeItems.length == 1) {
+          perahanItem.priceAmountMinor = totalAmountMinor;
+          perahanItem.updatedAt = now;
+          await _isar.orderItemEntitys.putByInternalId(perahanItem);
+        }
+      }
+
+      if (perahanItem != null &&
+          (measurementsSnapshot != null ||
+              sourceMeasurementProfileId != null ||
+              sourceMeasurementProfileLabel != null ||
+              styleName != null ||
+              styleNameInternalId != null ||
+              styleSelectionJson != null ||
+              styleSummary != null ||
+              catalogItemInternalId != null ||
+              catalogDesignNameSnapshot != null ||
+              catalogDesignerShopNameSnapshot != null ||
+              resolvedImagePath != null ||
+              resolvedThumbPath != null ||
+              fabricNameSnapshot != null ||
+              fabricColorSnapshot != null ||
+              fabricIdSnapshot != null ||
+              fabricNamePresetInternalId != null ||
+              fabricColorPresetInternalId != null)) {
+        perahanItem
+          ..measurementsSnapshot = e.measurementsSnapshot
+          ..sourceMeasurementProfileId = e.sourceMeasurementProfileId
+          ..sourceMeasurementProfileLabel = e.sourceMeasurementProfileLabel
+          ..styleName = e.styleName
+          ..styleNameInternalId = e.styleNameInternalId
+          ..styleSelectionJson = e.styleSelectionJson
+          ..styleSummary = e.styleSummary
+          ..catalogItemInternalId = e.catalogItemInternalId
+          ..catalogDesignNameSnapshot = e.catalogDesignNameSnapshot
+          ..catalogDesignerShopNameSnapshot = e.catalogDesignerShopNameSnapshot
+          ..catalogImagePathSnapshot = e.catalogImagePathSnapshot
+          ..catalogThumbnailPathSnapshot = e.catalogThumbnailPathSnapshot
+          ..fabricNameSnapshot = e.fabricNameSnapshot
+          ..fabricColorSnapshot = e.fabricColorSnapshot
+          ..fabricIdSnapshot = e.fabricIdSnapshot
+          ..fabricNamePresetInternalId = e.fabricNamePresetInternalId
+          ..fabricColorPresetInternalId = e.fabricColorPresetInternalId
+          ..updatedAt = now;
+        await _isar.orderItemEntitys.putByInternalId(perahanItem);
+      }
+
       if (measurementSnapshotItems != null) {
-        await _deleteMeasurementSnapshotsForOrder(_isar, orderInternalId);
-        if (measurementSnapshotItems.isNotEmpty) {
-          await _insertSnapshotInTxn(
-            isar: _isar,
-            shopId: e.shopId,
-            orderInternalId: orderInternalId,
-            sourceMeasurementProfileId: e.sourceMeasurementProfileId,
-            items: measurementSnapshotItems,
-          );
+        if (perahanItem != null) {
+          await deleteMeasurementSnapshotsForItem(_isar, perahanItem.internalId);
+          if (measurementSnapshotItems.isNotEmpty) {
+            await insertMeasurementSnapshotForItemInTxn(
+              isar: _isar,
+              shopId: e.shopId,
+              orderInternalId: orderInternalId,
+              orderItemInternalId: perahanItem.internalId,
+              sourceMeasurementProfileId: e.sourceMeasurementProfileId,
+              items: measurementSnapshotItems,
+              newSnapshotInternalId: _uuid.v4,
+            );
+          }
+        } else {
+          await _deleteMeasurementSnapshotsForOrder(_isar, orderInternalId);
+          if (measurementSnapshotItems.isNotEmpty) {
+            await _insertSnapshotInTxn(
+              isar: _isar,
+              shopId: e.shopId,
+              orderInternalId: orderInternalId,
+              sourceMeasurementProfileId: e.sourceMeasurementProfileId,
+              items: measurementSnapshotItems,
+            );
+          }
         }
       }
 
@@ -766,6 +1023,7 @@ class IsarOrderRepository implements OrderListRepository {
           isar: _isar,
           shopId: e.shopId,
           orderInternalId: orderInternalId,
+          orderItemInternalId: perahanItem?.internalId,
           styleName: e.styleName,
           styleNameInternalId: e.styleNameInternalId,
           styleSelectionJson: e.styleSelectionJson,
@@ -1111,11 +1369,67 @@ class IsarOrderRepository implements OrderListRepository {
         e.createdAt ??= createdAt;
       }
       await _isar.orderEntitys.putByInternalId(e);
+
+      final remoteItems = parseOrderItemsFromSyncData(m);
+      if (remoteItems != null) {
+        for (final itemMap in remoteItems) {
+          await upsertOrderItemInTxn(
+            isar: _isar,
+            shopId: shopId,
+            orderInternalId: internalId,
+            input: orderItemCreateInputFromSyncMap(
+              itemMap,
+              fallbackInternalId: _uuid.v4(),
+            ),
+            newId: _uuid.v4,
+            newSnapshotInternalId: _uuid.v4,
+          );
+        }
+      } else {
+        final existingItem = await findActiveOrderItemByGarmentType(
+          _isar,
+          internalId,
+          GarmentType.perahanTunban.code,
+        );
+        await upsertOrderItemInTxn(
+          isar: _isar,
+          shopId: shopId,
+          orderInternalId: internalId,
+          input: orderItemCreateInputFromLegacyFlatOrder(
+            order: e,
+            internalId: existingItem?.internalId,
+          ),
+          newId: _uuid.v4,
+          newSnapshotInternalId: _uuid.v4,
+        );
+      }
+
+      final payments = await _isar.paymentEntitys
+          .filter()
+          .orderInternalIdEqualTo(internalId)
+          .findAll();
+      final paidMinor = payments.fold<int>(0, (sum, p) => sum + p.amountMinor);
+      final activeItems = await loadActiveOrderItems(_isar, internalId);
+      if (activeItems.isNotEmpty) {
+        final sum = sumOrderItemPrices(activeItems);
+        if (sum > 0 && sum >= paidMinor) {
+          e.totalAmountMinor = sum;
+        }
+      }
+      await _syncPrimaryItemFlatFieldsOnOrder(_isar, e);
+      await _isar.orderEntitys.putByInternalId(e);
+
       final figures = await loadStyleFiguresForShop(_isar, shopId);
+      final perahanItem = await findActiveOrderItemByGarmentType(
+        _isar,
+        internalId,
+        GarmentType.perahanTunban.code,
+      );
       await persistOrderStyleSnapshotInTxn(
         isar: _isar,
         shopId: shopId,
         orderInternalId: internalId,
+        orderItemInternalId: perahanItem?.internalId,
         styleName: e.styleName,
         styleNameInternalId: e.styleNameInternalId,
         styleSelectionJson: e.styleSelectionJson,

@@ -9,6 +9,7 @@ import '../local/entities/measurement_profile_item_entity.dart';
 import '../local/entities/measurement_type_entity.dart';
 import '../local/entities/customer_entity.dart';
 import '../local/entities/order_entity.dart';
+import '../local/entities/order_item_entity.dart';
 import '../local/entities/order_measurement_snapshot_entity.dart';
 import '../local/entities/order_measurement_snapshot_item_entity.dart';
 import '../local/entities/payment_entity.dart';
@@ -43,6 +44,7 @@ import '../local/style_figure_text_option_summary.dart';
 import '../local/app_notification_repository.dart';
 import '../local/app_notification_summary.dart';
 import '../local/isar_app_notification_repository.dart';
+import '../local/isar_order_migration_v4.dart';
 import '../local/isar_order_repository.dart';
 import '../local/isar_payment_repository.dart';
 import '../local/isar_task_repository.dart';
@@ -78,6 +80,7 @@ final isarProvider = FutureProvider<Isar>((ref) async {
     [
       CustomerEntitySchema,
       OrderEntitySchema,
+      OrderItemEntitySchema,
       PaymentEntitySchema,
       CatalogItemEntitySchema,
       MeasurementProfileEntitySchema,
@@ -103,6 +106,7 @@ final isarProvider = FutureProvider<Isar>((ref) async {
     ],
     directory: dir.path,
   );
+  await IsarOrderMigrationV4.runIfNeeded(isar: isar);
   ref.onDispose(() {
     isar.close();
   });
@@ -114,6 +118,7 @@ final orderListRepositoryProvider =
   final isar = await ref.watch(isarProvider.future);
   final repo = IsarOrderRepository(isar);
   await repo.seedIfEmpty();
+  await IsarOrderMigrationV4.runIfNeeded(isar: isar);
   return repo;
 });
 
