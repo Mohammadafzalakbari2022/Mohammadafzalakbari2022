@@ -21,13 +21,16 @@ import 'order_style_snapshot_figure_input.dart';
 import 'order_style_snapshot_view.dart';
 import 'order_customer_history.dart';
 import 'order_item_input.dart';
+import 'order_item_input_io.dart';
 import 'order_item_persist.dart';
 import 'order_item_summary.dart';
 import 'order_sync_payload.dart';
+import 'order_sync_payload_io.dart';
 import 'order_summary.dart';
 import 'seed_data.dart';
 import 'catalog/catalog_order_snapshot.dart';
 import 'style/order_style_snapshot_persist.dart';
+import 'style/order_style_snapshot_persist_io.dart';
 import 'sync_pull_payload.dart';
 import '../../core/sync/sync_conflict_helpers.dart';
 
@@ -315,6 +318,42 @@ class IsarOrderRepository implements OrderListRepository {
   }
 
   @override
+  Stream<OrderMeasurementSnapshotView?> watchOrderItemMeasurementSnapshot(
+    String orderInternalId,
+    String orderItemInternalId,
+  ) {
+    final itemId = orderItemInternalId.trim();
+    if (itemId.isEmpty) {
+      return watchOrderMeasurementSnapshot(orderInternalId);
+    }
+    return _isar.orderMeasurementSnapshotEntitys
+        .filter()
+        .orderInternalIdEqualTo(orderInternalId)
+        .and()
+        .orderItemInternalIdEqualTo(itemId)
+        .watch(fireImmediately: true)
+        .asyncMap(_hydrateSnapshot);
+  }
+
+  @override
+  Stream<OrderStyleSnapshotView?> watchOrderItemStyleSnapshot(
+    String orderInternalId,
+    String orderItemInternalId,
+  ) {
+    final itemId = orderItemInternalId.trim();
+    if (itemId.isEmpty) {
+      return watchOrderStyleSnapshot(orderInternalId);
+    }
+    return _isar.orderStyleSnapshotEntitys
+        .filter()
+        .orderInternalIdEqualTo(orderInternalId)
+        .and()
+        .orderItemInternalIdEqualTo(itemId)
+        .watch(fireImmediately: true)
+        .asyncMap(_hydrateStyleSnapshot);
+  }
+
+  @override
   Stream<List<OrderItemSummary>> watchOrderItems(String orderInternalId) {
     return _isar.orderItemEntitys
         .filter()
@@ -387,7 +426,7 @@ class IsarOrderRepository implements OrderListRepository {
       final snapPhone = o.customerPhoneSnapshot.trim();
       final itemRows = await loadActiveOrderItems(_isar, o.internalId);
       final items = itemRows.map(orderItemSummaryFromEntity).toList();
-      final flat = flatGarmentFieldsForOrderSummary(order: o, items: items);
+      final flat = flatGarmentFieldsForOrderEntity(order: o, items: items);
       list.add(
         OrderSummary(
           shopId: o.shopId,

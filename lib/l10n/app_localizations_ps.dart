@@ -1637,6 +1637,31 @@ class AppLocalizationsPs extends AppLocalizations {
   String get ordersComposerAddPerahanTunbanCta => 'پېراهن‌تنبان اضافه کړئ';
 
   @override
+  String get ordersGarmentSummaryBoth => 'پیراهن/تنبان + واسکټ';
+
+  @override
+  String ordersDetailGarmentSectionTitle(String garment) {
+    return '$garment';
+  }
+
+  @override
+  String ordersDetailAddGarmentTitle(String garment) {
+    return '$garment اضافه کړئ';
+  }
+
+  @override
+  String get ordersDetailAddGarmentSubtitle =>
+      'د توکي بیه ولیکئ. له خوندي کولو وروسته اندازې او سټایل اضافه کړئ.';
+
+  @override
+  String ordersDetailAddGarmentSuccess(String garment) {
+    return '$garment په دې امر کې اضافه شو.';
+  }
+
+  @override
+  String get ordersDetailAddGarmentDuplicate => 'دا جامه لا دمخه په امر کې ده.';
+
+  @override
   String get ordersComposerNoItemsError => 'لږ تر لږه یو د امر توکی وټاکئ';
 
   @override

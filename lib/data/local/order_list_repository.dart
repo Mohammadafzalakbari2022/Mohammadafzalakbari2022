@@ -21,6 +21,18 @@ abstract class OrderListRepository {
     String orderInternalId,
   );
 
+  /// Structured measurements for one garment line (Phase 5+).
+  Stream<OrderMeasurementSnapshotView?> watchOrderItemMeasurementSnapshot(
+    String orderInternalId,
+    String orderItemInternalId,
+  );
+
+  /// Frozen style for one garment line (Phase 5+).
+  Stream<OrderStyleSnapshotView?> watchOrderItemStyleSnapshot(
+    String orderInternalId,
+    String orderItemInternalId,
+  );
+
   /// Garment lines on an order (Phase 2+).
   Stream<List<OrderItemSummary>> watchOrderItems(String orderInternalId);
 

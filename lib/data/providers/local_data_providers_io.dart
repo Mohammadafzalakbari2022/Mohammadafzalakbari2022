@@ -54,6 +54,7 @@ import '../local/order_list_repository.dart';
 import '../local/customer_summary.dart';
 import '../local/entities/order_style_snapshot_entity.dart';
 import '../local/entities/order_style_snapshot_figure_entity.dart';
+import '../local/order_item_snapshot_key.dart';
 import '../local/order_measurement_snapshot_view.dart';
 import '../local/order_style_snapshot_view.dart';
 import '../local/order_summary.dart';
@@ -245,6 +246,26 @@ final orderStyleSnapshotProvider = StreamProvider.family<
     OrderStyleSnapshotView?, String>((ref, orderInternalId) async* {
   final repo = await ref.watch(orderListRepositoryProvider.future);
   yield* repo.watchOrderStyleSnapshot(orderInternalId);
+});
+
+final orderItemMeasurementSnapshotProvider = StreamProvider.family<
+    OrderMeasurementSnapshotView?,
+    OrderItemSnapshotKey>((ref, key) async* {
+  final repo = await ref.watch(orderListRepositoryProvider.future);
+  yield* repo.watchOrderItemMeasurementSnapshot(
+    key.orderInternalId,
+    key.orderItemInternalId,
+  );
+});
+
+final orderItemStyleSnapshotProvider = StreamProvider.family<
+    OrderStyleSnapshotView?,
+    OrderItemSnapshotKey>((ref, key) async* {
+  final repo = await ref.watch(orderListRepositoryProvider.future);
+  yield* repo.watchOrderItemStyleSnapshot(
+    key.orderInternalId,
+    key.orderItemInternalId,
+  );
 });
 
 final appNotificationRepositoryProvider =

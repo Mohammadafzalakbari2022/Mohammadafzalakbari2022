@@ -27,6 +27,9 @@ class MemoryOrderRepository implements OrderListRepository {
   final Map<String, OrderMeasurementSnapshotView> _measurementSnapshotsByOrder =
       {};
   final Map<String, OrderStyleSnapshotView> _styleSnapshotsByOrder = {};
+  final Map<String, OrderMeasurementSnapshotView> _measurementSnapshotsByItem =
+      {};
+  final Map<String, OrderStyleSnapshotView> _styleSnapshotsByItem = {};
   final _controller = StreamController<List<OrderSummary>>.broadcast();
   final _snapshotController = StreamController<void>.broadcast();
   final _itemsController = StreamController<void>.broadcast();
@@ -265,6 +268,44 @@ class MemoryOrderRepository implements OrderListRepository {
     yield _styleSnapshotsByOrder[orderInternalId];
     await for (final _ in _snapshotController.stream) {
       yield _styleSnapshotsByOrder[orderInternalId];
+    }
+  }
+
+  @override
+  Stream<OrderMeasurementSnapshotView?> watchOrderItemMeasurementSnapshot(
+    String orderInternalId,
+    String orderItemInternalId,
+  ) async* {
+    await seedIfEmpty();
+    final itemId = orderItemInternalId.trim();
+    if (itemId.isEmpty) {
+      yield* watchOrderMeasurementSnapshot(orderInternalId);
+      return;
+    }
+    yield _measurementSnapshotsByItem[itemId] ??
+        _measurementSnapshotsByOrder[orderInternalId];
+    await for (final _ in _snapshotController.stream) {
+      yield _measurementSnapshotsByItem[itemId] ??
+          _measurementSnapshotsByOrder[orderInternalId];
+    }
+  }
+
+  @override
+  Stream<OrderStyleSnapshotView?> watchOrderItemStyleSnapshot(
+    String orderInternalId,
+    String orderItemInternalId,
+  ) async* {
+    await seedIfEmpty();
+    final itemId = orderItemInternalId.trim();
+    if (itemId.isEmpty) {
+      yield* watchOrderStyleSnapshot(orderInternalId);
+      return;
+    }
+    yield _styleSnapshotsByItem[itemId] ??
+        _styleSnapshotsByOrder[orderInternalId];
+    await for (final _ in _snapshotController.stream) {
+      yield _styleSnapshotsByItem[itemId] ??
+          _styleSnapshotsByOrder[orderInternalId];
     }
   }
 

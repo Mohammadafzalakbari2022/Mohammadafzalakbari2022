@@ -4,8 +4,8 @@ import 'package:pride_v3/data/local/entities/garment_type.dart';
 import 'package:pride_v3/data/local/entities/order_status.dart';
 import 'package:pride_v3/data/local/memory_order_repository.dart';
 import 'package:pride_v3/data/local/order_item_input.dart';
-import 'package:pride_v3/data/local/entities/order_entity.dart';
 import 'package:pride_v3/data/local/order_item_summary.dart';
+import 'package:pride_v3/data/local/order_summary.dart';
 import 'package:pride_v3/data/local/order_sync_payload.dart';
 
 void main() {
@@ -188,17 +188,21 @@ void main() {
   group('buildOrderSyncPayloadData dual-write', () {
     test('includes flat fields and items[]', () {
       final now = DateTime(2026, 6, 1);
-      final order = OrderEntity()
-        ..internalId = 'o1'
-        ..shopId = kDevShopId
-        ..customerInternalId = 'c1'
-        ..displayOrderNo = '00000001'
-        ..statusIndex = OrderLocalStatus.newOrder.code
-        ..deliveryDate = now
-        ..updatedAt = now
-        ..totalAmountMinor = 2000
-        ..styleName = 'Perahan Style'
-        ..measurementsSnapshot = 'Chest: 40';
+      final order = OrderSummary(
+        shopId: kDevShopId,
+        internalId: 'o1',
+        displayOrderNo: '00000001',
+        customerInternalId: 'c1',
+        customerName: 'Test',
+        status: OrderLocalStatus.newOrder,
+        deliveryDate: now,
+        createdAt: now,
+        updatedAt: now,
+        totalAmountMinor: 2000,
+        paidAmountMinor: 0,
+        styleName: 'Perahan Style',
+        measurementsSnapshot: 'Chest: 40',
+      );
       final payload = buildOrderSyncPayloadData(
         order: order,
         items: [

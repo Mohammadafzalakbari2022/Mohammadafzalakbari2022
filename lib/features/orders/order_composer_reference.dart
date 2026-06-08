@@ -9,6 +9,9 @@ import 'package:pride_v3/data/local/order_measurement_snapshot_item_input.dart';
 import 'package:pride_v3/data/local/order_measurement_snapshot_view.dart';
 import 'package:pride_v3/core/calendar/date_calendar_system.dart';
 import 'package:pride_v3/data/local/catalog_item_summary.dart';
+import 'package:pride_v3/data/local/entities/garment_type.dart';
+import 'package:pride_v3/data/local/order_item_snapshot_key.dart';
+import 'package:pride_v3/data/local/order_item_summary.dart';
 import 'package:pride_v3/data/local/order_summary.dart';
 import 'package:pride_v3/data/local/style/style_order_selection.dart';
 import 'package:pride_v3/data/providers/local_data_providers.dart';
@@ -302,6 +305,122 @@ ReferenceFabricCopy? buildFabricCopy(OrderSummary order) {
     fabricColor: order.fabricColorSnapshot,
     fabricNamePresetInternalId: order.fabricNamePresetInternalId,
     fabricColorPresetInternalId: order.fabricColorPresetInternalId,
+  );
+}
+
+/// Resolves one garment line from a reference order (items[] or legacy flat).
+OrderItemSummary? referenceOrderItem(
+  OrderSummary order,
+  GarmentType garmentType,
+) {
+  final fromItems = order.itemOf(garmentType);
+  if (fromItems != null) return fromItems;
+  if (garmentType == GarmentType.perahanTunban) {
+    return order.legacyPerahanTunbanItemView();
+  }
+  return null;
+}
+
+ReferenceMeasurementsCopy? buildItemMeasurementsCopy(
+  OrderItemSummary item,
+  OrderMeasurementSnapshotView? snap,
+) {
+  final items = (snap?.items ?? const [])
+      .map(
+        (it) => OrderMeasurementSnapshotItemInput(
+          measurementTypeInternalId: it.measurementTypeInternalId,
+          typeName: it.typeName,
+          value: it.value,
+          unitCode: it.unitCode,
+          sortOrder: it.sortOrder,
+        ),
+      )
+      .toList(growable: false);
+
+  var text = item.measurementsSnapshot.trim();
+  if (text.isEmpty && items.isNotEmpty) {
+    text = MeasurementProfileFormatting.buildDisplayText(
+      lines: items
+          .map(
+            (it) => MeasurementProfileLine(
+              measurementTypeInternalId: it.measurementTypeInternalId,
+              typeName: it.typeName,
+              value: it.value,
+              unitCode: it.unitCode,
+            ),
+          )
+          .toList(),
+      notes: '',
+    );
+  }
+  if (text.isEmpty && items.isEmpty) return null;
+  return ReferenceMeasurementsCopy(snapshotText: text, items: items);
+}
+
+ReferenceStyleCopy? buildItemStyleCopy(OrderItemSummary item) {
+  final name = item.styleName.trim();
+  final summary = item.styleSummary.trim();
+  final selection =
+      StyleOrderSelection.fromJsonString(item.styleSelectionJson);
+  if (name.isEmpty && summary.isEmpty && selection.isEmpty) return null;
+  return ReferenceStyleCopy(
+    styleName: item.styleName,
+    styleNameInternalId: item.styleNameInternalId,
+    selection: selection,
+    styleSummary: item.styleSummary,
+  );
+}
+
+String previousItemStyleDisplayText(OrderItemSummary item) {
+  final copy = buildItemStyleCopy(item);
+  if (copy == null) return '';
+  if (copy.styleSummary.trim().isNotEmpty) return copy.styleSummary.trim();
+  return copy.styleName.trim();
+}
+
+ReferenceDesignCopy? buildItemDesignCopy(
+  OrderItemSummary item, {
+  required bool catalogItemExists,
+}) {
+  final hasData = item.catalogDesignNameSnapshot.trim().isNotEmpty ||
+      item.catalogItemInternalId != null ||
+      (item.catalogImagePathSnapshot?.trim().isNotEmpty ?? false) ||
+      (item.catalogThumbnailPathSnapshot?.trim().isNotEmpty ?? false);
+  if (!hasData) return null;
+  return ReferenceDesignCopy(
+    catalogItemInternalId:
+        catalogItemExists ? item.catalogItemInternalId : null,
+    catalogDesignName: item.catalogDesignNameSnapshot,
+    catalogDesignerShopName: item.catalogDesignerShopNameSnapshot,
+    catalogImagePath: item.catalogImagePathSnapshot,
+    catalogThumbnailPath: item.catalogThumbnailPathSnapshot,
+  );
+}
+
+ReferenceFabricCopy? buildItemFabricCopy(OrderItemSummary item) {
+  if (!item.hasFabric) return null;
+  return ReferenceFabricCopy(
+    fabricName: item.fabricNameSnapshot,
+    fabricColor: item.fabricColorSnapshot,
+    fabricNamePresetInternalId: item.fabricNamePresetInternalId,
+    fabricColorPresetInternalId: item.fabricColorPresetInternalId,
+  );
+}
+
+String previousItemFabricDisplayText(
+  OrderItemSummary item,
+  AppLocalizations l10n,
+) {
+  final name = item.fabricNameSnapshot.trim();
+  final color = item.fabricColorSnapshot.trim();
+  final id = item.fabricIdSnapshot.trim();
+  if (name.isEmpty && color.isEmpty && id.isEmpty) return '';
+  if (name.isNotEmpty && color.isNotEmpty && id.isNotEmpty) {
+    return l10n.ordersComposerFabricSummary(name, color, id);
+  }
+  return l10n.ordersComposerFabricPartialSummary(
+    name.isEmpty ? '—' : name,
+    color.isEmpty ? '—' : color,
   );
 }
 
@@ -743,10 +862,12 @@ class ComposerMeasurementsPreviousReference extends ConsumerWidget {
     required this.l10n,
     required this.currentMeasurementsText,
     required this.currentIsMeaningfulForDiff,
+    this.referenceItem,
     this.onUsePrevious,
   });
 
   final OrderSummary referenceOrder;
+  final OrderItemSummary? referenceItem;
   final AppLocalizations l10n;
   final String currentMeasurementsText;
   final bool currentIsMeaningfulForDiff;
@@ -754,15 +875,30 @@ class ComposerMeasurementsPreviousReference extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final snapAsync = ref.watch(
-      orderMeasurementSnapshotProvider(referenceOrder.internalId),
-    );
+    final item = referenceItem;
+    final snapAsync = item != null
+        ? ref.watch(
+            orderItemMeasurementSnapshotProvider(
+              OrderItemSnapshotKey(
+                orderInternalId: referenceOrder.internalId,
+                orderItemInternalId: item.internalId,
+              ),
+            ),
+          )
+        : ref.watch(
+            orderMeasurementSnapshotProvider(referenceOrder.internalId),
+          );
     final snap = snapAsync.valueOrNull;
-    final text = previousMeasurementsDisplayText(referenceOrder, snap);
+    final text = item != null
+        ? (buildItemMeasurementsCopy(item, snap)?.snapshotText ??
+            item.measurementsSnapshot.trim())
+        : previousMeasurementsDisplayText(referenceOrder, snap);
     if (text.trim().isEmpty) return const SizedBox.shrink();
 
     final copyReady = !snapAsync.isLoading &&
-        buildMeasurementsCopy(referenceOrder, snap) != null;
+        (item != null
+            ? buildItemMeasurementsCopy(item, snap) != null
+            : buildMeasurementsCopy(referenceOrder, snap) != null);
     final canUsePrevious = copyReady && onUsePrevious != null;
 
     return ComposerSectionPreviousReference(

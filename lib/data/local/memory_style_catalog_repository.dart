@@ -6,7 +6,6 @@ import 'entities/garment_type.dart';
 import 'measurement_unit_codes.dart';
 import 'seed_data.dart';
 import 'style/style_catalog_bundled_figures.dart';
-import 'style/style_catalog_seed.dart';
 import 'style/style_catalog_waistcoat_bundled.dart';
 import 'style/style_figure_image_ref.dart';
 import 'style_catalog_repository.dart';

@@ -6,7 +6,7 @@ import 'entities/garment_type.dart';
 import 'entities/order_item_entity.dart';
 import 'order_item_input.dart';
 import 'order_measurement_snapshot_item_input.dart';
-import 'style/order_style_snapshot_persist.dart';
+import 'style/order_style_snapshot_persist_io.dart';
 import 'entities/order_measurement_snapshot_entity.dart';
 import 'entities/order_measurement_snapshot_item_entity.dart';
 

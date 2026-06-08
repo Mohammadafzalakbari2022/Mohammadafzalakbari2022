@@ -88,6 +88,27 @@ class ReceiptStyleFigure {
   final String name;
 }
 
+/// One garment block on a multi-item thermal receipt.
+class ThermalGarmentSection {
+  const ThermalGarmentSection({
+    required this.garmentLabel,
+    this.priceLine,
+    this.measurementsLine,
+    this.styleLine,
+    this.catalogDesignLine,
+    this.fabricLine,
+    this.styleFigures = const [],
+  });
+
+  final String garmentLabel;
+  final String? priceLine;
+  final String? measurementsLine;
+  final String? styleLine;
+  final String? catalogDesignLine;
+  final String? fabricLine;
+  final List<ReceiptStyleFigure> styleFigures;
+}
+
 class OrderReceiptEscPosContent {
 
   const OrderReceiptEscPosContent({
@@ -119,6 +140,8 @@ class OrderReceiptEscPosContent {
     this.fabricLine,
 
     this.styleFigures = const [],
+
+    this.garmentSections = const [],
 
     this.internalNotesLine,
 
@@ -167,6 +190,8 @@ class OrderReceiptEscPosContent {
   final String? fabricLine;
 
   final List<ReceiptStyleFigure> styleFigures;
+
+  final List<ThermalGarmentSection> garmentSections;
 
   final String? internalNotesLine;
 
@@ -381,58 +406,79 @@ Future<List<int>> buildThermalOrderReceipt({
 
   bytes.addAll(gen.text(receiptLatin1Safe(c.statusLine)));
 
-  final m = c.measurementsLine?.trim();
-
-  if (m != null && m.isNotEmpty) {
-
-    bytes.addAll(gen.hr());
-
-    bytes.addAll(gen.text(receiptLatin1Safe(m)));
-
-  }
-
-  final style = c.styleLine?.trim();
-
-  if (style != null && style.isNotEmpty) {
-
-    bytes.addAll(gen.hr());
-
-    bytes.addAll(gen.text(receiptLatin1Safe(style)));
-
-  }
-
-  final fabric = c.fabricLine?.trim();
-
-  if (fabric != null && fabric.isNotEmpty) {
-
-    bytes.addAll(gen.hr());
-
-    bytes.addAll(gen.text(receiptLatin1Safe(fabric)));
-
-  }
-
-  final catalogDesign = c.catalogDesignLine?.trim();
-
-  if (catalogDesign != null && catalogDesign.isNotEmpty) {
-
-    if ((style == null || style.isEmpty) &&
-        (fabric == null || fabric.isEmpty)) {
-
+  if (c.garmentSections.isNotEmpty) {
+    for (final section in c.garmentSections) {
       bytes.addAll(gen.hr());
+      bytes.addAll(
+        gen.text(
+          receiptLatin1Safe(section.garmentLabel),
+          styles: const PosStyles(bold: true),
+        ),
+      );
+      final price = section.priceLine?.trim();
+      if (price != null && price.isNotEmpty) {
+        bytes.addAll(gen.text(receiptLatin1Safe(price)));
+      }
+      final m = section.measurementsLine?.trim();
+      if (m != null && m.isNotEmpty) {
+        bytes.addAll(gen.text(receiptLatin1Safe(m)));
+      }
+      final style = section.styleLine?.trim();
+      if (style != null && style.isNotEmpty) {
+        bytes.addAll(gen.text(receiptLatin1Safe(style)));
+      }
+      final fabric = section.fabricLine?.trim();
+      if (fabric != null && fabric.isNotEmpty) {
+        bytes.addAll(gen.text(receiptLatin1Safe(fabric)));
+      }
+      final catalogDesign = section.catalogDesignLine?.trim();
+      if (catalogDesign != null && catalogDesign.isNotEmpty) {
+        bytes.addAll(gen.text(receiptLatin1Safe(catalogDesign)));
+      }
+      if (section.styleFigures.isNotEmpty) {
+        _appendStyleFigures(gen, bytes, section.styleFigures);
+      }
+    }
+  } else {
+    final m = c.measurementsLine?.trim();
 
+    if (m != null && m.isNotEmpty) {
+      bytes.addAll(gen.hr());
+      bytes.addAll(gen.text(receiptLatin1Safe(m)));
     }
 
-    bytes.addAll(gen.text(receiptLatin1Safe(catalogDesign)));
+    final style = c.styleLine?.trim();
 
-  }
-
-  if (c.styleFigures.isNotEmpty) {
-    if ((style == null || style.isEmpty) &&
-        (fabric == null || fabric.isEmpty) &&
-        (catalogDesign == null || catalogDesign.isEmpty)) {
+    if (style != null && style.isNotEmpty) {
       bytes.addAll(gen.hr());
+      bytes.addAll(gen.text(receiptLatin1Safe(style)));
     }
-    _appendStyleFigures(gen, bytes, c.styleFigures);
+
+    final fabric = c.fabricLine?.trim();
+
+    if (fabric != null && fabric.isNotEmpty) {
+      bytes.addAll(gen.hr());
+      bytes.addAll(gen.text(receiptLatin1Safe(fabric)));
+    }
+
+    final catalogDesign = c.catalogDesignLine?.trim();
+
+    if (catalogDesign != null && catalogDesign.isNotEmpty) {
+      if ((style == null || style.isEmpty) &&
+          (fabric == null || fabric.isEmpty)) {
+        bytes.addAll(gen.hr());
+      }
+      bytes.addAll(gen.text(receiptLatin1Safe(catalogDesign)));
+    }
+
+    if (c.styleFigures.isNotEmpty) {
+      if ((style == null || style.isEmpty) &&
+          (fabric == null || fabric.isEmpty) &&
+          (catalogDesign == null || catalogDesign.isEmpty)) {
+        bytes.addAll(gen.hr());
+      }
+      _appendStyleFigures(gen, bytes, c.styleFigures);
+    }
   }
 
   final internal = c.internalNotesLine?.trim();

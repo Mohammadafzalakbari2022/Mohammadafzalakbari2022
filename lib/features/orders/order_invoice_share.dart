@@ -15,9 +15,11 @@ import 'package:pride_v3/core/printing/invoice_pdf_images.dart';
 import 'package:pride_v3/core/printing/invoice_share_contact.dart';
 import 'package:pride_v3/core/printing/phone_whatsapp.dart';
 import 'package:pride_v3/core/printing/whatsapp_invoice_share.dart';
+import 'package:pride_v3/data/local/order_item_snapshot_key.dart';
 import 'package:pride_v3/data/local/order_summary.dart';
 import 'package:pride_v3/data/local/payment_summary.dart';
 import 'package:pride_v3/data/providers/local_data_providers.dart';
+import 'package:pride_v3/features/orders/order_composer_item_card.dart';
 import 'package:pride_v3/features/settings/shop_profile_provider.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 import 'package:share_plus/share_plus.dart';
@@ -65,6 +67,34 @@ Future<void> shareOrderInvoice({
       locale,
     );
 
+    final garmentInputs = <InvoicePdfGarmentInput>[];
+    if (order.items.length > 1) {
+      for (final item in order.sortedItems) {
+        final snapKey = OrderItemSnapshotKey(
+          orderInternalId: order.internalId,
+          orderItemInternalId: item.internalId,
+        );
+        final mSnap = ref
+            .read(orderItemMeasurementSnapshotProvider(snapKey))
+            .valueOrNull;
+        final sSnap =
+            ref.read(orderItemStyleSnapshotProvider(snapKey)).valueOrNull;
+        final figures = ref
+                .read(styleFiguresForGarmentProvider(item.garmentType))
+                .valueOrNull ??
+            const [];
+        garmentInputs.add(
+          InvoicePdfGarmentInput(
+            garmentLabel: composerGarmentLabel(l10n, item.garmentType),
+            item: item,
+            measurementSnap: mSnap,
+            styleSnap: sSnap,
+            catalogFigures: figures,
+          ),
+        );
+      }
+    }
+
     final styleSnap =
         ref.read(orderStyleSnapshotProvider(order.internalId)).valueOrNull;
     final measurementSnap = ref
@@ -92,6 +122,7 @@ Future<void> shareOrderInvoice({
       measurementSnap: measurementSnap,
       styleSnap: styleSnap,
       catalogFigures: catalogFigures,
+      garmentInputs: garmentInputs,
     );
 
     final rawPhone = order.customerPhone?.trim();

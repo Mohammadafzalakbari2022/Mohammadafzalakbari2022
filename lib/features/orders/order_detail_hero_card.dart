@@ -18,6 +18,8 @@ import '../../data/local/order_summary.dart';
 
 import 'order_detail_field_tile.dart';
 
+import 'order_garment_summary.dart';
+
 import 'order_status_label.dart';
 
 
@@ -208,23 +210,42 @@ class OrderDetailHeroCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 8),
-              Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: Chip(
-                  label: Text(
-                    orderStatusLabel(order.status, l10n),
-                    maxLines: 2,
-                    softWrap: true,
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  Chip(
+                    label: Text(
+                      orderStatusLabel(order.status, l10n),
+                      maxLines: 2,
+                      softWrap: true,
+                    ),
+                    backgroundColor: statusColor.withValues(alpha: 0.18),
+                    side: BorderSide(color: statusColor.withValues(alpha: 0.5)),
+                    labelStyle: theme.textTheme.labelMedium?.copyWith(
+                      color: statusColor,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    visualDensity: VisualDensity.compact,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
-                  backgroundColor: statusColor.withValues(alpha: 0.18),
-                  side: BorderSide(color: statusColor.withValues(alpha: 0.5)),
-                  labelStyle: theme.textTheme.labelMedium?.copyWith(
-                    color: statusColor,
-                    fontWeight: FontWeight.w700,
-                  ),
-                  visualDensity: VisualDensity.compact,
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
+                  if (order.items.length > 1 ||
+                      order.garmentSummaryKey.contains('+'))
+                    Chip(
+                      label: Text(orderGarmentSummaryLabel(l10n, order)),
+                      backgroundColor:
+                          scheme.secondaryContainer.withValues(alpha: 0.85),
+                      side: BorderSide(
+                        color: scheme.outlineVariant.withValues(alpha: 0.55),
+                      ),
+                      labelStyle: theme.textTheme.labelMedium?.copyWith(
+                        color: scheme.onSecondaryContainer,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      visualDensity: VisualDensity.compact,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                ],
               ),
 
               const SizedBox(height: 12),

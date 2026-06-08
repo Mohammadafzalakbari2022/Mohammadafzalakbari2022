@@ -1,7 +1,6 @@
 import 'entities/garment_type.dart';
-import 'entities/order_entity.dart';
-import 'entities/order_item_entity.dart';
 import 'order_item_summary.dart';
+import 'order_summary.dart';
 import 'order_measurement_snapshot_item_input.dart';
 
 /// Thrown when an order operation violates multi-garment business rules.
@@ -71,103 +70,8 @@ class OrderItemCreateInput {
   final List<OrderMeasurementSnapshotItemInput>? measurementSnapshotItems;
 }
 
-int sumOrderItemPrices(Iterable<OrderItemEntity> items) =>
-    items.fold<int>(0, (sum, item) => sum + item.priceAmountMinor);
-
 int sumOrderItemPriceSummaries(Iterable<OrderItemSummary> items) =>
     items.fold<int>(0, (sum, item) => sum + item.priceAmountMinor);
-
-OrderItemSummary orderItemSummaryFromEntity(OrderItemEntity e) {
-  return OrderItemSummary(
-    internalId: e.internalId,
-    orderInternalId: e.orderInternalId,
-    garmentType: garmentTypeFromCode(e.garmentTypeIndex),
-    sortOrder: e.sortOrder,
-    priceAmountMinor: e.priceAmountMinor,
-    itemNotes: e.itemNotes,
-    measurementsSnapshot: e.measurementsSnapshot,
-    sourceMeasurementProfileId: e.sourceMeasurementProfileId,
-    sourceMeasurementProfileLabel: e.sourceMeasurementProfileLabel,
-    styleName: e.styleName,
-    styleNameInternalId: e.styleNameInternalId,
-    styleSelectionJson: e.styleSelectionJson,
-    styleSummary: e.styleSummary,
-    catalogItemInternalId: e.catalogItemInternalId,
-    catalogDesignNameSnapshot: e.catalogDesignNameSnapshot,
-    catalogDesignerShopNameSnapshot: e.catalogDesignerShopNameSnapshot,
-    catalogImagePathSnapshot: e.catalogImagePathSnapshot,
-    catalogThumbnailPathSnapshot: e.catalogThumbnailPathSnapshot,
-    fabricNameSnapshot: e.fabricNameSnapshot,
-    fabricColorSnapshot: e.fabricColorSnapshot,
-    fabricIdSnapshot: e.fabricIdSnapshot,
-    fabricNamePresetInternalId: e.fabricNamePresetInternalId,
-    fabricColorPresetInternalId: e.fabricColorPresetInternalId,
-    createdAt: e.createdAt,
-    updatedAt: e.updatedAt,
-  );
-}
-
-OrderItemEntity orderItemEntityFromOrderFlat({
-  required String internalId,
-  required String shopId,
-  required String orderInternalId,
-  required GarmentType garmentType,
-  required OrderEntity order,
-  int? priceAmountMinor,
-  DateTime? now,
-}) {
-  final ts = now ?? DateTime.now();
-  return OrderItemEntity()
-    ..internalId = internalId
-    ..shopId = shopId
-    ..orderInternalId = orderInternalId
-    ..garmentTypeIndex = garmentType.code
-    ..sortOrder = garmentType.defaultSortOrder
-    ..priceAmountMinor = priceAmountMinor ?? order.totalAmountMinor
-    ..measurementsSnapshot = order.measurementsSnapshot
-    ..sourceMeasurementProfileId = order.sourceMeasurementProfileId
-    ..sourceMeasurementProfileLabel = order.sourceMeasurementProfileLabel
-    ..styleName = order.styleName
-    ..styleNameInternalId = order.styleNameInternalId
-    ..styleSelectionJson = order.styleSelectionJson
-    ..styleSummary = order.styleSummary
-    ..catalogItemInternalId = order.catalogItemInternalId
-    ..catalogDesignNameSnapshot = order.catalogDesignNameSnapshot
-    ..catalogDesignerShopNameSnapshot = order.catalogDesignerShopNameSnapshot
-    ..catalogImagePathSnapshot = order.catalogImagePathSnapshot
-    ..catalogThumbnailPathSnapshot = order.catalogThumbnailPathSnapshot
-    ..fabricNameSnapshot = order.fabricNameSnapshot
-    ..fabricColorSnapshot = order.fabricColorSnapshot
-    ..fabricIdSnapshot = order.fabricIdSnapshot
-    ..fabricNamePresetInternalId = order.fabricNamePresetInternalId
-    ..fabricColorPresetInternalId = order.fabricColorPresetInternalId
-    ..createdAt = order.createdAt ?? ts
-    ..updatedAt = order.updatedAt;
-}
-
-void copyOrderItemFieldsOntoOrderEntity(
-  OrderEntity order,
-  OrderItemEntity item,
-) {
-  order
-    ..measurementsSnapshot = item.measurementsSnapshot
-    ..sourceMeasurementProfileId = item.sourceMeasurementProfileId
-    ..sourceMeasurementProfileLabel = item.sourceMeasurementProfileLabel
-    ..styleName = item.styleName
-    ..styleNameInternalId = item.styleNameInternalId
-    ..styleSelectionJson = item.styleSelectionJson
-    ..styleSummary = item.styleSummary
-    ..catalogItemInternalId = item.catalogItemInternalId
-    ..catalogDesignNameSnapshot = item.catalogDesignNameSnapshot
-    ..catalogDesignerShopNameSnapshot = item.catalogDesignerShopNameSnapshot
-    ..catalogImagePathSnapshot = item.catalogImagePathSnapshot
-    ..catalogThumbnailPathSnapshot = item.catalogThumbnailPathSnapshot
-    ..fabricNameSnapshot = item.fabricNameSnapshot
-    ..fabricColorSnapshot = item.fabricColorSnapshot
-    ..fabricIdSnapshot = item.fabricIdSnapshot
-    ..fabricNamePresetInternalId = item.fabricNamePresetInternalId
-    ..fabricColorPresetInternalId = item.fabricColorPresetInternalId;
-}
 
 OrderItemSummary? primaryPerahanItemSummary(List<OrderItemSummary> items) {
   for (final item in OrderItemSummary.sorted(items)) {
@@ -196,7 +100,7 @@ OrderItemSummary? primaryPerahanItemSummary(List<OrderItemSummary> items) {
   String? fabricNamePresetInternalId,
   String? fabricColorPresetInternalId,
 }) flatGarmentFieldsForOrderSummary({
-  required OrderEntity order,
+  required OrderSummary order,
   required List<OrderItemSummary> items,
 }) {
   final primary = primaryPerahanItemSummary(items);
@@ -242,16 +146,6 @@ OrderItemSummary? primaryPerahanItemSummary(List<OrderItemSummary> items) {
   );
 }
 
-bool orderEntityHasLegacyGarmentData(OrderEntity order) =>
-    order.measurementsSnapshot.trim().isNotEmpty ||
-    order.styleName.trim().isNotEmpty ||
-    order.styleSelectionJson.trim().isNotEmpty ||
-    order.styleSummary.trim().isNotEmpty ||
-    order.catalogDesignNameSnapshot.trim().isNotEmpty ||
-    order.fabricNameSnapshot.trim().isNotEmpty ||
-    order.fabricColorSnapshot.trim().isNotEmpty ||
-    order.fabricIdSnapshot.trim().isNotEmpty;
-
 void assertUniqueGarmentTypes(Iterable<OrderItemCreateInput> items) {
   final seen = <GarmentType>{};
   for (final item in items) {
@@ -273,4 +167,67 @@ void assertItemPricesValid(Iterable<OrderItemCreateInput> items) {
       throw const OrderItemRepositoryException('item_price_required');
     }
   }
+}
+
+/// Rebuilds upsert input from a persisted item row (for detail edits).
+OrderItemCreateInput orderItemCreateInputFromSummary(
+  OrderItemSummary item, {
+  int? priceAmountMinor,
+  String? measurementsSnapshot,
+  String? sourceMeasurementProfileId,
+  String? sourceMeasurementProfileLabel,
+  String? styleName,
+  String? styleNameInternalId,
+  String? styleSelectionJson,
+  String? styleSummary,
+  String? catalogItemInternalId,
+  String? catalogDesignNameSnapshot,
+  String? catalogDesignerShopNameSnapshot,
+  String? catalogImagePathSnapshot,
+  String? catalogThumbnailPathSnapshot,
+  String? catalogSourceImagePath,
+  String? catalogSourceThumbnailPath,
+  String? fabricNameSnapshot,
+  String? fabricColorSnapshot,
+  String? fabricIdSnapshot,
+  String? fabricNamePresetInternalId,
+  String? fabricColorPresetInternalId,
+  List<OrderMeasurementSnapshotItemInput>? measurementSnapshotItems,
+}) {
+  return OrderItemCreateInput(
+    internalId: item.internalId,
+    garmentType: item.garmentType,
+    priceAmountMinor: priceAmountMinor ?? item.priceAmountMinor,
+    sortOrder: item.sortOrder,
+    itemNotes: item.itemNotes,
+    measurementsSnapshot: measurementsSnapshot ?? item.measurementsSnapshot,
+    sourceMeasurementProfileId:
+        sourceMeasurementProfileId ?? item.sourceMeasurementProfileId,
+    sourceMeasurementProfileLabel: sourceMeasurementProfileLabel ??
+        item.sourceMeasurementProfileLabel,
+    styleName: styleName ?? item.styleName,
+    styleNameInternalId: styleNameInternalId ?? item.styleNameInternalId,
+    styleSelectionJson: styleSelectionJson ?? item.styleSelectionJson,
+    styleSummary: styleSummary ?? item.styleSummary,
+    catalogItemInternalId:
+        catalogItemInternalId ?? item.catalogItemInternalId,
+    catalogDesignNameSnapshot:
+        catalogDesignNameSnapshot ?? item.catalogDesignNameSnapshot,
+    catalogDesignerShopNameSnapshot: catalogDesignerShopNameSnapshot ??
+        item.catalogDesignerShopNameSnapshot,
+    catalogImagePathSnapshot:
+        catalogImagePathSnapshot ?? item.catalogImagePathSnapshot,
+    catalogThumbnailPathSnapshot:
+        catalogThumbnailPathSnapshot ?? item.catalogThumbnailPathSnapshot,
+    catalogSourceImagePath: catalogSourceImagePath,
+    catalogSourceThumbnailPath: catalogSourceThumbnailPath,
+    fabricNameSnapshot: fabricNameSnapshot ?? item.fabricNameSnapshot,
+    fabricColorSnapshot: fabricColorSnapshot ?? item.fabricColorSnapshot,
+    fabricIdSnapshot: fabricIdSnapshot ?? item.fabricIdSnapshot,
+    fabricNamePresetInternalId:
+        fabricNamePresetInternalId ?? item.fabricNamePresetInternalId,
+    fabricColorPresetInternalId:
+        fabricColorPresetInternalId ?? item.fabricColorPresetInternalId,
+    measurementSnapshotItems: measurementSnapshotItems,
+  );
 }

@@ -240,25 +240,6 @@ Future<void> _seedWaistcoatStylePartsIfMissing(
   });
 }
 
-bool bundledWaistcoatFigureNeedsRepair({
-  required String shopId,
-  required BundledWaistcoatFigureTemplate template,
-  required String existingShopId,
-  required String existingImageRef,
-  required String existingPartInternalId,
-  required int existingSortOrder,
-  required int existingGarmentTypeIndex,
-  required bool isDeleted,
-}) {
-  if (isDeleted) return true;
-  if (existingShopId != shopId) return true;
-  if (existingGarmentTypeIndex != GarmentType.waistcoat.code) return true;
-  if (existingImageRef.trim() != template.imageRef) return true;
-  if (existingPartInternalId != template.partInternalId) return true;
-  if (existingSortOrder != template.sortOrder) return true;
-  return false;
-}
-
 Future<void> _ensureBundledWaistcoatStyleFigures(
   Isar isar,
   String shopId,

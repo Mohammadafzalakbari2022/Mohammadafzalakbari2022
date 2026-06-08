@@ -151,6 +151,9 @@ class OrderComposerDraft {
 
   bool get showPerahanPreviousReference =>
       items[GarmentType.perahanTunban]?.included == true;
+
+  bool showPreviousReferenceForGarment(GarmentType type) =>
+      items[type]?.included == true;
 }
 
 /// One line in the payment breakdown sheet.

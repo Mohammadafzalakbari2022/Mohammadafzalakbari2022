@@ -25,6 +25,7 @@ import 'package:pride_v3/core/formatting/display_customer_no_format.dart';
 import '../../data/local/dev_shop_constants.dart';
 import '../../data/local/entities/garment_type.dart';
 import '../../data/local/order_item_draft.dart';
+import '../../data/local/order_item_snapshot_key.dart';
 import '../../data/local/order_measurement_snapshot_item_input.dart';
 import '../../data/local/order_measurement_snapshot_view.dart';
 import '../../data/local/order_sync_payload.dart';
@@ -543,16 +544,32 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     }
   }
 
-  Future<void> _applyPreviousMeasurements(OrderSummary refOrder) async {
-    if (!_draft.showPerahanPreviousReference) return;
-    OrderMeasurementSnapshotView? snap = ref
-        .read(orderMeasurementSnapshotProvider(refOrder.internalId))
-        .valueOrNull;
-    snap ??= await ref.read(
-      orderMeasurementSnapshotProvider(refOrder.internalId).future,
-    );
+  Future<void> _applyPreviousMeasurements(
+    OrderSummary refOrder,
+    GarmentType type,
+  ) async {
+    if (!_draft.showPreviousReferenceForGarment(type)) return;
+    final refItem = referenceOrderItem(refOrder, type);
+    OrderMeasurementSnapshotView? snap;
+    if (refItem != null && refItem.internalId.trim().isNotEmpty) {
+      final key = OrderItemSnapshotKey(
+        orderInternalId: refOrder.internalId,
+        orderItemInternalId: refItem.internalId,
+      );
+      snap = ref.read(orderItemMeasurementSnapshotProvider(key)).valueOrNull;
+      snap ??= await ref.read(orderItemMeasurementSnapshotProvider(key).future);
+    } else {
+      snap = ref
+          .read(orderMeasurementSnapshotProvider(refOrder.internalId))
+          .valueOrNull;
+      snap ??= await ref.read(
+        orderMeasurementSnapshotProvider(refOrder.internalId).future,
+      );
+    }
     if (!mounted) return;
-    final copy = buildMeasurementsCopy(refOrder, snap);
+    final copy = refItem != null
+        ? buildItemMeasurementsCopy(refItem, snap)
+        : buildMeasurementsCopy(refOrder, snap);
     if (copy == null || copy.snapshotText.trim().isEmpty) {
       final l10n = AppLocalizations.of(context)!;
       showAppFeedback(
@@ -563,7 +580,6 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       );
       return;
     }
-    final type = GarmentType.perahanTunban;
     final draft = _itemDraft(type);
     setState(() {
       _draft = _draft.updateItem(
@@ -579,11 +595,13 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     });
   }
 
-  void _applyPreviousStyle(OrderSummary refOrder) {
-    if (!_draft.showPerahanPreviousReference) return;
-    final copy = buildStyleCopy(refOrder);
+  void _applyPreviousStyle(OrderSummary refOrder, GarmentType type) {
+    if (!_draft.showPreviousReferenceForGarment(type)) return;
+    final refItem = referenceOrderItem(refOrder, type);
+    final copy = refItem != null
+        ? buildItemStyleCopy(refItem)
+        : buildStyleCopy(refOrder);
     if (copy == null) return;
-    final type = GarmentType.perahanTunban;
     final draft = _itemDraft(type);
     setState(() {
       _styleSelections[type] = copy.selection;
@@ -599,7 +617,9 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
   }
 
   Future<void> _applyPreviousDesign(OrderSummary refOrder) async {
-    if (!_draft.showPerahanPreviousReference) return;
+    const type = GarmentType.perahanTunban;
+    if (!_draft.showPreviousReferenceForGarment(type)) return;
+    final refItem = referenceOrderItem(refOrder, type);
     var myCatalog = ref.read(myCatalogStreamProvider).valueOrNull;
     if (myCatalog == null) {
       await ref.read(myCatalogStreamProvider.future);
@@ -617,10 +637,12 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       myCatalog,
       sharedCatalog,
     );
-    final copy = buildDesignCopy(refOrder, catalogItemExists: exists) ??
-        buildDesignCopySnapshotOnly(refOrder);
+    final copy = refItem != null
+        ? (buildItemDesignCopy(refItem, catalogItemExists: exists) ??
+            buildItemDesignCopy(refItem, catalogItemExists: false))
+        : (buildDesignCopy(refOrder, catalogItemExists: exists) ??
+            buildDesignCopySnapshotOnly(refOrder));
     if (copy == null) return;
-    final type = GarmentType.perahanTunban;
     final draft = _itemDraft(type);
     setState(() {
       _draft = _draft.updateItem(
@@ -636,11 +658,13 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     });
   }
 
-  void _applyPreviousFabric(OrderSummary refOrder) {
-    if (!_draft.showPerahanPreviousReference) return;
-    final copy = buildFabricCopy(refOrder);
+  void _applyPreviousFabric(OrderSummary refOrder, GarmentType type) {
+    if (!_draft.showPreviousReferenceForGarment(type)) return;
+    final refItem = referenceOrderItem(refOrder, type);
+    final copy = refItem != null
+        ? buildItemFabricCopy(refItem)
+        : buildFabricCopy(refOrder);
     if (copy == null) return;
-    final type = GarmentType.perahanTunban;
     final draft = _itemDraft(type);
     setState(() {
       _draft = _draft.updateItem(
@@ -1156,16 +1180,6 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
             customerOrdersForReference(ordersForRef, _selectedCustomerId!),
             _referenceOrderOverrideId,
           );
-    final perahanDraft = _draft.items[GarmentType.perahanTunban]!;
-    final currentDesignSummary =
-        perahanDraft.catalogDesignName.trim().isNotEmpty
-            ? perahanDraft.catalogDesignName.trim()
-            : '';
-    final currentStyleForDiff = perahanDraft.styleName.trim().isNotEmpty
-        ? (perahanDraft.styleSummary.trim().isNotEmpty
-            ? perahanDraft.styleSummary.trim()
-            : perahanDraft.styleName.trim())
-        : null;
     final shopId = ref.watch(effectiveShopIdProvider);
     final asyncShopPayments = ref.watch(paymentsForShopProvider(shopId));
     final referencePaidByOrderId = asyncShopPayments.hasValue
@@ -1382,86 +1396,126 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
             ),
           ),
           for (final type in _draft.selectedGarmentTypes) ...[
-            OrderComposerItemCard(
-              l10n: l10n,
-              garmentType: type,
-              draft: _itemDraft(type),
-              priceController: _itemPriceControllers[type]!,
-              expanded: _itemCardExpanded[type] ?? false,
-              onExpandedChanged: (v) =>
-                  setState(() => _itemCardExpanded[type] = v),
-              onOpenMeasurements: () =>
-                  _openMeasurementsEditor(context, l10n, type),
-              onOpenStyle: () => _openStyleSheet(context, type),
-              onOpenFabric: () => _openFabricSheet(context, type),
-              onPriceChanged: () => _onItemPriceChanged(type),
-              onUseSameFabric: type == GarmentType.waistcoat &&
-                      _draft.items[GarmentType.perahanTunban]!.included &&
-                      _draft.items[GarmentType.perahanTunban]!.hasFabric
-                  ? _copyFabricFromPerahanToWaistcoat
-                  : null,
-              measurementsTrailing: type == GarmentType.perahanTunban &&
-                      referenceOrder != null &&
-                      _draft.showPerahanPreviousReference
-                  ? ComposerMeasurementsPreviousReference(
-                      referenceOrder: referenceOrder,
+            Builder(
+              builder: (context) {
+                final itemDraft = _itemDraft(type);
+                final refItem = referenceOrder != null
+                    ? referenceOrderItem(referenceOrder, type)
+                    : null;
+                final previousStyleText = refItem != null
+                    ? previousItemStyleDisplayText(refItem)
+                    : (referenceOrder != null &&
+                            type == GarmentType.perahanTunban
+                        ? previousStyleDisplayText(referenceOrder)
+                        : '');
+                final previousFabricText = refItem != null
+                    ? previousItemFabricDisplayText(refItem, l10n)
+                    : (referenceOrder != null &&
+                            type == GarmentType.perahanTunban
+                        ? previousFabricDisplayText(referenceOrder, l10n)
+                        : '');
+                final currentStyleForItem = itemDraft.styleName.trim().isNotEmpty
+                    ? (itemDraft.styleSummary.trim().isNotEmpty
+                        ? itemDraft.styleSummary.trim()
+                        : itemDraft.styleName.trim())
+                    : null;
+                final currentDesignForItem =
+                    itemDraft.catalogDesignName.trim().isNotEmpty
+                        ? itemDraft.catalogDesignName.trim()
+                        : '';
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    OrderComposerItemCard(
                       l10n: l10n,
-                      currentMeasurementsText:
-                          _itemDraft(type).measurementsSnapshot,
-                      currentIsMeaningfulForDiff:
-                          _itemDraft(type).hasMeasurements,
-                      onUsePrevious: () =>
-                          _applyPreviousMeasurements(referenceOrder),
-                    )
-                  : null,
-              styleTrailing: type == GarmentType.perahanTunban &&
-                      referenceOrder != null &&
-                      _draft.showPerahanPreviousReference &&
-                      previousStyleDisplayText(referenceOrder).isNotEmpty
-                  ? ComposerSectionPreviousReference(
-                      l10n: l10n,
-                      previousText: previousStyleDisplayText(referenceOrder),
-                      currentTextForDiff: currentStyleForDiff,
-                      currentIsMeaningfulForDiff:
-                          perahanDraft.styleName.trim().isNotEmpty,
-                      usePreviousLabel: l10n.ordersComposerUsePreviousStyleCta,
-                      onUsePrevious: () => _applyPreviousStyle(referenceOrder),
-                    )
-                  : null,
-              fabricTrailing: type == GarmentType.perahanTunban &&
-                      referenceOrder != null &&
-                      _draft.showPerahanPreviousReference &&
-                      referenceOrder.hasCustomerFabric
-                  ? ComposerSectionPreviousReference(
-                      l10n: l10n,
-                      previousText:
-                          previousFabricDisplayText(referenceOrder, l10n),
-                      currentTextForDiff: perahanDraft.hasFabric
-                          ? l10n.ordersComposerFabricPartialSummary(
-                              perahanDraft.fabricName.trim().isEmpty
-                                  ? '—'
-                                  : perahanDraft.fabricName.trim(),
-                              perahanDraft.fabricColor.trim().isEmpty
-                                  ? '—'
-                                  : perahanDraft.fabricColor.trim(),
+                      garmentType: type,
+                      draft: itemDraft,
+                      priceController: _itemPriceControllers[type]!,
+                      expanded: _itemCardExpanded[type] ?? false,
+                      onExpandedChanged: (v) =>
+                          setState(() => _itemCardExpanded[type] = v),
+                      onOpenMeasurements: () =>
+                          _openMeasurementsEditor(context, l10n, type),
+                      onOpenStyle: () => _openStyleSheet(context, type),
+                      onOpenFabric: () => _openFabricSheet(context, type),
+                      onPriceChanged: () => _onItemPriceChanged(type),
+                      onUseSameFabric: type == GarmentType.waistcoat &&
+                              _draft.items[GarmentType.perahanTunban]!
+                                  .included &&
+                              _draft.items[GarmentType.perahanTunban]!.hasFabric
+                          ? _copyFabricFromPerahanToWaistcoat
+                          : null,
+                      measurementsTrailing: referenceOrder != null &&
+                              _draft.showPreviousReferenceForGarment(type)
+                          ? ComposerMeasurementsPreviousReference(
+                              referenceOrder: referenceOrder,
+                              referenceItem: refItem,
+                              l10n: l10n,
+                              currentMeasurementsText:
+                                  itemDraft.measurementsSnapshot,
+                              currentIsMeaningfulForDiff:
+                                  itemDraft.hasMeasurements,
+                              onUsePrevious: () => _applyPreviousMeasurements(
+                                referenceOrder,
+                                type,
+                              ),
                             )
                           : null,
-                      currentIsMeaningfulForDiff: perahanDraft.hasFabric,
-                      usePreviousLabel: l10n.ordersComposerUsePreviousFabricCta,
-                      onUsePrevious: () => _applyPreviousFabric(referenceOrder),
-                    )
-                  : null,
+                      styleTrailing: referenceOrder != null &&
+                              _draft.showPreviousReferenceForGarment(type) &&
+                              previousStyleText.isNotEmpty
+                          ? ComposerSectionPreviousReference(
+                              l10n: l10n,
+                              previousText: previousStyleText,
+                              currentTextForDiff: currentStyleForItem,
+                              currentIsMeaningfulForDiff:
+                                  itemDraft.styleName.trim().isNotEmpty,
+                              usePreviousLabel:
+                                  l10n.ordersComposerUsePreviousStyleCta,
+                              onUsePrevious: () =>
+                                  _applyPreviousStyle(referenceOrder, type),
+                            )
+                          : null,
+                      fabricTrailing: referenceOrder != null &&
+                              _draft.showPreviousReferenceForGarment(type) &&
+                              previousFabricText.isNotEmpty
+                          ? ComposerSectionPreviousReference(
+                              l10n: l10n,
+                              previousText: previousFabricText,
+                              currentTextForDiff: itemDraft.hasFabric
+                                  ? l10n.ordersComposerFabricPartialSummary(
+                                      itemDraft.fabricName.trim().isEmpty
+                                          ? '—'
+                                          : itemDraft.fabricName.trim(),
+                                      itemDraft.fabricColor.trim().isEmpty
+                                          ? '—'
+                                          : itemDraft.fabricColor.trim(),
+                                    )
+                                  : null,
+                              currentIsMeaningfulForDiff: itemDraft.hasFabric,
+                              usePreviousLabel:
+                                  l10n.ordersComposerUsePreviousFabricCta,
+                              onUsePrevious: () =>
+                                  _applyPreviousFabric(referenceOrder, type),
+                            )
+                          : null,
+                    ),
+                    if (type == GarmentType.perahanTunban &&
+                        referenceOrder != null &&
+                        _draft.showPreviousReferenceForGarment(type))
+                      ComposerDesignPreviousReference(
+                        referenceOrder: referenceOrder,
+                        l10n: l10n,
+                        currentDesignSummary: currentDesignForItem,
+                        currentIsMeaningfulForDiff:
+                            currentDesignForItem.isNotEmpty,
+                        onUsePrevious: () =>
+                            _applyPreviousDesign(referenceOrder),
+                      ),
+                  ],
+                );
+              },
             ),
-            if (type == GarmentType.perahanTunban &&
-                referenceOrder != null &&
-                _draft.showPerahanPreviousReference)
-              ComposerDesignPreviousReference(
-                referenceOrder: referenceOrder,
-                l10n: l10n,
-                currentDesignSummary: currentDesignSummary,
-                currentIsMeaningfulForDiff: currentDesignSummary.isNotEmpty,
-                onUsePrevious: () => _applyPreviousDesign(referenceOrder),
-              ),
           ],
           const SizedBox(height: _kComposerSectionGap),
           Card(

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/local/measurement_profile_formatting.dart';
+import '../../data/local/order_item_summary.dart';
 import '../../data/local/order_measurement_snapshot_view.dart';
 import '../../data/local/order_style_snapshot_view.dart';
 import '../../data/local/order_summary.dart';
@@ -50,6 +51,74 @@ String? formatReceiptMeasurementsLine({
   );
   if (body == null) return null;
   return body.contains('\n') ? '$label:\n$body' : '$label: $body';
+}
+
+String? formatReceiptMeasurementsBodyForItem({
+  required OrderItemSummary item,
+  OrderMeasurementSnapshotView? measurementSnap,
+}) {
+  final items = measurementSnap?.items ?? [];
+  if (items.isNotEmpty) {
+    return items
+        .map(
+          (it) =>
+              '${it.typeName}: ${it.value.trim()}'
+              '${MeasurementProfileFormatting.unitSuffix(it.unitCode)}',
+        )
+        .join('\n');
+  }
+  final text = item.measurementsSnapshot.trim();
+  return text.isEmpty ? null : text;
+}
+
+String? formatReceiptMeasurementsLineForItem({
+  required OrderItemSummary item,
+  OrderMeasurementSnapshotView? measurementSnap,
+  required String label,
+}) {
+  final body = formatReceiptMeasurementsBodyForItem(
+    item: item,
+    measurementSnap: measurementSnap,
+  );
+  if (body == null) return null;
+  return body.contains('\n') ? '$label:\n$body' : '$label: $body';
+}
+
+OrderReceiptStyleContent resolveOrderReceiptStyleContentForItem({
+  required OrderItemSummary item,
+  OrderStyleSnapshotView? styleSnap,
+  List<StyleFigureSummary> catalogFigures = const [],
+  required String styleLabel,
+  OrderShapeSelectionFormatLabels formatLabels =
+      OrderShapeSelectionFormatLabels.defaults,
+}) {
+  final display = formatOrderShapeSelectionDisplay(
+    snapshot: styleSnap,
+    styleName: item.styleName,
+    styleSelectionJson: item.styleSelectionJson,
+    styleSummary: item.styleSummary,
+    catalogFigures: catalogFigures,
+    labels: formatLabels,
+  );
+
+  if (display.isEmpty) {
+    return const OrderReceiptStyleContent(styleLine: null, figures: []);
+  }
+
+  final body = display.detailedText.trim().isNotEmpty
+      ? display.detailedText.trim()
+      : display.summaryFallbackText.trim();
+
+  final receiptFigures = display.figures
+      .map((figure) => ReceiptStyleFigure(name: figure.shapeName))
+      .toList(growable: false);
+
+  return OrderReceiptStyleContent(
+    styleLine: body.isEmpty
+        ? null
+        : (body.contains('\n') ? '$styleLabel:\n$body' : '$styleLabel: $body'),
+    figures: receiptFigures,
+  );
 }
 
 String? formatReceiptStyleBody({

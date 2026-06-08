@@ -12,6 +12,7 @@ import 'package:pride_v3/l10n/app_localizations.dart';
 import '../../data/local/order_summary.dart';
 import 'order_composer_draft.dart';
 import 'order_composer_item_card.dart';
+import 'order_garment_summary.dart';
 import '../../data/local/payment_summary.dart';
 import '../../data/local/sync_outbox_kinds.dart';
 import '../../data/providers/local_data_providers.dart';
@@ -690,6 +691,32 @@ class _OrderPaymentSavedSheetState extends ConsumerState<_OrderPaymentSavedSheet
             controller: scroll,
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
             children: [
+              if (!_editing && order.items.length > 1) ...[
+                Text(
+                  l10n.ordersComposerItemBreakdownTitle,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
+                const SizedBox(height: 8),
+                for (final line in paymentBreakdownFromOrder(order))
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            composerGarmentLabel(l10n, line.garmentType),
+                          ),
+                        ),
+                        Text(
+                          AppNumberFormat.formatMoney(l10n, line.amountMinor),
+                        ),
+                      ],
+                    ),
+                  ),
+                const Divider(height: 20),
+              ],
               PrideMoneyField(
                 controller: _totalCtrl,
                 signed: _editing,

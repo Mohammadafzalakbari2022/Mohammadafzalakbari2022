@@ -3094,6 +3094,42 @@ abstract class AppLocalizations {
   /// **'Add Perahan/Tunban'**
   String get ordersComposerAddPerahanTunbanCta;
 
+  /// No description provided for @ordersGarmentSummaryBoth.
+  ///
+  /// In en, this message translates to:
+  /// **'Perahan/Tunban + Waistcoat'**
+  String get ordersGarmentSummaryBoth;
+
+  /// No description provided for @ordersDetailGarmentSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{garment}'**
+  String ordersDetailGarmentSectionTitle(String garment);
+
+  /// No description provided for @ordersDetailAddGarmentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add {garment}'**
+  String ordersDetailAddGarmentTitle(String garment);
+
+  /// No description provided for @ordersDetailAddGarmentSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the item price. You can add measurements and style after saving.'**
+  String get ordersDetailAddGarmentSubtitle;
+
+  /// No description provided for @ordersDetailAddGarmentSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'{garment} added to this order.'**
+  String ordersDetailAddGarmentSuccess(String garment);
+
+  /// No description provided for @ordersDetailAddGarmentDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'This garment is already on the order.'**
+  String get ordersDetailAddGarmentDuplicate;
+
   /// No description provided for @ordersComposerNoItemsError.
   ///
   /// In en, this message translates to:

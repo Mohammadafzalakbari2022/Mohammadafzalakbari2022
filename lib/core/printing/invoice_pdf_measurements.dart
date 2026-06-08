@@ -1,5 +1,6 @@
 import '../../data/local/measurement_unit_codes.dart';
 import '../../data/local/order_measurement_snapshot_view.dart';
+import '../../data/local/order_item_summary.dart';
 import '../../data/local/order_summary.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -37,6 +38,45 @@ List<InvoiceMeasurementRow> invoiceMeasurementRows({
 
   final snap = order.measurementsSnapshot.trim();
   if (snap.isEmpty) return const [];
+
+  return _rowsFromSnapshotText(snap, l10n: l10n, cmUnit: cmUnit, inUnit: inUnit);
+}
+
+List<InvoiceMeasurementRow> invoiceMeasurementRowsForItem({
+  required AppLocalizations l10n,
+  required OrderItemSummary item,
+  OrderMeasurementSnapshotView? measurementSnap,
+}) {
+  final cmUnit = _pdfUnitSuffix(l10n, MeasurementUnitCodes.cm);
+  final inUnit = _pdfUnitSuffix(l10n, MeasurementUnitCodes.inch);
+
+  final items = measurementSnap?.items ?? [];
+  if (items.isNotEmpty) {
+    final rows = items
+        .where((it) => it.value.trim().isNotEmpty)
+        .map(
+          (it) => InvoiceMeasurementRow(
+            label: it.typeName,
+            value:
+                '${it.value.trim()}${_pdfUnitSuffix(l10n, it.unitCode)}',
+          ),
+        )
+        .toList();
+    if (rows.isNotEmpty) return rows;
+  }
+
+  final snap = item.measurementsSnapshot.trim();
+  if (snap.isEmpty) return const [];
+
+  return _rowsFromSnapshotText(snap, l10n: l10n, cmUnit: cmUnit, inUnit: inUnit);
+}
+
+List<InvoiceMeasurementRow> _rowsFromSnapshotText(
+  String snap, {
+  required AppLocalizations l10n,
+  required String cmUnit,
+  required String inUnit,
+}) {
 
   final localized = _localizeSnapshotUnits(snap, cmUnit: cmUnit, inUnit: inUnit);
   return localized

@@ -690,6 +690,27 @@
   "ordersComposerItemReady": "Ready",
   "ordersComposerAddWaistcoatCta": "Add waistcoat",
   "ordersComposerAddPerahanTunbanCta": "Add Perahan/Tunban",
+  "ordersGarmentSummaryBoth": "Perahan/Tunban + Waistcoat",
+  "ordersDetailGarmentSectionTitle": "{garment}",
+  "@ordersDetailGarmentSectionTitle": {
+    "placeholders": {
+      "garment": { "type": "String" }
+    }
+  },
+  "ordersDetailAddGarmentTitle": "Add {garment}",
+  "@ordersDetailAddGarmentTitle": {
+    "placeholders": {
+      "garment": { "type": "String" }
+    }
+  },
+  "ordersDetailAddGarmentSubtitle": "Enter the item price. You can add measurements and style after saving.",
+  "ordersDetailAddGarmentSuccess": "{garment} added to this order.",
+  "@ordersDetailAddGarmentSuccess": {
+    "placeholders": {
+      "garment": { "type": "String" }
+    }
+  },
+  "ordersDetailAddGarmentDuplicate": "This garment is already on the order.",
   "ordersComposerNoItemsError": "Select at least one order item",
   "ordersComposerItemBreakdownTitle": "Item cost breakdown",
   "ordersComposerUseSameFabricCta": "Use same fabric",

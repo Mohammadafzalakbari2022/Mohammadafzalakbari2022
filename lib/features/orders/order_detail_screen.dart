@@ -43,8 +43,14 @@ import 'order_payment_sheet.dart';
 import 'order_status_label.dart';
 import 'order_customer_fabric_panel.dart';
 import 'order_style_figures_panel.dart';
+import 'order_detail_add_garment.dart';
 import 'order_detail_edit_actions.dart';
+import 'order_item_detail_section.dart';
+import '../../data/local/entities/garment_type.dart';
 import 'order_detail_edit_helpers.dart';
+import 'order_composer_draft.dart';
+import 'order_composer_item_card.dart';
+import 'order_garment_summary.dart';
 import 'order_payment_rules.dart';
 
 /// Order details with collapsible sections (plan-12); data from local stream.
@@ -546,189 +552,236 @@ class OrderDetailScreen extends ConsumerWidget {
                   ],
                 ),
               ),
-              PrideCarvedSection(
-                title: l10n.ordersDetailSectionMeasurements,
-                subtitle: o.sourceMeasurementProfileLabel.isNotEmpty
-                    ? o.sourceMeasurementProfileLabel
-                    : null,
-                trailing: orderDetailEditTrailing(
-                  l10n: l10n,
-                  onPressed: canEdit
-                      ? () =>
-                          orderDetailEditMeasurements(context, ref, l10n, o)
-                      : null,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    if (o.sourceMeasurementProfileLabel.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: Text(
-                          l10n.ordersDetailMeasurementsFromProfile(
-                            o.sourceMeasurementProfileLabel,
-                          ),
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
-                                  ),
-                        ),
+              if (o.items.isNotEmpty) ...[
+                for (final item in o.sortedItems)
+                  OrderItemDetailSection(
+                    order: o,
+                    item: item,
+                    canEdit: canEdit,
+                    l10n: l10n,
+                    formatMoney: formatMoney,
+                  ),
+                if (canEdit && !o.hasWaistcoat) ...[
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: OutlinedButton.icon(
+                      onPressed: () => orderDetailAddGarment(
+                        context,
+                        ref,
+                        l10n,
+                        o,
+                        GarmentType.waistcoat,
                       ),
-                    snapshotAsync.when(
-                      data: (snap) {
-                        final items = snap?.items ?? [];
-                        if (items.isNotEmpty) {
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              for (var i = 0; i < items.length; i++)
-                                _OrderDetailMeasurementRow(
-                                  label: items[i].typeName,
-                                  value:
-                                      '${items[i].value.trim()}${MeasurementProfileFormatting.unitSuffix(items[i].unitCode)}',
-                                  altBackground: i.isOdd,
-                                ),
-                            ],
-                          );
-                        }
-                        return Text(
-                          o.measurementsSnapshot.trim().isEmpty
-                              ? l10n.ordersDetailSnapshotEmpty
-                              : o.measurementsSnapshot,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        );
-                      },
-                      loading: () => const LinearProgressIndicator(),
-                      error: (e, _) => Text('$e'),
+                      icon: const Icon(Icons.add),
+                      label: Text(l10n.ordersComposerAddWaistcoatCta),
                     ),
-                  ],
-                ),
-              ),
-              if (o.catalogDesignNameSnapshot.trim().isNotEmpty)
+                  ),
+                ],
+                if (canEdit && !o.hasPerahanTunban) ...[
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: OutlinedButton.icon(
+                      onPressed: () => orderDetailAddGarment(
+                        context,
+                        ref,
+                        l10n,
+                        o,
+                        GarmentType.perahanTunban,
+                      ),
+                      icon: const Icon(Icons.add),
+                      label: Text(l10n.ordersComposerAddPerahanTunbanCta),
+                    ),
+                  ),
+                ],
+              ] else ...[
                 PrideCarvedSection(
-                  title: l10n.orderDetailCatalogDesignTitle,
-                  subtitle: o.catalogDesignNameSnapshot.trim(),
+                  title: l10n.ordersDetailSectionMeasurements,
+                  subtitle: o.sourceMeasurementProfileLabel.isNotEmpty
+                      ? o.sourceMeasurementProfileLabel
+                      : null,
+                  trailing: orderDetailEditTrailing(
+                    l10n: l10n,
+                    onPressed: canEdit
+                        ? () =>
+                            orderDetailEditMeasurements(context, ref, l10n, o)
+                        : null,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (o.sourceMeasurementProfileLabel.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: Text(
+                            l10n.ordersDetailMeasurementsFromProfile(
+                              o.sourceMeasurementProfileLabel,
+                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
+                                ),
+                          ),
+                        ),
+                      snapshotAsync.when(
+                        data: (snap) {
+                          final items = snap?.items ?? [];
+                          if (items.isNotEmpty) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                for (var i = 0; i < items.length; i++)
+                                  _OrderDetailMeasurementRow(
+                                    label: items[i].typeName,
+                                    value:
+                                        '${items[i].value.trim()}${MeasurementProfileFormatting.unitSuffix(items[i].unitCode)}',
+                                    altBackground: i.isOdd,
+                                  ),
+                              ],
+                            );
+                          }
+                          return Text(
+                            o.measurementsSnapshot.trim().isEmpty
+                                ? l10n.ordersDetailSnapshotEmpty
+                                : o.measurementsSnapshot,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          );
+                        },
+                        loading: () => const LinearProgressIndicator(),
+                        error: (e, _) => Text('$e'),
+                      ),
+                    ],
+                  ),
+                ),
+                if (o.catalogDesignNameSnapshot.trim().isNotEmpty)
+                  PrideCarvedSection(
+                    title: l10n.orderDetailCatalogDesignTitle,
+                    subtitle: o.catalogDesignNameSnapshot.trim(),
+                    trailing: orderDetailEditTrailing(
+                      l10n: l10n,
+                      onPressed: canEdit
+                          ? () => orderDetailEditStyle(context, ref, l10n, o)
+                          : null,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: CatalogItemImage(
+                            imagePath: o.catalogImagePathSnapshot ??
+                                o.catalogThumbnailPathSnapshot,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: prideFriendlyTileFill(
+                              Theme.of(context).colorScheme,
+                              variant: 1,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .outlineVariant
+                                  .withValues(alpha: 0.55),
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsetsDirectional.fromSTEB(
+                              12,
+                              10,
+                              12,
+                              10,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Text(
+                                  o.catalogDesignNameSnapshot.trim(),
+                                  style:
+                                      Theme.of(context).textTheme.titleMedium,
+                                ),
+                                if (o.catalogDesignerShopNameSnapshot
+                                    .trim()
+                                    .isNotEmpty) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    o.catalogDesignerShopNameSnapshot.trim(),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurfaceVariant,
+                                        ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ),
+                        if (o.catalogItemInternalId != null) ...[
+                          const SizedBox(height: 8),
+                          Align(
+                            alignment: AlignmentDirectional.centerStart,
+                            child: TextButton(
+                              onPressed: () => context.push(
+                                '/app/catalog/${o.catalogItemInternalId}',
+                              ),
+                              child: Text(l10n.catalogDetailTitle),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                PrideCarvedSection(
+                  title: l10n.ordersDetailSectionStyle,
+                  subtitle: o.styleName.trim().isNotEmpty
+                      ? o.styleName.trim()
+                      : l10n.ordersComposerStyleRequired,
                   trailing: orderDetailEditTrailing(
                     l10n: l10n,
                     onPressed: canEdit
                         ? () => orderDetailEditStyle(context, ref, l10n, o)
                         : null,
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: CatalogItemImage(
-                          imagePath: o.catalogImagePathSnapshot ??
-                              o.catalogThumbnailPathSnapshot,
+                  child: (o.styleName.trim().isNotEmpty ||
+                          o.styleSummary.trim().isNotEmpty ||
+                          o.styleSelectionJson.trim().isNotEmpty)
+                      ? OrderStyleFiguresPanel(order: o)
+                      : Text(
+                          l10n.ordersDetailSnapshotEmpty,
+                          style: Theme.of(context).textTheme.bodyMedium,
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                      DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: prideFriendlyTileFill(
-                            Theme.of(context).colorScheme,
-                            variant: 1,
-                          ),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .outlineVariant
-                                .withValues(alpha: 0.55),
-                          ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsetsDirectional.fromSTEB(
-                            12,
-                            10,
-                            12,
-                            10,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Text(
-                                o.catalogDesignNameSnapshot.trim(),
-                                style:
-                                    Theme.of(context).textTheme.titleMedium,
-                              ),
-                              if (o.catalogDesignerShopNameSnapshot
-                                  .trim()
-                                  .isNotEmpty) ...[
-                                const SizedBox(height: 4),
-                                Text(
-                                  o.catalogDesignerShopNameSnapshot.trim(),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
-                                      ?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onSurfaceVariant,
-                                      ),
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
-                      ),
-                      if (o.catalogItemInternalId != null) ...[
-                        const SizedBox(height: 8),
-                        Align(
-                          alignment: AlignmentDirectional.centerStart,
-                          child: TextButton(
-                            onPressed: () => context.push(
-                              '/app/catalog/${o.catalogItemInternalId}',
-                            ),
-                            child: Text(l10n.catalogDetailTitle),
-                          ),
-                        ),
-                      ],
-                    ],
+                ),
+                PrideCarvedSection(
+                  title: l10n.orderDetailFabricTitle,
+                  subtitle: o.hasCustomerFabric
+                      ? orderCustomerFabricSummaryLine(l10n, o)
+                      : l10n.ordersComposerFabricUnset,
+                  trailing: orderDetailEditTrailing(
+                    l10n: l10n,
+                    onPressed: canEdit
+                        ? () => orderDetailEditFabric(context, ref, l10n, o)
+                        : null,
                   ),
+                  child: o.hasCustomerFabric
+                      ? OrderCustomerFabricPanel(order: o)
+                      : Text(
+                          l10n.ordersDetailSnapshotEmpty,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
                 ),
-              PrideCarvedSection(
-                title: l10n.ordersDetailSectionStyle,
-                subtitle: o.styleName.trim().isNotEmpty
-                    ? o.styleName.trim()
-                    : l10n.ordersComposerStyleRequired,
-                trailing: orderDetailEditTrailing(
-                  l10n: l10n,
-                  onPressed: canEdit
-                      ? () => orderDetailEditStyle(context, ref, l10n, o)
-                      : null,
-                ),
-                child: (o.styleName.trim().isNotEmpty ||
-                        o.styleSummary.trim().isNotEmpty ||
-                        o.styleSelectionJson.trim().isNotEmpty)
-                    ? OrderStyleFiguresPanel(order: o)
-                    : Text(
-                        l10n.ordersDetailSnapshotEmpty,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-              ),
-              PrideCarvedSection(
-                title: l10n.orderDetailFabricTitle,
-                subtitle: o.hasCustomerFabric
-                    ? orderCustomerFabricSummaryLine(l10n, o)
-                    : l10n.ordersComposerFabricUnset,
-                trailing: orderDetailEditTrailing(
-                  l10n: l10n,
-                  onPressed: canEdit
-                      ? () => orderDetailEditFabric(context, ref, l10n, o)
-                      : null,
-                ),
-                child: o.hasCustomerFabric
-                    ? OrderCustomerFabricPanel(order: o)
-                    : Text(
-                        l10n.ordersDetailSnapshotEmpty,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-              ),
+              ],
               PrideCarvedSection(
                 title: l10n.ordersComposerDeliveryDateTitle,
                 trailing: orderDetailEditTrailing(
@@ -810,6 +863,7 @@ class OrderDetailScreen extends ConsumerWidget {
                   remainingMinor: remainingMinor,
                   l10n: l10n,
                   formatMoney: formatMoney,
+                  itemBreakdown: paymentBreakdownFromOrder(o),
                 ),
               ),
               PrideCarvedSection(
@@ -985,6 +1039,7 @@ class _TotalsCard extends StatelessWidget {
     required this.remainingMinor,
     required this.l10n,
     required this.formatMoney,
+    this.itemBreakdown = const [],
   });
 
   final int totalMinor;
@@ -992,6 +1047,7 @@ class _TotalsCard extends StatelessWidget {
   final int remainingMinor;
   final AppLocalizations l10n;
   final String Function(int minor) formatMoney;
+  final List<OrderPaymentBreakdownLine> itemBreakdown;
 
   @override
   Widget build(BuildContext context) {
@@ -1007,8 +1063,46 @@ class _TotalsCard extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (itemBreakdown.length > 1) ...[
+              Text(
+                l10n.ordersComposerItemBreakdownTitle,
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+              const SizedBox(height: 6),
+              for (final line in itemBreakdown)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          composerGarmentLabel(l10n, line.garmentType),
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ),
+                      Text(
+                        formatMoney(line.amountMinor),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
+              const SizedBox(height: 10),
+              Divider(
+                height: 1,
+                color: scheme.outlineVariant.withValues(alpha: 0.5),
+              ),
+              const SizedBox(height: 10),
+            ],
+            Row(
+              children: [
             Expanded(
               child: _kv(
                 l10n.paymentTotal,
@@ -1030,6 +1124,8 @@ class _TotalsCard extends StatelessWidget {
                 context,
                 emphasize: remaining > 0,
               ),
+            ),
+              ],
             ),
           ],
         ),

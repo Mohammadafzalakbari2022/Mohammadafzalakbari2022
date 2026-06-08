@@ -7,6 +7,7 @@ import 'package:pride_v3/core/formatting/display_order_no_format.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../data/local/order_summary.dart';
+import 'order_garment_summary.dart';
 import 'order_payment_rules.dart';
 import 'order_status_label.dart';
 
@@ -91,6 +92,13 @@ class OrderListTile extends StatelessWidget {
                       background: scheme.primaryContainer,
                       foreground: scheme.onPrimaryContainer,
                     ),
+                    if (order.items.length > 1 ||
+                        order.garmentSummaryKey.contains('+'))
+                      _OrderListChip(
+                        label: orderGarmentSummaryLabel(l10n, order),
+                        background: scheme.secondaryContainer,
+                        foreground: scheme.onSecondaryContainer,
+                      ),
                     if (isUnpaid)
                       _OrderListChip(
                         label: l10n.ordersRemainingChip(

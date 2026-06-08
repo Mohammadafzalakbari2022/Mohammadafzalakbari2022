@@ -1641,6 +1641,31 @@ class AppLocalizationsFa extends AppLocalizations {
   String get ordersComposerAddPerahanTunbanCta => 'افزودن پیراهن‌تنبان';
 
   @override
+  String get ordersGarmentSummaryBoth => 'پیراهن/تنبان + واسکت';
+
+  @override
+  String ordersDetailGarmentSectionTitle(String garment) {
+    return '$garment';
+  }
+
+  @override
+  String ordersDetailAddGarmentTitle(String garment) {
+    return 'افزودن $garment';
+  }
+
+  @override
+  String get ordersDetailAddGarmentSubtitle =>
+      'قیمت قلم را وارد کنید. پس از ذخیره می‌توانید اندازه و استایل را اضافه کنید.';
+
+  @override
+  String ordersDetailAddGarmentSuccess(String garment) {
+    return '$garment به این سفارش اضافه شد.';
+  }
+
+  @override
+  String get ordersDetailAddGarmentDuplicate => 'این لباس از قبل در سفارش است.';
+
+  @override
   String get ordersComposerNoItemsError => 'حداقل یک قلم سفارش را انتخاب کنید';
 
   @override

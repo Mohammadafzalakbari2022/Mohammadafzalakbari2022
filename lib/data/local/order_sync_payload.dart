@@ -1,6 +1,5 @@
 import 'entities/garment_type.dart';
-import 'entities/order_entity.dart';
-import 'entities/order_item_entity.dart';
+import 'entities/order_status.dart';
 import 'order_item_input.dart';
 import 'order_item_summary.dart';
 import 'order_summary.dart';
@@ -8,14 +7,14 @@ import 'sync_pull_payload.dart';
 
 /// Builds sync `data` map for an order upsert with dual-write flat + `items[]`.
 Map<String, dynamic> buildOrderSyncPayloadData({
-  required OrderEntity order,
+  required OrderSummary order,
   required List<OrderItemSummary> items,
   Map<String, dynamic> extra = const {},
 }) {
   final primary = primaryPerahanItemSummary(items);
   final flatSource = primary != null
       ? _flatFromItemSummary(primary)
-      : _flatFromOrderEntity(order);
+      : _flatFromOrderSummary(order);
 
   final payload = <String, dynamic>{
     'customer_internal_id': order.customerInternalId,
@@ -54,17 +53,16 @@ Map<String, dynamic> buildOrderSyncPayloadData({
     if (flatSource.fabricColorPresetInternalId != null &&
         flatSource.fabricColorPresetInternalId!.trim().isNotEmpty)
       'fabric_color_preset_internal_id': flatSource.fabricColorPresetInternalId,
-    if (order.customerNameSnapshot.trim().isNotEmpty)
-      'customer_snapshot_name': order.customerNameSnapshot.trim(),
-    if (order.customerPhoneSnapshot.trim().isNotEmpty)
-      'customer_snapshot_phone': order.customerPhoneSnapshot.trim(),
+    if (order.customerName.trim().isNotEmpty)
+      'customer_snapshot_name': order.customerName.trim(),
+    if (order.customerPhone != null && order.customerPhone!.trim().isNotEmpty)
+      'customer_snapshot_phone': order.customerPhone!.trim(),
     if (order.internalNotes.trim().isNotEmpty)
       'internal_notes': order.internalNotes.trim(),
-    'status_index': order.statusIndex,
+    'status_index': order.status.code,
     'display_order_no': order.displayOrderNo,
     'updated_at': order.updatedAt.toUtc().toIso8601String(),
-    if (order.createdAt != null)
-      'created_at': order.createdAt!.toUtc().toIso8601String(),
+    'created_at': order.createdAt.toUtc().toIso8601String(),
     ...extra,
   };
 
@@ -232,35 +230,6 @@ OrderItemCreateInput orderItemCreateInputFromSyncMap(
   );
 }
 
-OrderItemCreateInput orderItemCreateInputFromLegacyFlatOrder({
-  required OrderEntity order,
-  String? internalId,
-}) {
-  return OrderItemCreateInput(
-    internalId: internalId,
-    garmentType: GarmentType.perahanTunban,
-    priceAmountMinor: order.totalAmountMinor,
-    sortOrder: GarmentType.perahanTunban.defaultSortOrder,
-    measurementsSnapshot: order.measurementsSnapshot,
-    sourceMeasurementProfileId: order.sourceMeasurementProfileId,
-    sourceMeasurementProfileLabel: order.sourceMeasurementProfileLabel,
-    styleName: order.styleName,
-    styleNameInternalId: order.styleNameInternalId,
-    styleSelectionJson: order.styleSelectionJson,
-    styleSummary: order.styleSummary,
-    catalogItemInternalId: order.catalogItemInternalId,
-    catalogDesignNameSnapshot: order.catalogDesignNameSnapshot,
-    catalogDesignerShopNameSnapshot: order.catalogDesignerShopNameSnapshot,
-    catalogImagePathSnapshot: order.catalogImagePathSnapshot,
-    catalogThumbnailPathSnapshot: order.catalogThumbnailPathSnapshot,
-    fabricNameSnapshot: order.fabricNameSnapshot,
-    fabricColorSnapshot: order.fabricColorSnapshot,
-    fabricIdSnapshot: order.fabricIdSnapshot,
-    fabricNamePresetInternalId: order.fabricNamePresetInternalId,
-    fabricColorPresetInternalId: order.fabricColorPresetInternalId,
-  );
-}
-
 OrderItemCreateInput orderItemCreateInputFromLegacyFlatSummary({
   required OrderSummary order,
   String? internalId,
@@ -342,7 +311,7 @@ OrderItemCreateInput orderItemCreateInputFromLegacyFlatSummary({
   String fabricIdSnapshot,
   String? fabricNamePresetInternalId,
   String? fabricColorPresetInternalId,
-}) _flatFromOrderEntity(OrderEntity order) {
+}) _flatFromOrderSummary(OrderSummary order) {
   return (
     measurementsSnapshot: order.measurementsSnapshot,
     sourceMeasurementProfileId: order.sourceMeasurementProfileId,

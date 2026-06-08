@@ -1,4 +1,5 @@
 // GENERATED from waistcoat CSV manifest
+import '../entities/garment_type.dart';
 import '../seed_data.dart';
 import 'style_figure_image_ref.dart';
 
@@ -73,3 +74,22 @@ const bundledWaistcoatFigureTemplates = <BundledWaistcoatFigureTemplate>[
   BundledWaistcoatFigureTemplate(internalId: DevSeedIds.waistcoatFigure46, partInternalId: DevSeedIds.waistcoatPart08, folderKey: '08_بخش‌های_اضافی', fileBase: '46_آستر', displayName: 'آستر', sortOrder: 460),
   BundledWaistcoatFigureTemplate(internalId: DevSeedIds.waistcoatFigure47, partInternalId: DevSeedIds.waistcoatPart08, folderKey: '08_بخش‌های_اضافی', fileBase: '47_لایی_چسپ', displayName: 'لایی چسپ', sortOrder: 470),
 ];
+
+bool bundledWaistcoatFigureNeedsRepair({
+  required String shopId,
+  required BundledWaistcoatFigureTemplate template,
+  required String existingShopId,
+  required String existingImageRef,
+  required String existingPartInternalId,
+  required int existingSortOrder,
+  required int existingGarmentTypeIndex,
+  required bool isDeleted,
+}) {
+  if (isDeleted) return true;
+  if (existingShopId != shopId) return true;
+  if (existingGarmentTypeIndex != GarmentType.waistcoat.code) return true;
+  if (existingImageRef.trim() != template.imageRef) return true;
+  if (existingPartInternalId != template.partInternalId) return true;
+  if (existingSortOrder != template.sortOrder) return true;
+  return false;
+}

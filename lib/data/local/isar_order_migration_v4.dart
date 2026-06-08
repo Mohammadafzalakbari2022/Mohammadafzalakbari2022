@@ -6,7 +6,7 @@ import 'entities/order_entity.dart';
 import 'entities/order_item_entity.dart';
 import 'entities/order_measurement_snapshot_entity.dart';
 import 'entities/order_style_snapshot_entity.dart';
-import 'order_item_input.dart';
+import 'order_item_input_io.dart';
 
 /// One-time migration: flat orders → [OrderItemEntity] rows (Phase 2).
 abstract final class IsarOrderMigrationV4 {

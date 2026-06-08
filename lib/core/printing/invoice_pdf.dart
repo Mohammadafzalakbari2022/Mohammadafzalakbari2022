@@ -4,6 +4,8 @@ import 'package:image/image.dart' as img;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+import '../../data/local/entities/garment_type.dart';
+import '../../data/local/order_item_summary.dart';
 import '../../data/local/order_measurement_snapshot_view.dart';
 import '../../data/local/order_style_snapshot_view.dart';
 import '../../data/local/order_summary.dart';
@@ -36,6 +38,23 @@ final PdfColor kInvoicePdfBorder = PdfColors.grey400;
 const double kInvoicePdfSectionGap = 4;
 const double kInvoicePdfSectionRadius = 4;
 
+/// One garment block for multi-item PDF invoices (Phase 7+).
+class InvoicePdfGarmentInput {
+  const InvoicePdfGarmentInput({
+    required this.garmentLabel,
+    required this.item,
+    this.measurementSnap,
+    this.styleSnap,
+    this.catalogFigures = const [],
+  });
+
+  final String garmentLabel;
+  final OrderItemSummary item;
+  final OrderMeasurementSnapshotView? measurementSnap;
+  final OrderStyleSnapshotView? styleSnap;
+  final List<StyleFigureSummary> catalogFigures;
+}
+
 /// Builds an A4 PDF invoice/receipt (RTL when [textDirection] is RTL).
 Future<Uint8List> buildOrderInvoicePdf({
   required AppLocalizations l10n,
@@ -51,6 +70,7 @@ Future<Uint8List> buildOrderInvoicePdf({
   OrderMeasurementSnapshotView? measurementSnap,
   OrderStyleSnapshotView? styleSnap,
   List<StyleFigureSummary> catalogFigures = const [],
+  List<InvoicePdfGarmentInput> garmentInputs = const [],
 }) async {
   final fonts = await InvoicePdfFonts.load();
   final branding = ReceiptBranding.fromShop(
@@ -127,6 +147,7 @@ Future<Uint8List> buildOrderInvoicePdf({
         ),
       ),
       build: (context) {
+        final multiGarment = garmentInputs.length > 1;
         final bodySections = <pw.Widget>[
           _buildCustomerSection(
             fonts: fonts,
@@ -134,36 +155,45 @@ Future<Uint8List> buildOrderInvoicePdf({
             order: order,
             textDirection: textDirection,
           ),
-          if (measurementRows.isNotEmpty)
-            _buildMeasurementsSection(
+          if (multiGarment)
+            ..._buildGarmentPdfSections(
               fonts: fonts,
               l10n: l10n,
-              rows: measurementRows,
-              profileLabel: order.sourceMeasurementProfileLabel.trim(),
+              inputs: garmentInputs,
               textDirection: textDirection,
-            ),
-          if (_hasStyleTextContent(order: order, styleDisplay: styleDisplay))
-            _buildStyleSection(
-              fonts: fonts,
-              l10n: l10n,
-              order: order,
-              styleText: styleText,
-              textDirection: textDirection,
-            ),
-          if (order.hasCustomerFabric)
-            _buildFabricSection(
-              fonts: fonts,
-              l10n: l10n,
-              order: order,
-              textDirection: textDirection,
-            ),
-          if (_hasCatalogTextContent(order: order))
-            _buildCatalogTextSection(
-              fonts: fonts,
-              l10n: l10n,
-              order: order,
-              textDirection: textDirection,
-            ),
+            )
+          else ...[
+            if (measurementRows.isNotEmpty)
+              _buildMeasurementsSection(
+                fonts: fonts,
+                l10n: l10n,
+                rows: measurementRows,
+                profileLabel: order.sourceMeasurementProfileLabel.trim(),
+                textDirection: textDirection,
+              ),
+            if (_hasStyleTextContent(order: order, styleDisplay: styleDisplay))
+              _buildStyleSection(
+                fonts: fonts,
+                l10n: l10n,
+                styleName: order.styleName,
+                styleText: styleText,
+                textDirection: textDirection,
+              ),
+            if (order.hasCustomerFabric)
+              _buildFabricSection(
+                fonts: fonts,
+                l10n: l10n,
+                order: order,
+                textDirection: textDirection,
+              ),
+            if (_hasCatalogTextContent(order: order))
+              _buildCatalogTextSection(
+                fonts: fonts,
+                l10n: l10n,
+                order: order,
+                textDirection: textDirection,
+              ),
+          ],
           if (order.internalNotes.trim().isNotEmpty)
             _sectionCard(
               fonts: fonts,
@@ -184,6 +214,16 @@ Future<Uint8List> buildOrderInvoicePdf({
             payments: payments,
             formatPaymentDate: formatPaymentDate,
             textDirection: textDirection,
+            itemLines: multiGarment
+                ? garmentInputs
+                    .map(
+                      (g) => (
+                        g.garmentLabel,
+                        reportFormatMoney(l10n, g.item.priceAmountMinor),
+                      ),
+                    )
+                    .toList()
+                : const [],
           ),
         ];
 
@@ -254,6 +294,104 @@ bool _hasStyleTextContent({
 bool _hasCatalogTextContent({required OrderSummary order}) {
   return order.catalogDesignNameSnapshot.trim().isNotEmpty ||
       order.catalogDesignerShopNameSnapshot.trim().isNotEmpty;
+}
+
+bool _itemHasFabric(OrderItemSummary item) =>
+    item.fabricNameSnapshot.trim().isNotEmpty ||
+    item.fabricColorSnapshot.trim().isNotEmpty ||
+    item.fabricIdSnapshot.trim().isNotEmpty;
+
+bool _itemHasCatalogText(OrderItemSummary item) =>
+    item.catalogDesignNameSnapshot.trim().isNotEmpty ||
+    item.catalogDesignerShopNameSnapshot.trim().isNotEmpty;
+
+List<pw.Widget> _buildGarmentPdfSections({
+  required InvoicePdfFontSet fonts,
+  required AppLocalizations l10n,
+  required List<InvoicePdfGarmentInput> inputs,
+  required pw.TextDirection textDirection,
+}) {
+  final sections = <pw.Widget>[];
+  for (final g in inputs) {
+    final styleDisplay = formatOrderShapeSelectionDisplay(
+      snapshot: g.styleSnap,
+      styleName: g.item.styleName,
+      styleSelectionJson: g.item.styleSelectionJson,
+      styleSummary: g.item.styleSummary,
+      catalogFigures: g.catalogFigures,
+      labels: orderShapeFormatLabels(l10n),
+    );
+    final styleText = styleDisplay.detailedText.trim().isNotEmpty
+        ? styleDisplay.detailedText.trim()
+        : styleDisplay.summaryFallbackText.trim();
+    final measurementRows = invoiceMeasurementRowsForItem(
+      l10n: l10n,
+      item: g.item,
+      measurementSnap: g.measurementSnap,
+    );
+
+    sections.add(
+      _sectionCard(
+        fonts: fonts,
+        title: g.garmentLabel,
+        child: _labelValue(
+          fonts,
+          l10n.ordersComposerItemPriceLabel,
+          reportFormatMoney(l10n, g.item.priceAmountMinor),
+          textDirection: textDirection,
+        ),
+      ),
+    );
+    if (measurementRows.isNotEmpty) {
+      sections.add(
+        _buildMeasurementsSection(
+          fonts: fonts,
+          l10n: l10n,
+          rows: measurementRows,
+          profileLabel: g.item.sourceMeasurementProfileLabel.trim(),
+          textDirection: textDirection,
+          titleOverride: '${g.garmentLabel} — ${l10n.receiptMeasurementsLabel}',
+        ),
+      );
+    }
+    if (g.item.styleName.trim().isNotEmpty ||
+        g.item.styleSummary.trim().isNotEmpty ||
+        !styleDisplay.isEmpty) {
+      sections.add(
+        _buildStyleSection(
+          fonts: fonts,
+          l10n: l10n,
+          styleName: g.item.styleName,
+          styleText: styleText,
+          textDirection: textDirection,
+          titleOverride: '${g.garmentLabel} — ${l10n.invoiceDesignSectionTitle}',
+        ),
+      );
+    }
+    if (_itemHasFabric(g.item)) {
+      sections.add(
+        _buildFabricSectionForItem(
+          fonts: fonts,
+          l10n: l10n,
+          item: g.item,
+          textDirection: textDirection,
+          titleOverride: '${g.garmentLabel} — ${l10n.receiptFabricLabel}',
+        ),
+      );
+    }
+    if (_itemHasCatalogText(g.item)) {
+      sections.add(
+        _buildCatalogTextSectionForItem(
+          fonts: fonts,
+          l10n: l10n,
+          item: g.item,
+          textDirection: textDirection,
+          titleOverride: '${g.garmentLabel} — ${l10n.invoiceCatalogDesignLabel}',
+        ),
+      );
+    }
+  }
+  return sections;
 }
 
 pw.Widget _buildPdfHeader({
@@ -528,10 +666,11 @@ pw.Widget _buildMeasurementsSection({
   required List<InvoiceMeasurementRow> rows,
   required String profileLabel,
   required pw.TextDirection textDirection,
+  String? titleOverride,
 }) {
   return _sectionCard(
     fonts: fonts,
-    title: l10n.receiptMeasurementsLabel,
+    title: titleOverride ?? l10n.receiptMeasurementsLabel,
     child: pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
@@ -568,21 +707,22 @@ pw.Widget _buildMeasurementsSection({
 pw.Widget _buildStyleSection({
   required InvoicePdfFontSet fonts,
   required AppLocalizations l10n,
-  required OrderSummary order,
+  required String styleName,
   required String styleText,
   required pw.TextDirection textDirection,
+  String? titleOverride,
 }) {
   return _sectionCard(
     fonts: fonts,
-    title: l10n.invoiceDesignSectionTitle,
+    title: titleOverride ?? l10n.invoiceDesignSectionTitle,
     child: pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        if (order.styleName.trim().isNotEmpty) ...[
+        if (styleName.trim().isNotEmpty) ...[
           _labelValue(
             fonts,
             l10n.invoiceStyleNameLabel,
-            order.styleName.trim(),
+            styleName.trim(),
             textDirection: textDirection,
           ),
           pw.SizedBox(height: 3),
@@ -603,34 +743,58 @@ pw.Widget _buildFabricSection({
   required OrderSummary order,
   required pw.TextDirection textDirection,
 }) {
+  return _buildFabricSectionForItem(
+    fonts: fonts,
+    l10n: l10n,
+    item: OrderItemSummary(
+      internalId: '',
+      orderInternalId: order.internalId,
+      garmentType: GarmentType.perahanTunban,
+      fabricNameSnapshot: order.fabricNameSnapshot,
+      fabricColorSnapshot: order.fabricColorSnapshot,
+      fabricIdSnapshot: order.fabricIdSnapshot,
+      createdAt: order.createdAt,
+      updatedAt: order.updatedAt,
+    ),
+    textDirection: textDirection,
+  );
+}
+
+pw.Widget _buildFabricSectionForItem({
+  required InvoicePdfFontSet fonts,
+  required AppLocalizations l10n,
+  required OrderItemSummary item,
+  required pw.TextDirection textDirection,
+  String? titleOverride,
+}) {
   return _sectionCard(
     fonts: fonts,
-    title: l10n.receiptFabricLabel,
+    title: titleOverride ?? l10n.receiptFabricLabel,
     child: pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        if (order.fabricNameSnapshot.trim().isNotEmpty)
+        if (item.fabricNameSnapshot.trim().isNotEmpty)
           _labelValue(
             fonts,
             l10n.receiptFabricNameLabel,
-            order.fabricNameSnapshot.trim(),
+            item.fabricNameSnapshot.trim(),
             textDirection: textDirection,
           ),
-        if (order.fabricColorSnapshot.trim().isNotEmpty) ...[
+        if (item.fabricColorSnapshot.trim().isNotEmpty) ...[
           pw.SizedBox(height: 2),
           _labelValue(
             fonts,
             l10n.receiptFabricColorLabel,
-            order.fabricColorSnapshot.trim(),
+            item.fabricColorSnapshot.trim(),
             textDirection: textDirection,
           ),
         ],
-        if (order.fabricIdSnapshot.trim().isNotEmpty) ...[
+        if (item.fabricIdSnapshot.trim().isNotEmpty) ...[
           pw.SizedBox(height: 2),
           _labelValue(
             fonts,
             l10n.receiptFabricIdLabel,
-            order.fabricIdSnapshot.trim(),
+            item.fabricIdSnapshot.trim(),
             textDirection: textDirection,
           ),
         ],
@@ -645,25 +809,48 @@ pw.Widget _buildCatalogTextSection({
   required OrderSummary order,
   required pw.TextDirection textDirection,
 }) {
+  return _buildCatalogTextSectionForItem(
+    fonts: fonts,
+    l10n: l10n,
+    item: OrderItemSummary(
+      internalId: '',
+      orderInternalId: order.internalId,
+      garmentType: GarmentType.perahanTunban,
+      catalogDesignNameSnapshot: order.catalogDesignNameSnapshot,
+      catalogDesignerShopNameSnapshot: order.catalogDesignerShopNameSnapshot,
+      createdAt: order.createdAt,
+      updatedAt: order.updatedAt,
+    ),
+    textDirection: textDirection,
+  );
+}
+
+pw.Widget _buildCatalogTextSectionForItem({
+  required InvoicePdfFontSet fonts,
+  required AppLocalizations l10n,
+  required OrderItemSummary item,
+  required pw.TextDirection textDirection,
+  String? titleOverride,
+}) {
   return _sectionCard(
     fonts: fonts,
-    title: l10n.invoiceCatalogDesignLabel,
+    title: titleOverride ?? l10n.invoiceCatalogDesignLabel,
     child: pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        if (order.catalogDesignNameSnapshot.trim().isNotEmpty)
+        if (item.catalogDesignNameSnapshot.trim().isNotEmpty)
           _bodyText(
             fonts,
-            order.catalogDesignNameSnapshot.trim(),
+            item.catalogDesignNameSnapshot.trim(),
             textDirection: textDirection,
             bold: true,
           ),
-        if (order.catalogDesignerShopNameSnapshot.trim().isNotEmpty) ...[
+        if (item.catalogDesignerShopNameSnapshot.trim().isNotEmpty) ...[
           pw.SizedBox(height: 2),
           _labelValue(
             fonts,
             l10n.invoiceCatalogDesignerLabel,
-            order.catalogDesignerShopNameSnapshot.trim(),
+            item.catalogDesignerShopNameSnapshot.trim(),
             textDirection: textDirection,
           ),
         ],
@@ -774,6 +961,7 @@ pw.Widget _buildPaymentSummary({
   required List<PaymentSummary> payments,
   String Function(DateTime dateTime)? formatPaymentDate,
   required pw.TextDirection textDirection,
+  List<(String label, String amount)> itemLines = const [],
 }) {
   return pw.Container(
     decoration: pw.BoxDecoration(
@@ -808,6 +996,19 @@ pw.Widget _buildPaymentSummary({
           color: kInvoicePdfSurface,
           child: pw.Column(
             children: [
+              if (itemLines.isNotEmpty) ...[
+                for (final line in itemLines) ...[
+                  _moneyRowTile(
+                    fonts,
+                    line.$1,
+                    line.$2,
+                    textDirection: textDirection,
+                  ),
+                  pw.SizedBox(height: 2),
+                ],
+                pw.Divider(color: kInvoicePdfBorder, height: 0.5),
+                pw.SizedBox(height: 3),
+              ],
               _moneyRowTile(
                 fonts,
                 l10n.receiptTotalLabel,

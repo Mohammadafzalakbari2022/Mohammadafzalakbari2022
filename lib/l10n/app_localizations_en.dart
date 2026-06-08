@@ -1650,6 +1650,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ordersComposerAddPerahanTunbanCta => 'Add Perahan/Tunban';
 
   @override
+  String get ordersGarmentSummaryBoth => 'Perahan/Tunban + Waistcoat';
+
+  @override
+  String ordersDetailGarmentSectionTitle(String garment) {
+    return '$garment';
+  }
+
+  @override
+  String ordersDetailAddGarmentTitle(String garment) {
+    return 'Add $garment';
+  }
+
+  @override
+  String get ordersDetailAddGarmentSubtitle =>
+      'Enter the item price. You can add measurements and style after saving.';
+
+  @override
+  String ordersDetailAddGarmentSuccess(String garment) {
+    return '$garment added to this order.';
+  }
+
+  @override
+  String get ordersDetailAddGarmentDuplicate =>
+      'This garment is already on the order.';
+
+  @override
   String get ordersComposerNoItemsError => 'Select at least one order item';
 
   @override
