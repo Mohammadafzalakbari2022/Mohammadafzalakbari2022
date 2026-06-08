@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pride_v3/core/fabric/generate_fabric_id.dart';
+import 'package:pride_v3/core/widgets/pride_modal_bottom_sheet.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../data/local/fabric_preset_summary.dart';
@@ -35,11 +36,8 @@ Future<OrderComposerFabricResult?> showOrderComposerFabricSheet({
   String? initialNamePresetId,
   String? initialColorPresetId,
 }) {
-  return showModalBottomSheet<OrderComposerFabricResult?>(
+  return showPrideModalBottomSheet<OrderComposerFabricResult?>(
     context: context,
-    isScrollControlled: true,
-    useSafeArea: true,
-    showDragHandle: true,
     builder: (ctx) => _OrderComposerFabricSheet(
       initialName: initialName,
       initialColor: initialColor,
@@ -201,9 +199,9 @@ class _OrderComposerFabricSheetState
       padding: EdgeInsets.only(bottom: viewInsets),
       child: DraggableScrollableSheet(
         expand: false,
-        initialChildSize: 0.55,
-        minChildSize: 0.4,
-        maxChildSize: 0.92,
+        initialChildSize: kPrideSheetInitialChildSize,
+        minChildSize: kPrideSheetMinChildSize,
+        maxChildSize: kPrideSheetMaxChildSize,
         builder: (context, scrollController) {
           return Material(
             child: Column(

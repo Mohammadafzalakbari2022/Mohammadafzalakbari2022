@@ -139,8 +139,16 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'new',
                     parentNavigatorKey: appRootNavigatorKey,
-                    builder: (context, state) =>
-                        const OrderComposerScreen(),
+                    builder: (context, state) {
+                      final customerId =
+                          state.uri.queryParameters['customerId'];
+                      final referenceOrderId =
+                          state.uri.queryParameters['referenceOrderId'];
+                      return OrderComposerScreen(
+                        initialCustomerId: customerId,
+                        initialReferenceOrderId: referenceOrderId,
+                      );
+                    },
                   ),
                   GoRoute(
                     path: ':orderId',

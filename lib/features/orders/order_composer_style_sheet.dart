@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pride_v3/core/widgets/pride_modal_bottom_sheet.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../data/local/style/style_order_selection.dart';
@@ -48,10 +49,8 @@ Future<OrderComposerStyleResult?> showOrderComposerStyleSheet({
   String? initialCatalogImagePath,
   String? initialCatalogThumbnailPath,
 }) {
-  return showModalBottomSheet<OrderComposerStyleResult>(
+  return showPrideModalBottomSheet<OrderComposerStyleResult>(
     context: context,
-    isScrollControlled: true,
-    useSafeArea: true,
     builder: (ctx) => _OrderComposerStyleSheet(
       initialMainStyle: initialMainStyle,
       initialStyleNameInternalId: initialStyleNameInternalId,
@@ -262,9 +261,9 @@ class _OrderComposerStyleSheetState
 
     return DraggableScrollableSheet(
       expand: false,
-      initialChildSize: 0.92,
-      minChildSize: 0.5,
-      maxChildSize: 0.96,
+      initialChildSize: kPrideSheetInitialChildSize,
+      minChildSize: kPrideSheetMinChildSize,
+      maxChildSize: kPrideSheetMaxChildSize,
       builder: (context, scrollController) {
         final keyboard = MediaQuery.viewInsetsOf(context).bottom;
         return Material(

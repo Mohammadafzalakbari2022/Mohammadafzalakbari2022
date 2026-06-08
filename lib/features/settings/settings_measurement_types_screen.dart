@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -115,14 +116,39 @@ Future<void> _showNameDialog({
   if (ok == true && text.isNotEmpty) onSubmit(text);
 }
 
-class _MeasurementUnitPreferenceCard extends ConsumerWidget {
+class _MeasurementUnitPreferenceCard extends ConsumerStatefulWidget {
   const _MeasurementUnitPreferenceCard();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_MeasurementUnitPreferenceCard> createState() =>
+      _MeasurementUnitPreferenceCardState();
+}
+
+class _MeasurementUnitPreferenceCardState
+    extends ConsumerState<_MeasurementUnitPreferenceCard> {
+  late int _selectedUnit;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedUnit = ref.read(defaultMeasurementUnitProvider);
+  }
+
+  Future<void> _persistUnit(int code) async {
+    ref.read(defaultMeasurementUnitProvider.notifier).state = code;
+    await persistMeasurementUnit(ref.read(sharedPreferencesProvider), code);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final unit = ref.watch(defaultMeasurementUnitProvider);
     final theme = Theme.of(context);
+
+    ref.listen<int>(defaultMeasurementUnitProvider, (previous, next) {
+      if (next != _selectedUnit && mounted) {
+        setState(() => _selectedUnit = next);
+      }
+    });
 
     return Card(
       margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
@@ -154,14 +180,15 @@ class _MeasurementUnitPreferenceCard extends ConsumerWidget {
                   label: Text(l10n.measurementUnitInch),
                 ),
               ],
-              selected: {unit},
-              onSelectionChanged: (selection) async {
+              selected: {_selectedUnit},
+              onSelectionChanged: (selection) {
                 final code = selection.first;
-                ref.read(defaultMeasurementUnitProvider.notifier).state = code;
-                await persistMeasurementUnit(
-                  ref.read(sharedPreferencesProvider),
-                  code,
-                );
+                if (code == _selectedUnit) return;
+                setState(() => _selectedUnit = code);
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (!mounted) return;
+                  unawaited(_persistUnit(code));
+                });
               },
             ),
           ],

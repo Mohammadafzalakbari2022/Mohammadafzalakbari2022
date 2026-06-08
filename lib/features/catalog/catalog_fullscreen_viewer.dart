@@ -2,51 +2,77 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
-import '../../auth/auth_providers.dart';
-import '../../data/providers/local_data_providers.dart';
+import '../../data/local/catalog/catalog_image_ref.dart';
+import '../../data/local/catalog_item_summary.dart';
 
-/// Full-screen catalog image with pinch-zoom.
-class CatalogFullscreenViewer extends ConsumerStatefulWidget {
-  const CatalogFullscreenViewer({super.key, required this.itemId});
+/// Full-screen catalog gallery with pinch/double-tap zoom and swipe navigation.
+class CatalogFullscreenViewer extends StatefulWidget {
+  const CatalogFullscreenViewer({
+    super.key,
+    required this.items,
+    required this.initialIndex,
+  });
 
-  final String itemId;
+  final List<CatalogItemSummary> items;
+  final int initialIndex;
 
-  static Future<void> open(BuildContext context, String itemId) {
+  static Future<void> openGallery(
+    BuildContext context, {
+    required List<CatalogItemSummary> items,
+    required int initialIndex,
+  }) {
+    if (items.isEmpty) return Future.value();
+    final index = initialIndex.clamp(0, items.length - 1);
     return Navigator.of(context).push<void>(
       MaterialPageRoute<void>(
         fullscreenDialog: true,
-        builder: (_) => CatalogFullscreenViewer(itemId: itemId),
+        builder: (_) => CatalogFullscreenViewer(
+          items: items,
+          initialIndex: index,
+        ),
       ),
     );
   }
 
   @override
-  ConsumerState<CatalogFullscreenViewer> createState() =>
+  State<CatalogFullscreenViewer> createState() =>
       _CatalogFullscreenViewerState();
 }
 
-class _CatalogFullscreenViewerState extends ConsumerState<CatalogFullscreenViewer> {
-  final _transformController = TransformationController();
+class _CatalogFullscreenViewerState extends State<CatalogFullscreenViewer> {
+  late final PageController _pageController;
+  late int _currentIndex;
+  bool _pageScrollEnabled = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex.clamp(0, widget.items.length - 1);
+    _pageController = PageController(initialPage: _currentIndex);
+  }
 
   @override
   void dispose() {
-    _transformController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
-  void _resetZoom() {
-    _transformController.value = Matrix4.identity();
+  void _onPageChanged(int index) {
+    setState(() => _currentIndex = index);
+  }
+
+  void _onZoomChanged(bool zoomedIn) {
+    if (_pageScrollEnabled == !zoomedIn) return;
+    setState(() => _pageScrollEnabled = !zoomedIn);
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final myShopId = ref.watch(effectiveShopIdProvider);
-    final itemAsync = ref.watch(catalogItemDetailProvider(widget.itemId));
+    final item = widget.items[_currentIndex];
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -55,75 +81,51 @@ class _CatalogFullscreenViewerState extends ConsumerState<CatalogFullscreenViewe
         foregroundColor: Colors.white,
         leading: IconButton(
           icon: const Icon(Icons.close),
+          tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: itemAsync.maybeWhen(
-          data: (item) => item == null
-              ? null
-              : Text(
-                  item.designName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-          orElse: () => null,
+        title: Text(
+          item.designName,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
         actions: [
-          itemAsync.maybeWhen(
-            data: (item) {
-              if (item == null) return const SizedBox.shrink();
-              final isOwnShop = item.shopId == myShopId;
-              return IconButton(
-                tooltip: isOwnShop
-                    ? l10n.catalogViewerManageA11y
-                    : l10n.catalogDetailTitle,
-                icon: Icon(
-                  isOwnShop ? Icons.tune_outlined : Icons.info_outline,
+          if (widget.items.length > 1)
+            Center(
+              child: Padding(
+                padding: const EdgeInsetsDirectional.only(end: 8),
+                child: Text(
+                  '${_currentIndex + 1}/${widget.items.length}',
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: Colors.white70,
+                      ),
                 ),
-                onPressed: () {
-                  if (isOwnShop) Navigator.of(context).pop();
-                  context.push('/app/catalog/${widget.itemId}');
-                },
-              );
+              ),
+            ),
+          IconButton(
+            tooltip: l10n.catalogViewerManageA11y,
+            icon: const Icon(Icons.tune_outlined),
+            onPressed: () {
+              Navigator.of(context).pop();
+              context.push('/app/catalog/${item.internalId}');
             },
-            orElse: () => const SizedBox.shrink(),
           ),
         ],
       ),
-      body: itemAsync.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: Colors.white54),
-        ),
-        error: (e, _) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Text(
-              '$e',
-              style: const TextStyle(color: Colors.white70),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ),
-        data: (item) {
-          if (item == null) {
-            return Center(
-              child: Text(
-                l10n.catalogItemNotFound,
-                style: const TextStyle(color: Colors.white70),
-                textAlign: TextAlign.center,
-              ),
-            );
-          }
-
-          return GestureDetector(
-            onDoubleTap: _resetZoom,
-            child: InteractiveViewer(
-              transformationController: _transformController,
-              minScale: 0.5,
-              maxScale: 5,
-              child: Center(
-                child: _FullscreenImage(path: item.imagePath),
-              ),
-            ),
+      body: PageView.builder(
+        controller: _pageController,
+        physics: _pageScrollEnabled
+            ? const PageScrollPhysics()
+            : const NeverScrollableScrollPhysics(),
+        onPageChanged: _onPageChanged,
+        itemCount: widget.items.length,
+        itemBuilder: (context, index) {
+          final pageItem = widget.items[index];
+          return _CatalogZoomPage(
+            key: ValueKey(pageItem.internalId),
+            imagePath: pageItem.imagePath,
+            thumbnailPath: pageItem.thumbnailPath,
+            onZoomChanged: _onZoomChanged,
           );
         },
       ),
@@ -131,18 +133,119 @@ class _CatalogFullscreenViewerState extends ConsumerState<CatalogFullscreenViewe
   }
 }
 
-class _FullscreenImage extends StatelessWidget {
-  const _FullscreenImage({required this.path});
+class _CatalogZoomPage extends StatefulWidget {
+  const _CatalogZoomPage({
+    super.key,
+    required this.imagePath,
+    required this.thumbnailPath,
+    required this.onZoomChanged,
+  });
 
-  final String? path;
+  final String? imagePath;
+  final String? thumbnailPath;
+  final ValueChanged<bool> onZoomChanged;
+
+  @override
+  State<_CatalogZoomPage> createState() => _CatalogZoomPageState();
+}
+
+class _CatalogZoomPageState extends State<_CatalogZoomPage> {
+  final _transformController = TransformationController();
+  static const double _doubleTapScale = 2.5;
+
+  @override
+  void initState() {
+    super.initState();
+    _transformController.addListener(_handleTransformChanged);
+  }
+
+  @override
+  void dispose() {
+    _transformController.removeListener(_handleTransformChanged);
+    _transformController.dispose();
+    super.dispose();
+  }
+
+  void _handleTransformChanged() {
+    final zoomed = _transformController.value.getMaxScaleOnAxis() > 1.01;
+    widget.onZoomChanged(zoomed);
+  }
+
+  void _handleDoubleTap(TapDownDetails details) {
+    final matrix = _transformController.value;
+    if (matrix.getMaxScaleOnAxis() > 1.01) {
+      _transformController.value = Matrix4.identity();
+      return;
+    }
+
+    final offset = details.localPosition;
+    final dx = -offset.dx * (_doubleTapScale - 1);
+    final dy = -offset.dy * (_doubleTapScale - 1);
+    _transformController.value = Matrix4.identity()
+      ..translate(dx, dy)
+      ..scale(_doubleTapScale);
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (kIsWeb || path == null || path!.isEmpty) {
+    return GestureDetector(
+      onDoubleTapDown: _handleDoubleTap,
+      child: InteractiveViewer(
+        transformationController: _transformController,
+        minScale: 0.5,
+        maxScale: 5,
+        child: Center(
+          child: _CatalogFullscreenImage(
+            imagePath: widget.imagePath,
+            thumbnailPath: widget.thumbnailPath,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CatalogFullscreenImage extends StatelessWidget {
+  const _CatalogFullscreenImage({
+    required this.imagePath,
+    required this.thumbnailPath,
+  });
+
+  final String? imagePath;
+  final String? thumbnailPath;
+
+  @override
+  Widget build(BuildContext context) {
+    final path = (imagePath != null && imagePath!.isNotEmpty)
+        ? imagePath
+        : thumbnailPath;
+
+    if (path == null || path.isEmpty) {
       return const Icon(Icons.image_outlined, size: 72, color: Colors.white38);
     }
 
-    final file = File(path!);
+    if (isCatalogAssetImageRef(path)) {
+      final assetPath = catalogBundleAssetPath(path);
+      if (assetPath != null) {
+        return Image.asset(
+          'assets/catalog_seed/$assetPath',
+          fit: BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) {
+            return const Icon(
+              Icons.broken_image_outlined,
+              size: 72,
+              color: Colors.white38,
+            );
+          },
+        );
+      }
+    }
+
+    if (kIsWeb) {
+      return const Icon(Icons.image_outlined, size: 72, color: Colors.white38);
+    }
+
+    final file = File(path);
     return Image.file(
       file,
       fit: BoxFit.contain,

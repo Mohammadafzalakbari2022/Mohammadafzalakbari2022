@@ -42,6 +42,7 @@ class IsarOrderRepository implements OrderListRepository {
         ..internalId = DevSeedIds.customer1
         ..shopId = kDevShopId
         ..name = 'Ahmad Karimi'
+        ..displayCustomerNo = '00000001'
         ..phone = '0700000001'
         ..address = 'Kabul'
         ..notes = 'Prefers Friday fittings'
@@ -50,6 +51,7 @@ class IsarOrderRepository implements OrderListRepository {
         ..internalId = DevSeedIds.customer2
         ..shopId = kDevShopId
         ..name = 'Sara Mohseni'
+        ..displayCustomerNo = '00000002'
         ..phone = '0700000002'
         ..address = null
         ..notes = null
@@ -363,7 +365,11 @@ class IsarOrderRepository implements OrderListRepository {
         ),
       );
     }
-    list.sort((a, b) => b.deliveryDate.compareTo(a.deliveryDate));
+    list.sort((a, b) {
+      final aCreated = a.createdAt;
+      final bCreated = b.createdAt;
+      return bCreated.compareTo(aCreated);
+    });
     return list;
   }
 

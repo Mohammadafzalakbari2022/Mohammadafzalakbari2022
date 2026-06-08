@@ -337,6 +337,7 @@ abstract final class IsarBackupV1 {
         'internalId': c.internalId,
         'shopId': c.shopId,
         'name': c.name,
+        'displayCustomerNo': c.displayCustomerNo,
         'phone': c.phone,
         'address': c.address,
         'notes': c.notes,
@@ -349,6 +350,7 @@ abstract final class IsarBackupV1 {
       ..internalId = m['internalId']! as String
       ..shopId = m['shopId']! as String
       ..name = m['name']! as String
+      ..displayCustomerNo = (m['displayCustomerNo'] as String?)?.trim() ?? ''
       ..phone = m['phone'] as String?
       ..address = m['address'] as String?
       ..notes = m['notes'] as String?

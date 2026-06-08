@@ -590,6 +590,18 @@ class AppLocalizationsFa extends AppLocalizations {
       'این رمز با رمز مالک این دستگاه مطابقت ندارد.';
 
   @override
+  String get ownerPasswordWrong =>
+      'رمز مالک اشتباه است. رمز ورود مالک فروشگاه را وارد کنید.';
+
+  @override
+  String get ownerPasswordOfflineUnavailable =>
+      'تأیید رمز مالک بدون اینترنت ممکن نیست. به اینترنت وصل شوید یا یک‌بار به‌عنوان مالک وارد شوید.';
+
+  @override
+  String get ownerPasswordOwnerMissing =>
+      'ورود مالک روی این دستگاه ذخیره نشده. یک‌بار به‌عنوان مالک فروشگاه وارد شوید.';
+
+  @override
   String get ordersDetailChangeStatusSoon => 'تغییر وضعیت با تأیید باز می‌شود.';
 
   @override
@@ -635,13 +647,23 @@ class AppLocalizationsFa extends AppLocalizations {
   String get paymentRemaining => 'مانده';
 
   @override
-  String get customersSearchHint => 'جستجوی نام یا تلفن';
+  String get customersSearchHint => 'جستجوی نام، تلفن یا شناسه';
 
   @override
   String get customersEmptyTitle => 'هنوز مشتری نیست';
 
   @override
   String get customersAddCta => 'افزودن مشتری';
+
+  @override
+  String get customersNewOrderCta => 'سفارش جدید';
+
+  @override
+  String get customersNewOrderForCustomerTooltip => 'سفارش جدید برای این مشتری';
+
+  @override
+  String get ordersNewOrderFromThisOrderTooltip =>
+      'ایجاد سفارش جدید از این سفارش';
 
   @override
   String get customersFilteredEmpty => 'هیچ مشتری با جستجو مطابقت ندارد.';
@@ -1388,6 +1410,27 @@ class AppLocalizationsFa extends AppLocalizations {
   String get settingsThemeTitle => 'پوسته';
 
   @override
+  String get settingsFontSizeTitle => 'اندازه قلم';
+
+  @override
+  String get settingsFontSizeSmall => 'کوچک';
+
+  @override
+  String get settingsFontSizeMedium => 'متوسط';
+
+  @override
+  String get settingsFontSizeLarge => 'بزرگ';
+
+  @override
+  String get settingsFontFamilyTitle => 'قلم';
+
+  @override
+  String get settingsFontFamilyVazirmatn => 'وزیرمتن';
+
+  @override
+  String get settingsFontFamilyNotoNaskh => 'نوتو نسخ';
+
+  @override
   String get themeSystem => 'سیستم';
 
   @override
@@ -1542,6 +1585,12 @@ class AppLocalizationsFa extends AppLocalizations {
   String get loading => 'در حال بارگذاری…';
 
   @override
+  String get showMoreCta => 'نمایش بیشتر';
+
+  @override
+  String get showLessCta => 'نمایش کمتر';
+
+  @override
   String get genericError => 'خطایی رخ داد.';
 
   @override
@@ -1650,6 +1699,9 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get ordersComposerPaymentSheetTitle => 'پرداخت';
+
+  @override
+  String get ordersComposerPaymentCancelCta => 'لغو';
 
   @override
   String get ordersComposerPaymentInitialOnSaveHint =>
@@ -1788,6 +1840,51 @@ class AppLocalizationsFa extends AppLocalizations {
   String ordersComposerRecentOrderRowSubtitle(String date, String remaining) {
     return '$date • مانده $remaining';
   }
+
+  @override
+  String get ordersComposerPreviousOrderTitle => 'سفارش قبلی';
+
+  @override
+  String get ordersComposerPreviousOrderSubtitle =>
+      'فقط مرجع — هنوز ذخیره نشده';
+
+  @override
+  String get ordersComposerNoPreviousOrders => 'سفارش قبلی برای این مشتری نیست';
+
+  @override
+  String get ordersComposerUsePreviousMeasurementsCta =>
+      'استفاده از اندازه‌های قبلی';
+
+  @override
+  String get ordersComposerUsePreviousStyleCta => 'استفاده از استایل قبلی';
+
+  @override
+  String get ordersComposerUsePreviousFabricCta => 'استفاده از پارچه قبلی';
+
+  @override
+  String get ordersComposerUsePreviousDesignCta => 'استفاده از طراحی قبلی';
+
+  @override
+  String get ordersComposerPreviousValueLabel => 'قبلی';
+
+  @override
+  String get ordersComposerCurrentValueLabel => 'فعلی';
+
+  @override
+  String get ordersComposerCompareWithPrevious => 'مقایسه با سفارش قبلی';
+
+  @override
+  String get ordersComposerChangeReferenceOrderCta => 'تغییر سفارش مرجع';
+
+  @override
+  String get ordersComposerPreviousDeliveryLabel => 'تحویل قبلی';
+
+  @override
+  String get ordersComposerPreviousPaymentLabel => 'خلاصه پرداخت قبلی';
+
+  @override
+  String get ordersComposerPreviousMeasurementsUnavailable =>
+      'اندازه‌های قبلی هنوز در دسترس نیست. لحظه‌ای دیگر دوباره امتحان کنید.';
 
   @override
   String get ordersComposerMeasurementsSheetTitle => 'اندازه‌ها';
@@ -2206,6 +2303,17 @@ class AppLocalizationsFa extends AppLocalizations {
   String get customersCreated => 'مشتری ایجاد شد.';
 
   @override
+  String get customerIdLabel => 'شناسه مشتری';
+
+  @override
+  String get customerIdShortLabel => 'شناسه';
+
+  @override
+  String customersIdPrefix(String number) {
+    return 'شناسه $number';
+  }
+
+  @override
   String get customerNameLabel => 'نام';
 
   @override
@@ -2372,6 +2480,9 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get dashboardQuickLinkDeliveredToday => 'تحویل امروز';
+
+  @override
+  String get dashboardQuickLinkSystemGuide => 'آموزش استفاده از برنامه';
 
   @override
   String get shellAppBarSyncA11y => 'وضعیت همگام‌سازی';
@@ -3817,6 +3928,21 @@ class AppLocalizationsFa extends AppLocalizations {
       'این فاکتور با برنامهٔ خیاط تهیه و ارسال شده است';
 
   @override
+  String get invoiceContinuedLabel => 'ادامه';
+
+  @override
+  String get invoiceTakenDateLabel => 'ثبت';
+
+  @override
+  String get invoicePaymentDateLabel => 'تاریخ';
+
+  @override
+  String get invoiceMeasurementProfileLabel => 'پروفایل اندازه';
+
+  @override
+  String get invoiceStyleNameLabel => 'استایل';
+
+  @override
   String get receiptStyleLabel => 'یادداشت استایل';
 
   @override
@@ -3867,6 +3993,26 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get shopProfileLogoSectionTitle => 'لوگوی سربرگ فاکتور';
+
+  @override
+  String get shopProfileBannerSectionTitle => 'بنر داشبورد و فاکتور';
+
+  @override
+  String get shopProfileBannerSubtitle =>
+      'تصویر عریض (~3:1) در داشبورد و فاکتور PDF نمایش داده می‌شود. بارگذاری بنر، بنر پیش‌فرض را تا زمان حذف جایگزین می‌کند.';
+
+  @override
+  String get shopProfileBannerPickCta => 'بارگذاری بنر';
+
+  @override
+  String get shopProfileBannerRemoveCta => 'حذف بنر';
+
+  @override
+  String get shopProfileBannerSaved => 'بنر ذخیره شد.';
+
+  @override
+  String get shopProfileBannerWebHint =>
+      'بارگذاری بنر در اندروید و دسکتاپ در دسترس است.';
 
   @override
   String get shopProfileLogoSubtitle =>

@@ -19,11 +19,11 @@ const int kInvoicePdfStyleFigurePx = 140;
 
 /// Catalog image max bounds (px) for the design column.
 const int kInvoicePdfCatalogMaxWidthPx = 280;
-const int kInvoicePdfCatalogMaxHeightPx = 360;
+const int kInvoicePdfCatalogMaxHeightPx = 520;
 
-/// PDF layout height (points) for the image column.
-const double kInvoicePdfCatalogDisplayHeightPt = 200;
-const double kInvoicePdfStyleFigureDisplayPt = 88;
+/// PDF layout height (points) for the image column — compact for one-page fit.
+const double kInvoicePdfCatalogDisplayHeightPt = 185;
+const double kInvoicePdfStyleFigureDisplayPt = 72;
 
 /// Raster images for style figures and catalog design on the invoice.
 class InvoicePdfDesignRail {

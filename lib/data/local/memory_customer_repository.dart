@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:uuid/uuid.dart';
 
+import 'customer_display_no.dart';
 import 'customer_list_repository.dart';
 import 'customer_summary.dart';
 import 'dev_shop_constants.dart';
@@ -20,6 +21,59 @@ class MemoryCustomerRepository implements CustomerListRepository {
     return v.trim();
   }
 
+  void _backfillDisplayCustomerNos(String shopId) {
+    final needs = _customers
+        .where(
+          (c) =>
+              c.shopId == shopId &&
+              !_softDeletedIds.contains(c.internalId) &&
+              parseStoredDisplayCustomerNo(c.displayCustomerNo) == 0,
+        )
+        .toList();
+    if (needs.isEmpty) return;
+
+    needs.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    var max = 0;
+    for (final c in _customers) {
+      if (c.shopId != shopId || _softDeletedIds.contains(c.internalId)) {
+        continue;
+      }
+      final n = parseStoredDisplayCustomerNo(c.displayCustomerNo);
+      if (n > max) max = n;
+    }
+
+    for (final c in needs) {
+      max++;
+      final idx = _customers.indexWhere((x) => x.internalId == c.internalId);
+      if (idx < 0) continue;
+      final prev = _customers[idx];
+      _customers[idx] = CustomerSummary(
+        shopId: prev.shopId,
+        internalId: prev.internalId,
+        name: prev.name,
+        displayCustomerNo: formatStoredDisplayCustomerNo(max),
+        phone: prev.phone,
+        address: prev.address,
+        notes: prev.notes,
+        lastCatalogDesignName: prev.lastCatalogDesignName,
+        lastCatalogThumbnailPath: prev.lastCatalogThumbnailPath,
+        lastCatalogItemInternalId: prev.lastCatalogItemInternalId,
+        lastCatalogDesignerShopName: prev.lastCatalogDesignerShopName,
+        createdAt: prev.createdAt,
+      );
+    }
+  }
+
+  int _nextDisplayCustomerNo(String shopId) {
+    _backfillDisplayCustomerNos(shopId);
+    return nextDisplayCustomerNoFromSummaries(
+      _customers.where(
+        (c) => c.shopId == shopId && !_softDeletedIds.contains(c.internalId),
+      ),
+      shopId,
+    );
+  }
+
   @override
   Future<void> seedIfEmpty() async {
     if (_customers.isNotEmpty) return;
@@ -29,6 +83,7 @@ class MemoryCustomerRepository implements CustomerListRepository {
           shopId: kDevShopId,
           internalId: DevSeedIds.customer1,
           name: 'Ahmad Karimi',
+          displayCustomerNo: '00000001',
           phone: '0700000001',
           address: 'Kabul',
           notes: 'Prefers Friday fittings',
@@ -38,6 +93,7 @@ class MemoryCustomerRepository implements CustomerListRepository {
           shopId: kDevShopId,
           internalId: DevSeedIds.customer2,
           name: 'Sara Mohseni',
+          displayCustomerNo: '00000002',
           phone: '0700000002',
           address: null,
           notes: null,
@@ -50,8 +106,12 @@ class MemoryCustomerRepository implements CustomerListRepository {
   @override
   Stream<List<CustomerSummary>> watchCustomers([String shopId = kDevShopId]) async* {
     await seedIfEmpty();
+    _backfillDisplayCustomerNos(shopId);
     yield _sortedForShop(shopId);
-    yield* _controller.stream.map((_) => _sortedForShop(shopId));
+    yield* _controller.stream.map((_) {
+      _backfillDisplayCustomerNos(shopId);
+      return _sortedForShop(shopId);
+    });
   }
 
   List<CustomerSummary> _sortedForShop(String shopId) {
@@ -60,7 +120,7 @@ class MemoryCustomerRepository implements CustomerListRepository {
           (c) => c.shopId == shopId && !_softDeletedIds.contains(c.internalId),
         )
         .toList()
-      ..sort((a, b) => a.name.compareTo(b.name));
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
     return list;
   }
 
@@ -77,11 +137,13 @@ class MemoryCustomerRepository implements CustomerListRepository {
     await seedIfEmpty();
     final id = _uuid.v4();
     final createdAt = DateTime.now();
+    final nextNo = _nextDisplayCustomerNo(shopId);
     _customers.add(
       CustomerSummary(
         shopId: shopId,
         internalId: id,
         name: name.trim(),
+        displayCustomerNo: formatStoredDisplayCustomerNo(nextNo),
         phone: _opt(phone),
         address: _opt(address),
         notes: _opt(notes),
@@ -109,6 +171,7 @@ class MemoryCustomerRepository implements CustomerListRepository {
         shopId: prev.shopId,
         internalId: internalId,
         name: name.trim(),
+        displayCustomerNo: prev.displayCustomerNo,
         phone: _opt(phone),
         address: _opt(address),
         notes: _opt(notes),
@@ -140,6 +203,7 @@ class MemoryCustomerRepository implements CustomerListRepository {
         shopId: prev.shopId,
         internalId: internalId,
         name: prev.name,
+        displayCustomerNo: prev.displayCustomerNo,
         phone: prev.phone,
         address: prev.address,
         notes: prev.notes,
@@ -178,14 +242,26 @@ class MemoryCustomerRepository implements CustomerListRepository {
     if (name == null || name.trim().isEmpty) return;
     final createdAt =
         syncPullDateTime(m, const ['created_at', 'createdAt']) ?? DateTime.now();
+    final remoteDisplayNo = syncPullString(
+      m,
+      const ['display_customer_no', 'displayCustomerNo'],
+    );
     _softDeletedIds.remove(internalId);
     for (var i = 0; i < _customers.length; i++) {
       if (_customers[i].internalId != internalId) continue;
       final prev = _customers[i];
+      final resolvedDisplayNo =
+          (remoteDisplayNo != null &&
+                  parseStoredDisplayCustomerNo(remoteDisplayNo) > 0)
+              ? remoteDisplayNo
+              : (parseStoredDisplayCustomerNo(prev.displayCustomerNo) > 0
+                  ? prev.displayCustomerNo
+                  : formatStoredDisplayCustomerNo(_nextDisplayCustomerNo(shopId)));
       _customers[i] = CustomerSummary(
         shopId: shopId,
         internalId: internalId,
         name: name.trim(),
+        displayCustomerNo: resolvedDisplayNo,
         phone: _opt(syncPullString(m, const ['phone'])),
         address: _opt(syncPullString(m, const ['address'])),
         notes: _opt(syncPullString(m, const ['notes'])),
@@ -223,11 +299,16 @@ class MemoryCustomerRepository implements CustomerListRepository {
       _emit();
       return;
     }
+    var displayNo = remoteDisplayNo?.trim() ?? '';
+    if (parseStoredDisplayCustomerNo(displayNo) == 0) {
+      displayNo = formatStoredDisplayCustomerNo(_nextDisplayCustomerNo(shopId));
+    }
     _customers.add(
       CustomerSummary(
         shopId: shopId,
         internalId: internalId,
         name: name.trim(),
+        displayCustomerNo: displayNo,
         phone: _opt(syncPullString(m, const ['phone'])),
         address: _opt(syncPullString(m, const ['address'])),
         notes: _opt(syncPullString(m, const ['notes'])),

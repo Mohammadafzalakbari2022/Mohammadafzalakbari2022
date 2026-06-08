@@ -5,9 +5,12 @@ import 'package:go_router/go_router.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../core/validation/afghan_phone_input.dart';
+import '../../core/defaults/effective_shop_profile.dart';
+import '../../core/widgets/shop_identity_header.dart';
 import '../../core/widgets/shop_logo_image.dart';
 import '../../licensing/license_providers.dart';
 import 'shop_profile.dart';
+import 'shop_profile_banner_actions.dart';
 import 'shop_profile_logo_actions.dart';
 import 'shop_profile_provider.dart';
 
@@ -79,6 +82,8 @@ class _SettingsShopProfileScreenState
           ? null
           : _receiptThanks.text.trim(),
       logoRelativePath: ref.read(shopProfileProvider).valueOrNull?.logoRelativePath,
+      bannerRelativePath:
+          ref.read(shopProfileProvider).valueOrNull?.bannerRelativePath,
     );
 
     await ref.read(shopProfileProvider.notifier).save(next);
@@ -124,6 +129,8 @@ class _SettingsShopProfileScreenState
           ? null
           : _receiptThanks.text.trim(),
       logoRelativePath: path,
+      bannerRelativePath:
+          ref.read(shopProfileProvider).valueOrNull?.bannerRelativePath,
     );
     await ref.read(shopProfileProvider.notifier).save(next);
     if (!context.mounted) return;
@@ -154,11 +161,81 @@ class _SettingsShopProfileScreenState
           ? null
           : _receiptThanks.text.trim(),
       logoRelativePath: null,
+      bannerRelativePath:
+          ref.read(shopProfileProvider).valueOrNull?.bannerRelativePath,
     );
     await ref.read(shopProfileProvider.notifier).save(next);
     if (!context.mounted) return;
     final messenger = ScaffoldMessenger.of(context);
     messenger.showSnackBar(
+      SnackBar(content: Text(l10n.shopProfileSaved)),
+    );
+  }
+
+  Future<void> _pickBanner(BuildContext context, AppLocalizations l10n) async {
+    if (kIsWeb) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.shopProfileBannerWebHint)),
+      );
+      return;
+    }
+    final name = _resolvedShopNameForSave();
+    if (name.length < 2) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.shopProfileNameTooShort)),
+      );
+      return;
+    }
+    final path = await pickShopBannerRelativePath();
+    if (!mounted || path == null) return;
+    final current = ref.read(shopProfileProvider).valueOrNull;
+    final next = ShopProfile(
+      name: name,
+      address: _address.text.trim().isEmpty ? null : _address.text.trim(),
+      phone: _phone.text.trim().isEmpty
+          ? null
+          : normalizeAfghanPhoneDigits(_phone.text.trim()),
+      notes: _notes.text.trim().isEmpty ? null : _notes.text.trim(),
+      receiptThankYouMessage: _receiptThanks.text.trim().isEmpty
+          ? null
+          : _receiptThanks.text.trim(),
+      logoRelativePath: current?.logoRelativePath,
+      bannerRelativePath: path,
+    );
+    await ref.read(shopProfileProvider.notifier).save(next);
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.shopProfileBannerSaved)),
+    );
+  }
+
+  Future<void> _removeBanner(BuildContext context, AppLocalizations l10n) async {
+    if (kIsWeb) return;
+    final name = _resolvedShopNameForSave();
+    if (name.length < 2) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.shopProfileNameTooShort)),
+      );
+      return;
+    }
+    await deleteShopBannerFile();
+    final current = ref.read(shopProfileProvider).valueOrNull;
+    final next = ShopProfile(
+      name: name,
+      address: _address.text.trim().isEmpty ? null : _address.text.trim(),
+      phone: _phone.text.trim().isEmpty
+          ? null
+          : normalizeAfghanPhoneDigits(_phone.text.trim()),
+      notes: _notes.text.trim().isEmpty ? null : _notes.text.trim(),
+      receiptThankYouMessage: _receiptThanks.text.trim().isEmpty
+          ? null
+          : _receiptThanks.text.trim(),
+      logoRelativePath: current?.logoRelativePath,
+      bannerRelativePath: null,
+    );
+    await ref.read(shopProfileProvider.notifier).save(next);
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(l10n.shopProfileSaved)),
     );
   }
@@ -320,6 +397,50 @@ class _SettingsShopProfileScreenState
                         TextButton(
                           onPressed: () => _removeLogo(context, l10n),
                           child: Text(l10n.shopProfileLogoRemoveCta),
+                        ),
+                    ],
+                  ),
+                ],
+                const SizedBox(height: 24),
+                Text(
+                  l10n.shopProfileBannerSectionTitle,
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  l10n.shopProfileBannerSubtitle,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                const SizedBox(height: 12),
+                ShopIdentityHeader(
+                  variant: ShopIdentityVariant.settingsPreview,
+                  shopName: _name.text.trim().isNotEmpty
+                      ? _name.text.trim()
+                      : effectiveShopProfile(shop, l10n).name,
+                  logoRelativePath: shop.logoRelativePath,
+                  bannerRelativePath: shop.bannerRelativePath,
+                ),
+                if (kIsWeb) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.shopProfileBannerWebHint,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ] else if (!readOnly) ...[
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      OutlinedButton.icon(
+                        onPressed: () => _pickBanner(context, l10n),
+                        icon: const Icon(Icons.panorama_outlined),
+                        label: Text(l10n.shopProfileBannerPickCta),
+                      ),
+                      if ((shop.bannerRelativePath ?? '').isNotEmpty)
+                        TextButton(
+                          onPressed: () => _removeBanner(context, l10n),
+                          child: Text(l10n.shopProfileBannerRemoveCta),
                         ),
                     ],
                   ),

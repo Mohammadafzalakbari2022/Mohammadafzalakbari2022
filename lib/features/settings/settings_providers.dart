@@ -10,6 +10,80 @@ const prideUiSoundsKey = 'pride_ui_sounds_enabled';
 const prideUiHapticsKey = 'pride_ui_haptics_enabled';
 const prideMeasurementUnitKey = 'pride_measurement_unit_code';
 const prideNotificationsMutedKey = 'pride_notifications_muted';
+const prideFontSizePresetKey = 'pride_font_size_preset';
+const prideFontFamilyPresetKey = 'pride_font_family_preset';
+
+const kFontFamilyVazirmatn = 'Vazirmatn';
+const kFontFamilyNotoNaskh = 'Noto Naskh Arabic';
+
+enum PrideFontSizePreset { small, medium, large }
+
+enum PrideFontFamilyPreset { vazirmatn, notoNaskh }
+
+double fontScaleFromPreset(PrideFontSizePreset preset) {
+  return switch (preset) {
+    PrideFontSizePreset.small => 1.0,
+    PrideFontSizePreset.medium => 1.08,
+    PrideFontSizePreset.large => 1.20,
+  };
+}
+
+String fontFamilyFromPreset(PrideFontFamilyPreset preset) {
+  return switch (preset) {
+    PrideFontFamilyPreset.vazirmatn => kFontFamilyVazirmatn,
+    PrideFontFamilyPreset.notoNaskh => kFontFamilyNotoNaskh,
+  };
+}
+
+PrideFontSizePreset fontSizePresetFromPrefs(SharedPreferences prefs) {
+  if (!prefs.containsKey(prideFontSizePresetKey)) {
+    return PrideFontSizePreset.medium;
+  }
+  final raw = prefs.getString(prideFontSizePresetKey);
+  return switch (raw) {
+    'small' => PrideFontSizePreset.small,
+    'large' => PrideFontSizePreset.large,
+    _ => PrideFontSizePreset.medium,
+  };
+}
+
+PrideFontFamilyPreset fontFamilyPresetFromPrefs(SharedPreferences prefs) {
+  if (!prefs.containsKey(prideFontFamilyPresetKey)) {
+    return PrideFontFamilyPreset.notoNaskh;
+  }
+  final raw = prefs.getString(prideFontFamilyPresetKey);
+  return switch (raw) {
+    'vazirmatn' => PrideFontFamilyPreset.vazirmatn,
+    _ => PrideFontFamilyPreset.notoNaskh,
+  };
+}
+
+Future<void> persistFontSizePreset(
+  SharedPreferences prefs,
+  PrideFontSizePreset preset,
+) async {
+  await prefs.setString(
+    prideFontSizePresetKey,
+    switch (preset) {
+      PrideFontSizePreset.medium => 'medium',
+      PrideFontSizePreset.large => 'large',
+      PrideFontSizePreset.small => 'small',
+    },
+  );
+}
+
+Future<void> persistFontFamilyPreset(
+  SharedPreferences prefs,
+  PrideFontFamilyPreset preset,
+) async {
+  await prefs.setString(
+    prideFontFamilyPresetKey,
+    switch (preset) {
+      PrideFontFamilyPreset.notoNaskh => 'notoNaskh',
+      PrideFontFamilyPreset.vazirmatn => 'vazirmatn',
+    },
+  );
+}
 
 /// Reads saved app language (`en` / `fa` / `ps`). Defaults to Dari on first launch.
 Locale localeFromPrefs(SharedPreferences prefs) {
@@ -95,6 +169,12 @@ final localeOverrideProvider = StateProvider<Locale>((ref) => const Locale('fa')
 
 /// Mute notifications toggle (local-only for now; plan-15).
 final notificationsMutedProvider = StateProvider<bool>((ref) => false);
+
+final fontSizePresetProvider =
+    StateProvider<PrideFontSizePreset>((ref) => PrideFontSizePreset.medium);
+
+final fontFamilyPresetProvider =
+    StateProvider<PrideFontFamilyPreset>((ref) => PrideFontFamilyPreset.notoNaskh);
 
 /// Default unit for new order measurements and profiles (inch or cm).
 final defaultMeasurementUnitProvider =

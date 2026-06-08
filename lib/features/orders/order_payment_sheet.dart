@@ -2,10 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
+import 'package:pride_v3/core/formatting/app_number_format.dart';
 import 'package:pride_v3/app/app_theme.dart';
 import 'package:pride_v3/core/feedback/app_feedback.dart';
 import 'package:pride_v3/core/formatting/digit_normalizer.dart';
+import 'package:pride_v3/core/widgets/pride_modal_bottom_sheet.dart';
 import 'package:pride_v3/core/widgets/pride_money_field.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 import '../../data/local/order_summary.dart';
@@ -33,11 +34,8 @@ Future<OrderPaymentDraftResult?> showOrderPaymentDraftSheet({
   int initialTotalMinor = 0,
   int initialPaidMinor = 0,
 }) {
-  return showModalBottomSheet<OrderPaymentDraftResult>(
+  return showPrideModalBottomSheet<OrderPaymentDraftResult>(
     context: context,
-    isScrollControlled: true,
-    useSafeArea: true,
-    showDragHandle: true,
     builder: (ctx) => _OrderPaymentDraftSheet(
       initialTotalMinor: initialTotalMinor,
       initialPaidMinor: initialPaidMinor,
@@ -50,11 +48,8 @@ Future<void> showOrderPaymentSavedSheet({
   required WidgetRef ref,
   required OrderSummary order,
 }) {
-  return showModalBottomSheet<void>(
+  return showPrideModalBottomSheet<void>(
     context: context,
-    isScrollControlled: true,
-    useSafeArea: true,
-    showDragHandle: true,
     builder: (ctx) => _OrderPaymentSavedSheet(order: order),
   );
 }
@@ -159,129 +154,104 @@ class _OrderPaymentDraftSheetState extends State<_OrderPaymentDraftSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final viewInsets = MediaQuery.viewInsetsOf(context).bottom;
     final total = _parsedTotal ?? 0;
     final paid = _parsedPaid;
     final due = OrderPaymentRules.remainingMinor(total, paid);
     final valid =
         _parsedTotal != null && OrderPaymentRules.isValidInitialPay(total, paid);
-
-    return Padding(
-      padding: EdgeInsets.only(bottom: viewInsets),
-      child: DraggableScrollableSheet(
-        expand: false,
-        initialChildSize: 0.55,
-        minChildSize: 0.4,
-        maxChildSize: 0.9,
-        builder: (context, scroll) {
-          return Material(
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        onPressed: () => Navigator.pop(context),
-                        icon: const Icon(Icons.close),
-                      ),
-                      Expanded(
-                        child: Text(
-                          l10n.ordersComposerPaymentSheetTitle,
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: ListView(
-                    controller: scroll,
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                    children: [
-                      PrideMoneyField(
-                        controller: _totalCtrl,
-                        labelText: l10n.ordersComposerPriceLabel,
-                        hintText: l10n.ordersComposerPriceHint,
-                        textInputAction: TextInputAction.next,
-                      ),
-                      const SizedBox(height: 12),
-                      PrideMoneyField(
-                        controller: _paidCtrl,
-                        labelText: l10n.ordersComposerReceivedNowLabel,
-                        hintText: l10n.ordersComposerReceivedNowHint,
-                      ),
-                      const SizedBox(height: 10),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          ActionChip(
-                            avatar: const Icon(Icons.check_circle_outline, size: 20),
-                            label: Text(l10n.ordersComposerPaidInFullCta),
-                            onPressed: _parsedTotal != null && _parsedTotal! > 0
-                                ? _applyPaidInFull
-                                : null,
-                          ),
-                          ActionChip(
-                            avatar: const Icon(Icons.money_off_outlined, size: 20),
-                            label: Text(l10n.ordersComposerNothingPaidCta),
-                            onPressed: _applyNothingPaid,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        l10n.ordersComposerNewOrderPaymentHint,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
-                      ),
-                      if (_error != null) ...[
-                        const SizedBox(height: 8),
-                        Text(
-                          _error!,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.error,
-                          ),
-                        ),
-                      ],
-                      const SizedBox(height: 16),
-                      _DueSummaryCard(
-                        l10n: l10n,
-                        total: total,
-                        paid: paid,
-                        due: due,
-                        emphasizeDue: true,
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    16,
-                    8,
-                    16,
-                    16 + MediaQuery.paddingOf(context).bottom,
-                  ),
-                  child: Row(
-                    children: [
-                      TextButton(
-                        onPressed: _clear,
-                        child: Text(l10n.ordersComposerFabricClearCta),
-                      ),
-                      const Spacer(),
-                      FilledButton(
-                        onPressed: valid ? _save : null,
-                        child: Text(l10n.saveCta),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+    return PrideDraggableSheetScaffold(
+      header: Padding(
+        padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
+        child: Row(
+          children: [
+            IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(Icons.close),
             ),
-          );
-        },
+            Expanded(
+              child: Text(
+                l10n.ordersComposerPaymentSheetTitle,
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ),
+          ],
+        ),
+      ),
+      body: (scroll) => ListView(
+        controller: scroll,
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+        children: [
+          PrideMoneyField(
+            controller: _totalCtrl,
+            labelText: l10n.ordersComposerPriceLabel,
+            hintText: l10n.ordersComposerPriceHint,
+            textInputAction: TextInputAction.next,
+          ),
+          const SizedBox(height: 12),
+          PrideMoneyField(
+            controller: _paidCtrl,
+            labelText: l10n.ordersComposerReceivedNowLabel,
+            hintText: l10n.ordersComposerReceivedNowHint,
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              ActionChip(
+                avatar: const Icon(Icons.check_circle_outline, size: 20),
+                label: Text(l10n.ordersComposerPaidInFullCta),
+                onPressed: _parsedTotal != null && _parsedTotal! > 0
+                    ? _applyPaidInFull
+                    : null,
+              ),
+              ActionChip(
+                avatar: const Icon(Icons.money_off_outlined, size: 20),
+                label: Text(l10n.ordersComposerNothingPaidCta),
+                onPressed: _applyNothingPaid,
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            l10n.ordersComposerNewOrderPaymentHint,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+          ),
+          if (_error != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              _error!,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.error,
+              ),
+            ),
+          ],
+          const SizedBox(height: 16),
+          _DueSummaryCard(
+            l10n: l10n,
+            total: total,
+            paid: paid,
+            due: due,
+            emphasizeDue: true,
+          ),
+        ],
+      ),
+      footer: PrideSheetFooter(
+        child: Row(
+          children: [
+            TextButton(
+              onPressed: _clear,
+              child: Text(l10n.ordersComposerPaymentCancelCta),
+            ),
+            const Spacer(),
+            FilledButton(
+              onPressed: valid ? _save : null,
+              child: Text(l10n.saveCta),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -613,7 +583,6 @@ class _OrderPaymentSavedSheetState extends ConsumerState<_OrderPaymentSavedSheet
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final viewInsets = MediaQuery.viewInsetsOf(context).bottom;
     final asyncPayments =
         ref.watch(paymentsForOrderProvider(widget.order.internalId));
 
@@ -644,136 +613,114 @@ class _OrderPaymentSavedSheetState extends ConsumerState<_OrderPaymentSavedSheet
 
         final canRecord = !_editing && previewDue > 0;
 
-        return Padding(
-          padding: EdgeInsets.only(bottom: viewInsets),
-          child: DraggableScrollableSheet(
-            expand: false,
-            initialChildSize: 0.72,
-            minChildSize: 0.45,
-            maxChildSize: 0.92,
-            builder: (context, scroll) {
-              return Material(
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
-                      child: Row(
-                        children: [
-                          IconButton(
-                            onPressed: () => Navigator.pop(context),
-                            icon: const Icon(Icons.close),
-                          ),
-                          Expanded(
-                            child: Text(
-                              _editing
-                                  ? l10n.ordersPaymentSheetEditTitle
-                                  : l10n.ordersPaymentSheetSavedTitle,
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: ListView(
-                        controller: scroll,
-                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                        children: [
-                          PrideMoneyField(
-                            controller: _totalCtrl,
-                            signed: _editing,
-                            enabled: _editing,
-                            labelText: l10n.ordersComposerTotalLabel,
-                            hintText: l10n.ordersComposerTotalHint,
-                          ),
-                          if (_editing) orderPaymentSignedHint(context, l10n),
-                          const SizedBox(height: 12),
-                          for (var i = 0; i < sorted.length; i++) ...[
-                            if (i > 0) const SizedBox(height: 12),
-                            PrideMoneyField(
-                              controller: _depositCtrls[sorted[i].internalId]!,
-                              signed: _editing,
-                              enabled: _editing,
-                              labelText: l10n.ordersPaymentDepositLabel(i + 1),
-                            ),
-                          ],
-                          if (canRecord) ...[
-                            const SizedBox(height: 12),
-                            PrideMoneyField(
-                              controller: _nextCtrl,
-                              signed: true,
-                              labelText: l10n.ordersPaymentNextPaymentLabel,
-                              hintText: l10n.ordersComposerPaidHint,
-                            ),
-                            orderPaymentSignedHint(context, l10n),
-                          ],
-                          if (_error != null) ...[
-                            const SizedBox(height: 8),
-                            Text(
-                              _error!,
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.error,
-                              ),
-                            ),
-                          ],
-                          const SizedBox(height: 16),
-                          _DueSummaryCard(
-                            l10n: l10n,
-                            total: previewTotal,
-                            paid: previewPaid,
-                            due: previewDue,
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        16,
-                        8,
-                        16,
-                        16 + MediaQuery.paddingOf(context).bottom,
-                      ),
-                      child: _editing
-                          ? Row(
-                              children: [
-                                TextButton(
-                                  onPressed: () => _cancelEdit(order, sorted),
-                                  child: Text(
-                                    MaterialLocalizations.of(context)
-                                        .cancelButtonLabel,
-                                  ),
-                                ),
-                                const Spacer(),
-                                FilledButton(
-                                  onPressed: () => _saveEdit(order, sorted),
-                                  child: Text(l10n.saveCta),
-                                ),
-                              ],
-                            )
-                          : Row(
-                              children: [
-                                if (canRecord)
-                                  FilledButton(
-                                    style: prideLedgerTonalButtonStyle(context),
-                                    onPressed: () => _recordNextPayment(order),
-                                    child: Text(l10n.ordersPaymentRecordCta),
-                                  ),
-                                const Spacer(),
-                                FilledButton(
-                                  style: prideButtonStyle(
-                                    context,
-                                    PrideButtonVariant.edit,
-                                  ),
-                                  onPressed: () => _startEdit(l10n),
-                                  child: Text(l10n.editCta),
-                                ),
-                              ],
-                            ),
-                    ),
-                  ],
+        return PrideDraggableSheetScaffold(
+          header: Padding(
+            padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
+            child: Row(
+              children: [
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.close),
                 ),
-              );
-            },
+                Expanded(
+                  child: Text(
+                    _editing
+                        ? l10n.ordersPaymentSheetEditTitle
+                        : l10n.ordersPaymentSheetSavedTitle,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          body: (scroll) => ListView(
+            controller: scroll,
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            children: [
+              PrideMoneyField(
+                controller: _totalCtrl,
+                signed: _editing,
+                enabled: _editing,
+                labelText: l10n.ordersComposerTotalLabel,
+                hintText: l10n.ordersComposerTotalHint,
+              ),
+              if (_editing) orderPaymentSignedHint(context, l10n),
+              const SizedBox(height: 12),
+              for (var i = 0; i < sorted.length; i++) ...[
+                if (i > 0) const SizedBox(height: 12),
+                PrideMoneyField(
+                  controller: _depositCtrls[sorted[i].internalId]!,
+                  signed: _editing,
+                  enabled: _editing,
+                  labelText: l10n.ordersPaymentDepositLabel(i + 1),
+                ),
+              ],
+              if (canRecord) ...[
+                const SizedBox(height: 12),
+                PrideMoneyField(
+                  controller: _nextCtrl,
+                  signed: true,
+                  labelText: l10n.ordersPaymentNextPaymentLabel,
+                  hintText: l10n.ordersComposerPaidHint,
+                ),
+                orderPaymentSignedHint(context, l10n),
+              ],
+              if (_error != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  _error!,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                ),
+              ],
+              const SizedBox(height: 16),
+              _DueSummaryCard(
+                l10n: l10n,
+                total: previewTotal,
+                paid: previewPaid,
+                due: previewDue,
+              ),
+            ],
+          ),
+          footer: PrideSheetFooter(
+            child: _editing
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      FilledButton(
+                        onPressed: () => _saveEdit(order, sorted),
+                        child: Text(l10n.saveCta),
+                      ),
+                      const SizedBox(height: 8),
+                      TextButton(
+                        onPressed: () => _cancelEdit(order, sorted),
+                        child: Text(
+                          MaterialLocalizations.of(context).cancelButtonLabel,
+                        ),
+                      ),
+                    ],
+                  )
+                : Row(
+                    children: [
+                      if (canRecord)
+                        FilledButton(
+                          style: prideLedgerTonalButtonStyle(context),
+                          onPressed: () => _recordNextPayment(order),
+                          child: Text(l10n.ordersPaymentRecordCta),
+                        ),
+                      const Spacer(),
+                      FilledButton.icon(
+                        style: prideButtonStyle(
+                          context,
+                          PrideButtonVariant.edit,
+                        ),
+                        onPressed: () => _startEdit(l10n),
+                        icon: const Icon(Icons.edit_outlined),
+                        label: Text(l10n.editCta),
+                      ),
+                    ],
+                  ),
           ),
         );
       },
@@ -806,8 +753,7 @@ class _DueSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String money(int m) =>
-        l10n.moneyAfn(NumberFormat.decimalPattern().format(m));
+    String money(int m) => AppNumberFormat.formatMoney(l10n, m);
     final theme = Theme.of(context);
     return Card(
       clipBehavior: Clip.antiAlias,

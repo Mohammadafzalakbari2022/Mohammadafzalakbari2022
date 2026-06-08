@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+import 'package:pride_v3/core/formatting/app_number_format.dart';
 import 'package:pride_v3/app/app_theme.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
 import 'package:pride_v3/core/widgets/compact_search_toolbar.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../data/local/customer_summary.dart';
+import 'customer_search_filter.dart';
+import '../orders/order_composer_screen.dart';
 import '../../data/local/order_summary.dart';
 import '../../data/providers/local_data_providers.dart';
 import 'customer_list_tile.dart';
@@ -37,18 +39,10 @@ class _CustomersListBodyState extends ConsumerState<CustomersListBody> {
   }
 
   String _formatMoney(AppLocalizations l10n, int minor) =>
-      l10n.moneyAfn(NumberFormat.decimalPattern().format(minor));
+      AppNumberFormat.formatMoney(l10n, minor);
 
-  List<CustomerSummary> _filterCustomers(List<CustomerSummary> customers) {
-    final q = _query.trim().toLowerCase();
-    final list = customers.where((c) {
-      if (q.isEmpty) return true;
-      final phone = (c.phone ?? '').toLowerCase();
-      return c.name.toLowerCase().contains(q) || phone.contains(q);
-    }).toList()
-      ..sort((a, b) => a.name.compareTo(b.name));
-    return list;
-  }
+  List<CustomerSummary> _filterCustomers(List<CustomerSummary> customers) =>
+      filterCustomersBySearchQuery(customers, _query);
 
   Map<String, _CustomerOrderStats> _statsForOrders(List<OrderSummary> orders) {
     final map = <String, _CustomerOrderStats>{};
@@ -162,6 +156,9 @@ class _CustomersListBodyState extends ConsumerState<CustomersListBody> {
                               unpaidMinor: s?.unpaidMinor ?? 0,
                               formatMoney: (minor) =>
                                   _formatMoney(l10n, minor),
+                              onNewOrder: () => context.push(
+                                orderComposerRoute(customerId: c.internalId),
+                              ),
                               onTap: () {
                                 if (isSelected) {
                                   context.push('/app/customers/${c.internalId}');

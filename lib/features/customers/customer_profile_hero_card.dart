@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:pride_v3/core/calendar/app_calendar_format.dart';
+import 'package:pride_v3/core/formatting/display_customer_no_format.dart';
 import 'package:pride_v3/core/calendar/date_calendar_system.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
+import '../../data/local/customer_display_no.dart';
 import '../../data/local/customer_summary.dart';
 import '../catalog/catalog_tile_image.dart';
 
@@ -39,6 +41,10 @@ class CustomerProfileHeroCard extends StatelessWidget {
     );
     final phone = customer.phone?.trim();
     final address = customer.address?.trim();
+    final customerIdLabel = parseStoredDisplayCustomerNo(customer.displayCustomerNo) >
+            0
+        ? displayCustomerNumberLabel(l10n, customer.displayCustomerNo)
+        : null;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
@@ -95,6 +101,16 @@ class CustomerProfileHeroCard extends StatelessWidget {
                             height: 1.15,
                           ),
                         ),
+                        if (customerIdLabel != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            customerIdLabel,
+                            style: theme.textTheme.labelLarge?.copyWith(
+                              color: scheme.primary,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
                         const SizedBox(height: 4),
                         Text(
                           phone != null && phone.isNotEmpty

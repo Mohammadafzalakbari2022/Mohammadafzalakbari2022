@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:pride_v3/app/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+import 'package:pride_v3/core/formatting/app_number_format.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
 import 'package:pride_v3/core/widgets/compact_search_toolbar.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
@@ -49,10 +49,9 @@ class OrdersFilteredListBody extends ConsumerStatefulWidget {
 class _OrdersFilteredListBodyState extends ConsumerState<OrdersFilteredListBody> {
   late final TextEditingController _searchController;
   String? _lastOrdersDeepLinkSignature;
-  String? _selectedOrderInternalId;
 
   String _formatMoney(AppLocalizations l10n, int minor) =>
-      l10n.moneyAfn(NumberFormat.decimalPattern().format(minor));
+      AppNumberFormat.formatMoney(l10n, minor);
 
   @override
   void initState() {
@@ -287,19 +286,11 @@ class _OrdersFilteredListBodyState extends ConsumerState<OrdersFilteredListBody>
                   ),
                 );
               }
-              final selectedId = _selectedOrderInternalId != null &&
-                      filtered.any(
-                        (o) => o.internalId == _selectedOrderInternalId,
-                      )
-                  ? _selectedOrderInternalId
-                  : null;
-
               return ListView.builder(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 itemCount: filtered.length,
                 itemBuilder: (context, i) {
                   final o = filtered[i];
-                  final isSelected = selectedId == o.internalId;
                   final paidMinor = OrderPaymentRules.paidMinorForOrder(
                     orderSummaryPaidMinor: o.paidAmountMinor,
                     paidByOrderId: paidByOrderId,
@@ -318,7 +309,6 @@ class _OrdersFilteredListBodyState extends ConsumerState<OrdersFilteredListBody>
                     l10n: l10n,
                     locale: locale,
                     calendar: calendar,
-                    isSelected: isSelected,
                     detailed: detailed,
                     formatMoney: (minor) => _formatMoney(l10n, minor),
                     stylePreviewLine: detailed
@@ -328,15 +318,7 @@ class _OrdersFilteredListBodyState extends ConsumerState<OrdersFilteredListBody>
                             styleSummary: o.styleSummary,
                           ).compactPreview
                         : null,
-                    onTap: () {
-                      if (isSelected) {
-                        context.push('/app/orders/${o.internalId}');
-                        return;
-                      }
-                      setState(
-                        () => _selectedOrderInternalId = o.internalId,
-                      );
-                    },
+                    onTap: () => context.push('/app/orders/${o.internalId}'),
                   );
                 },
               );

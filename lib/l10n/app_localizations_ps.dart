@@ -584,6 +584,18 @@ class AppLocalizationsPs extends AppLocalizations {
       'دا پاسورډ د دې وسیلې د مالک پاسورډ سره نه سمون خوري.';
 
   @override
+  String get ownerPasswordWrong =>
+      'د مالک پاسورډ غلط دی. د پلورنځي د مالک د ننوتلو پاسورډ ولیکئ.';
+
+  @override
+  String get ownerPasswordOfflineUnavailable =>
+      'پرته له انټرنېټ څخه د مالک پاسورډ تایید نشي. انټرنېټ وصل کړئ یا لومړی د مالک په توګه ننوځئ.';
+
+  @override
+  String get ownerPasswordOwnerMissing =>
+      'د مالک ننوتل په دې وسیله خوندي نه دي. یو ځل د پلورنځي د مالک په توګه ننوځئ.';
+
+  @override
   String get ordersDetailChangeStatusSoon =>
       'د حالت بدلون به د تایید جریان پرانیزي.';
 
@@ -630,13 +642,24 @@ class AppLocalizationsPs extends AppLocalizations {
   String get paymentRemaining => 'پاتې';
 
   @override
-  String get customersSearchHint => 'نوم یا تلیفون ولټوئ';
+  String get customersSearchHint => 'نوم، تلیفون یا پېژند ولټوئ';
 
   @override
   String get customersEmptyTitle => 'تر اوسه پیرودونکی نشته';
 
   @override
   String get customersAddCta => 'پیرودونکی زیاتول';
+
+  @override
+  String get customersNewOrderCta => 'نوی امر';
+
+  @override
+  String get customersNewOrderForCustomerTooltip =>
+      'د دې پیرودونکي لپاره نوی امر';
+
+  @override
+  String get ordersNewOrderFromThisOrderTooltip =>
+      'له دې امر څخه نوی امر جوړ کړئ';
 
   @override
   String get customersFilteredEmpty => 'ستاسو لټون سره پیرودونکی نه مېښي.';
@@ -1382,6 +1405,27 @@ class AppLocalizationsPs extends AppLocalizations {
   String get settingsThemeTitle => 'تم';
 
   @override
+  String get settingsFontSizeTitle => 'د لیک اندازه';
+
+  @override
+  String get settingsFontSizeSmall => 'کوچنی';
+
+  @override
+  String get settingsFontSizeMedium => 'منځنی';
+
+  @override
+  String get settingsFontSizeLarge => 'لوی';
+
+  @override
+  String get settingsFontFamilyTitle => 'لیک';
+
+  @override
+  String get settingsFontFamilyVazirmatn => 'وزیرمتن';
+
+  @override
+  String get settingsFontFamilyNotoNaskh => 'نوټو نسخ';
+
+  @override
   String get themeSystem => 'سیستم';
 
   @override
@@ -1536,6 +1580,12 @@ class AppLocalizationsPs extends AppLocalizations {
   String get loading => 'بارېږي…';
 
   @override
+  String get showMoreCta => 'نور وښایاست';
+
+  @override
+  String get showLessCta => 'لږ وښایاست';
+
+  @override
   String get genericError => 'یو څه ستونزه رامنځته شوه.';
 
   @override
@@ -1645,6 +1695,9 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get ordersComposerPaymentSheetTitle => 'ورکړه';
+
+  @override
+  String get ordersComposerPaymentCancelCta => 'لغوه کول';
 
   @override
   String get ordersComposerPaymentInitialOnSaveHint =>
@@ -1780,6 +1833,51 @@ class AppLocalizationsPs extends AppLocalizations {
   String ordersComposerRecentOrderRowSubtitle(String date, String remaining) {
     return '$date • پاتې $remaining';
   }
+
+  @override
+  String get ordersComposerPreviousOrderTitle => 'مخکینی امر';
+
+  @override
+  String get ordersComposerPreviousOrderSubtitle =>
+      'یوازې مرجع — لا خوندي نه دی';
+
+  @override
+  String get ordersComposerNoPreviousOrders =>
+      'د دې پیرودونکي لپاره مخکینی امر نشته';
+
+  @override
+  String get ordersComposerUsePreviousMeasurementsCta => 'مخکیني اندازې وکاروه';
+
+  @override
+  String get ordersComposerUsePreviousStyleCta => 'مخکینی سټایل وکاروه';
+
+  @override
+  String get ordersComposerUsePreviousFabricCta => 'مخکینی ټوکر وکاروه';
+
+  @override
+  String get ordersComposerUsePreviousDesignCta => 'مخکینی ډیزاین وکاروه';
+
+  @override
+  String get ordersComposerPreviousValueLabel => 'مخکینی';
+
+  @override
+  String get ordersComposerCurrentValueLabel => 'اوسنی';
+
+  @override
+  String get ordersComposerCompareWithPrevious => 'د مخکیني امر سره پرتله';
+
+  @override
+  String get ordersComposerChangeReferenceOrderCta => 'مرجعي امر بدل کړئ';
+
+  @override
+  String get ordersComposerPreviousDeliveryLabel => 'مخکینی تحویل';
+
+  @override
+  String get ordersComposerPreviousPaymentLabel => 'د مخکیني تادیې لنډیز';
+
+  @override
+  String get ordersComposerPreviousMeasurementsUnavailable =>
+      'مخکیني اندازې لا شتون نلري. یو څه وروسته بیا هڅه وکړئ.';
 
   @override
   String get ordersComposerMeasurementsSheetTitle => 'پیمانې';
@@ -2203,6 +2301,17 @@ class AppLocalizationsPs extends AppLocalizations {
   String get customersCreated => 'پیرودونکی جوړ شو.';
 
   @override
+  String get customerIdLabel => 'د پیرودونکي پېژند';
+
+  @override
+  String get customerIdShortLabel => 'پېژند';
+
+  @override
+  String customersIdPrefix(String number) {
+    return 'پېژند $number';
+  }
+
+  @override
   String get customerNameLabel => 'نوم';
 
   @override
@@ -2368,6 +2477,9 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get dashboardQuickLinkDeliveredToday => 'نن تحویلي شوي';
+
+  @override
+  String get dashboardQuickLinkSystemGuide => 'د اپ کارولو لارښود';
 
   @override
   String get shellAppBarSyncA11y => 'د سنک حالت';
@@ -3813,6 +3925,21 @@ class AppLocalizationsPs extends AppLocalizations {
       'دا فاکتور د خیاط له لارې جوړ او لیږل شوی دی';
 
   @override
+  String get invoiceContinuedLabel => 'دوام';
+
+  @override
+  String get invoiceTakenDateLabel => 'اخیستل';
+
+  @override
+  String get invoicePaymentDateLabel => 'نېټه';
+
+  @override
+  String get invoiceMeasurementProfileLabel => 'د اندازې پروفایل';
+
+  @override
+  String get invoiceStyleNameLabel => 'سټایل';
+
+  @override
   String get receiptStyleLabel => 'د سټایل یادښتونه';
 
   @override
@@ -3863,6 +3990,26 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get shopProfileLogoSectionTitle => 'د فاکتور سرلیک لوګو';
+
+  @override
+  String get shopProfileBannerSectionTitle => 'د ډشبورډ او فاکتور بنر';
+
+  @override
+  String get shopProfileBannerSubtitle =>
+      'پراخ انځور (~3:1) په ډشبورډ او PDF فاکتور کې ښکاري. د خپل بنر پورته کول تر لرې کولو پورې ډیفالټ بنر بدلوي.';
+
+  @override
+  String get shopProfileBannerPickCta => 'بنر پورته کړئ';
+
+  @override
+  String get shopProfileBannerRemoveCta => 'بنر لرې کړئ';
+
+  @override
+  String get shopProfileBannerSaved => 'بنر خوندي شو.';
+
+  @override
+  String get shopProfileBannerWebHint =>
+      'د بنر پورته کول په Android او ډیسټاپ کې شتون لري.';
 
   @override
   String get shopProfileLogoSubtitle =>

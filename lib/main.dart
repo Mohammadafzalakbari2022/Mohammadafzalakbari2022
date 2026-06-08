@@ -28,6 +28,8 @@ Future<void> main() async {
     final initialMeasurementUnit = measurementUnitFromPrefs(prefs);
     final initialThemeMode = themeModeFromPrefs(prefs);
     final initialNotificationsMuted = notificationsMutedFromPrefs(prefs);
+    final initialFontSize = fontSizePresetFromPrefs(prefs);
+    final initialFontFamily = fontFamilyPresetFromPrefs(prefs);
     NotificationSoundBridge.configure(
       soundsEnabled: initialUiSounds,
       muted: initialNotificationsMuted,
@@ -69,6 +71,8 @@ Future<void> main() async {
           defaultMeasurementUnitProvider.overrideWith(
             (ref) => initialMeasurementUnit,
           ),
+          fontSizePresetProvider.overrideWith((ref) => initialFontSize),
+          fontFamilyPresetProvider.overrideWith((ref) => initialFontFamily),
           lastSuccessfulSyncAtProvider.overrideWith((_) => initialLastSync),
         ],
         child: const AfghanPrideApp(),

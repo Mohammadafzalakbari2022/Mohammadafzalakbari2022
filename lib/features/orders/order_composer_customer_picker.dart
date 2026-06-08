@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:pride_v3/core/formatting/display_customer_no_format.dart';
+import 'package:pride_v3/core/widgets/pride_modal_bottom_sheet.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
+import '../../data/local/customer_display_no.dart';
 import '../../data/local/customer_summary.dart';
+import '../customers/customer_search_filter.dart';
 
 /// Search-and-pick sheet for existing customers (order composer search, new-customer search action).
 Future<CustomerSummary?> showOrderComposerCustomerPicker({
@@ -9,15 +13,15 @@ Future<CustomerSummary?> showOrderComposerCustomerPicker({
   required List<CustomerSummary> customers,
   required AppLocalizations l10n,
   String? selectedId,
+  String initialQuery = '',
 }) {
-  return showModalBottomSheet<CustomerSummary>(
+  return showPrideModalBottomSheet<CustomerSummary>(
     context: context,
-    isScrollControlled: true,
-    showDragHandle: true,
     builder: (ctx) => _OrderComposerCustomerPickerSheet(
       customers: customers,
       l10n: l10n,
       selectedId: selectedId,
+      initialQuery: initialQuery,
     ),
   );
 }
@@ -27,11 +31,13 @@ class _OrderComposerCustomerPickerSheet extends StatefulWidget {
     required this.customers,
     required this.l10n,
     this.selectedId,
+    this.initialQuery = '',
   });
 
   final List<CustomerSummary> customers;
   final AppLocalizations l10n;
   final String? selectedId;
+  final String initialQuery;
 
   @override
   State<_OrderComposerCustomerPickerSheet> createState() =>
@@ -40,39 +46,62 @@ class _OrderComposerCustomerPickerSheet extends StatefulWidget {
 
 class _OrderComposerCustomerPickerSheetState
     extends State<_OrderComposerCustomerPickerSheet> {
-  final _query = TextEditingController();
+  late final TextEditingController _query;
+  late final FocusNode _searchFocusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _query = TextEditingController(text: widget.initialQuery);
+    _searchFocusNode = FocusNode();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _searchFocusNode.requestFocus();
+    });
+  }
 
   @override
   void dispose() {
     _query.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
+  }
+
+  void _clearSearch() {
+    _query.clear();
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     final pad = MediaQuery.paddingOf(context);
     final viewInsets = MediaQuery.viewInsetsOf(context).bottom;
+    final hasQuery = _query.text.isNotEmpty;
     return Padding(
       padding: EdgeInsets.only(bottom: pad.bottom + viewInsets),
       child: DraggableScrollableSheet(
         expand: false,
-        initialChildSize: 0.55,
-        minChildSize: 0.35,
-        maxChildSize: 0.92,
+        initialChildSize: kPrideSheetInitialChildSize,
+        minChildSize: kPrideSheetMinChildSize,
+        maxChildSize: kPrideSheetMaxChildSize,
         builder: (ctx, scrollController) {
           return Column(
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-                child: TextField(
+                child: SearchBar(
+                  focusNode: _searchFocusNode,
+                  hintText: widget.l10n.customersSearchHint,
                   controller: _query,
-                  autofocus: true,
-                  decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.search),
-                    hintText: widget.l10n.customersSearchHint,
-                    border: const OutlineInputBorder(),
-                    isDense: true,
-                  ),
+                  leading: const Icon(Icons.search),
+                  trailing: [
+                    if (hasQuery)
+                      IconButton(
+                        icon: const Icon(Icons.clear),
+                        tooltip: MaterialLocalizations.of(context)
+                            .clearButtonTooltip,
+                        onPressed: _clearSearch,
+                      ),
+                  ],
                   onChanged: (_) => setState(() {}),
                 ),
               ),
@@ -113,21 +142,17 @@ class _CustomerPickerList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final q = query.trim().toLowerCase();
-    final list = customers.where((c) {
-      if (q.isEmpty) return true;
-      final phone = (c.phone ?? '').toLowerCase();
-      return c.name.toLowerCase().contains(q) || phone.contains(q);
-    }).toList()
-      ..sort((a, b) => a.name.compareTo(b.name));
+    final list = filterCustomersBySearchQuery(customers, query);
 
     if (list.isEmpty) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Text(
-            l10n.customersFilteredEmpty,
-            style: Theme.of(context).textTheme.bodyMedium,
+            customers.isEmpty
+                ? l10n.customersEmptyTitle
+                : l10n.customersFilteredEmpty,
+            style: Theme.of(context).textTheme.titleMedium,
             textAlign: TextAlign.center,
           ),
         ),
@@ -142,13 +167,21 @@ class _CustomerPickerList extends StatelessWidget {
       itemBuilder: (context, i) {
         final c = list[i];
         final selected = selectedId == c.internalId;
+        final idLabel = parseStoredDisplayCustomerNo(c.displayCustomerNo) > 0
+            ? displayCustomerNumberLabel(l10n, c.displayCustomerNo)
+            : null;
         return ListTile(
           leading: Icon(
             selected ? Icons.check_circle : Icons.person_outline,
             color: selected ? Theme.of(context).colorScheme.primary : null,
           ),
           title: Text(c.name),
-          subtitle: Text(c.phone ?? l10n.customersPhoneMissing),
+          subtitle: Text(
+            [
+              if (idLabel != null) idLabel,
+              c.phone ?? l10n.customersPhoneMissing,
+            ].join(' • '),
+          ),
           onTap: () => onSelected(c),
         );
       },

@@ -38,6 +38,12 @@ Future<img.Image?> loadShopLogoRasterIfPresent({
 }) async =>
     null;
 
+Future<img.Image?> loadShopBannerRasterIfPresent({
+  required String? relativePath,
+  required int maxWidthPx,
+}) async =>
+    null;
+
 /// User-uploaded logo, or bundled default when none is saved (web has no upload).
 Future<img.Image?> loadReceiptHeaderLogoRaster({
   required String? userLogoRelativePath,

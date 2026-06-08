@@ -5,6 +5,7 @@ import 'package:pride_v3/app/app_theme.dart';
 import 'package:pride_v3/core/calendar/app_calendar_format.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
 import 'package:pride_v3/core/calendar/report_month_period.dart';
+import 'package:pride_v3/core/formatting/display_order_no_format.dart';
 import 'package:pride_v3/core/widgets/pride_nav_card_tile.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
@@ -17,10 +18,13 @@ import '../data/providers/local_data_providers.dart';
 import '../features/orders/order_status_label.dart';
 import '../features/reports/report_money_format.dart';
 import '../features/settings/settings_providers.dart';
+import '../features/settings/shop_profile_provider.dart';
+import '../features/settings/support_guide_launcher.dart';
+import 'package:pride_v3/core/defaults/effective_shop_profile.dart';
+import 'package:pride_v3/core/widgets/shop_identity_header.dart';
+
 import '../licensing/license_providers.dart';
 import '../shell/shell_drawer_quick_actions.dart';
-import 'package:pride_v3/core/widgets/shop_branding_header.dart';
-
 import 'dashboard_widgets.dart';
 
 /// Edge drawer: live KPIs + shortcuts (plan-09). Read-only navigation; no CRUD here.
@@ -33,6 +37,18 @@ class DashboardDrawer extends ConsumerStatefulWidget {
 
 class _DashboardDrawerState extends ConsumerState<DashboardDrawer> {
   final _orderSearchController = TextEditingController();
+  var _showGuideLink = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadGuideLink();
+  }
+
+  Future<void> _loadGuideLink() async {
+    final url = await readPublishedHelpVideoUrl();
+    if (mounted) setState(() => _showGuideLink = url != null);
+  }
 
   @override
   void dispose() {
@@ -68,13 +84,34 @@ class _DashboardDrawerState extends ConsumerState<DashboardDrawer> {
     final notifAsync = ref.watch(appNotificationsStreamProvider);
     final notificationsMuted = ref.watch(notificationsMutedProvider);
 
+    final shopAsync = ref.watch(shopProfileProvider);
+
     return Drawer(
       width: width,
       backgroundColor: scheme.surface,
       child: Column(
         children: [
-          ShopBrandingHeader(
-            onClose: () => Navigator.of(context).pop(),
+          shopAsync.when(
+            data: (shop) {
+              final effective = effectiveShopProfile(shop, l10n);
+              return ShopIdentityHeader(
+                variant: ShopIdentityVariant.dashboard,
+                shopName: effective.name,
+                logoRelativePath: shop.logoRelativePath,
+                bannerRelativePath: shop.bannerRelativePath,
+                onClose: () => Navigator.of(context).pop(),
+              );
+            },
+            loading: () => ShopIdentityHeader(
+              variant: ShopIdentityVariant.dashboard,
+              shopName: l10n.defaultShopName,
+              onClose: () => Navigator.of(context).pop(),
+            ),
+            error: (_, _) => ShopIdentityHeader(
+              variant: ShopIdentityVariant.dashboard,
+              shopName: l10n.defaultShopName,
+              onClose: () => Navigator.of(context).pop(),
+            ),
           ),
           Expanded(
             child: ListView(
@@ -420,6 +457,16 @@ class _DashboardDrawerState extends ConsumerState<DashboardDrawer> {
                                       () => context.go('/app/customers'),
                                     ),
                                   ),
+                                  if (_showGuideLink)
+                                    DashboardQuickLinkChip(
+                                      label: l10n.dashboardQuickLinkSystemGuide,
+                                      icon: Icons.ondemand_video_outlined,
+                                      color: scheme.primary,
+                                      onPressed: () => _closeDrawerThen(
+                                        context,
+                                        () => openSupportGuideVideo(context),
+                                      ),
+                                    ),
                                 ],
                               ),
                             ),
@@ -686,7 +733,7 @@ class _OrderPreviewList extends StatelessWidget {
             child: ListTile(
               dense: true,
               title: Text(
-                l10n.ordersNumberPrefix(o.displayOrderNo),
+                displayOrderNumberLabel(l10n, o.displayOrderNo),
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
               subtitle: Text(

@@ -10,6 +10,7 @@ import '../../features/reports/report_money_format.dart';
 
 import '../../features/settings/shop_profile.dart';
 
+import 'package:pride_v3/core/formatting/display_order_no_format.dart';
 import '../../l10n/app_localizations.dart';
 
 import 'receipt_branding.dart';
@@ -122,7 +123,7 @@ String buildOrderInvoiceShareText({
 
   _writeShareHeader(buf, branding, l10n);
 
-  buf.writeln(l10n.ordersNumberPrefix(order.displayOrderNo));
+  buf.writeln(displayOrderNumberLabel(l10n, order.displayOrderNo));
 
   buf.writeln('${l10n.receiptCustomerLabel}: ${order.customerName}');
 

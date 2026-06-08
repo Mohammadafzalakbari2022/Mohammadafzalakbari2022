@@ -212,10 +212,9 @@ class _FigureTile extends ConsumerWidget {
                           ),
                           child: Text(
                             l10n.settingsStyleInactiveLabel,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 11,
-                            ),
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                  color: Colors.white,
+                                ),
                           ),
                         ),
                       ),

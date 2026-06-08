@@ -224,7 +224,7 @@ class MemoryOrderRepository implements OrderListRepository {
 
   List<OrderSummary> _sortedForShop(String shopId) {
     final list = _orders.where((o) => o.shopId == shopId).toList()
-      ..sort((a, b) => b.deliveryDate.compareTo(a.deliveryDate));
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
     return list;
   }
 

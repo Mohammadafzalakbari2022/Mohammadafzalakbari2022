@@ -1138,6 +1138,24 @@ abstract class AppLocalizations {
   /// **'That password does not match the owner password for this device.'**
   String get ownerPasswordMismatch;
 
+  /// No description provided for @ownerPasswordWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong owner password. Enter the shop owner\'s login password.'**
+  String get ownerPasswordWrong;
+
+  /// No description provided for @ownerPasswordOfflineUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot verify owner password offline. Connect to the internet and try again, or log in as the owner on this device first.'**
+  String get ownerPasswordOfflineUnavailable;
+
+  /// No description provided for @ownerPasswordOwnerMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner login is not saved on this device. Log in as the shop owner once while online, then try again.'**
+  String get ownerPasswordOwnerMissing;
+
   /// No description provided for @ordersDetailChangeStatusSoon.
   ///
   /// In en, this message translates to:
@@ -1225,7 +1243,7 @@ abstract class AppLocalizations {
   /// No description provided for @customersSearchHint.
   ///
   /// In en, this message translates to:
-  /// **'Search name or phone'**
+  /// **'Search name, phone, or ID'**
   String get customersSearchHint;
 
   /// No description provided for @customersEmptyTitle.
@@ -1239,6 +1257,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add customer'**
   String get customersAddCta;
+
+  /// No description provided for @customersNewOrderCta.
+  ///
+  /// In en, this message translates to:
+  /// **'New order'**
+  String get customersNewOrderCta;
+
+  /// No description provided for @customersNewOrderForCustomerTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'New order for this customer'**
+  String get customersNewOrderForCustomerTooltip;
+
+  /// No description provided for @ordersNewOrderFromThisOrderTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new order from this order'**
+  String get ordersNewOrderFromThisOrderTooltip;
 
   /// No description provided for @customersFilteredEmpty.
   ///
@@ -2614,6 +2650,48 @@ abstract class AppLocalizations {
   /// **'Theme'**
   String get settingsThemeTitle;
 
+  /// No description provided for @settingsFontSizeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Font size'**
+  String get settingsFontSizeTitle;
+
+  /// No description provided for @settingsFontSizeSmall.
+  ///
+  /// In en, this message translates to:
+  /// **'Small'**
+  String get settingsFontSizeSmall;
+
+  /// No description provided for @settingsFontSizeMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get settingsFontSizeMedium;
+
+  /// No description provided for @settingsFontSizeLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Large'**
+  String get settingsFontSizeLarge;
+
+  /// No description provided for @settingsFontFamilyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Font'**
+  String get settingsFontFamilyTitle;
+
+  /// No description provided for @settingsFontFamilyVazirmatn.
+  ///
+  /// In en, this message translates to:
+  /// **'Vazirmatn'**
+  String get settingsFontFamilyVazirmatn;
+
+  /// No description provided for @settingsFontFamilyNotoNaskh.
+  ///
+  /// In en, this message translates to:
+  /// **'Noto Naskh'**
+  String get settingsFontFamilyNotoNaskh;
+
   /// No description provided for @themeSystem.
   ///
   /// In en, this message translates to:
@@ -2914,6 +2992,18 @@ abstract class AppLocalizations {
   /// **'Loading…'**
   String get loading;
 
+  /// No description provided for @showMoreCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Show more'**
+  String get showMoreCta;
+
+  /// No description provided for @showLessCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Show less'**
+  String get showLessCta;
+
   /// No description provided for @genericError.
   ///
   /// In en, this message translates to:
@@ -3109,6 +3199,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Payment'**
   String get ordersComposerPaymentSheetTitle;
+
+  /// No description provided for @ordersComposerPaymentCancelCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get ordersComposerPaymentCancelCta;
 
   /// No description provided for @ordersComposerPaymentInitialOnSaveHint.
   ///
@@ -3342,6 +3438,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{date} • {remaining} remaining'**
   String ordersComposerRecentOrderRowSubtitle(String date, String remaining);
+
+  /// No description provided for @ordersComposerPreviousOrderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous order'**
+  String get ordersComposerPreviousOrderTitle;
+
+  /// No description provided for @ordersComposerPreviousOrderSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference only — not saved yet'**
+  String get ordersComposerPreviousOrderSubtitle;
+
+  /// No description provided for @ordersComposerNoPreviousOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'No previous orders for this customer'**
+  String get ordersComposerNoPreviousOrders;
+
+  /// No description provided for @ordersComposerUsePreviousMeasurementsCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Use previous measurements'**
+  String get ordersComposerUsePreviousMeasurementsCta;
+
+  /// No description provided for @ordersComposerUsePreviousStyleCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Use previous style'**
+  String get ordersComposerUsePreviousStyleCta;
+
+  /// No description provided for @ordersComposerUsePreviousFabricCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Use previous fabric'**
+  String get ordersComposerUsePreviousFabricCta;
+
+  /// No description provided for @ordersComposerUsePreviousDesignCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Use previous design'**
+  String get ordersComposerUsePreviousDesignCta;
+
+  /// No description provided for @ordersComposerPreviousValueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous'**
+  String get ordersComposerPreviousValueLabel;
+
+  /// No description provided for @ordersComposerCurrentValueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Current'**
+  String get ordersComposerCurrentValueLabel;
+
+  /// No description provided for @ordersComposerCompareWithPrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare with previous order'**
+  String get ordersComposerCompareWithPrevious;
+
+  /// No description provided for @ordersComposerChangeReferenceOrderCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Change reference order'**
+  String get ordersComposerChangeReferenceOrderCta;
+
+  /// No description provided for @ordersComposerPreviousDeliveryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous delivery'**
+  String get ordersComposerPreviousDeliveryLabel;
+
+  /// No description provided for @ordersComposerPreviousPaymentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous payment summary'**
+  String get ordersComposerPreviousPaymentLabel;
+
+  /// No description provided for @ordersComposerPreviousMeasurementsUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous measurements are not available yet. Try again in a moment.'**
+  String get ordersComposerPreviousMeasurementsUnavailable;
 
   /// No description provided for @ordersComposerMeasurementsSheetTitle.
   ///
@@ -4123,6 +4303,24 @@ abstract class AppLocalizations {
   /// **'Customer created.'**
   String get customersCreated;
 
+  /// No description provided for @customerIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer ID'**
+  String get customerIdLabel;
+
+  /// No description provided for @customerIdShortLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'ID'**
+  String get customerIdShortLabel;
+
+  /// No description provided for @customersIdPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'ID {number}'**
+  String customersIdPrefix(String number);
+
   /// No description provided for @customerNameLabel.
   ///
   /// In en, this message translates to:
@@ -4434,6 +4632,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delivered today'**
   String get dashboardQuickLinkDeliveredToday;
+
+  /// No description provided for @dashboardQuickLinkSystemGuide.
+  ///
+  /// In en, this message translates to:
+  /// **'How to use the app'**
+  String get dashboardQuickLinkSystemGuide;
 
   /// No description provided for @shellAppBarSyncA11y.
   ///
@@ -6947,6 +7151,36 @@ abstract class AppLocalizations {
   /// **'Invoice created and sent with Khayat'**
   String get invoicePridePromoLine;
 
+  /// No description provided for @invoiceContinuedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Continued'**
+  String get invoiceContinuedLabel;
+
+  /// No description provided for @invoiceTakenDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken'**
+  String get invoiceTakenDateLabel;
+
+  /// No description provided for @invoicePaymentDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get invoicePaymentDateLabel;
+
+  /// No description provided for @invoiceMeasurementProfileLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Measurement profile'**
+  String get invoiceMeasurementProfileLabel;
+
+  /// No description provided for @invoiceStyleNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Style'**
+  String get invoiceStyleNameLabel;
+
   /// No description provided for @receiptStyleLabel.
   ///
   /// In en, this message translates to:
@@ -7048,6 +7282,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Invoice header logo'**
   String get shopProfileLogoSectionTitle;
+
+  /// No description provided for @shopProfileBannerSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard & invoice banner'**
+  String get shopProfileBannerSectionTitle;
+
+  /// No description provided for @shopProfileBannerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Wide image (~3:1) shown on the dashboard and PDF invoices. Uploading your own image replaces the default branded banner until removed.'**
+  String get shopProfileBannerSubtitle;
+
+  /// No description provided for @shopProfileBannerPickCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload banner'**
+  String get shopProfileBannerPickCta;
+
+  /// No description provided for @shopProfileBannerRemoveCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove banner'**
+  String get shopProfileBannerRemoveCta;
+
+  /// No description provided for @shopProfileBannerSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Banner saved.'**
+  String get shopProfileBannerSaved;
+
+  /// No description provided for @shopProfileBannerWebHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Banner upload is available on Android and desktop apps.'**
+  String get shopProfileBannerWebHint;
 
   /// No description provided for @shopProfileLogoSubtitle.
   ///

@@ -72,7 +72,9 @@ class ShopBrandingHeader extends ConsumerWidget {
                           ),
                         ),
                         Icon(
-                          Icons.chevron_right,
+                          Directionality.of(context) == TextDirection.rtl
+                              ? Icons.chevron_left
+                              : Icons.chevron_right,
                           color: scheme.onPrimaryContainer.withValues(
                             alpha: 0.7,
                           ),

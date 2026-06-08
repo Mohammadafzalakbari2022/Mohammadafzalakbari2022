@@ -14,6 +14,9 @@ class CustomerEntity {
 
   late String name;
 
+  /// Shop-scoped stable display number (8-digit storage, e.g. 00000001).
+  late String displayCustomerNo;
+
   String? phone;
 
   String? address;

@@ -6,7 +6,10 @@ import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:pride_v3/core/calendar/app_calendar_format.dart';
+import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
 import 'package:pride_v3/core/feedback/app_feedback.dart';
+import 'package:pride_v3/core/formatting/display_order_no_format.dart';
 import 'package:pride_v3/core/printing/invoice_pdf.dart';
 import 'package:pride_v3/core/printing/invoice_pdf_images.dart';
 import 'package:pride_v3/core/printing/invoice_share_contact.dart';
@@ -48,10 +51,19 @@ Future<void> shareOrderInvoice({
 
   try {
     final shop = ref.read(shopProfileProvider).valueOrNull;
-    final locale = Localizations.localeOf(context);
-    final isRtl = locale.languageCode == 'fa' || locale.languageCode == 'ps';
+    final locale = Localizations.localeOf(context).toString();
+    final calendar = ref.read(dateCalendarSystemProvider);
+    final localeObj = Localizations.localeOf(context);
+    final isRtl =
+        localeObj.languageCode == 'fa' || localeObj.languageCode == 'ps';
     final textDirection =
         isRtl ? pw.TextDirection.rtl : pw.TextDirection.ltr;
+    final createdDateText = AppCalendarFormat.dateTimeMedium(
+      l10n,
+      calendar,
+      order.createdAt,
+      locale,
+    );
 
     final styleSnap =
         ref.read(orderStyleSnapshotProvider(order.internalId)).valueOrNull;
@@ -73,6 +85,9 @@ Future<void> shareOrderInvoice({
       deliveryDateText: deliveryDateText,
       statusText: statusText,
       textDirection: textDirection,
+      createdDateText: createdDateText,
+      formatPaymentDate: (dt) =>
+          AppCalendarFormat.mediumDate(l10n, calendar, dt, locale),
       designRail: designRail,
       measurementSnap: measurementSnap,
       styleSnap: styleSnap,
@@ -102,6 +117,7 @@ Future<void> shareOrderInvoice({
       }
     }
 
+    final displayNo = formatDisplayOrderNo(order.displayOrderNo);
     final filename = 'invoice_${order.displayOrderNo}.pdf';
 
     closeLoadingDialog();
@@ -113,9 +129,9 @@ Future<void> shareOrderInvoice({
       await File(path).writeAsBytes(pdfBytes, flush: true);
     }
 
-    final subject = l10n.orderShareInvoiceSubject(order.displayOrderNo);
+    final subject = l10n.orderShareInvoiceSubject(displayNo);
     final caption = l10n.orderShareInvoiceWhatsappCaption(
-      order.displayOrderNo,
+      displayNo,
       order.customerName,
     );
 

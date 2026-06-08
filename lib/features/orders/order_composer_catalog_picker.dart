@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pride_v3/core/widgets/pride_modal_bottom_sheet.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../data/local/catalog_item_summary.dart';
@@ -47,10 +48,8 @@ Future<CatalogPickResult?> showOrderComposerCatalogPicker({
   required WidgetRef ref,
   String? selectedId,
 }) {
-  return showModalBottomSheet<CatalogPickResult>(
+  return showPrideModalBottomSheet<CatalogPickResult>(
     context: context,
-    isScrollControlled: true,
-    useSafeArea: true,
     builder: (ctx) => _OrderComposerCatalogPickerSheet(
       selectedId: selectedId,
     ),
@@ -120,9 +119,9 @@ class _OrderComposerCatalogPickerSheetState
 
     return DraggableScrollableSheet(
       expand: false,
-      initialChildSize: 0.92,
-      minChildSize: 0.5,
-      maxChildSize: 0.96,
+      initialChildSize: kPrideSheetInitialChildSize,
+      minChildSize: kPrideSheetMinChildSize,
+      maxChildSize: kPrideSheetMaxChildSize,
       builder: (context, scrollController) {
         return Material(
           child: Column(
@@ -231,7 +230,7 @@ class _OrderComposerCatalogPickerSheetState
                                   .colorScheme
                                   .primaryContainer
                                   .withValues(alpha: 0.5)
-                              : Theme.of(context).colorScheme.surfaceContainerLow,
+                              : Theme.of(context).colorScheme.surface,
                           borderRadius: BorderRadius.circular(12),
                           clipBehavior: Clip.antiAlias,
                           child: InkWell(

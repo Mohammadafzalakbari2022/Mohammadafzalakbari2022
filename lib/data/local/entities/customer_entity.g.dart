@@ -32,48 +32,53 @@ const CustomerEntitySchema = CollectionSchema(
       name: r'deletedAt',
       type: IsarType.dateTime,
     ),
-    r'internalId': PropertySchema(
+    r'displayCustomerNo': PropertySchema(
       id: 3,
+      name: r'displayCustomerNo',
+      type: IsarType.string,
+    ),
+    r'internalId': PropertySchema(
+      id: 4,
       name: r'internalId',
       type: IsarType.string,
     ),
     r'lastCatalogDesignName': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'lastCatalogDesignName',
       type: IsarType.string,
     ),
     r'lastCatalogDesignerShopName': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'lastCatalogDesignerShopName',
       type: IsarType.string,
     ),
     r'lastCatalogItemInternalId': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'lastCatalogItemInternalId',
       type: IsarType.string,
     ),
     r'lastCatalogThumbnailPath': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'lastCatalogThumbnailPath',
       type: IsarType.string,
     ),
     r'name': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'name',
       type: IsarType.string,
     ),
     r'notes': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'notes',
       type: IsarType.string,
     ),
     r'phone': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'phone',
       type: IsarType.string,
     ),
     r'shopId': PropertySchema(
-      id: 11,
+      id: 12,
       name: r'shopId',
       type: IsarType.string,
     )
@@ -144,6 +149,7 @@ int _customerEntityEstimateSize(
       bytesCount += 3 + value.length * 3;
     }
   }
+  bytesCount += 3 + object.displayCustomerNo.length * 3;
   bytesCount += 3 + object.internalId.length * 3;
   bytesCount += 3 + object.lastCatalogDesignName.length * 3;
   bytesCount += 3 + object.lastCatalogDesignerShopName.length * 3;
@@ -185,15 +191,16 @@ void _customerEntitySerialize(
   writer.writeString(offsets[0], object.address);
   writer.writeDateTime(offsets[1], object.createdAt);
   writer.writeDateTime(offsets[2], object.deletedAt);
-  writer.writeString(offsets[3], object.internalId);
-  writer.writeString(offsets[4], object.lastCatalogDesignName);
-  writer.writeString(offsets[5], object.lastCatalogDesignerShopName);
-  writer.writeString(offsets[6], object.lastCatalogItemInternalId);
-  writer.writeString(offsets[7], object.lastCatalogThumbnailPath);
-  writer.writeString(offsets[8], object.name);
-  writer.writeString(offsets[9], object.notes);
-  writer.writeString(offsets[10], object.phone);
-  writer.writeString(offsets[11], object.shopId);
+  writer.writeString(offsets[3], object.displayCustomerNo);
+  writer.writeString(offsets[4], object.internalId);
+  writer.writeString(offsets[5], object.lastCatalogDesignName);
+  writer.writeString(offsets[6], object.lastCatalogDesignerShopName);
+  writer.writeString(offsets[7], object.lastCatalogItemInternalId);
+  writer.writeString(offsets[8], object.lastCatalogThumbnailPath);
+  writer.writeString(offsets[9], object.name);
+  writer.writeString(offsets[10], object.notes);
+  writer.writeString(offsets[11], object.phone);
+  writer.writeString(offsets[12], object.shopId);
 }
 
 CustomerEntity _customerEntityDeserialize(
@@ -206,16 +213,17 @@ CustomerEntity _customerEntityDeserialize(
   object.address = reader.readStringOrNull(offsets[0]);
   object.createdAt = reader.readDateTime(offsets[1]);
   object.deletedAt = reader.readDateTimeOrNull(offsets[2]);
+  object.displayCustomerNo = reader.readString(offsets[3]);
   object.id = id;
-  object.internalId = reader.readString(offsets[3]);
-  object.lastCatalogDesignName = reader.readString(offsets[4]);
-  object.lastCatalogDesignerShopName = reader.readString(offsets[5]);
-  object.lastCatalogItemInternalId = reader.readStringOrNull(offsets[6]);
-  object.lastCatalogThumbnailPath = reader.readStringOrNull(offsets[7]);
-  object.name = reader.readString(offsets[8]);
-  object.notes = reader.readStringOrNull(offsets[9]);
-  object.phone = reader.readStringOrNull(offsets[10]);
-  object.shopId = reader.readString(offsets[11]);
+  object.internalId = reader.readString(offsets[4]);
+  object.lastCatalogDesignName = reader.readString(offsets[5]);
+  object.lastCatalogDesignerShopName = reader.readString(offsets[6]);
+  object.lastCatalogItemInternalId = reader.readStringOrNull(offsets[7]);
+  object.lastCatalogThumbnailPath = reader.readStringOrNull(offsets[8]);
+  object.name = reader.readString(offsets[9]);
+  object.notes = reader.readStringOrNull(offsets[10]);
+  object.phone = reader.readStringOrNull(offsets[11]);
+  object.shopId = reader.readString(offsets[12]);
   return object;
 }
 
@@ -239,16 +247,18 @@ P _customerEntityDeserializeProp<P>(
     case 5:
       return (reader.readString(offset)) as P;
     case 6:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 7:
       return (reader.readStringOrNull(offset)) as P;
     case 8:
-      return (reader.readString(offset)) as P;
-    case 9:
       return (reader.readStringOrNull(offset)) as P;
+    case 9:
+      return (reader.readString(offset)) as P;
     case 10:
       return (reader.readStringOrNull(offset)) as P;
     case 11:
+      return (reader.readStringOrNull(offset)) as P;
+    case 12:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -878,6 +888,142 @@ extension CustomerEntityQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      displayCustomerNoEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'displayCustomerNo',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      displayCustomerNoGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'displayCustomerNo',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      displayCustomerNoLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'displayCustomerNo',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      displayCustomerNoBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'displayCustomerNo',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      displayCustomerNoStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'displayCustomerNo',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      displayCustomerNoEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'displayCustomerNo',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      displayCustomerNoContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'displayCustomerNo',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      displayCustomerNoMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'displayCustomerNo',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      displayCustomerNoIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'displayCustomerNo',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterFilterCondition>
+      displayCustomerNoIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'displayCustomerNo',
+        value: '',
       ));
     });
   }
@@ -2289,6 +2435,20 @@ extension CustomerEntityQuerySortBy
   }
 
   QueryBuilder<CustomerEntity, CustomerEntity, QAfterSortBy>
+      sortByDisplayCustomerNo() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'displayCustomerNo', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterSortBy>
+      sortByDisplayCustomerNoDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'displayCustomerNo', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterSortBy>
       sortByInternalId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'internalId', Sort.asc);
@@ -2449,6 +2609,20 @@ extension CustomerEntityQuerySortThenBy
     });
   }
 
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterSortBy>
+      thenByDisplayCustomerNo() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'displayCustomerNo', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CustomerEntity, CustomerEntity, QAfterSortBy>
+      thenByDisplayCustomerNoDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'displayCustomerNo', Sort.desc);
+    });
+  }
+
   QueryBuilder<CustomerEntity, CustomerEntity, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -2604,6 +2778,14 @@ extension CustomerEntityQueryWhereDistinct
     });
   }
 
+  QueryBuilder<CustomerEntity, CustomerEntity, QDistinct>
+      distinctByDisplayCustomerNo({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'displayCustomerNo',
+          caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<CustomerEntity, CustomerEntity, QDistinct> distinctByInternalId(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -2696,6 +2878,13 @@ extension CustomerEntityQueryProperty
       deletedAtProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<CustomerEntity, String, QQueryOperations>
+      displayCustomerNoProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'displayCustomerNo');
     });
   }
 

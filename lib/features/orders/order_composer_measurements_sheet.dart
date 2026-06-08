@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pride_v3/core/widgets/pride_modal_bottom_sheet.dart';
 import 'package:pride_v3/core/widgets/pride_numeric_text_field.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
@@ -38,10 +39,8 @@ Future<OrderMeasurementsEditorResult?> showOrderMeasurementsEditorSheet({
   required String initialProfileLabel,
   required List<MeasurementProfileSummary> profiles,
 }) {
-  return showModalBottomSheet<OrderMeasurementsEditorResult>(
+  return showPrideModalBottomSheet<OrderMeasurementsEditorResult>(
     context: context,
-    isScrollControlled: true,
-    showDragHandle: true,
     builder: (ctx) {
       return _OrderMeasurementsEditorBody(
         l10n: l10n,
@@ -114,9 +113,8 @@ class _OrderMeasurementsEditorBodyState
 
   Future<void> _pickProfile() async {
     if (widget.profiles.isEmpty) return;
-    final picked = await showModalBottomSheet<MeasurementProfileSummary>(
+    final picked = await showPrideModalBottomSheet<MeasurementProfileSummary>(
       context: context,
-      showDragHandle: true,
       builder: (ctx) {
         return SafeArea(
           child: ListView(
@@ -229,9 +227,9 @@ class _OrderMeasurementsEditorBodyState
         final sorted = [...types]..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
         return DraggableScrollableSheet(
           expand: false,
-          initialChildSize: 0.72,
-          minChildSize: 0.4,
-          maxChildSize: 0.92,
+          initialChildSize: kPrideSheetInitialChildSize,
+          minChildSize: kPrideSheetMinChildSize,
+          maxChildSize: kPrideSheetMaxChildSize,
           builder: (ctx, scroll) {
             return Column(
               children: [

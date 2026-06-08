@@ -362,33 +362,39 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               children: [
                 const SizedBox(height: 16),
                 Center(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(36),
-                      boxShadow: [
-                        BoxShadow(
-                          color: theme.colorScheme.primary.withValues(
-                            alpha: 0.18,
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final side = (MediaQuery.sizeOf(context).width * 0.55)
+                          .clamp(180.0, 240.0);
+                      return DecoratedBox(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(36),
+                          boxShadow: [
+                            BoxShadow(
+                              color: theme.colorScheme.primary.withValues(
+                                alpha: 0.18,
+                              ),
+                              blurRadius: 28,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(36),
+                          child: Image.asset(
+                            kLoginBrandLogoAsset,
+                            width: side,
+                            height: side,
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) => Icon(
+                              Icons.storefront_rounded,
+                              size: side * 0.57,
+                              color: theme.colorScheme.primary,
+                            ),
                           ),
-                          blurRadius: 28,
-                          offset: const Offset(0, 10),
                         ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(36),
-                      child: Image.asset(
-                        kLoginBrandLogoAsset,
-                        width: 168,
-                        height: 168,
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) => Icon(
-                          Icons.storefront_rounded,
-                          size: 96,
-                          color: theme.colorScheme.primary,
-                        ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
                 ),
                 const SizedBox(height: 20),

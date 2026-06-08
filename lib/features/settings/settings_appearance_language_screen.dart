@@ -79,6 +79,64 @@ class SettingsAppearanceLanguageScreen extends ConsumerWidget {
                 .set(s.first),
           ),
           const SizedBox(height: 24),
+          Text(
+            l10n.settingsFontSizeTitle,
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
+          const SizedBox(height: 8),
+          SegmentedButton<PrideFontSizePreset>(
+            segments: [
+              ButtonSegment(
+                value: PrideFontSizePreset.small,
+                label: Text(l10n.settingsFontSizeSmall),
+              ),
+              ButtonSegment(
+                value: PrideFontSizePreset.medium,
+                label: Text(l10n.settingsFontSizeMedium),
+              ),
+              ButtonSegment(
+                value: PrideFontSizePreset.large,
+                label: Text(l10n.settingsFontSizeLarge),
+              ),
+            ],
+            selected: {ref.watch(fontSizePresetProvider)},
+            onSelectionChanged: (s) async {
+              final preset = s.first;
+              ref.read(fontSizePresetProvider.notifier).state = preset;
+              await persistFontSizePreset(
+                ref.read(sharedPreferencesProvider),
+                preset,
+              );
+            },
+          ),
+          const SizedBox(height: 24),
+          Text(
+            l10n.settingsFontFamilyTitle,
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
+          const SizedBox(height: 8),
+          SegmentedButton<PrideFontFamilyPreset>(
+            segments: [
+              ButtonSegment(
+                value: PrideFontFamilyPreset.vazirmatn,
+                label: Text(l10n.settingsFontFamilyVazirmatn),
+              ),
+              ButtonSegment(
+                value: PrideFontFamilyPreset.notoNaskh,
+                label: Text(l10n.settingsFontFamilyNotoNaskh),
+              ),
+            ],
+            selected: {ref.watch(fontFamilyPresetProvider)},
+            onSelectionChanged: (s) async {
+              final preset = s.first;
+              ref.read(fontFamilyPresetProvider.notifier).state = preset;
+              await persistFontFamilyPreset(
+                ref.read(sharedPreferencesProvider),
+                preset,
+              );
+            },
+          ),
+          const SizedBox(height: 24),
           Text(l10n.settingsLanguageTitle,
               style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: 8),

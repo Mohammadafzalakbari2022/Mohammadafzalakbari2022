@@ -7,6 +7,7 @@ class ShopProfile {
     this.notes,
     this.receiptThankYouMessage,
     this.logoRelativePath,
+    this.bannerRelativePath,
   });
 
   final String name;
@@ -20,6 +21,9 @@ class ShopProfile {
   /// App-documents relative path (POSIX segments), e.g. `branding/shop_logo.png`.
   final String? logoRelativePath;
 
+  /// Wide banner path, e.g. `branding/shop_banner.png`.
+  final String? bannerRelativePath;
+
   ShopProfile copyWith({
     String? name,
     String? address,
@@ -27,7 +31,9 @@ class ShopProfile {
     String? notes,
     String? receiptThankYouMessage,
     String? logoRelativePath,
+    String? bannerRelativePath,
     bool clearLogo = false,
+    bool clearBanner = false,
   }) {
     return ShopProfile(
       name: name ?? this.name,
@@ -38,6 +44,8 @@ class ShopProfile {
           receiptThankYouMessage ?? this.receiptThankYouMessage,
       logoRelativePath:
           clearLogo ? null : (logoRelativePath ?? this.logoRelativePath),
+      bannerRelativePath:
+          clearBanner ? null : (bannerRelativePath ?? this.bannerRelativePath),
     );
   }
 }

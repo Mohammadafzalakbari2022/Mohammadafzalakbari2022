@@ -466,7 +466,9 @@ ButtonStyle prideButtonStyle(BuildContext context, PrideButtonVariant variant) {
 
 /// Material 3 themes — vibrant accents, airy surfaces, semantic actions.
 
-ThemeData buildPrideLightTheme() {
+ThemeData buildPrideLightTheme({
+  String? fontFamily,
+}) {
   final base = ColorScheme.fromSeed(
     seedColor: _seed,
 
@@ -533,10 +535,17 @@ ThemeData buildPrideLightTheme() {
     shadow: const Color(0xFF0F172A),
   );
 
-  return _buildTheme(scheme, Brightness.light, PrideActionColors.light);
+  return _buildTheme(
+    scheme,
+    Brightness.light,
+    PrideActionColors.light,
+    fontFamily: fontFamily,
+  );
 }
 
-ThemeData buildPrideDarkTheme() {
+ThemeData buildPrideDarkTheme({
+  String? fontFamily,
+}) {
   final base = ColorScheme.fromSeed(
     seedColor: _seed,
 
@@ -601,16 +610,20 @@ ThemeData buildPrideDarkTheme() {
     surfaceTint: _seed,
   );
 
-  return _buildTheme(scheme, Brightness.dark, PrideActionColors.dark);
+  return _buildTheme(
+    scheme,
+    Brightness.dark,
+    PrideActionColors.dark,
+    fontFamily: fontFamily,
+  );
 }
 
 ThemeData _buildTheme(
   ColorScheme scheme,
-
   Brightness brightness,
-
-  PrideActionColors actions,
-) {
+  PrideActionColors actions, {
+  String? fontFamily,
+}) {
   final isDark = brightness == Brightness.dark;
 
   final snackShape = RoundedRectangleBorder(
@@ -623,6 +636,7 @@ ThemeData _buildTheme(
   final textTheme = typography.apply(
     bodyColor: scheme.onSurface,
     displayColor: scheme.onSurface,
+    fontFamily: fontFamily,
   );
 
   return ThemeData(
@@ -637,6 +651,7 @@ ThemeData _buildTheme(
     scaffoldBackgroundColor: scheme.surface,
 
     textTheme: textTheme,
+    fontFamily: fontFamily,
 
     extensions: [actions],
 
@@ -905,6 +920,23 @@ ThemeData _buildTheme(
     ),
   );
 }
+
+/// Soft tinted fill for order-detail / customer field tiles (avoids dull gray slabs).
+Color prideFriendlyTileFill(ColorScheme scheme, {int variant = 0}) {
+  final tint = switch (variant % 3) {
+    0 => scheme.primaryContainer,
+    1 => scheme.secondaryContainer,
+    2 => scheme.tertiaryContainer,
+    _ => scheme.primaryContainer,
+  };
+  return Color.alphaBlend(
+    tint.withValues(alpha: 0.30),
+    scheme.surfaceContainerLowest,
+  );
+}
+
+/// List/card surface on tab screens — white cards on airy [ColorScheme.surface].
+Color prideListCardSurface(ColorScheme scheme) => scheme.surfaceContainerLowest;
 
 /// Payment / ledger actions (teal).
 

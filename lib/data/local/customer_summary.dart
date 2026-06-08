@@ -4,6 +4,7 @@ class CustomerSummary {
     required this.shopId,
     required this.internalId,
     required this.name,
+    this.displayCustomerNo = '',
     this.phone,
     this.address,
     this.notes,
@@ -17,6 +18,7 @@ class CustomerSummary {
   final String shopId;
   final String internalId;
   final String name;
+  final String displayCustomerNo;
   final String? phone;
   final String? address;
   final String? notes;

@@ -302,7 +302,7 @@ class _CatalogTabScreenState extends ConsumerState<CatalogTabScreen> {
                       crossAxisCount: _gridCrossAxisCount(width),
                       crossAxisSpacing: 4,
                       mainAxisSpacing: 4,
-                      childAspectRatio: 1,
+                      childAspectRatio: 0.75,
                     ),
                     itemCount: filtered.length,
                     itemBuilder: (context, i) {
@@ -311,16 +311,15 @@ class _CatalogTabScreenState extends ConsumerState<CatalogTabScreen> {
                       final isRemoteShared =
                           showShared && it.shopId != myShopId;
                       return Material(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .surfaceContainerHighest,
+                        color: Theme.of(context).colorScheme.surface,
                         clipBehavior: Clip.antiAlias,
                         child: InkWell(
                           onTap: isRemoteShared
                               ? null
-                              : () => CatalogFullscreenViewer.open(
+                              : () => CatalogFullscreenViewer.openGallery(
                                     context,
-                                    it.internalId,
+                                    items: filtered,
+                                    initialIndex: i,
                                   ),
                           child: Stack(
                             fit: StackFit.expand,

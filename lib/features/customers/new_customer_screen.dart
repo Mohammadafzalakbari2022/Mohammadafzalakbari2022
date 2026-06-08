@@ -13,6 +13,7 @@ import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../auth/auth_providers.dart';
 import '../../data/local/customer_summary.dart';
+import '../../data/local/customer_display_no.dart';
 import '../../data/local/sync_outbox_kinds.dart';
 import '../../data/providers/local_data_providers.dart';
 import '../orders/order_composer_customer_picker.dart';
@@ -25,11 +26,13 @@ class NewCustomerForOrderResult {
     required this.internalId,
     required this.name,
     this.phone,
+    this.displayCustomerNo = '',
   });
 
   final String internalId;
   final String name;
   final String? phone;
+  final String displayCustomerNo;
 }
 
 class NewCustomerScreen extends ConsumerStatefulWidget {
@@ -77,6 +80,7 @@ class _NewCustomerScreenState extends ConsumerState<NewCustomerScreen> {
         internalId: picked.internalId,
         name: picked.name,
         phone: picked.phone,
+        displayCustomerNo: picked.displayCustomerNo,
       ),
     );
   }
@@ -108,6 +112,8 @@ class _NewCustomerScreenState extends ConsumerState<NewCustomerScreen> {
         notes: '',
       );
       final createdAt = DateTime.now();
+      final customers = await repo.watchCustomers(shopId).first;
+      final created = customers.firstWhere((c) => c.internalId == id);
       recordSyncOutboxMutation(
         ref,
         kind: SyncOutboxKinds.customerUpsert,
@@ -115,6 +121,9 @@ class _NewCustomerScreenState extends ConsumerState<NewCustomerScreen> {
         shopId: shopId,
         payloadJson: jsonEncode({
           'name': _name.text.trim(),
+          ...customerUpsertPayloadExtras(
+            displayCustomerNo: created.displayCustomerNo,
+          ),
           if (_phone.text.trim().isNotEmpty) 'phone': _phone.text.trim(),
           if (_address.text.trim().isNotEmpty) 'address': _address.text.trim(),
           'created_at': createdAt.toUtc().toIso8601String(),
@@ -137,6 +146,7 @@ class _NewCustomerScreenState extends ConsumerState<NewCustomerScreen> {
             phone: _phone.text.trim().isEmpty
                 ? null
                 : normalizeAfghanPhoneDigits(_phone.text.trim()),
+            displayCustomerNo: created.displayCustomerNo,
           ),
         );
       } else {

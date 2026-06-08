@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+import 'package:pride_v3/core/formatting/app_number_format.dart';
 import 'package:pride_v3/core/calendar/app_calendar_format.dart';
 import 'package:pride_v3/core/calendar/app_date_picker.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
@@ -18,9 +18,13 @@ import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../auth/auth_providers.dart';
 import '../customers/new_customer_screen.dart';
+import '../customers/customer_search_filter.dart';
+import '../../data/local/customer_display_no.dart';
 import '../../data/local/customer_summary.dart';
+import 'package:pride_v3/core/formatting/display_customer_no_format.dart';
 import '../../data/local/dev_shop_constants.dart';
 import '../../data/local/order_measurement_snapshot_item_input.dart';
+import '../../data/local/order_measurement_snapshot_view.dart';
 import '../../data/local/order_summary.dart';
 import '../../data/local/measurement_profile_summary.dart';
 import '../../data/local/payment_summary.dart';
@@ -33,6 +37,7 @@ import 'order_composer_customer_picker.dart';
 import 'order_composer_measurements_sheet.dart';
 import 'order_composer_progress_header.dart';
 import 'order_composer_fabric_sheet.dart';
+import 'order_composer_reference.dart';
 import 'order_composer_style_sheet.dart';
 import 'order_invoice_share.dart';
 import 'package:pride_v3/core/formatting/digit_normalizer.dart';
@@ -42,8 +47,67 @@ import 'order_payment_rules.dart';
 import 'order_payment_sheet.dart';
 import 'order_status_label.dart';
 
+/// Route to the order composer, optionally with a preselected customer and
+/// in-memory reference order override.
+String orderComposerRoute({
+  String? customerId,
+  String? referenceOrderId,
+}) {
+  final id = customerId?.trim();
+  final refId = referenceOrderId?.trim();
+  final params = <String, String>{};
+  if (id != null && id.isNotEmpty) {
+    params['customerId'] = id;
+  }
+  if (refId != null && refId.isNotEmpty) {
+    params['referenceOrderId'] = refId;
+  }
+  if (params.isEmpty) return '/app/orders/new';
+  final query = params.entries
+      .map((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
+      .join('&');
+  return '/app/orders/new?$query';
+}
+
+/// Validates [referenceOrderId] belongs to [customerId]; otherwise returns null.
+String? resolveInitialReferenceOrderId({
+  required List<OrderSummary> allOrders,
+  required String customerId,
+  String? referenceOrderId,
+}) {
+  final pick = referenceOrderId?.trim();
+  if (pick == null || pick.isEmpty) return null;
+  final customerOrders = customerOrdersForReference(allOrders, customerId);
+  for (final o in customerOrders) {
+    if (o.internalId == pick) return o.internalId;
+  }
+  return null;
+}
+
+/// Resolves [customerId] against [customers] for composer prefill.
+CustomerSummary? resolveComposerPrefillCustomer(
+  List<CustomerSummary> customers,
+  String? customerId,
+) {
+  final id = customerId?.trim();
+  if (id == null || id.isEmpty) return null;
+  for (final c in customers) {
+    if (c.internalId == id) return c;
+  }
+  return null;
+}
+
 class OrderComposerScreen extends ConsumerStatefulWidget {
-  const OrderComposerScreen({super.key});
+  const OrderComposerScreen({
+    super.key,
+    this.initialCustomerId,
+    this.initialReferenceOrderId,
+  });
+
+  final String? initialCustomerId;
+
+  /// In-memory reference override only; never persisted on the new order.
+  final String? initialReferenceOrderId;
 
   @override
   ConsumerState<OrderComposerScreen> createState() => _OrderComposerScreenState();
@@ -53,6 +117,12 @@ const _kComposerSectionGap = 14.0;
 
 class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
   final _customerSearchController = TextEditingController();
+
+  var _customerPrefillApplied = false;
+  var _referencePrefillApplied = false;
+
+  /// In-memory only; not saved on the new order.
+  String? _referenceOrderOverrideId;
 
   String? _selectedCustomerId;
   String? _selectedCustomerLabel;
@@ -96,6 +166,17 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       Listenable.merge([_totalController, _paidController]);
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.initialCustomerId != null &&
+        widget.initialCustomerId!.trim().isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _attemptCustomerPrefill();
+      });
+    }
+  }
+
+  @override
   void dispose() {
     _customerSearchController.dispose();
     _measurementsController.dispose();
@@ -123,13 +204,25 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     return true;
   }
 
+  String _customerSummaryLabel(CustomerSummary c) {
+    final parts = <String>[c.name];
+    if (parseStoredDisplayCustomerNo(c.displayCustomerNo) > 0) {
+      parts.add(formatDisplayCustomerNo(c.displayCustomerNo));
+    }
+    final phone = c.phone?.trim();
+    if (phone != null && phone.isNotEmpty) {
+      parts.add(phone);
+    }
+    return parts.join(' • ');
+  }
+
   void _applyCustomer(CustomerSummary c) {
     setState(() {
+      _referenceOrderOverrideId = null;
       _selectedCustomerId = c.internalId;
       _selectedCustomerName = c.name;
       _selectedCustomerPhone = c.phone;
-      _selectedCustomerLabel =
-          c.phone == null ? c.name : '${c.name} • ${c.phone}';
+      _selectedCustomerLabel = _customerSummaryLabel(c);
       _measurementSourceProfileId = null;
       _measurementSourceProfileLabel = '';
       _measurementSnapshotItems = [];
@@ -148,11 +241,65 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       _fabricId = '';
       _fabricNamePresetInternalId = null;
       _fabricColorPresetInternalId = null;
+      _customerSearchController.clear();
     });
+  }
+
+  void _attemptCustomerPrefill() {
+    if (_customerPrefillApplied || !mounted) return;
+
+    final asyncCustomers = ref.read(customersListStreamProvider);
+    if (asyncCustomers.isLoading) return;
+
+    final match = resolveComposerPrefillCustomer(
+      asyncCustomers.valueOrNull ?? const [],
+      widget.initialCustomerId,
+    );
+
+    if (match != null) {
+      _customerPrefillApplied = true;
+      _applyCustomer(match);
+      _attemptReferencePrefill(match.internalId);
+      return;
+    }
+
+    if (asyncCustomers.hasValue) {
+      _customerPrefillApplied = true;
+      final l10n = AppLocalizations.of(context)!;
+      showAppFeedback(
+        context,
+        ref,
+        kind: AppFeedbackKind.info,
+        message: l10n.customerNotFound,
+      );
+    }
+  }
+
+  void _attemptReferencePrefill(String customerId) {
+    if (_referencePrefillApplied || !mounted) return;
+    final initialRef = widget.initialReferenceOrderId;
+    if (initialRef == null || initialRef.trim().isEmpty) {
+      _referencePrefillApplied = true;
+      return;
+    }
+
+    final asyncOrders = ref.read(ordersListStreamProvider);
+    if (asyncOrders.isLoading) return;
+
+    final validId = resolveInitialReferenceOrderId(
+      allOrders: asyncOrders.valueOrNull ?? const [],
+      customerId: customerId,
+      referenceOrderId: initialRef,
+    );
+    _referencePrefillApplied = true;
+    if (validId != null) {
+      setState(() => _referenceOrderOverrideId = validId);
+    }
   }
 
   void _clearSelectedCustomer() {
     setState(() {
+      _referenceOrderOverrideId = null;
       _selectedCustomerId = null;
       _selectedCustomerLabel = null;
       _selectedCustomerName = null;
@@ -269,6 +416,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     );
     if (ok != true) return;
     setState(() {
+      _referenceOrderOverrideId = null;
       _selectedCustomerId = null;
       _selectedCustomerLabel = null;
       _selectedCustomerName = null;
@@ -305,6 +453,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
         shopId: shopId,
         internalId: created.internalId,
         name: created.name,
+        displayCustomerNo: created.displayCustomerNo,
         phone: created.phone,
         createdAt: DateTime.now(),
       ),
@@ -328,6 +477,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       customers: list,
       l10n: l10n,
       selectedId: _selectedCustomerId,
+      initialQuery: _customerSearchController.text,
     );
     if (picked != null && mounted) _applyCustomer(picked);
   }
@@ -352,6 +502,88 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
         }
       }
     }
+  }
+
+  Future<void> _applyPreviousMeasurements(OrderSummary refOrder) async {
+    OrderMeasurementSnapshotView? snap = ref
+        .read(orderMeasurementSnapshotProvider(refOrder.internalId))
+        .valueOrNull;
+    snap ??= await ref.read(
+      orderMeasurementSnapshotProvider(refOrder.internalId).future,
+    );
+    if (!mounted) return;
+    final copy = buildMeasurementsCopy(refOrder, snap);
+    if (copy == null || copy.snapshotText.trim().isEmpty) {
+      final l10n = AppLocalizations.of(context)!;
+      showAppFeedback(
+        context,
+        ref,
+        kind: AppFeedbackKind.info,
+        message: l10n.ordersComposerPreviousMeasurementsUnavailable,
+      );
+      return;
+    }
+    setState(() {
+      _measurementsController.text = copy.snapshotText;
+      _measurementSnapshotItems = List<OrderMeasurementSnapshotItemInput>.of(
+        copy.items,
+      );
+      _measurementSourceProfileId = null;
+      _measurementSourceProfileLabel = '';
+    });
+  }
+
+  void _applyPreviousStyle(OrderSummary refOrder) {
+    final copy = buildStyleCopy(refOrder);
+    if (copy == null) return;
+    setState(() {
+      _styleName = copy.styleName;
+      _styleNameInternalId = copy.styleNameInternalId;
+      _styleSelection = copy.selection;
+      _styleSummary = copy.styleSummary;
+    });
+  }
+
+  Future<void> _applyPreviousDesign(OrderSummary refOrder) async {
+    var myCatalog = ref.read(myCatalogStreamProvider).valueOrNull;
+    if (myCatalog == null) {
+      await ref.read(myCatalogStreamProvider.future);
+      myCatalog = ref.read(myCatalogStreamProvider).valueOrNull ?? const [];
+    }
+    var sharedCatalog = ref.read(sharedCatalogStreamProvider).valueOrNull;
+    if (sharedCatalog == null) {
+      await ref.read(sharedCatalogStreamProvider.future);
+      sharedCatalog =
+          ref.read(sharedCatalogStreamProvider).valueOrNull ?? const [];
+    }
+    if (!mounted) return;
+    final exists = catalogItemExistsInLists(
+      refOrder.catalogItemInternalId,
+      myCatalog,
+      sharedCatalog,
+    );
+    final copy = buildDesignCopy(refOrder, catalogItemExists: exists) ??
+        buildDesignCopySnapshotOnly(refOrder);
+    if (copy == null) return;
+    setState(() {
+      _catalogItemInternalId = copy.catalogItemInternalId;
+      _catalogDesignName = copy.catalogDesignName;
+      _catalogDesignerShopName = copy.catalogDesignerShopName;
+      _catalogImagePath = copy.catalogImagePath;
+      _catalogThumbnailPath = copy.catalogThumbnailPath;
+    });
+  }
+
+  void _applyPreviousFabric(OrderSummary refOrder) {
+    final copy = buildFabricCopy(refOrder);
+    if (copy == null) return;
+    setState(() {
+      _fabricName = copy.fabricName;
+      _fabricColor = copy.fabricColor;
+      _fabricId = '';
+      _fabricNamePresetInternalId = copy.fabricNamePresetInternalId;
+      _fabricColorPresetInternalId = copy.fabricColorPresetInternalId;
+    });
   }
 
   Future<void> _openMeasurementsEditor(
@@ -606,6 +838,9 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
           shopId: shopId,
           payloadJson: jsonEncode({
             'name': customerRow.name,
+            ...customerUpsertPayloadExtras(
+              displayCustomerNo: customerRow.displayCustomerNo,
+            ),
             if (customerRow.phone != null && customerRow.phone!.trim().isNotEmpty)
               'phone': customerRow.phone!.trim(),
             if (customerRow.address != null &&
@@ -716,8 +951,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
   }
 
   String _money(AppLocalizations l10n, int minor) {
-    final fmt = NumberFormat.decimalPattern();
-    return l10n.moneyAfn(fmt.format(minor));
+    return AppNumberFormat.formatMoney(l10n, minor);
   }
 
   Future<void> _showValidationDialog(
@@ -832,6 +1066,27 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(customersListStreamProvider, (previous, next) {
+      if (!_customerPrefillApplied &&
+          widget.initialCustomerId != null &&
+          next.hasValue) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _attemptCustomerPrefill();
+        });
+      }
+    });
+    ref.listen(ordersListStreamProvider, (previous, next) {
+      if (_customerPrefillApplied &&
+          !_referencePrefillApplied &&
+          widget.initialReferenceOrderId != null &&
+          _selectedCustomerId != null &&
+          next.hasValue) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _attemptReferencePrefill(_selectedCustomerId!);
+        });
+      }
+    });
+
     final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).toString();
     final calendar = ref.watch(dateCalendarSystemProvider);
@@ -865,6 +1120,44 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
                 _fabricName.trim().isEmpty ? '—' : _fabricName.trim(),
                 _fabricColor.trim().isEmpty ? '—' : _fabricColor.trim(),
               ));
+    final ordersForRef =
+        ref.watch(ordersListStreamProvider).valueOrNull ?? const <OrderSummary>[];
+    final customersForSearch =
+        ref.watch(customersListStreamProvider).valueOrNull ??
+            const <CustomerSummary>[];
+    final customerSearchQuery = _customerSearchController.text;
+    final customerSearchMatches = _selectedCustomerId == null
+        ? filterCustomersBySearchQuery(customersForSearch, customerSearchQuery)
+        : const <CustomerSummary>[];
+    final referenceOrder = _selectedCustomerId == null
+        ? null
+        : resolveReferenceOrder(
+            customerOrdersForReference(ordersForRef, _selectedCustomerId!),
+            _referenceOrderOverrideId,
+          );
+    final currentDesignSummary = _catalogDesignName.trim().isNotEmpty
+        ? _catalogDesignName.trim()
+        : '';
+    final currentStyleForDiff = _styleName.trim().isNotEmpty
+        ? (_styleSummary.trim().isNotEmpty
+            ? _styleSummary.trim()
+            : _styleName.trim())
+        : null;
+    final shopId = ref.watch(effectiveShopIdProvider);
+    final asyncShopPayments = ref.watch(paymentsForShopProvider(shopId));
+    final referencePaidByOrderId = asyncShopPayments.hasValue
+        ? referencePaidByOrderIdFromPayments(
+            (asyncShopPayments.value ?? const [])
+                .map(
+                  (p) => (
+                    orderInternalId: p.orderInternalId,
+                    amountMinor: p.amountMinor,
+                  ),
+                )
+                .toList(),
+          )
+        : const <String, int>{};
+    final paymentsLedgerLoaded = asyncShopPayments.hasValue;
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(onPressed: () => context.pop()),
@@ -906,14 +1199,22 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
               children: [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
-                  child: TextField(
+                  child: SearchBar(
+                    hintText: l10n.customersSearchHint,
                     controller: _customerSearchController,
-                    decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.search),
-                      hintText: l10n.customersSearchHint,
-                      isDense: true,
-                      border: const OutlineInputBorder(),
-                    ),
+                    leading: const Icon(Icons.search),
+                    trailing: [
+                      if (_customerSearchController.text.isNotEmpty)
+                        IconButton(
+                          icon: const Icon(Icons.clear),
+                          tooltip: MaterialLocalizations.of(context)
+                              .clearButtonTooltip,
+                          onPressed: () {
+                            _customerSearchController.clear();
+                            setState(() {});
+                          },
+                        ),
+                    ],
                     onChanged: (_) => setState(() {}),
                     onSubmitted: (_) {
                       final q = _customerSearchController.text.trim();
@@ -921,22 +1222,63 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
                         _pickExistingCustomer(context, l10n);
                         return;
                       }
-                      final customers =
-                          ref.read(customersListStreamProvider).valueOrNull ??
-                              const <CustomerSummary>[];
-                      final lower = q.toLowerCase();
-                      for (final c in customers) {
-                        final phone = (c.phone ?? '').toLowerCase();
-                        if (c.name.toLowerCase().contains(lower) ||
-                            phone.contains(lower)) {
-                          _applyCustomer(c);
-                          return;
-                        }
+                      final match = findFirstCustomerBySearchQuery(
+                        customersForSearch,
+                        q,
+                      );
+                      if (match != null) {
+                        _applyCustomer(match);
+                        return;
                       }
                       _pickExistingCustomer(context, l10n);
                     },
                   ),
                 ),
+                if (_selectedCustomerId == null &&
+                    customerSearchQuery.trim().isNotEmpty) ...[
+                  if (customerSearchMatches.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                      child: Text(
+                        customersForSearch.isEmpty
+                            ? l10n.customersEmptyTitle
+                            : l10n.customersFilteredEmpty,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                        textAlign: TextAlign.center,
+                      ),
+                    )
+                  else
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxHeight: 220),
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
+                        itemCount: customerSearchMatches.length,
+                        separatorBuilder: (context, index) =>
+                            const Divider(height: 1),
+                        itemBuilder: (context, i) {
+                          final c = customerSearchMatches[i];
+                          final idLabel =
+                              parseStoredDisplayCustomerNo(c.displayCustomerNo) >
+                                      0
+                                  ? formatDisplayCustomerNo(c.displayCustomerNo)
+                                  : null;
+                          return ListTile(
+                            dense: true,
+                            leading: const Icon(Icons.person_outline),
+                            title: Text(c.name),
+                            subtitle: Text(
+                              [
+                                if (idLabel != null) idLabel,
+                                c.phone ?? l10n.customersPhoneMissing,
+                              ].join(' • '),
+                            ),
+                            onTap: () => _applyCustomer(c),
+                          );
+                        },
+                      ),
+                    ),
+                ],
                 ListTile(
                   title: Text(l10n.ordersComposerCustomerTitle),
                   subtitle: Text(customerSubtitle),
@@ -955,9 +1297,32 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
                 ),
                 if (_selectedCustomerId == null)
                   _composerRequiredHint(l10n.ordersComposerCustomerRequired),
+                if (referenceOrder != null &&
+                    (referenceOrder.customerName.trim() !=
+                            (_selectedCustomerName ?? '').trim() ||
+                        (referenceOrder.customerPhone ?? '').trim() !=
+                            (_selectedCustomerPhone ?? '').trim())) ...[
+                  ComposerSectionPreviousReference(
+                    l10n: l10n,
+                    previousText: referenceOrder.customerPhone == null
+                        ? referenceOrder.customerName
+                        : '${referenceOrder.customerName} • ${referenceOrder.customerPhone}',
+                    currentTextForDiff: _selectedCustomerLabel,
+                    currentIsMeaningfulForDiff: true,
+                    collapsible: false,
+                  ),
+                ],
               ],
             ),
           ),
+          if (_selectedCustomerId != null)
+            ComposerPreviousOrderReferenceCard(
+              customerId: _selectedCustomerId!,
+              selectedReferenceOrderId: _referenceOrderOverrideId,
+              onReferenceOrderSelected: (id) =>
+                  setState(() => _referenceOrderOverrideId = id),
+              money: _money,
+            ),
           const SizedBox(height: _kComposerSectionGap),
           Card(
             clipBehavior: Clip.antiAlias,
@@ -976,6 +1341,16 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
                 ),
                 if (_measurementsController.text.trim().isEmpty)
                   _composerRequiredHint(l10n.ordersComposerMeasurementsRequired),
+                if (referenceOrder != null)
+                  ComposerMeasurementsPreviousReference(
+                    referenceOrder: referenceOrder,
+                    l10n: l10n,
+                    currentMeasurementsText: _measurementsController.text,
+                    currentIsMeaningfulForDiff:
+                        _measurementsController.text.trim().isNotEmpty,
+                    onUsePrevious: () =>
+                        _applyPreviousMeasurements(referenceOrder),
+                  ),
               ],
             ),
           ),
@@ -998,6 +1373,25 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
                 ),
                 if (_styleName.trim().isEmpty)
                   _composerRequiredHint(l10n.ordersComposerStyleRequired),
+                if (referenceOrder != null &&
+                    previousStyleDisplayText(referenceOrder).isNotEmpty)
+                  ComposerSectionPreviousReference(
+                    l10n: l10n,
+                    previousText: previousStyleDisplayText(referenceOrder),
+                    currentTextForDiff: currentStyleForDiff,
+                    currentIsMeaningfulForDiff: _styleName.trim().isNotEmpty,
+                    usePreviousLabel: l10n.ordersComposerUsePreviousStyleCta,
+                    onUsePrevious: () => _applyPreviousStyle(referenceOrder),
+                  ),
+                if (referenceOrder != null)
+                  ComposerDesignPreviousReference(
+                    referenceOrder: referenceOrder,
+                    l10n: l10n,
+                    currentDesignSummary: currentDesignSummary,
+                    currentIsMeaningfulForDiff:
+                        currentDesignSummary.isNotEmpty,
+                    onUsePrevious: () => _applyPreviousDesign(referenceOrder),
+                  ),
               ],
             ),
           ),
@@ -1027,6 +1421,16 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
                         ),
                   ),
                 ),
+                if (referenceOrder != null && referenceOrder.hasCustomerFabric)
+                  ComposerSectionPreviousReference(
+                    l10n: l10n,
+                    previousText:
+                        previousFabricDisplayText(referenceOrder, l10n),
+                    currentTextForDiff: _hasFabric ? fabricSubtitle : null,
+                    currentIsMeaningfulForDiff: _hasFabric,
+                    usePreviousLabel: l10n.ordersComposerUsePreviousFabricCta,
+                    onUsePrevious: () => _applyPreviousFabric(referenceOrder),
+                  ),
               ],
             ),
           ),
@@ -1048,6 +1452,16 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
                 ),
                 if (_deliveryDate == null)
                   _composerRequiredHint(l10n.ordersComposerDeliveryDateUnset),
+                if (referenceOrder != null)
+                  ComposerSectionPreviousReference(
+                    l10n: l10n,
+                    previousText:
+                        '${l10n.ordersComposerPreviousDeliveryLabel}: ${AppCalendarFormat.mediumDate(l10n, calendar, referenceOrder.deliveryDate, locale)}',
+                    currentTextForDiff:
+                        _deliveryDate == null ? null : deliveryLabel,
+                    currentIsMeaningfulForDiff: _deliveryDate != null,
+                    collapsible: false,
+                  ),
               ],
             ),
           ),
@@ -1084,6 +1498,20 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
                     if (!paymentOk)
                       _composerRequiredHint(
                         l10n.ordersComposerPaymentRequired,
+                      ),
+                    if (referenceOrder != null)
+                      ComposerSectionPreviousReference(
+                        l10n: l10n,
+                        previousText: formatReferenceOrderPaymentSummary(
+                          l10n,
+                          referenceOrder,
+                          referencePaidByOrderId,
+                          paymentsLedgerLoaded,
+                          _money,
+                        ),
+                        currentTextForDiff: total > 0 ? paymentSubtitle : null,
+                        currentIsMeaningfulForDiff: total > 0,
+                        collapsible: false,
                       ),
                   ],
                 ),

@@ -143,7 +143,6 @@ class OrderComposerShapeSelectTile extends StatelessWidget {
                       l10n.settingsStyleInactiveLabel,
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: Colors.white,
-                        fontSize: 10,
                       ),
                     ),
                   ),

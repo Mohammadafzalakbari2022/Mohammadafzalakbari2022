@@ -410,7 +410,6 @@ class DashboardRecentIncomeBars extends StatelessWidget {
                       '${e.key.day}',
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
                             color: scheme.onSurfaceVariant,
-                            fontSize: 10,
                           ),
                     ),
                   ],
@@ -443,11 +442,10 @@ class DashboardQuickLinkChip extends StatelessWidget {
     return ActionChip(
       avatar: Icon(icon, size: 16, color: color),
       label: Text(label),
-      labelStyle: TextStyle(
-        color: Theme.of(context).colorScheme.onSurface,
-        fontWeight: FontWeight.w600,
-        fontSize: 12,
-      ),
+      labelStyle: Theme.of(context).textTheme.labelMedium?.copyWith(
+            color: Theme.of(context).colorScheme.onSurface,
+            fontWeight: FontWeight.w600,
+          ),
       backgroundColor: color.withValues(alpha: 0.1),
       side: BorderSide(color: color.withValues(alpha: 0.35)),
       onPressed: onPressed,

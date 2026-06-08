@@ -145,7 +145,6 @@ class _StepChip extends StatelessWidget {
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  fontSize: 9,
                   fontWeight: step.done ? FontWeight.w700 : FontWeight.w500,
                   color: fg,
                   height: 1.05,

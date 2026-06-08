@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pride_v3/core/formatting/app_number_format.dart';
+import 'package:pride_v3/core/formatting/display_customer_no_format.dart';
+import 'package:pride_v3/core/formatting/display_order_no_format.dart';
 import 'package:pride_v3/core/calendar/app_calendar_format.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
 import 'package:pride_v3/core/calendar/date_calendar_system.dart';
@@ -18,6 +20,8 @@ import 'package:pride_v3/core/feedback/app_feedback.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../auth/auth_providers.dart';
+import '../../data/local/customer_display_no.dart';
+import '../../data/local/customer_summary.dart';
 import '../../data/local/dev_shop_constants.dart';
 import '../../data/local/measurement_profile_formatting.dart';
 import '../../data/local/order_summary.dart';
@@ -30,6 +34,8 @@ import '../../core/printing/thermal_print_order.dart';
 import '../../security/delete_by_typing_name.dart';
 import '../../shell/shell_sync_providers.dart';
 import '../catalog/catalog_item_image.dart';
+import 'order_composer_screen.dart';
+import 'order_detail_field_tile.dart';
 import 'order_detail_hero_card.dart';
 import 'order_detail_share_actions.dart';
 import 'order_invoice_share.dart';
@@ -204,8 +210,7 @@ class OrderDetailScreen extends ConsumerWidget {
     final locale = Localizations.localeOf(context).toString();
     final calendar = ref.watch(dateCalendarSystemProvider);
     final asyncOrders = ref.watch(ordersListStreamProvider);
-    String formatMoney(int minor) =>
-        l10n.moneyAfn(NumberFormat.decimalPattern().format(minor));
+    String formatMoney(int minor) => AppNumberFormat.formatMoney(l10n, minor);
 
     return asyncOrders.when(
       data: (orders) {
@@ -237,6 +242,23 @@ class OrderDetailScreen extends ConsumerWidget {
           );
         }
         final o = found;
+        final customers = ref.watch(customersListStreamProvider).valueOrNull ??
+            const <CustomerSummary>[];
+        CustomerSummary? linkedCustomer;
+        for (final c in customers) {
+          if (c.internalId == o.customerInternalId) {
+            linkedCustomer = c;
+            break;
+          }
+        }
+        final customerIdDisplay =
+            linkedCustomer != null &&
+                    parseStoredDisplayCustomerNo(
+                      linkedCustomer.displayCustomerNo,
+                    ) >
+                        0
+                ? formatDisplayCustomerNo(linkedCustomer.displayCustomerNo)
+                : null;
         final snapshotAsync =
             ref.watch(orderMeasurementSnapshotProvider(orderId));
         final editBlockedByLicense = ref.watch(licenseEditingBlockedProvider);
@@ -255,12 +277,13 @@ class OrderDetailScreen extends ConsumerWidget {
           paidMinor,
         );
         return Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.surface,
           appBar: AppBar(
             leading: IconButton(
               icon: const Icon(Icons.close),
               onPressed: () => context.pop(),
             ),
-            title: Text(l10n.ordersNumberPrefix(o.displayOrderNo)),
+            title: Text(displayOrderNumberLabel(l10n, o.displayOrderNo)),
             actions: [
               if (!editBlockedByLicense)
                 PopupMenuButton<String>(
@@ -340,6 +363,12 @@ class OrderDetailScreen extends ConsumerWidget {
                 locale: locale,
                 calendar: calendar,
                 formatMoney: formatMoney,
+                onNewOrder: () => context.push(
+                  orderComposerRoute(
+                    customerId: o.customerInternalId,
+                    referenceOrderId: o.internalId,
+                  ),
+                ),
               ),
               OrderDetailShareActions(
                 order: o,
@@ -419,7 +448,7 @@ class OrderDetailScreen extends ConsumerWidget {
                                   : kDevShopId;
                               final notifId = const Uuid().v4();
                               final title = l10n.notifOrderStatusTitle(
-                                o.displayOrderNo,
+                                formatDisplayOrderNo(o.displayOrderNo),
                               );
                               final body = l10n.notifOrderStatusBody(
                                 orderStatusLabel(picked, l10n),
@@ -463,7 +492,6 @@ class OrderDetailScreen extends ConsumerWidget {
               ),
               PrideCarvedSection(
                 title: l10n.ordersDetailSectionCustomer,
-                subtitle: o.customerName,
                 initiallyExpanded: true,
                 trailing: orderDetailEditTrailing(
                   l10n: l10n,
@@ -474,12 +502,18 @@ class OrderDetailScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _OrderDetailInfoRow(
+                    OrderDetailFieldTile(
                       icon: Icons.person_outline,
                       label: l10n.customerNameLabel,
                       value: o.customerName,
                     ),
-                    _OrderDetailInfoRow(
+                    if (customerIdDisplay != null)
+                      OrderDetailFieldTile(
+                        icon: Icons.badge_outlined,
+                        label: l10n.customerIdLabel,
+                        value: customerIdDisplay,
+                      ),
+                    OrderDetailFieldTile(
                       icon: Icons.phone_outlined,
                       label: l10n.customerPhoneLabel,
                       value: o.customerPhone ?? l10n.customersPhoneMissing,
@@ -549,21 +583,13 @@ class OrderDetailScreen extends ConsumerWidget {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              for (var i = 0; i < items.length; i++) ...[
-                                if (i > 0)
-                                  Divider(
-                                    height: 1,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .outlineVariant
-                                        .withValues(alpha: 0.6),
-                                  ),
+                              for (var i = 0; i < items.length; i++)
                                 _OrderDetailMeasurementRow(
                                   label: items[i].typeName,
                                   value:
                                       '${items[i].value.trim()}${MeasurementProfileFormatting.unitSuffix(items[i].unitCode)}',
+                                  altBackground: i.isOdd,
                                 ),
-                              ],
                             ],
                           );
                         }
@@ -601,15 +627,55 @@ class OrderDetailScreen extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(height: 10),
-                      Text(
-                        o.catalogDesignNameSnapshot.trim(),
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      if (o.catalogDesignerShopNameSnapshot.trim().isNotEmpty)
-                        Text(
-                          o.catalogDesignerShopNameSnapshot.trim(),
-                          style: Theme.of(context).textTheme.bodyMedium,
+                      DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: prideFriendlyTileFill(
+                            Theme.of(context).colorScheme,
+                            variant: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .outlineVariant
+                                .withValues(alpha: 0.55),
+                          ),
                         ),
+                        child: Padding(
+                          padding: const EdgeInsetsDirectional.fromSTEB(
+                            12,
+                            10,
+                            12,
+                            10,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Text(
+                                o.catalogDesignNameSnapshot.trim(),
+                                style:
+                                    Theme.of(context).textTheme.titleMedium,
+                              ),
+                              if (o.catalogDesignerShopNameSnapshot
+                                  .trim()
+                                  .isNotEmpty) ...[
+                                const SizedBox(height: 4),
+                                Text(
+                                  o.catalogDesignerShopNameSnapshot.trim(),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurfaceVariant,
+                                      ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
                       if (o.catalogItemInternalId != null) ...[
                         const SizedBox(height: 8),
                         Align(
@@ -665,12 +731,6 @@ class OrderDetailScreen extends ConsumerWidget {
               ),
               PrideCarvedSection(
                 title: l10n.ordersComposerDeliveryDateTitle,
-                subtitle: AppCalendarFormat.mediumDate(
-                  l10n,
-                  calendar,
-                  o.deliveryDate,
-                  locale,
-                ),
                 trailing: orderDetailEditTrailing(
                   l10n: l10n,
                   onPressed: canEdit
@@ -678,7 +738,7 @@ class OrderDetailScreen extends ConsumerWidget {
                           orderDetailEditDeliveryDate(context, ref, l10n, o)
                       : null,
                 ),
-                child: _OrderDetailInfoRow(
+                child: OrderDetailFieldTile(
                   icon: Icons.event_outlined,
                   label: l10n.ordersComposerDeliveryDateTitle,
                   value: AppCalendarFormat.mediumDate(
@@ -687,14 +747,15 @@ class OrderDetailScreen extends ConsumerWidget {
                     o.deliveryDate,
                     locale,
                   ),
+                  emphasizeValue: true,
                 ),
               ),
               PrideCarvedSection(
                 title: l10n.ordersDetailSectionInternalNotes,
                 subtitle: o.internalNotes.trim().isEmpty
                     ? l10n.ordersDetailSnapshotEmpty
-                    : o.internalNotes,
-                initiallyExpanded: false,
+                    : null,
+                initiallyExpanded: o.internalNotes.trim().isNotEmpty,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -845,7 +906,7 @@ class _OrderAuditSection extends ConsumerWidget {
               ),
         ),
         const SizedBox(height: 10),
-        _OrderDetailInfoRow(
+        OrderDetailFieldTile(
           icon: Icons.fingerprint_outlined,
           label: l10n.ordersAuditInternalId,
           value: o.internalId,
@@ -865,7 +926,7 @@ class _OrderAuditSection extends ConsumerWidget {
             },
           ),
         ),
-        _OrderDetailInfoRow(
+        OrderDetailFieldTile(
           icon: Icons.schedule_outlined,
           label: l10n.ordersAuditCreatedAt,
           value: AppCalendarFormat.dateTimeMedium(
@@ -875,7 +936,7 @@ class _OrderAuditSection extends ConsumerWidget {
             locale,
           ),
         ),
-        _OrderDetailInfoRow(
+        OrderDetailFieldTile(
           icon: Icons.update_outlined,
           label: l10n.ordersAuditUpdatedAt,
           value: AppCalendarFormat.dateTimeMedium(
@@ -885,12 +946,12 @@ class _OrderAuditSection extends ConsumerWidget {
             locale,
           ),
         ),
-        _OrderDetailInfoRow(
+        OrderDetailFieldTile(
           icon: Icons.flag_outlined,
           label: l10n.ordersAuditStatus,
           value: orderStatusLabel(o.status, l10n),
         ),
-        _OrderDetailInfoRow(
+        OrderDetailFieldTile(
           icon: Icons.event_outlined,
           label: l10n.ordersAuditDelivery,
           value: AppCalendarFormat.mediumDate(
@@ -939,9 +1000,9 @@ class _TotalsCard extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: scheme.surfaceContainerLowest,
+        color: prideFriendlyTileFill(scheme, variant: 2),
         border: Border.all(
-          color: scheme.outlineVariant.withValues(alpha: 0.75),
+          color: scheme.outlineVariant.withValues(alpha: 0.55),
         ),
       ),
       child: Padding(
@@ -1006,100 +1067,67 @@ class _TotalsCard extends StatelessWidget {
   }
 }
 
-class _OrderDetailInfoRow extends StatelessWidget {
-  const _OrderDetailInfoRow({
-    required this.icon,
+class _OrderDetailMeasurementRow extends StatelessWidget {
+  const _OrderDetailMeasurementRow({
     required this.label,
     required this.value,
-    this.trailing,
-    this.selectable = false,
+    this.altBackground = false,
   });
 
-  final IconData icon;
   final String label;
   final String value;
-  final Widget? trailing;
-  final bool selectable;
+  final bool altBackground;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final valueWidget = selectable
-        ? SelectableText(
-            value,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          )
-        : Text(
-            value,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          );
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 22, color: scheme.primary),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: prideFriendlyTileFill(
+            scheme,
+            variant: altBackground ? 1 : 0,
+          ),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: scheme.outlineVariant.withValues(alpha: 0.55),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsetsDirectional.fromSTEB(10, 8, 10, 8),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 3,
+                child: Text(
                   label,
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: scheme.onSurfaceVariant,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
                   ),
+                  maxLines: 3,
+                  softWrap: true,
                 ),
-                const SizedBox(height: 2),
-                valueWidget,
-              ],
-            ),
-          ),
-          // ignore: use_null_aware_elements -- isar_generator cannot parse `?trailing`.
-          if (trailing != null) trailing!,
-        ],
-      ),
-    );
-  }
-}
-
-class _OrderDetailMeasurementRow extends StatelessWidget {
-  const _OrderDetailMeasurementRow({
-    required this.label,
-    required this.value,
-  });
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              label,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w600,
               ),
-            ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 2,
+                child: Text(
+                  value,
+                  textAlign: TextAlign.end,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                  maxLines: 3,
+                  softWrap: true,
+                ),
+              ),
+            ],
           ),
-          Text(
-            value,
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

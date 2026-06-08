@@ -452,10 +452,10 @@ class _ShopFinanceHubScreenState extends ConsumerState<ShopFinanceHubScreen> {
                                       scheme.tertiary,
                                   },
                                   radius: 48,
-                                  titleStyle: const TextStyle(
-                                    fontSize: 10,
-                                    color: Colors.white,
-                                  ),
+                                  titleStyle: Theme.of(context)
+                                      .textTheme
+                                      .labelSmall
+                                      ?.copyWith(color: Colors.white),
                                 ),
                           ],
                         ),

@@ -6,17 +6,15 @@ import '../core/api/pride_api_auth.dart';
 import '../core/api/pride_api_config.dart';
 import '../core/persistence/shared_preferences_provider.dart';
 import 'owner_password_verify.dart';
+import 'owner_password_verify_result.dart';
 
 /// Confirms the shop **owner login password** for backup/restore and similar gates.
-///
-/// Checks, in order: cached owner credential on device, dev/default digest,
-/// then live API login when online.
-Future<bool> verifyOwnerPasswordForBackup(
+Future<OwnerPasswordVerifyResult> verifyOwnerPasswordForBackupDetailed(
   WidgetRef ref,
   String password,
 ) async {
   final trimmed = password.trim();
-  if (trimmed.isEmpty) return false;
+  if (trimmed.isEmpty) return OwnerPasswordVerifyResult.wrongPassword;
 
   final prefs = ref.read(sharedPreferencesProvider);
   final auth = ref.read(authSessionProvider);
@@ -28,15 +26,30 @@ Future<bool> verifyOwnerPasswordForBackup(
         shopId: shopId,
         password: trimmed,
       )) {
-    return true;
+    return OwnerPasswordVerifyResult.success;
+  }
+
+  // Logged-in owner re-entering password on this device.
+  if (auth.isShopOwner &&
+      shopId.isNotEmpty &&
+      (auth.username?.trim().isNotEmpty ?? false)) {
+    final ownerRow = OfflineCredentialStorage.verify(
+      prefs: prefs,
+      username: auth.username!.trim(),
+      password: trimmed,
+      shopId: shopId,
+    );
+    if (ownerRow is OfflineVerifyOk && ownerRow.isShopOwner) {
+      return OwnerPasswordVerifyResult.success;
+    }
   }
 
   if (verifyOwnerPasswordForLocalActions(trimmed)) {
-    return true;
+    return OwnerPasswordVerifyResult.success;
   }
 
   if (!PrideApiConfig.isConfigured || shopId.isEmpty) {
-    return false;
+    return OwnerPasswordVerifyResult.offlineUnavailable;
   }
 
   final ownerUsername = OfflineCredentialStorage.ownerUsernameForShop(
@@ -45,7 +58,7 @@ Future<bool> verifyOwnerPasswordForBackup(
       ) ??
       (auth.isShopOwner ? auth.username?.trim() : null);
   if (ownerUsername == null || ownerUsername.isEmpty) {
-    return false;
+    return OwnerPasswordVerifyResult.ownerCredentialMissing;
   }
 
   final result = await postPrideApiLogin(
@@ -54,7 +67,7 @@ Future<bool> verifyOwnerPasswordForBackup(
     shopId: shopId,
   );
   if (result is! PrideApiLoginOk || !result.isShopOwner) {
-    return false;
+    return OwnerPasswordVerifyResult.wrongPassword;
   }
 
   await OfflineCredentialStorage.upsertFromLogin(
@@ -71,5 +84,14 @@ Future<bool> verifyOwnerPasswordForBackup(
     licenseLastSuccessfulCheckAtIso:
         result.licenseSnapshot['last_successful_check_at'] as String?,
   );
-  return true;
+  return OwnerPasswordVerifyResult.success;
+}
+
+/// Backward-compatible bool wrapper.
+Future<bool> verifyOwnerPasswordForBackup(
+  WidgetRef ref,
+  String password,
+) async {
+  final r = await verifyOwnerPasswordForBackupDetailed(ref, password);
+  return r == OwnerPasswordVerifyResult.success;
 }

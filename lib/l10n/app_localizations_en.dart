@@ -591,6 +591,18 @@ class AppLocalizationsEn extends AppLocalizations {
       'That password does not match the owner password for this device.';
 
   @override
+  String get ownerPasswordWrong =>
+      'Wrong owner password. Enter the shop owner\'s login password.';
+
+  @override
+  String get ownerPasswordOfflineUnavailable =>
+      'Cannot verify owner password offline. Connect to the internet and try again, or log in as the owner on this device first.';
+
+  @override
+  String get ownerPasswordOwnerMissing =>
+      'Owner login is not saved on this device. Log in as the shop owner once while online, then try again.';
+
+  @override
   String get ordersDetailChangeStatusSoon =>
       'Status changes will open a confirmation flow.';
 
@@ -637,13 +649,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paymentRemaining => 'Remaining';
 
   @override
-  String get customersSearchHint => 'Search name or phone';
+  String get customersSearchHint => 'Search name, phone, or ID';
 
   @override
   String get customersEmptyTitle => 'No customers yet';
 
   @override
   String get customersAddCta => 'Add customer';
+
+  @override
+  String get customersNewOrderCta => 'New order';
+
+  @override
+  String get customersNewOrderForCustomerTooltip =>
+      'New order for this customer';
+
+  @override
+  String get ordersNewOrderFromThisOrderTooltip =>
+      'Create a new order from this order';
 
   @override
   String get customersFilteredEmpty => 'No customers match your search.';
@@ -1393,6 +1416,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsThemeTitle => 'Theme';
 
   @override
+  String get settingsFontSizeTitle => 'Font size';
+
+  @override
+  String get settingsFontSizeSmall => 'Small';
+
+  @override
+  String get settingsFontSizeMedium => 'Medium';
+
+  @override
+  String get settingsFontSizeLarge => 'Large';
+
+  @override
+  String get settingsFontFamilyTitle => 'Font';
+
+  @override
+  String get settingsFontFamilyVazirmatn => 'Vazirmatn';
+
+  @override
+  String get settingsFontFamilyNotoNaskh => 'Noto Naskh';
+
+  @override
   String get themeSystem => 'System';
 
   @override
@@ -1549,6 +1593,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loading => 'Loading…';
 
   @override
+  String get showMoreCta => 'Show more';
+
+  @override
+  String get showLessCta => 'Show less';
+
+  @override
   String get genericError => 'Something went wrong.';
 
   @override
@@ -1659,6 +1709,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ordersComposerPaymentSheetTitle => 'Payment';
+
+  @override
+  String get ordersComposerPaymentCancelCta => 'Cancel';
 
   @override
   String get ordersComposerPaymentInitialOnSaveHint =>
@@ -1795,6 +1848,52 @@ class AppLocalizationsEn extends AppLocalizations {
   String ordersComposerRecentOrderRowSubtitle(String date, String remaining) {
     return '$date • $remaining remaining';
   }
+
+  @override
+  String get ordersComposerPreviousOrderTitle => 'Previous order';
+
+  @override
+  String get ordersComposerPreviousOrderSubtitle =>
+      'Reference only — not saved yet';
+
+  @override
+  String get ordersComposerNoPreviousOrders =>
+      'No previous orders for this customer';
+
+  @override
+  String get ordersComposerUsePreviousMeasurementsCta =>
+      'Use previous measurements';
+
+  @override
+  String get ordersComposerUsePreviousStyleCta => 'Use previous style';
+
+  @override
+  String get ordersComposerUsePreviousFabricCta => 'Use previous fabric';
+
+  @override
+  String get ordersComposerUsePreviousDesignCta => 'Use previous design';
+
+  @override
+  String get ordersComposerPreviousValueLabel => 'Previous';
+
+  @override
+  String get ordersComposerCurrentValueLabel => 'Current';
+
+  @override
+  String get ordersComposerCompareWithPrevious => 'Compare with previous order';
+
+  @override
+  String get ordersComposerChangeReferenceOrderCta => 'Change reference order';
+
+  @override
+  String get ordersComposerPreviousDeliveryLabel => 'Previous delivery';
+
+  @override
+  String get ordersComposerPreviousPaymentLabel => 'Previous payment summary';
+
+  @override
+  String get ordersComposerPreviousMeasurementsUnavailable =>
+      'Previous measurements are not available yet. Try again in a moment.';
 
   @override
   String get ordersComposerMeasurementsSheetTitle => 'Measurements';
@@ -2219,6 +2318,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get customersCreated => 'Customer created.';
 
   @override
+  String get customerIdLabel => 'Customer ID';
+
+  @override
+  String get customerIdShortLabel => 'ID';
+
+  @override
+  String customersIdPrefix(String number) {
+    return 'ID $number';
+  }
+
+  @override
   String get customerNameLabel => 'Name';
 
   @override
@@ -2387,6 +2497,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dashboardQuickLinkDeliveredToday => 'Delivered today';
+
+  @override
+  String get dashboardQuickLinkSystemGuide => 'How to use the app';
 
   @override
   String get shellAppBarSyncA11y => 'Sync status';
@@ -3842,6 +3955,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get invoicePridePromoLine => 'Invoice created and sent with Khayat';
 
   @override
+  String get invoiceContinuedLabel => 'Continued';
+
+  @override
+  String get invoiceTakenDateLabel => 'Taken';
+
+  @override
+  String get invoicePaymentDateLabel => 'Date';
+
+  @override
+  String get invoiceMeasurementProfileLabel => 'Measurement profile';
+
+  @override
+  String get invoiceStyleNameLabel => 'Style';
+
+  @override
   String get receiptStyleLabel => 'Style notes';
 
   @override
@@ -3892,6 +4020,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shopProfileLogoSectionTitle => 'Invoice header logo';
+
+  @override
+  String get shopProfileBannerSectionTitle => 'Dashboard & invoice banner';
+
+  @override
+  String get shopProfileBannerSubtitle =>
+      'Wide image (~3:1) shown on the dashboard and PDF invoices. Uploading your own image replaces the default branded banner until removed.';
+
+  @override
+  String get shopProfileBannerPickCta => 'Upload banner';
+
+  @override
+  String get shopProfileBannerRemoveCta => 'Remove banner';
+
+  @override
+  String get shopProfileBannerSaved => 'Banner saved.';
+
+  @override
+  String get shopProfileBannerWebHint =>
+      'Banner upload is available on Android and desktop apps.';
 
   @override
   String get shopProfileLogoSubtitle =>

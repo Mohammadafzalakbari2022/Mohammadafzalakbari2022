@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pride_v3/core/input/pride_ltr_input.dart';
 import 'package:pride_v3/core/validation/afghan_phone_input.dart';
 import 'package:pride_v3/core/widgets/pride_form_bottom_bar.dart';
+import 'package:pride_v3/core/widgets/pride_modal_bottom_sheet.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../data/local/customer_summary.dart';
@@ -30,10 +31,8 @@ Future<OrderCustomerEditResult?> showOrderDetailCustomerEditSheet({
   required OrderSummary order,
   required List<CustomerSummary> customers,
 }) {
-  return showModalBottomSheet<OrderCustomerEditResult>(
+  return showPrideModalBottomSheet<OrderCustomerEditResult>(
     context: context,
-    isScrollControlled: true,
-    showDragHandle: true,
     builder: (ctx) => _OrderDetailCustomerEditSheet(
       l10n: l10n,
       order: order,
@@ -112,6 +111,7 @@ class _OrderDetailCustomerEditSheetState
           shopId: widget.order.shopId,
           internalId: result.internalId,
           name: result.name,
+          displayCustomerNo: result.displayCustomerNo,
           phone: result.phone,
           createdAt: DateTime.now(),
         ),
@@ -166,9 +166,9 @@ class _OrderDetailCustomerEditSheetState
       padding: EdgeInsets.only(bottom: pad.bottom + viewInsets),
       child: DraggableScrollableSheet(
         expand: false,
-        initialChildSize: 0.72,
-        minChildSize: 0.45,
-        maxChildSize: 0.95,
+        initialChildSize: kPrideSheetInitialChildSize,
+        minChildSize: kPrideSheetMinChildSize,
+        maxChildSize: kPrideSheetMaxChildSize,
         builder: (ctx, scrollController) {
           return Form(
             key: _formKey,

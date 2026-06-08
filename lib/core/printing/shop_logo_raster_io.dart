@@ -67,3 +67,23 @@ Future<img.Image?> loadShopLogoRasterIfPresent({
     return null;
   }
 }
+
+Future<img.Image?> loadShopBannerRasterIfPresent({
+  required String? relativePath,
+  required int maxWidthPx,
+}) async {
+  final path = relativePath?.trim();
+  if (path == null || path.isEmpty) return null;
+  try {
+    final dir = await getApplicationDocumentsDirectory();
+    final segments = path.split('/');
+    final file = File(
+      '${dir.path}${Platform.pathSeparator}${segments.join(Platform.pathSeparator)}',
+    );
+    if (!await file.exists()) return null;
+    final raw = await file.readAsBytes();
+    return _decodeAndResizeLogoBytes(raw, maxWidthPx);
+  } on Object {
+    return null;
+  }
+}

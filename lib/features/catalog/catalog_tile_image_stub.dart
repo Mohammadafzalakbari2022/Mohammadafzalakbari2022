@@ -12,7 +12,7 @@ Widget buildCatalogTileImage(
   final path = (thumbnailPath != null && thumbnailPath.isNotEmpty)
       ? thumbnailPath
       : imagePath;
-  final bg = Theme.of(context).colorScheme.surfaceContainerHighest;
+  final bg = Theme.of(context).colorScheme.surface;
   final placeholder = Icon(
     Icons.image_outlined,
     color: Theme.of(context).colorScheme.outline,
@@ -21,14 +21,17 @@ Widget buildCatalogTileImage(
   if (isCatalogAssetImageRef(path)) {
     final assetPath = catalogBundleAssetPath(path);
     if (assetPath != null) {
-      Widget image = Image.asset(
-        'assets/catalog_seed/$assetPath',
-        fit: BoxFit.cover,
-        width: dimension,
-        height: dimension,
-        errorBuilder: (context, error, stackTrace) {
-          return ColoredBox(color: bg, child: Center(child: placeholder));
-        },
+      Widget image = ColoredBox(
+        color: bg,
+        child: Image.asset(
+          'assets/catalog_seed/$assetPath',
+          fit: BoxFit.contain,
+          width: dimension,
+          height: dimension,
+          errorBuilder: (context, error, stackTrace) {
+            return Center(child: placeholder);
+          },
+        ),
       );
       image = ClipRRect(
         borderRadius: BorderRadius.circular(borderRadius),

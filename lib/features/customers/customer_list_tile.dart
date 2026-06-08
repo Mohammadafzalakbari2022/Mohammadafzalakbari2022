@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:pride_v3/app/app_theme.dart';
 import 'package:pride_v3/core/calendar/app_calendar_format.dart';
+import 'package:pride_v3/core/formatting/display_customer_no_format.dart';
 import 'package:pride_v3/core/calendar/date_calendar_system.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
+import '../../data/local/customer_display_no.dart';
 import '../../data/local/customer_summary.dart';
 
 /// Single customer row for [CustomersListBody], styled like [OrderListTile].
@@ -18,6 +21,7 @@ class CustomerListTile extends StatelessWidget {
     required this.unpaidMinor,
     required this.onTap,
     required this.formatMoney,
+    this.onNewOrder,
   });
 
   final CustomerSummary customer;
@@ -29,6 +33,7 @@ class CustomerListTile extends StatelessWidget {
   final int unpaidMinor;
   final VoidCallback onTap;
   final String Function(int minor) formatMoney;
+  final VoidCallback? onNewOrder;
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +46,10 @@ class CustomerListTile extends StatelessWidget {
       locale,
     );
     final phone = customer.phone ?? l10n.customersPhoneMissing;
+    final customerIdLabel = parseStoredDisplayCustomerNo(customer.displayCustomerNo) >
+            0
+        ? displayCustomerNumberLabel(l10n, customer.displayCustomerNo)
+        : null;
     final meta = orderCount == 0
         ? l10n.customersRowNoOrdersYet
         : l10n.customersRowMeta(
@@ -61,7 +70,7 @@ class CustomerListTile extends StatelessWidget {
         curve: Curves.easeOutCubic,
         decoration: BoxDecoration(
           borderRadius: borderRadius,
-          color: isSelected ? selectedFill : scheme.surfaceContainerLow,
+          color: isSelected ? selectedFill : prideListCardSurface(scheme),
           border: Border.all(
             color: isSelected ? selectedBorder : scheme.outlineVariant,
             width: isSelected ? 1.75 : 1,
@@ -79,15 +88,15 @@ class CustomerListTile extends StatelessWidget {
         child: Material(
           color: Colors.transparent,
           borderRadius: borderRadius,
-          child: InkWell(
-            borderRadius: borderRadius,
-            onTap: onTap,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
+          child: Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(14, 12, 4, 12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: InkWell(
+                    borderRadius: borderRadius,
+                    onTap: onTap,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -103,6 +112,16 @@ class CustomerListTile extends StatelessWidget {
                           const SizedBox(height: 8),
                         ],
                         _CustomerNameBadge(name: customer.name),
+                        if (customerIdLabel != null) ...[
+                          const SizedBox(height: 6),
+                          Text(
+                            customerIdLabel,
+                            style: theme.textTheme.labelMedium?.copyWith(
+                              color: scheme.onSurfaceVariant,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                         const SizedBox(height: 8),
                         Row(
                           children: [
@@ -164,18 +183,47 @@ class CustomerListTile extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  if (isSelected)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 2),
-                      child: Icon(
-                        Icons.check_circle_rounded,
-                        size: 20,
-                        color: scheme.primary,
+                ),
+                if (isSelected)
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(top: 2, end: 4),
+                    child: Icon(
+                      Icons.check_circle_rounded,
+                      size: 20,
+                      color: scheme.primary,
+                    ),
+                  ),
+                if (onNewOrder != null)
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(
+                      top: 2,
+                      end: 4,
+                      start: 4,
+                    ),
+                    child: Tooltip(
+                      message: l10n.customersNewOrderForCustomerTooltip,
+                      child: FilledButton.tonalIcon(
+                        onPressed: onNewOrder,
+                        style: FilledButton.styleFrom(
+                          visualDensity: VisualDensity.compact,
+                          padding: const EdgeInsetsDirectional.symmetric(
+                            horizontal: 10,
+                            vertical: 8,
+                          ),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        icon: const Icon(Icons.note_add_outlined, size: 18),
+                        label: Text(
+                          l10n.customersNewOrderCta,
+                          maxLines: 2,
+                          softWrap: true,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     ),
-                ],
-              ),
+                  ),
+              ],
             ),
           ),
         ),
@@ -196,10 +244,10 @@ class _CustomerNameBadge extends StatelessWidget {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHigh,
+        color: prideFriendlyTileFill(scheme, variant: 0),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: scheme.outlineVariant.withValues(alpha: 0.65),
+          color: scheme.outlineVariant.withValues(alpha: 0.55),
         ),
       ),
       child: Padding(
@@ -211,6 +259,8 @@ class _CustomerNameBadge extends StatelessWidget {
             color: scheme.onSurface,
             height: 1.15,
           ),
+          maxLines: 3,
+          softWrap: true,
         ),
       ),
     );

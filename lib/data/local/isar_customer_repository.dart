@@ -1,6 +1,7 @@
 import 'package:isar/isar.dart';
 import 'package:uuid/uuid.dart';
 
+import 'customer_display_no.dart';
 import 'customer_list_repository.dart';
 import 'customer_summary.dart';
 import 'dev_shop_constants.dart';
@@ -16,6 +17,62 @@ class IsarCustomerRepository implements CustomerListRepository {
   static String? _opt(String? v) {
     if (v == null || v.trim().isEmpty) return null;
     return v.trim();
+  }
+
+  CustomerSummary _toSummary(CustomerEntity c) {
+    return CustomerSummary(
+      shopId: c.shopId,
+      internalId: c.internalId,
+      name: c.name,
+      displayCustomerNo: c.displayCustomerNo,
+      phone: c.phone,
+      address: c.address,
+      notes: c.notes,
+      lastCatalogDesignName: c.lastCatalogDesignName,
+      lastCatalogThumbnailPath: c.lastCatalogThumbnailPath,
+      lastCatalogItemInternalId: c.lastCatalogItemInternalId,
+      lastCatalogDesignerShopName: c.lastCatalogDesignerShopName,
+      createdAt: c.createdAt,
+    );
+  }
+
+  Future<void> _backfillDisplayCustomerNos(String shopId) async {
+    final rows = await _isar.customerEntitys
+        .filter()
+        .shopIdEqualTo(shopId)
+        .and()
+        .deletedAtIsNull()
+        .findAll();
+    final needs = rows
+        .where((r) => parseStoredDisplayCustomerNo(r.displayCustomerNo) == 0)
+        .toList();
+    if (needs.isEmpty) return;
+
+    needs.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    var max = 0;
+    for (final r in rows) {
+      final n = parseStoredDisplayCustomerNo(r.displayCustomerNo);
+      if (n > max) max = n;
+    }
+
+    await _isar.writeTxn(() async {
+      for (final r in needs) {
+        max++;
+        r.displayCustomerNo = formatStoredDisplayCustomerNo(max);
+        await _isar.customerEntitys.putByInternalId(r);
+      }
+    });
+  }
+
+  Future<int> _nextDisplayCustomerNo(String shopId) async {
+    await _backfillDisplayCustomerNos(shopId);
+    final rows = await _isar.customerEntitys
+        .filter()
+        .shopIdEqualTo(shopId)
+        .and()
+        .deletedAtIsNull()
+        .findAll();
+    return nextDisplayCustomerNoFromSummaries(rows.map(_toSummary), shopId);
   }
 
   @override
@@ -34,28 +91,20 @@ class IsarCustomerRepository implements CustomerListRepository {
         .shopIdEqualTo(shopId)
         .and()
         .deletedAtIsNull()
-        .sortByName()
+        .sortByCreatedAtDesc()
         .watch(fireImmediately: true);
 
-    return query.map(
-      (rows) => rows
-          .map(
-            (c) => CustomerSummary(
-              shopId: c.shopId,
-              internalId: c.internalId,
-              name: c.name,
-              phone: c.phone,
-              address: c.address,
-              notes: c.notes,
-              lastCatalogDesignName: c.lastCatalogDesignName,
-              lastCatalogThumbnailPath: c.lastCatalogThumbnailPath,
-              lastCatalogItemInternalId: c.lastCatalogItemInternalId,
-              lastCatalogDesignerShopName: c.lastCatalogDesignerShopName,
-              createdAt: c.createdAt,
-            ),
-          )
-          .toList(),
-    );
+    return query.asyncMap((rows) async {
+      await _backfillDisplayCustomerNos(shopId);
+      final refreshed = await _isar.customerEntitys
+          .filter()
+          .shopIdEqualTo(shopId)
+          .and()
+          .deletedAtIsNull()
+          .sortByCreatedAtDesc()
+          .findAll();
+      return refreshed.map(_toSummary).toList();
+    });
   }
 
   @override
@@ -68,10 +117,12 @@ class IsarCustomerRepository implements CustomerListRepository {
   }) async {
     final id = _uuid.v4();
     final now = DateTime.now();
+    final nextNo = await _nextDisplayCustomerNo(shopId);
     final e = CustomerEntity()
       ..internalId = id
       ..shopId = shopId
       ..name = name.trim()
+      ..displayCustomerNo = formatStoredDisplayCustomerNo(nextNo)
       ..phone = _opt(phone)
       ..address = _opt(address)
       ..notes = _opt(notes)
@@ -173,13 +224,23 @@ class IsarCustomerRepository implements CustomerListRepository {
       m,
       const ['last_catalog_thumbnail_path', 'lastCatalogThumbnailPath'],
     );
+    final remoteDisplayNo = syncPullString(
+      m,
+      const ['display_customer_no', 'displayCustomerNo'],
+    );
     await _isar.writeTxn(() async {
       final existing = await _isar.customerEntitys.getByInternalId(internalId);
       if (existing == null) {
+        var displayNo = remoteDisplayNo?.trim() ?? '';
+        if (parseStoredDisplayCustomerNo(displayNo) == 0) {
+          final nextNo = await _nextDisplayCustomerNo(shopId);
+          displayNo = formatStoredDisplayCustomerNo(nextNo);
+        }
         final e = CustomerEntity()
           ..internalId = internalId
           ..shopId = shopId
           ..name = name.trim()
+          ..displayCustomerNo = displayNo
           ..phone = _opt(syncPullString(m, const ['phone']))
           ..address = _opt(syncPullString(m, const ['address']))
           ..notes = _opt(syncPullString(m, const ['notes']))
@@ -192,9 +253,20 @@ class IsarCustomerRepository implements CustomerListRepository {
         await _isar.customerEntitys.putByInternalId(e);
         return;
       }
+      final mergedDisplayNo = remoteDisplayNo?.trim();
+      final resolvedDisplayNo =
+          (mergedDisplayNo != null &&
+                  parseStoredDisplayCustomerNo(mergedDisplayNo) > 0)
+              ? mergedDisplayNo
+              : (parseStoredDisplayCustomerNo(existing.displayCustomerNo) > 0
+                  ? existing.displayCustomerNo
+                  : formatStoredDisplayCustomerNo(
+                      await _nextDisplayCustomerNo(shopId),
+                    ));
       existing
         ..shopId = shopId
         ..name = name.trim()
+        ..displayCustomerNo = resolvedDisplayNo
         ..phone = _opt(syncPullString(m, const ['phone']))
         ..address = _opt(syncPullString(m, const ['address']))
         ..notes = _opt(syncPullString(m, const ['notes']))

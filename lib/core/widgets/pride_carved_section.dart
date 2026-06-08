@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 BoxDecoration prideCarvedDecoration(ColorScheme scheme) {
   return BoxDecoration(
     borderRadius: BorderRadius.circular(14),
-    color: scheme.surfaceContainerLow,
+    color: scheme.surfaceContainerLowest,
     border: Border.all(color: scheme.outlineVariant),
   );
 }

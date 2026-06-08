@@ -22,7 +22,11 @@ void main() {
     l10nEn = lookupAppLocalizations(const Locale('en'));
   });
 
-  OrderSummary sampleOrder({String? phone, String measurements = ''}) {
+  OrderSummary sampleOrder({
+    String? phone,
+    String measurements = '',
+    String sourceMeasurementProfileLabel = '',
+  }) {
     final now = DateTime(2026, 5, 17);
     return OrderSummary(
       shopId: 'shop-1',
@@ -32,6 +36,7 @@ void main() {
       customerName: 'Ahmad',
       customerPhone: phone,
       measurementsSnapshot: measurements,
+      sourceMeasurementProfileLabel: sourceMeasurementProfileLabel,
       status: OrderLocalStatus.inProgress,
       deliveryDate: now,
       createdAt: now,
@@ -118,9 +123,31 @@ void main() {
       ],
       deliveryDateText: '2026-05-20',
       statusText: 'In progress',
+      createdDateText: '2026-05-17 10:30',
       textDirection: pw.TextDirection.ltr,
     );
     expect(bytes.length, greaterThan(12000));
+  });
+
+  test('buildOrderInvoicePdf includes taken date and many measurements', () async {
+    final measurements = List.generate(
+      24,
+      (i) => 'Measure ${i + 1}: ${80 + i} cm',
+    ).join('\n');
+    final bytes = await buildOrderInvoicePdf(
+      l10n: l10nEn,
+      shop: fullShopProfile(),
+      order: sampleOrder(
+        measurements: measurements,
+        sourceMeasurementProfileLabel: 'Standard men',
+      ),
+      payments: const [],
+      deliveryDateText: '2026-05-20',
+      statusText: 'In progress',
+      createdDateText: '2026-05-17',
+      textDirection: pw.TextDirection.ltr,
+    );
+    expect(bytes.length, greaterThan(10000));
   });
 
   test('buildOrderInvoicePdf succeeds without shop or phone', () async {

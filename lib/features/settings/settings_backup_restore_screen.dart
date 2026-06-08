@@ -6,6 +6,7 @@ import 'package:pride_v3/l10n/app_localizations.dart';
 import '../../data/backup/backup_merge_result.dart';
 import '../../data/backup/backup_platform.dart';
 import '../../data/providers/local_data_providers.dart';
+import '../../security/owner_password_verify_result.dart';
 import '../../security/verify_owner_password.dart';
 import 'settings_owner_password_dialog.dart';
 
@@ -71,10 +72,11 @@ class _SettingsBackupRestoreScreenState
     final pw = await promptOwnerPasswordForSettings(context);
     if (!context.mounted) return;
     if (pw == null) return;
-    if (!await verifyOwnerPasswordForBackup(ref, pw)) {
+    final verify = await verifyOwnerPasswordForBackupDetailed(ref, pw);
+    if (verify != OwnerPasswordVerifyResult.success) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.ownerPasswordMismatch)),
+        SnackBar(content: Text(ownerPasswordVerifyMessage(l10n, verify))),
       );
       return;
     }
@@ -102,10 +104,11 @@ class _SettingsBackupRestoreScreenState
     final pw = await promptOwnerPasswordForSettings(context);
     if (!context.mounted) return;
     if (pw == null) return;
-    if (!await verifyOwnerPasswordForBackup(ref, pw)) {
+    final verify = await verifyOwnerPasswordForBackupDetailed(ref, pw);
+    if (verify != OwnerPasswordVerifyResult.success) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.ownerPasswordMismatch)),
+        SnackBar(content: Text(ownerPasswordVerifyMessage(l10n, verify))),
       );
       return;
     }
