@@ -65,6 +65,17 @@ Purpose: reduce user confusion and give immediate context.
 - Hub cards show minimal summary; **Edit** reopens the modal.
 - Opening Measurements without a customer: dialog “Select customer first.”
 
+## Multi-garment composer (Waistcoat — future phases)
+
+**Phase 1:** Foundation models only (`GarmentType`, `OrderItemDraft`, `OrderItemSummary`). **No composer UI changes.**
+
+**Phase 3+ (planned):**
+- Hub section **Order items** with toggles: Perahan/Tunban, Waistcoat (at least one required).
+- Per-item cards reuse existing measurement/style/fabric sheets scoped by `GarmentType`.
+- Per-item price; order total = sum of included item prices.
+- Shared: customer, delivery date, payment ledger, internal notes.
+- Style/shape pickers filter by garment type (separate libraries in Settings).
+
 ## Definition of Done
 
 - User can complete an order with minimal steps and no confusion.

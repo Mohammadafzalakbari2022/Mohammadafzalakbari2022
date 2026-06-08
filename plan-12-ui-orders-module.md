@@ -40,6 +40,8 @@ Row fields (minimal, high signal):
 Row tap:
 - opens Order Details
 
+**Multi-garment (Phase 5+):** List row may show a non-localized summary key such as `perahan_tunban+waistcoat` mapped via l10n. Phase 1 does not change list behavior.
+
 Empty state:
 - “No orders yet” → button “Create order”
 
@@ -52,6 +54,8 @@ Empty state:
 4) Payment ledger (append-only)
 5) Audit trail (optional later; at least show created_by + timestamps)
    - **Implemented (MVP):** local `createdAt` / `updatedAt`, internal id, current status/delivery, and payment-ledger time range (append-only payments).
+
+**Multi-garment detail (Phase 5+):** Separate collapsible sections per garment item (Perahan/Tunban, Waistcoat) when present; shared payment section shows per-item costs and order total/paid/remaining. Phase 1 does not change detail UI.
 
 ### Status banner + actions
 - Status shown prominently at top (chip + last updated time)

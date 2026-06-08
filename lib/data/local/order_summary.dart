@@ -1,5 +1,7 @@
+import 'entities/garment_type.dart';
 import 'entities/order_status.dart';
 import 'order_customer_history.dart';
+import 'order_item_summary.dart';
 
 /// Row for orders list (plan-12).
 class OrderSummary {
@@ -29,6 +31,7 @@ class OrderSummary {
     this.fabricIdSnapshot = '',
     this.fabricNamePresetInternalId,
     this.fabricColorPresetInternalId,
+    this.items = const [],
     required this.status,
     required this.deliveryDate,
     required this.createdAt,
@@ -62,6 +65,10 @@ class OrderSummary {
   final String fabricIdSnapshot;
   final String? fabricNamePresetInternalId;
   final String? fabricColorPresetInternalId;
+
+  /// Garment lines when persisted (Phase 2+). Empty for legacy flat orders today.
+  final List<OrderItemSummary> items;
+
   final OrderLocalStatus status;
 
   bool get hasCustomerFabric =>
@@ -77,4 +84,75 @@ class OrderSummary {
   int get remainingAmountMinor => totalAmountMinor - paidAmountMinor;
 
   bool get isUnpaid => remainingAmountMinor > 0;
+
+  /// Items sorted for display (Perahan/Tunban before Waistcoat).
+  List<OrderItemSummary> get sortedItems => OrderItemSummary.sorted(items);
+
+  /// First item of [type] in [items], if any.
+  OrderItemSummary? itemOf(GarmentType type) {
+    for (final item in items) {
+      if (item.garmentType == type) return item;
+    }
+    return null;
+  }
+
+  bool get hasPerahanTunban =>
+      itemOf(GarmentType.perahanTunban) != null;
+
+  bool get hasWaistcoat => itemOf(GarmentType.waistcoat) != null;
+
+  /// Sum of [OrderItemSummary.priceAmountMinor] across [items].
+  int get itemPriceTotalAmountMinor =>
+      items.fold<int>(0, (sum, item) => sum + item.priceAmountMinor);
+
+  bool get hasMultipleGarments => items.length > 1;
+
+  /// Non-localized key for list/detail labels (l10n maps this in UI layer).
+  String get garmentSummaryKey {
+    if (items.isEmpty) return kGarmentTypePerahanTunbanApiKey;
+    final types = sortedItems.map((i) => i.garmentType.apiKey).toList();
+    return types.join('+');
+  }
+
+  /// Read-only view of legacy flat garment fields as one Perahan/Tunban item.
+  ///
+  /// Does not mutate storage; existing UI continues to use flat fields until
+  /// Phase 2+ migration and repository wiring.
+  OrderItemSummary? legacyPerahanTunbanItemView() {
+    if (!_hasLegacyFlatGarmentData) return null;
+    return OrderItemSummary(
+      internalId: '',
+      orderInternalId: internalId,
+      garmentType: GarmentType.perahanTunban,
+      sortOrder: GarmentType.perahanTunban.defaultSortOrder,
+      priceAmountMinor: totalAmountMinor,
+      measurementsSnapshot: measurementsSnapshot,
+      sourceMeasurementProfileId: sourceMeasurementProfileId,
+      sourceMeasurementProfileLabel: sourceMeasurementProfileLabel,
+      styleName: styleName,
+      styleNameInternalId: styleNameInternalId,
+      styleSelectionJson: styleSelectionJson,
+      styleSummary: styleSummary,
+      catalogItemInternalId: catalogItemInternalId,
+      catalogDesignNameSnapshot: catalogDesignNameSnapshot,
+      catalogDesignerShopNameSnapshot: catalogDesignerShopNameSnapshot,
+      catalogImagePathSnapshot: catalogImagePathSnapshot,
+      catalogThumbnailPathSnapshot: catalogThumbnailPathSnapshot,
+      fabricNameSnapshot: fabricNameSnapshot,
+      fabricColorSnapshot: fabricColorSnapshot,
+      fabricIdSnapshot: fabricIdSnapshot,
+      fabricNamePresetInternalId: fabricNamePresetInternalId,
+      fabricColorPresetInternalId: fabricColorPresetInternalId,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+    );
+  }
+
+  bool get _hasLegacyFlatGarmentData =>
+      measurementsSnapshot.trim().isNotEmpty ||
+      styleName.trim().isNotEmpty ||
+      styleSelectionJson.trim().isNotEmpty ||
+      styleSummary.trim().isNotEmpty ||
+      catalogDesignNameSnapshot.trim().isNotEmpty ||
+      hasCustomerFabric;
 }

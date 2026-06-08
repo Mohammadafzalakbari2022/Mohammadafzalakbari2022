@@ -67,6 +67,22 @@ Rule (selected)
 - created_at, updated_at, deleted_at?
 - Optional photo-catalog complete design (frozen at create): `catalog_item_internal_id`, `catalog_design_name_snapshot`, `catalog_designer_shop_name_snapshot`, `catalog_image_path_snapshot`, `catalog_thumbnail_path_snapshot`
 
+### Multi-garment orders (Waistcoat — Phase 1 foundation)
+
+**Status:** Phase 1 adds pure Dart models only (`GarmentType`, `OrderItemSummary`, `OrderItemDraft`). Current app behavior remains **single flat garment per order** until Phase 2+.
+
+**Garment types (`GarmentType`):**
+- `perahanTunban` (code `0`, API key `perahan_tunban`) — main Afghan clothing flow
+- `waistcoat` (code `1`, API key `waistcoat`)
+
+**Rule:** At most **one item per garment type** per order (max two lines: Perahan/Tunban and/or Waistcoat).
+
+**Order-level fields (unchanged):** customer, `display_order_no`, status, delivery date, internal notes, shared payment ledger, `total_amount_minor` (= sum of item prices when items are persisted).
+
+**Item-level fields (future `order_items`):** `garment_type`, `sort_order`, `price_amount_minor`, item notes, measurements snapshot (+ structured items), style name/selection/summary, catalog design snapshots, fabric snapshots.
+
+**Migration (Phase 2 — planned, not active):** Existing flat orders become one `perahanTunban` item; `total_amount_minor` → first item price; measurement/style snapshots retarget from `order_id` to `order_item_id`. See `lib/data/local/isar_order_migration_v4.dart`.
+
 ### measurement_types (dynamic fields)
 - internal_id
 - shop_id (FK)

@@ -168,6 +168,44 @@ Response **200:**
 
 Scaffold behavior: `changes` is always an empty array until server-side history exists; `next_cursor` still advances so clients can test cursor plumbing.
 
+#### Order sync payload — multi-garment (Phase 2+)
+
+**Phase 1:** No sync/outbox changes; client continues sending flat order fields only.
+
+**Future `order` upsert `data` shape** (extends current flat fields):
+
+```json
+{
+  "customer_internal_id": "...",
+  "delivery_date": "...",
+  "total_amount_minor": 2000,
+  "items": [
+    {
+      "internal_id": "<uuid>",
+      "garment_type": "perahan_tunban",
+      "sort_order": 0,
+      "price_amount_minor": 1200,
+      "measurements_snapshot": "...",
+      "style_name": "...",
+      "style_selection_json": "...",
+      "fabric_name": "...",
+      "fabric_id": "..."
+    },
+    {
+      "internal_id": "<uuid>",
+      "garment_type": "waistcoat",
+      "sort_order": 1,
+      "price_amount_minor": 800
+    }
+  ]
+}
+```
+
+**Compatibility:**
+- **Dual-read:** clients accept legacy flat payloads (map to one `perahan_tunban` item) or `items[]`.
+- **Transitional dual-write:** new clients may send both flat fields (from first Perahan item) and `items[]` for one release window.
+- Server stores opaque JSON in `shop_sync_mutations`; no Postgres `orders` table migration required for v1 sync-log architecture.
+
 ### Licensing
 - `POST /license/redeem` (activation code)
 - `GET /license/status`
