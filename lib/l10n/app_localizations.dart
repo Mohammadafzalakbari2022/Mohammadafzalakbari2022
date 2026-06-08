@@ -3040,6 +3040,78 @@ abstract class AppLocalizations {
   /// **'{amount} AFN'**
   String moneyAfn(String amount);
 
+  /// No description provided for @ordersComposerOrderItemsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order items'**
+  String get ordersComposerOrderItemsTitle;
+
+  /// No description provided for @ordersComposerOrderItemsSelectedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} item(s) selected'**
+  String ordersComposerOrderItemsSelectedCount(int count);
+
+  /// No description provided for @garmentPerahanTunban.
+  ///
+  /// In en, this message translates to:
+  /// **'Perahan/Tunban'**
+  String get garmentPerahanTunban;
+
+  /// No description provided for @garmentWaistcoat.
+  ///
+  /// In en, this message translates to:
+  /// **'Waistcoat'**
+  String get garmentWaistcoat;
+
+  /// No description provided for @ordersComposerItemPriceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Item price'**
+  String get ordersComposerItemPriceLabel;
+
+  /// No description provided for @ordersComposerItemPriceRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter item price'**
+  String get ordersComposerItemPriceRequired;
+
+  /// No description provided for @ordersComposerItemReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get ordersComposerItemReady;
+
+  /// No description provided for @ordersComposerAddWaistcoatCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Add waistcoat'**
+  String get ordersComposerAddWaistcoatCta;
+
+  /// No description provided for @ordersComposerAddPerahanTunbanCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Perahan/Tunban'**
+  String get ordersComposerAddPerahanTunbanCta;
+
+  /// No description provided for @ordersComposerNoItemsError.
+  ///
+  /// In en, this message translates to:
+  /// **'Select at least one order item'**
+  String get ordersComposerNoItemsError;
+
+  /// No description provided for @ordersComposerItemBreakdownTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Item cost breakdown'**
+  String get ordersComposerItemBreakdownTitle;
+
+  /// No description provided for @ordersComposerUseSameFabricCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Use same fabric'**
+  String get ordersComposerUseSameFabricCta;
+
   /// No description provided for @ordersComposerCustomerTitle.
   ///
   /// In en, this message translates to:

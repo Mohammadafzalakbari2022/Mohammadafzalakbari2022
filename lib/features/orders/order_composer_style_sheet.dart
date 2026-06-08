@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pride_v3/core/widgets/pride_modal_bottom_sheet.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
+import '../../data/local/entities/garment_type.dart';
 import '../../data/local/style/style_order_selection.dart';
+import 'order_composer_item_card.dart';
 import '../../data/local/style_name_summary.dart';
 import '../../data/providers/local_data_providers.dart';
 import '../catalog/catalog_tile_image.dart';
@@ -40,6 +42,7 @@ class OrderComposerStyleResult {
 Future<OrderComposerStyleResult?> showOrderComposerStyleSheet({
   required BuildContext context,
   required WidgetRef ref,
+  GarmentType? garmentType,
   String initialMainStyle = '',
   String? initialStyleNameInternalId,
   StyleOrderSelection initialSelection = const StyleOrderSelection.empty(),
@@ -52,6 +55,7 @@ Future<OrderComposerStyleResult?> showOrderComposerStyleSheet({
   return showPrideModalBottomSheet<OrderComposerStyleResult>(
     context: context,
     builder: (ctx) => _OrderComposerStyleSheet(
+      garmentType: garmentType,
       initialMainStyle: initialMainStyle,
       initialStyleNameInternalId: initialStyleNameInternalId,
       initialSelection: initialSelection,
@@ -66,6 +70,7 @@ Future<OrderComposerStyleResult?> showOrderComposerStyleSheet({
 
 class _OrderComposerStyleSheet extends ConsumerStatefulWidget {
   const _OrderComposerStyleSheet({
+    this.garmentType,
     required this.initialMainStyle,
     this.initialStyleNameInternalId,
     required this.initialSelection,
@@ -76,6 +81,7 @@ class _OrderComposerStyleSheet extends ConsumerStatefulWidget {
     this.initialCatalogThumbnailPath,
   });
 
+  final GarmentType? garmentType;
   final String initialMainStyle;
   final String? initialStyleNameInternalId;
   final StyleOrderSelection initialSelection;
@@ -279,7 +285,9 @@ class _OrderComposerStyleSheetState
                     ),
                     Expanded(
                       child: Text(
-                        l10n.ordersComposerStyleSheetTitle,
+                        widget.garmentType != null
+                            ? '${composerGarmentLabel(l10n, widget.garmentType!)} · ${l10n.ordersComposerStyleSheetTitle}'
+                            : l10n.ordersComposerStyleSheetTitle,
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                     ),

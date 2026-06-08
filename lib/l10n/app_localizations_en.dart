@@ -1621,6 +1621,44 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get ordersComposerOrderItemsTitle => 'Order items';
+
+  @override
+  String ordersComposerOrderItemsSelectedCount(int count) {
+    return '$count item(s) selected';
+  }
+
+  @override
+  String get garmentPerahanTunban => 'Perahan/Tunban';
+
+  @override
+  String get garmentWaistcoat => 'Waistcoat';
+
+  @override
+  String get ordersComposerItemPriceLabel => 'Item price';
+
+  @override
+  String get ordersComposerItemPriceRequired => 'Enter item price';
+
+  @override
+  String get ordersComposerItemReady => 'Ready';
+
+  @override
+  String get ordersComposerAddWaistcoatCta => 'Add waistcoat';
+
+  @override
+  String get ordersComposerAddPerahanTunbanCta => 'Add Perahan/Tunban';
+
+  @override
+  String get ordersComposerNoItemsError => 'Select at least one order item';
+
+  @override
+  String get ordersComposerItemBreakdownTitle => 'Item cost breakdown';
+
+  @override
+  String get ordersComposerUseSameFabricCta => 'Use same fabric';
+
+  @override
   String get ordersComposerCustomerTitle => 'Customer';
 
   @override

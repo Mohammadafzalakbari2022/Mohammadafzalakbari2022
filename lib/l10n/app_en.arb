@@ -676,6 +676,23 @@
       "amount": { "type": "String" }
     }
   },
+  "ordersComposerOrderItemsTitle": "Order items",
+  "ordersComposerOrderItemsSelectedCount": "{count} item(s) selected",
+  "@ordersComposerOrderItemsSelectedCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "garmentPerahanTunban": "Perahan/Tunban",
+  "garmentWaistcoat": "Waistcoat",
+  "ordersComposerItemPriceLabel": "Item price",
+  "ordersComposerItemPriceRequired": "Enter item price",
+  "ordersComposerItemReady": "Ready",
+  "ordersComposerAddWaistcoatCta": "Add waistcoat",
+  "ordersComposerAddPerahanTunbanCta": "Add Perahan/Tunban",
+  "ordersComposerNoItemsError": "Select at least one order item",
+  "ordersComposerItemBreakdownTitle": "Item cost breakdown",
+  "ordersComposerUseSameFabricCta": "Use same fabric",
   "ordersComposerCustomerTitle": "Customer",
   "ordersComposerCustomerRequired": "Select customer (required)",
   "ordersComposerMeasurementsTitle": "Measurements",

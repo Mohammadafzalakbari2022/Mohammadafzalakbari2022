@@ -805,6 +805,23 @@
       }
     }
   },
+  "ordersComposerOrderItemsTitle": "د امر توکي",
+  "ordersComposerOrderItemsSelectedCount": "{count} توکي ټاکل شوي",
+  "@ordersComposerOrderItemsSelectedCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "garmentPerahanTunban": "پېراهن‌تنبان",
+  "garmentWaistcoat": "واسکټ",
+  "ordersComposerItemPriceLabel": "د توکي بیه",
+  "ordersComposerItemPriceRequired": "د توکي بیه ولیکئ",
+  "ordersComposerItemReady": "چمتو",
+  "ordersComposerAddWaistcoatCta": "واسکټ اضافه کړئ",
+  "ordersComposerAddPerahanTunbanCta": "پېراهن‌تنبان اضافه کړئ",
+  "ordersComposerNoItemsError": "لږ تر لږه یو د امر توکی وټاکئ",
+  "ordersComposerItemBreakdownTitle": "د توکو د بیې تفصیل",
+  "ordersComposerUseSameFabricCta": "هماغه ټوکر وکاروئ",
   "ordersComposerCustomerTitle": "پیرودونکی",
   "ordersComposerCustomerRequired": "پیرودونکی وټاکئ (اړین)",
   "ordersComposerMeasurementsTitle": "پیمانې",

@@ -805,6 +805,23 @@
       }
     }
   },
+  "ordersComposerOrderItemsTitle": "اقلام سفارش",
+  "ordersComposerOrderItemsSelectedCount": "{count} قلم انتخاب شده",
+  "@ordersComposerOrderItemsSelectedCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "garmentPerahanTunban": "پیراهن‌تنبان",
+  "garmentWaistcoat": "واسکت",
+  "ordersComposerItemPriceLabel": "قیمت قلم",
+  "ordersComposerItemPriceRequired": "قیمت قلم را وارد کنید",
+  "ordersComposerItemReady": "آماده",
+  "ordersComposerAddWaistcoatCta": "افزودن واسکت",
+  "ordersComposerAddPerahanTunbanCta": "افزودن پیراهن‌تنبان",
+  "ordersComposerNoItemsError": "حداقل یک قلم سفارش را انتخاب کنید",
+  "ordersComposerItemBreakdownTitle": "جزئیات قیمت اقلام",
+  "ordersComposerUseSameFabricCta": "استفاده از همان پارچه",
   "ordersComposerCustomerTitle": "مشتری",
   "ordersComposerCustomerRequired": "مشتری را انتخاب کنید (الزامی)",
   "ordersComposerMeasurementsTitle": "اندازه‌ها",

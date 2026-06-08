@@ -361,3 +361,120 @@ OrderItemCreateInput orderItemCreateInputFromLegacyFlatSummary({
     fabricColorPresetInternalId: order.fabricColorPresetInternalId,
   );
 }
+
+Map<String, dynamic> orderItemCreateInputToSyncMap(OrderItemCreateInput item) {
+  return {
+    'garment_type': item.garmentType.apiKey,
+    'sort_order': item.sortOrder ?? item.garmentType.defaultSortOrder,
+    'price_amount_minor': item.priceAmountMinor,
+    if (item.itemNotes.trim().isNotEmpty) 'item_notes': item.itemNotes.trim(),
+    if (item.measurementsSnapshot.trim().isNotEmpty)
+      'measurements_snapshot': item.measurementsSnapshot.trim(),
+    if (item.sourceMeasurementProfileId != null &&
+        item.sourceMeasurementProfileId!.trim().isNotEmpty)
+      'source_measurement_profile_id': item.sourceMeasurementProfileId!.trim(),
+    if (item.sourceMeasurementProfileLabel.trim().isNotEmpty)
+      'source_measurement_profile_label':
+          item.sourceMeasurementProfileLabel.trim(),
+    if (item.styleName.trim().isNotEmpty) 'style_name': item.styleName.trim(),
+    if (item.styleNameInternalId != null &&
+        item.styleNameInternalId!.trim().isNotEmpty)
+      'style_name_internal_id': item.styleNameInternalId!.trim(),
+    if (item.styleSelectionJson.trim().isNotEmpty)
+      'style_selection_json': item.styleSelectionJson,
+    if (item.styleSummary.trim().isNotEmpty)
+      'style_summary': item.styleSummary.trim(),
+    if (item.catalogItemInternalId != null)
+      'catalog_item_internal_id': item.catalogItemInternalId,
+    if (item.catalogDesignNameSnapshot.trim().isNotEmpty)
+      'catalog_design_name_snapshot': item.catalogDesignNameSnapshot.trim(),
+    if (item.catalogDesignerShopNameSnapshot.trim().isNotEmpty)
+      'catalog_designer_shop_name_snapshot':
+          item.catalogDesignerShopNameSnapshot.trim(),
+    if (item.fabricNameSnapshot.trim().isNotEmpty)
+      'fabric_name': item.fabricNameSnapshot.trim(),
+    if (item.fabricColorSnapshot.trim().isNotEmpty)
+      'fabric_color': item.fabricColorSnapshot.trim(),
+    if (item.fabricIdSnapshot.trim().isNotEmpty)
+      'fabric_id': item.fabricIdSnapshot.trim(),
+    if (item.fabricNamePresetInternalId != null &&
+        item.fabricNamePresetInternalId!.trim().isNotEmpty)
+      'fabric_name_preset_internal_id': item.fabricNamePresetInternalId!.trim(),
+    if (item.fabricColorPresetInternalId != null &&
+        item.fabricColorPresetInternalId!.trim().isNotEmpty)
+      'fabric_color_preset_internal_id':
+          item.fabricColorPresetInternalId!.trim(),
+  };
+}
+
+/// Dual-write payload for a newly created order (composer save).
+Map<String, dynamic> buildNewOrderCreateSyncPayload({
+  required String customerInternalId,
+  required DateTime deliveryDate,
+  required int totalAmountMinor,
+  required int initialPaidMinor,
+  required List<OrderItemCreateInput> items,
+  String? customerSnapshotName,
+  String? customerSnapshotPhone,
+}) {
+  final primary = items
+          .where((i) => i.garmentType == GarmentType.perahanTunban)
+          .firstOrNull ??
+      (items.isNotEmpty ? items.first : null);
+
+  final payload = <String, dynamic>{
+    'customer_internal_id': customerInternalId,
+    'delivery_date': deliveryDate.toUtc().toIso8601String(),
+    'total_amount_minor': totalAmountMinor,
+    'initial_paid_minor': initialPaidMinor,
+    if (customerSnapshotName != null && customerSnapshotName.trim().isNotEmpty)
+      'customer_snapshot_name': customerSnapshotName.trim(),
+    if (customerSnapshotPhone != null &&
+        customerSnapshotPhone.trim().isNotEmpty)
+      'customer_snapshot_phone': customerSnapshotPhone.trim(),
+    if (items.isNotEmpty)
+      'items': items.map(orderItemCreateInputToSyncMap).toList(),
+  };
+
+  if (primary != null) {
+    payload.addAll({
+      'measurements_snapshot': primary.measurementsSnapshot,
+      if (primary.sourceMeasurementProfileId != null &&
+          primary.sourceMeasurementProfileId!.trim().isNotEmpty)
+        'source_measurement_profile_id': primary.sourceMeasurementProfileId,
+      'source_measurement_profile_label':
+          primary.sourceMeasurementProfileLabel,
+      'style_name': primary.styleName.trim(),
+      if (primary.styleNameInternalId != null &&
+          primary.styleNameInternalId!.trim().isNotEmpty)
+        'style_name_internal_id': primary.styleNameInternalId!.trim(),
+      if (primary.styleSelectionJson.trim().isNotEmpty)
+        'style_selection_json': primary.styleSelectionJson,
+      if (primary.styleSummary.trim().isNotEmpty)
+        'style_summary': primary.styleSummary.trim(),
+      if (primary.catalogItemInternalId != null)
+        'catalog_item_internal_id': primary.catalogItemInternalId,
+      if (primary.catalogDesignNameSnapshot.trim().isNotEmpty)
+        'catalog_design_name_snapshot': primary.catalogDesignNameSnapshot.trim(),
+      if (primary.catalogDesignerShopNameSnapshot.trim().isNotEmpty)
+        'catalog_designer_shop_name_snapshot':
+            primary.catalogDesignerShopNameSnapshot.trim(),
+      if (primary.fabricNameSnapshot.trim().isNotEmpty)
+        'fabric_name': primary.fabricNameSnapshot.trim(),
+      if (primary.fabricColorSnapshot.trim().isNotEmpty)
+        'fabric_color': primary.fabricColorSnapshot.trim(),
+      if (primary.fabricIdSnapshot.trim().isNotEmpty)
+        'fabric_id': primary.fabricIdSnapshot.trim(),
+      if (primary.fabricNamePresetInternalId != null &&
+          primary.fabricNamePresetInternalId!.trim().isNotEmpty)
+        'fabric_name_preset_internal_id':
+            primary.fabricNamePresetInternalId!.trim(),
+      if (primary.fabricColorPresetInternalId != null &&
+          primary.fabricColorPresetInternalId!.trim().isNotEmpty)
+        'fabric_color_preset_internal_id':
+            primary.fabricColorPresetInternalId!.trim(),
+    });
+  }
+
+  return payload;
+}

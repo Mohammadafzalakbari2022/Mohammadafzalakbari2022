@@ -1612,6 +1612,44 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String get ordersComposerOrderItemsTitle => 'اقلام سفارش';
+
+  @override
+  String ordersComposerOrderItemsSelectedCount(int count) {
+    return '$count قلم انتخاب شده';
+  }
+
+  @override
+  String get garmentPerahanTunban => 'پیراهن‌تنبان';
+
+  @override
+  String get garmentWaistcoat => 'واسکت';
+
+  @override
+  String get ordersComposerItemPriceLabel => 'قیمت قلم';
+
+  @override
+  String get ordersComposerItemPriceRequired => 'قیمت قلم را وارد کنید';
+
+  @override
+  String get ordersComposerItemReady => 'آماده';
+
+  @override
+  String get ordersComposerAddWaistcoatCta => 'افزودن واسکت';
+
+  @override
+  String get ordersComposerAddPerahanTunbanCta => 'افزودن پیراهن‌تنبان';
+
+  @override
+  String get ordersComposerNoItemsError => 'حداقل یک قلم سفارش را انتخاب کنید';
+
+  @override
+  String get ordersComposerItemBreakdownTitle => 'جزئیات قیمت اقلام';
+
+  @override
+  String get ordersComposerUseSameFabricCta => 'استفاده از همان پارچه';
+
+  @override
   String get ordersComposerCustomerTitle => 'مشتری';
 
   @override

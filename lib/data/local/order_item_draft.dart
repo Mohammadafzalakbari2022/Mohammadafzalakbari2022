@@ -1,4 +1,5 @@
 import 'entities/garment_type.dart';
+import 'order_measurement_snapshot_item_input.dart';
 
 /// In-memory composer state for one garment line (pure Dart; UI wiring in Phase 3).
 class OrderItemDraft {
@@ -24,6 +25,7 @@ class OrderItemDraft {
     this.fabricId = '',
     this.fabricNamePresetInternalId,
     this.fabricColorPresetInternalId,
+    this.measurementSnapshotItems = const [],
   });
 
   final GarmentType garmentType;
@@ -47,6 +49,7 @@ class OrderItemDraft {
   final String fabricId;
   final String? fabricNamePresetInternalId;
   final String? fabricColorPresetInternalId;
+  final List<OrderMeasurementSnapshotItemInput> measurementSnapshotItems;
 
   factory OrderItemDraft.empty(GarmentType type) =>
       OrderItemDraft(garmentType: type, included: type == GarmentType.perahanTunban);
@@ -90,6 +93,7 @@ class OrderItemDraft {
     String? fabricId,
     String? fabricNamePresetInternalId,
     String? fabricColorPresetInternalId,
+    List<OrderMeasurementSnapshotItemInput>? measurementSnapshotItems,
   }) {
     return OrderItemDraft(
       garmentType: garmentType ?? this.garmentType,
@@ -119,6 +123,22 @@ class OrderItemDraft {
           fabricNamePresetInternalId ?? this.fabricNamePresetInternalId,
       fabricColorPresetInternalId:
           fabricColorPresetInternalId ?? this.fabricColorPresetInternalId,
+      measurementSnapshotItems:
+          measurementSnapshotItems ?? this.measurementSnapshotItems,
     );
   }
+
+  bool get hasMeasurements => measurementsSnapshot.trim().isNotEmpty;
+
+  bool get hasStyle => styleName.trim().isNotEmpty;
+
+  bool get hasFabric =>
+      fabricName.trim().isNotEmpty ||
+      fabricColor.trim().isNotEmpty ||
+      fabricId.trim().isNotEmpty;
+
+  /// Required fields for save when [included].
+  bool get canSaveIncluded =>
+      !included ||
+      (hasMeasurements && hasStyle && hasRequiredPrice);
 }

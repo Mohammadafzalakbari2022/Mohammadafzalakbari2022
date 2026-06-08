@@ -23,8 +23,11 @@ import '../../data/local/customer_display_no.dart';
 import '../../data/local/customer_summary.dart';
 import 'package:pride_v3/core/formatting/display_customer_no_format.dart';
 import '../../data/local/dev_shop_constants.dart';
+import '../../data/local/entities/garment_type.dart';
+import '../../data/local/order_item_draft.dart';
 import '../../data/local/order_measurement_snapshot_item_input.dart';
 import '../../data/local/order_measurement_snapshot_view.dart';
+import '../../data/local/order_sync_payload.dart';
 import '../../data/local/order_summary.dart';
 import '../../data/local/measurement_profile_summary.dart';
 import '../../data/local/payment_summary.dart';
@@ -34,6 +37,8 @@ import '../../licensing/license_providers.dart';
 import '../../shell/shell_sync_providers.dart';
 import '../../data/local/style/style_order_selection.dart';
 import 'order_composer_customer_picker.dart';
+import 'order_composer_draft.dart';
+import 'order_composer_item_card.dart';
 import 'order_composer_measurements_sheet.dart';
 import 'order_composer_progress_header.dart';
 import 'order_composer_fabric_sheet.dart';
@@ -129,41 +134,31 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
   String? _selectedCustomerName;
   String? _selectedCustomerPhone;
 
-  String? _measurementSourceProfileId;
-  String _measurementSourceProfileLabel = '';
-  List<OrderMeasurementSnapshotItemInput> _measurementSnapshotItems = [];
+  OrderComposerDraft _draft = OrderComposerDraft.initial();
 
-  final _measurementsController = TextEditingController();
+  final Map<GarmentType, StyleOrderSelection> _styleSelections = {
+    GarmentType.perahanTunban: const StyleOrderSelection.empty(),
+    GarmentType.waistcoat: const StyleOrderSelection.empty(),
+  };
 
-  final _totalController = TextEditingController();
+  final Map<GarmentType, TextEditingController> _itemPriceControllers = {
+    GarmentType.perahanTunban: TextEditingController(),
+    GarmentType.waistcoat: TextEditingController(),
+  };
+
+  final Map<GarmentType, bool> _itemCardExpanded = {
+    GarmentType.perahanTunban: true,
+    GarmentType.waistcoat: false,
+  };
+
   final _paidController = TextEditingController();
-
-  String _styleName = '';
-  String? _styleNameInternalId;
-  StyleOrderSelection _styleSelection = const StyleOrderSelection.empty();
-  String _styleSummary = '';
-
-  String? _catalogItemInternalId;
-  String _catalogDesignName = '';
-  String _catalogDesignerShopName = '';
-  String? _catalogImagePath;
-  String? _catalogThumbnailPath;
-
-  String _fabricName = '';
-  String _fabricColor = '';
-  String _fabricId = '';
-  String? _fabricNamePresetInternalId;
-  String? _fabricColorPresetInternalId;
 
   DateTime? _deliveryDate;
 
-  bool get _hasFabric =>
-      _fabricName.trim().isNotEmpty ||
-      _fabricColor.trim().isNotEmpty ||
-      _fabricId.trim().isNotEmpty;
-
-  Listenable get _paymentFieldsListenable =>
-      Listenable.merge([_totalController, _paidController]);
+  Listenable get _paymentFieldsListenable => Listenable.merge([
+        _paidController,
+        ..._itemPriceControllers.values,
+      ]);
 
   @override
   void initState() {
@@ -179,29 +174,68 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
   @override
   void dispose() {
     _customerSearchController.dispose();
-    _measurementsController.dispose();
-    _totalController.dispose();
     _paidController.dispose();
+    for (final c in _itemPriceControllers.values) {
+      c.dispose();
+    }
     super.dispose();
   }
 
-  int get _composerTotalMinor =>
-      tryParseMoneyAmount(_totalController.text) ?? 0;
+  void _syncItemPricesFromControllers() {
+    var draft = _draft;
+    for (final type in GarmentType.values) {
+      final minor = tryParseMoneyAmount(_itemPriceControllers[type]!.text) ?? 0;
+      draft = draft.updateItemPrice(type, minor);
+    }
+    _draft = draft;
+  }
+
+  int get _composerTotalMinor {
+    _syncItemPricesFromControllers();
+    return _draft.totalMinor();
+  }
 
   int get _composerPaidMinor =>
       tryParseMoneyAmount(_paidController.text) ?? 0;
 
   bool get _canSave {
-    final total = tryParseMoneyAmount(_totalController.text);
-    final paid = _composerPaidMinor;
-    if (_selectedCustomerId == null) return false;
-    if (_measurementsController.text.trim().isEmpty) return false;
-    if (_styleName.trim().isEmpty) return false;
-    if (_deliveryDate == null) return false;
-    if (total == null || total <= 0) return false;
-    if (paid < 0) return false;
-    if (paid > total) return false;
-    return true;
+    _syncItemPricesFromControllers();
+    return _draft.canSave(
+      customerSelected: _selectedCustomerId != null,
+      deliveryDateSet: _deliveryDate != null,
+      paidMinor: _composerPaidMinor,
+    );
+  }
+
+  OrderItemDraft _itemDraft(GarmentType type) => _draft.items[type]!;
+
+  void _onGarmentChipSelected(GarmentType type, bool selected) {
+    if (!selected &&
+        _draft.selectedGarmentTypes.where((t) => t != type).isEmpty) {
+      return;
+    }
+    setState(() {
+      _draft = _draft.toggleGarment(type, selected);
+      if (selected) {
+        _itemCardExpanded[type] = true;
+      }
+    });
+  }
+
+  void _onItemPriceChanged(GarmentType type) {
+    final minor = tryParseMoneyAmount(_itemPriceControllers[type]!.text) ?? 0;
+    setState(() => _draft = _draft.updateItemPrice(type, minor));
+  }
+
+  void _clearItemDrafts() {
+    _draft = OrderComposerDraft.initial();
+    _styleSelections[GarmentType.perahanTunban] =
+        const StyleOrderSelection.empty();
+    _styleSelections[GarmentType.waistcoat] = const StyleOrderSelection.empty();
+    for (final type in GarmentType.values) {
+      _itemPriceControllers[type]!.clear();
+      _itemCardExpanded[type] = type == GarmentType.perahanTunban;
+    }
   }
 
   String _customerSummaryLabel(CustomerSummary c) {
@@ -223,24 +257,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       _selectedCustomerName = c.name;
       _selectedCustomerPhone = c.phone;
       _selectedCustomerLabel = _customerSummaryLabel(c);
-      _measurementSourceProfileId = null;
-      _measurementSourceProfileLabel = '';
-      _measurementSnapshotItems = [];
-      _measurementsController.clear();
-      _styleName = '';
-      _styleNameInternalId = null;
-      _styleSelection = const StyleOrderSelection.empty();
-      _styleSummary = '';
-      _catalogItemInternalId = null;
-      _catalogDesignName = '';
-      _catalogDesignerShopName = '';
-      _catalogImagePath = null;
-      _catalogThumbnailPath = null;
-      _fabricName = '';
-      _fabricColor = '';
-      _fabricId = '';
-      _fabricNamePresetInternalId = null;
-      _fabricColorPresetInternalId = null;
+      _clearItemDrafts();
       _customerSearchController.clear();
     });
   }
@@ -304,37 +321,45 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       _selectedCustomerLabel = null;
       _selectedCustomerName = null;
       _selectedCustomerPhone = null;
-      _measurementSourceProfileId = null;
-      _measurementSourceProfileLabel = '';
-      _measurementSnapshotItems = [];
-      _measurementsController.clear();
+      _clearItemDrafts();
     });
   }
 
-  Future<void> _openStyleSheet(BuildContext context) async {
+  Future<void> _openStyleSheet(
+    BuildContext context,
+    GarmentType garmentType,
+  ) async {
+    final draft = _itemDraft(garmentType);
     final result = await showOrderComposerStyleSheet(
       context: context,
       ref: ref,
-      initialMainStyle: _styleName,
-      initialStyleNameInternalId: _styleNameInternalId,
-      initialSelection: _styleSelection,
-      initialCatalogItemInternalId: _catalogItemInternalId,
-      initialCatalogDesignName: _catalogDesignName,
-      initialCatalogDesignerShopName: _catalogDesignerShopName,
-      initialCatalogImagePath: _catalogImagePath,
-      initialCatalogThumbnailPath: _catalogThumbnailPath,
+      garmentType: garmentType,
+      initialMainStyle: draft.styleName,
+      initialStyleNameInternalId: draft.styleNameInternalId,
+      initialSelection:
+          _styleSelections[garmentType] ?? const StyleOrderSelection.empty(),
+      initialCatalogItemInternalId: draft.catalogItemInternalId,
+      initialCatalogDesignName: draft.catalogDesignName,
+      initialCatalogDesignerShopName: draft.catalogDesignerShopName,
+      initialCatalogImagePath: draft.catalogImagePath,
+      initialCatalogThumbnailPath: draft.catalogThumbnailPath,
     );
     if (!mounted || result == null) return;
     setState(() {
-      _styleName = result.mainStyleName;
-      _styleNameInternalId = result.styleNameInternalId;
-      _styleSelection = result.selection;
-      _styleSummary = result.summary;
-      _catalogItemInternalId = result.catalogItemInternalId;
-      _catalogDesignName = result.catalogDesignName;
-      _catalogDesignerShopName = result.catalogDesignerShopName;
-      _catalogImagePath = result.catalogImagePath;
-      _catalogThumbnailPath = result.catalogThumbnailPath;
+      _styleSelections[garmentType] = result.selection;
+      _draft = _draft.updateItem(
+        garmentType,
+        draft.copyWith(
+          styleName: result.mainStyleName,
+          styleNameInternalId: result.styleNameInternalId,
+          styleSummary: result.summary,
+          catalogItemInternalId: result.catalogItemInternalId,
+          catalogDesignName: result.catalogDesignName,
+          catalogDesignerShopName: result.catalogDesignerShopName,
+          catalogImagePath: result.catalogImagePath,
+          catalogThumbnailPath: result.catalogThumbnailPath,
+        ),
+      );
     });
   }
 
@@ -345,38 +370,70 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       context: context,
       initialTotalMinor: total,
       initialPaidMinor: paid,
+      itemBreakdown: paymentBreakdownFromDraft(_draft),
+      totalReadOnly: true,
     );
     if (!mounted || result == null) return;
     setState(() {
-      _totalController.text = result.totalMinor.toString();
       _paidController.text = result.initialPaidMinor.toString();
     });
   }
 
-  Future<void> _openFabricSheet(BuildContext context) async {
+  Future<void> _openFabricSheet(
+    BuildContext context,
+    GarmentType garmentType,
+  ) async {
+    final draft = _itemDraft(garmentType);
     final result = await showOrderComposerFabricSheet(
       context: context,
-      initialName: _fabricName,
-      initialColor: _fabricColor,
-      initialFabricId: _fabricId,
-      initialNamePresetId: _fabricNamePresetInternalId,
-      initialColorPresetId: _fabricColorPresetInternalId,
+      initialName: draft.fabricName,
+      initialColor: draft.fabricColor,
+      initialFabricId: draft.fabricId,
+      initialNamePresetId: draft.fabricNamePresetInternalId,
+      initialColorPresetId: draft.fabricColorPresetInternalId,
     );
     if (!mounted) return;
     setState(() {
       if (result == null || result.isEmpty) {
-        _fabricName = '';
-        _fabricColor = '';
-        _fabricId = '';
-        _fabricNamePresetInternalId = null;
-        _fabricColorPresetInternalId = null;
+        _draft = _draft.updateItem(
+          garmentType,
+          draft.copyWith(
+            fabricName: '',
+            fabricColor: '',
+            fabricId: '',
+            fabricNamePresetInternalId: null,
+            fabricColorPresetInternalId: null,
+          ),
+        );
       } else {
-        _fabricName = result.fabricName;
-        _fabricColor = result.fabricColor;
-        _fabricId = result.fabricId;
-        _fabricNamePresetInternalId = result.fabricNamePresetInternalId;
-        _fabricColorPresetInternalId = result.fabricColorPresetInternalId;
+        _draft = _draft.updateItem(
+          garmentType,
+          draft.copyWith(
+            fabricName: result.fabricName,
+            fabricColor: result.fabricColor,
+            fabricId: result.fabricId,
+            fabricNamePresetInternalId: result.fabricNamePresetInternalId,
+            fabricColorPresetInternalId: result.fabricColorPresetInternalId,
+          ),
+        );
       }
+    });
+  }
+
+  void _copyFabricFromPerahanToWaistcoat() {
+    final perahan = _itemDraft(GarmentType.perahanTunban);
+    final waistcoat = _itemDraft(GarmentType.waistcoat);
+    setState(() {
+      _draft = _draft.updateItem(
+        GarmentType.waistcoat,
+        waistcoat.copyWith(
+          fabricName: perahan.fabricName,
+          fabricColor: perahan.fabricColor,
+          fabricId: perahan.fabricId,
+          fabricNamePresetInternalId: perahan.fabricNamePresetInternalId,
+          fabricColorPresetInternalId: perahan.fabricColorPresetInternalId,
+        ),
+      );
     });
   }
 
@@ -421,27 +478,9 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       _selectedCustomerLabel = null;
       _selectedCustomerName = null;
       _selectedCustomerPhone = null;
-      _measurementSourceProfileId = null;
-      _measurementSourceProfileLabel = '';
-      _measurementSnapshotItems = [];
-      _measurementsController.clear();
-      _totalController.clear();
       _paidController.clear();
       _deliveryDate = null;
-      _styleName = '';
-      _styleNameInternalId = null;
-      _styleSelection = const StyleOrderSelection.empty();
-      _styleSummary = '';
-      _catalogItemInternalId = null;
-      _catalogDesignName = '';
-      _catalogDesignerShopName = '';
-      _catalogImagePath = null;
-      _catalogThumbnailPath = null;
-      _fabricName = '';
-      _fabricColor = '';
-      _fabricId = '';
-      _fabricNamePresetInternalId = null;
-      _fabricColorPresetInternalId = null;
+      _clearItemDrafts();
     });
   }
 
@@ -505,6 +544,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
   }
 
   Future<void> _applyPreviousMeasurements(OrderSummary refOrder) async {
+    if (!_draft.showPerahanPreviousReference) return;
     OrderMeasurementSnapshotView? snap = ref
         .read(orderMeasurementSnapshotProvider(refOrder.internalId))
         .valueOrNull;
@@ -523,28 +563,43 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       );
       return;
     }
+    final type = GarmentType.perahanTunban;
+    final draft = _itemDraft(type);
     setState(() {
-      _measurementsController.text = copy.snapshotText;
-      _measurementSnapshotItems = List<OrderMeasurementSnapshotItemInput>.of(
-        copy.items,
+      _draft = _draft.updateItem(
+        type,
+        draft.copyWith(
+          measurementsSnapshot: copy.snapshotText,
+          measurementSnapshotItems:
+              List<OrderMeasurementSnapshotItemInput>.of(copy.items),
+          sourceMeasurementProfileId: null,
+          sourceMeasurementProfileLabel: '',
+        ),
       );
-      _measurementSourceProfileId = null;
-      _measurementSourceProfileLabel = '';
     });
   }
 
   void _applyPreviousStyle(OrderSummary refOrder) {
+    if (!_draft.showPerahanPreviousReference) return;
     final copy = buildStyleCopy(refOrder);
     if (copy == null) return;
+    final type = GarmentType.perahanTunban;
+    final draft = _itemDraft(type);
     setState(() {
-      _styleName = copy.styleName;
-      _styleNameInternalId = copy.styleNameInternalId;
-      _styleSelection = copy.selection;
-      _styleSummary = copy.styleSummary;
+      _styleSelections[type] = copy.selection;
+      _draft = _draft.updateItem(
+        type,
+        draft.copyWith(
+          styleName: copy.styleName,
+          styleNameInternalId: copy.styleNameInternalId,
+          styleSummary: copy.styleSummary,
+        ),
+      );
     });
   }
 
   Future<void> _applyPreviousDesign(OrderSummary refOrder) async {
+    if (!_draft.showPerahanPreviousReference) return;
     var myCatalog = ref.read(myCatalogStreamProvider).valueOrNull;
     if (myCatalog == null) {
       await ref.read(myCatalogStreamProvider.future);
@@ -565,30 +620,46 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     final copy = buildDesignCopy(refOrder, catalogItemExists: exists) ??
         buildDesignCopySnapshotOnly(refOrder);
     if (copy == null) return;
+    final type = GarmentType.perahanTunban;
+    final draft = _itemDraft(type);
     setState(() {
-      _catalogItemInternalId = copy.catalogItemInternalId;
-      _catalogDesignName = copy.catalogDesignName;
-      _catalogDesignerShopName = copy.catalogDesignerShopName;
-      _catalogImagePath = copy.catalogImagePath;
-      _catalogThumbnailPath = copy.catalogThumbnailPath;
+      _draft = _draft.updateItem(
+        type,
+        draft.copyWith(
+          catalogItemInternalId: copy.catalogItemInternalId,
+          catalogDesignName: copy.catalogDesignName,
+          catalogDesignerShopName: copy.catalogDesignerShopName,
+          catalogImagePath: copy.catalogImagePath,
+          catalogThumbnailPath: copy.catalogThumbnailPath,
+        ),
+      );
     });
   }
 
   void _applyPreviousFabric(OrderSummary refOrder) {
+    if (!_draft.showPerahanPreviousReference) return;
     final copy = buildFabricCopy(refOrder);
     if (copy == null) return;
+    final type = GarmentType.perahanTunban;
+    final draft = _itemDraft(type);
     setState(() {
-      _fabricName = copy.fabricName;
-      _fabricColor = copy.fabricColor;
-      _fabricId = '';
-      _fabricNamePresetInternalId = copy.fabricNamePresetInternalId;
-      _fabricColorPresetInternalId = copy.fabricColorPresetInternalId;
+      _draft = _draft.updateItem(
+        type,
+        draft.copyWith(
+          fabricName: copy.fabricName,
+          fabricColor: copy.fabricColor,
+          fabricId: '',
+          fabricNamePresetInternalId: copy.fabricNamePresetInternalId,
+          fabricColorPresetInternalId: copy.fabricColorPresetInternalId,
+        ),
+      );
     });
   }
 
   Future<void> _openMeasurementsEditor(
     BuildContext context,
     AppLocalizations l10n,
+    GarmentType garmentType,
   ) async {
     if (_selectedCustomerId == null) {
       await showPrideAlertDialog<void>(
@@ -624,26 +695,32 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
         const <MeasurementProfileSummary>[];
 
     if (!context.mounted) return;
+    final draft = _itemDraft(garmentType);
     final r = await showOrderMeasurementsEditorSheet(
       context: context,
       ref: ref,
       l10n: l10n,
       shopId: shopId,
       customerId: _selectedCustomerId,
-      initialSnapshotText: _measurementsController.text,
+      initialSnapshotText: draft.measurementsSnapshot,
       initialItems: List<OrderMeasurementSnapshotItemInput>.of(
-        _measurementSnapshotItems,
+        draft.measurementSnapshotItems,
       ),
-      initialProfileId: _measurementSourceProfileId,
-      initialProfileLabel: _measurementSourceProfileLabel,
+      initialProfileId: draft.sourceMeasurementProfileId,
+      initialProfileLabel: draft.sourceMeasurementProfileLabel,
       profiles: profiles,
     );
     if (r == null || !mounted) return;
     setState(() {
-      _measurementsController.text = r.measurementsSnapshot;
-      _measurementSnapshotItems = r.measurementSnapshotItems;
-      _measurementSourceProfileId = r.sourceMeasurementProfileId;
-      _measurementSourceProfileLabel = r.sourceMeasurementProfileLabel;
+      _draft = _draft.updateItem(
+        garmentType,
+        draft.copyWith(
+          measurementsSnapshot: r.measurementsSnapshot,
+          measurementSnapshotItems: r.measurementSnapshotItems,
+          sourceMeasurementProfileId: r.sourceMeasurementProfileId,
+          sourceMeasurementProfileLabel: r.sourceMeasurementProfileLabel,
+        ),
+      );
     });
   }
 
@@ -773,9 +850,11 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     }
 
     final customerId = _selectedCustomerId!;
-    final totalMinor = tryParseMoneyAmount(_totalController.text)!;
+    _syncItemPricesFromControllers();
+    final totalMinor = _draft.totalMinor();
     final paidMinor = _composerPaidMinor;
     final deliveryDate = _deliveryDate!;
+    final createInputs = _draft.toCreateInputs(styleSelections: _styleSelections);
 
     final shopId =
         effectiveShopIdFromAuth(ref.read(authSessionProvider).shopId);
@@ -783,43 +862,25 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     final ordersRepo = await ref.read(orderListRepositoryProvider.future);
     final paymentsRepo = await ref.read(paymentRepositoryProvider.future);
 
-    final orderId = await ordersRepo.createOrder(
+    final orderId = await ordersRepo.createOrderWithItems(
       shopId: shopId,
       customerInternalId: customerId,
       deliveryDate: deliveryDate,
-      totalAmountMinor: totalMinor,
-      measurementsSnapshot: _measurementsController.text.trim(),
+      items: createInputs,
       customerSnapshotName: _selectedCustomerName,
       customerSnapshotPhone: _selectedCustomerPhone,
-      sourceMeasurementProfileId: _measurementSourceProfileId,
-      sourceMeasurementProfileLabel: _measurementSourceProfileLabel,
-      measurementSnapshotItems:
-          _measurementSnapshotItems.isEmpty ? null : _measurementSnapshotItems,
-      styleName: _styleName.trim(),
-      styleNameInternalId: _styleNameInternalId,
-      styleSelectionJson: _styleSelection.toJsonString(),
-      styleSummary: _styleSummary,
-      catalogItemInternalId: _catalogItemInternalId,
-      catalogDesignNameSnapshot: _catalogDesignName,
-      catalogDesignerShopNameSnapshot: _catalogDesignerShopName,
-      catalogSourceImagePath: _catalogImagePath,
-      catalogSourceThumbnailPath: _catalogThumbnailPath,
-      fabricNameSnapshot: _fabricName,
-      fabricColorSnapshot: _fabricColor,
-      fabricIdSnapshot: _fabricId,
-      fabricNamePresetInternalId: _fabricNamePresetInternalId,
-      fabricColorPresetInternalId: _fabricColorPresetInternalId,
     );
 
-    if (_catalogDesignName.trim().isNotEmpty) {
+    final catalogItem = _draft.primaryCatalogItem();
+    if (catalogItem != null && catalogItem.catalogDesignName.trim().isNotEmpty) {
       final customersRepo =
           await ref.read(customerListRepositoryProvider.future);
       await customersRepo.updateCustomerLastCatalogDesign(
         internalId: customerId,
-        designName: _catalogDesignName.trim(),
-        designerShopName: _catalogDesignerShopName.trim(),
-        catalogItemInternalId: _catalogItemInternalId,
-        thumbnailPath: _catalogThumbnailPath,
+        designName: catalogItem.catalogDesignName.trim(),
+        designerShopName: catalogItem.catalogDesignerShopName.trim(),
+        catalogItemInternalId: catalogItem.catalogItemInternalId,
+        thumbnailPath: catalogItem.catalogThumbnailPath,
       );
       final customers =
           ref.read(customersListStreamProvider).valueOrNull ?? [];
@@ -849,15 +910,16 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
             if (customerRow.notes != null && customerRow.notes!.trim().isNotEmpty)
               'notes': customerRow.notes!.trim(),
             'created_at': customerRow.createdAt.toUtc().toIso8601String(),
-            'last_catalog_design_name': _catalogDesignName.trim(),
-            if (_catalogDesignerShopName.trim().isNotEmpty)
+            'last_catalog_design_name': catalogItem.catalogDesignName.trim(),
+            if (catalogItem.catalogDesignerShopName.trim().isNotEmpty)
               'last_catalog_designer_shop_name':
-                  _catalogDesignerShopName.trim(),
-            if (_catalogItemInternalId != null)
-              'last_catalog_item_internal_id': _catalogItemInternalId,
-            if (_catalogThumbnailPath != null &&
-                _catalogThumbnailPath!.trim().isNotEmpty)
-              'last_catalog_thumbnail_path': _catalogThumbnailPath!.trim(),
+                  catalogItem.catalogDesignerShopName.trim(),
+            if (catalogItem.catalogItemInternalId != null)
+              'last_catalog_item_internal_id': catalogItem.catalogItemInternalId,
+            if (catalogItem.catalogThumbnailPath != null &&
+                catalogItem.catalogThumbnailPath!.trim().isNotEmpty)
+              'last_catalog_thumbnail_path':
+                  catalogItem.catalogThumbnailPath!.trim(),
           }),
         );
       }
@@ -868,54 +930,17 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       kind: SyncOutboxKinds.orderCreate,
       entityRef: orderId,
       shopId: shopId,
-      payloadJson: jsonEncode({
-        'customer_internal_id': customerId,
-        'delivery_date': deliveryDate.toUtc().toIso8601String(),
-        'total_amount_minor': totalMinor,
-        'initial_paid_minor': paidMinor,
-        'measurements_snapshot': _measurementsController.text.trim(),
-        if (_selectedCustomerName != null &&
-            _selectedCustomerName!.trim().isNotEmpty)
-          'customer_snapshot_name': _selectedCustomerName!.trim(),
-        if (_selectedCustomerPhone != null &&
-            _selectedCustomerPhone!.trim().isNotEmpty)
-          'customer_snapshot_phone': _selectedCustomerPhone!.trim(),
-        if (_measurementSourceProfileId != null &&
-            _measurementSourceProfileId!.trim().isNotEmpty)
-          'source_measurement_profile_id': _measurementSourceProfileId!.trim(),
-        'source_measurement_profile_label':
-            _measurementSourceProfileLabel.trim(),
-        'style_name': _styleName.trim(),
-        if (_styleNameInternalId != null &&
-            _styleNameInternalId!.trim().isNotEmpty)
-          'style_name_internal_id': _styleNameInternalId!.trim(),
-        if (_styleSelection.selectedFigureIds.isNotEmpty)
-          'style_selection_json': _styleSelection.toJsonString(),
-        if (_styleSummary.trim().isNotEmpty)
-          'style_summary': _styleSummary.trim(),
-        if (_catalogItemInternalId != null)
-          'catalog_item_internal_id': _catalogItemInternalId,
-        if (_catalogDesignName.trim().isNotEmpty)
-          'catalog_design_name_snapshot': _catalogDesignName.trim(),
-        if (_catalogDesignerShopName.trim().isNotEmpty)
-          'catalog_designer_shop_name_snapshot':
-              _catalogDesignerShopName.trim(),
-        if (_hasFabric) ...{
-          if (_fabricName.trim().isNotEmpty)
-            'fabric_name': _fabricName.trim(),
-          if (_fabricColor.trim().isNotEmpty)
-            'fabric_color': _fabricColor.trim(),
-          if (_fabricId.trim().isNotEmpty) 'fabric_id': _fabricId.trim(),
-          if (_fabricNamePresetInternalId != null &&
-              _fabricNamePresetInternalId!.trim().isNotEmpty)
-            'fabric_name_preset_internal_id':
-                _fabricNamePresetInternalId!.trim(),
-          if (_fabricColorPresetInternalId != null &&
-              _fabricColorPresetInternalId!.trim().isNotEmpty)
-            'fabric_color_preset_internal_id':
-                _fabricColorPresetInternalId!.trim(),
-        },
-      }),
+      payloadJson: jsonEncode(
+        buildNewOrderCreateSyncPayload(
+          customerInternalId: customerId,
+          deliveryDate: deliveryDate,
+          totalAmountMinor: totalMinor,
+          initialPaidMinor: paidMinor,
+          items: createInputs,
+          customerSnapshotName: _selectedCustomerName,
+          customerSnapshotPhone: _selectedCustomerPhone,
+        ),
+      ),
     );
 
     if (paidMinor > 0) {
@@ -968,23 +993,45 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
         ),
       );
     }
-    if (_measurementsController.text.trim().isEmpty) {
+    if (!_draft.hasAtLeastOneItem) {
       missing.add(
         PrideAlertDialogBullet(
-          icon: Icons.straighten,
+          icon: Icons.checklist_outlined,
           iconColor: prideSettingsIconColor(1),
-          label: l10n.ordersComposerMeasurementsRequired,
+          label: l10n.ordersComposerNoItemsError,
         ),
       );
     }
-    if (_styleName.trim().isEmpty) {
-      missing.add(
-        PrideAlertDialogBullet(
-          icon: Icons.checkroom_outlined,
-          iconColor: prideSettingsIconColor(2),
-          label: l10n.ordersComposerStyleRequired,
-        ),
-      );
+    for (final type in _draft.selectedGarmentTypes) {
+      final item = _draft.items[type]!;
+      final label = composerGarmentLabel(l10n, type);
+      if (!item.hasMeasurements) {
+        missing.add(
+          PrideAlertDialogBullet(
+            icon: Icons.straighten,
+            iconColor: prideSettingsIconColor(1),
+            label: '$label: ${l10n.ordersComposerMeasurementsRequired}',
+          ),
+        );
+      }
+      if (!item.hasStyle) {
+        missing.add(
+          PrideAlertDialogBullet(
+            icon: Icons.checkroom_outlined,
+            iconColor: prideSettingsIconColor(2),
+            label: '$label: ${l10n.ordersComposerStyleRequired}',
+          ),
+        );
+      }
+      if (!item.hasRequiredPrice) {
+        missing.add(
+          PrideAlertDialogBullet(
+            icon: Icons.payments_outlined,
+            iconColor: prideSettingsIconColor(2),
+            label: '$label: ${l10n.ordersComposerItemPriceRequired}',
+          ),
+        );
+      }
     }
     if (_deliveryDate == null) {
       missing.add(
@@ -995,11 +1042,9 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
         ),
       );
     }
-    final total = tryParseMoneyAmount(_totalController.text);
+    final total = _draft.totalMinor();
     final paid = _composerPaidMinor;
-    if (total == null ||
-        total <= 0 ||
-        !OrderPaymentRules.isValidInitialPay(total, paid)) {
+    if (total <= 0 || !OrderPaymentRules.isValidInitialPay(total, paid)) {
       missing.add(
         PrideAlertDialogBullet(
           icon: Icons.payments_outlined,
@@ -1096,30 +1141,6 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
 
     final customerSubtitle =
         _selectedCustomerLabel ?? l10n.ordersComposerCustomerRequired;
-    final measurementsSubtitle = _measurementsController.text.trim().isEmpty
-        ? l10n.ordersComposerMeasurementsRequired
-        : l10n.ordersComposerMeasurementsSummary;
-    final styleSubtitle = _styleName.trim().isEmpty
-        ? l10n.ordersComposerStyleRequired
-        : (_catalogDesignName.trim().isNotEmpty
-            ? '${_styleSummary.trim().isNotEmpty ? _styleSummary.trim().split('\n').first : _styleName.trim()} · ${_catalogDesignName.trim()}'
-            : (_styleSummary.trim().isNotEmpty
-                ? _styleSummary.trim().split('\n').first
-                : _styleName.trim()));
-    final fabricSubtitle = !_hasFabric
-        ? l10n.ordersComposerFabricUnset
-        : (_fabricId.trim().isNotEmpty &&
-                _fabricName.trim().isNotEmpty &&
-                _fabricColor.trim().isNotEmpty
-            ? l10n.ordersComposerFabricSummary(
-                _fabricName.trim(),
-                _fabricColor.trim(),
-                _fabricId.trim(),
-              )
-            : l10n.ordersComposerFabricPartialSummary(
-                _fabricName.trim().isEmpty ? '—' : _fabricName.trim(),
-                _fabricColor.trim().isEmpty ? '—' : _fabricColor.trim(),
-              ));
     final ordersForRef =
         ref.watch(ordersListStreamProvider).valueOrNull ?? const <OrderSummary>[];
     final customersForSearch =
@@ -1135,13 +1156,15 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
             customerOrdersForReference(ordersForRef, _selectedCustomerId!),
             _referenceOrderOverrideId,
           );
-    final currentDesignSummary = _catalogDesignName.trim().isNotEmpty
-        ? _catalogDesignName.trim()
-        : '';
-    final currentStyleForDiff = _styleName.trim().isNotEmpty
-        ? (_styleSummary.trim().isNotEmpty
-            ? _styleSummary.trim()
-            : _styleName.trim())
+    final perahanDraft = _draft.items[GarmentType.perahanTunban]!;
+    final currentDesignSummary =
+        perahanDraft.catalogDesignName.trim().isNotEmpty
+            ? perahanDraft.catalogDesignName.trim()
+            : '';
+    final currentStyleForDiff = perahanDraft.styleName.trim().isNotEmpty
+        ? (perahanDraft.styleSummary.trim().isNotEmpty
+            ? perahanDraft.styleSummary.trim()
+            : perahanDraft.styleName.trim())
         : null;
     final shopId = ref.watch(effectiveShopIdProvider);
     final asyncShopPayments = ref.watch(paymentsForShopProvider(shopId));
@@ -1182,10 +1205,9 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
               return OrderComposerProgressHeader(
                 l10n: l10n,
                 customerDone: _selectedCustomerId != null,
-                measurementsDone:
-                    _measurementsController.text.trim().isNotEmpty,
-                styleDone: _styleName.trim().isNotEmpty,
-                fabricDone: _hasFabric,
+                measurementsDone: _draft.measurementsDoneForAllIncluded(),
+                styleDone: _draft.styleDoneForAllIncluded(),
+                fabricDone: _draft.fabricDoneForAnyIncluded(),
                 deliveryDone: _deliveryDate != null,
                 paymentDone: paymentOk,
               );
@@ -1330,110 +1352,117 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 ListTile(
-                  title: Text(l10n.ordersComposerMeasurementsTitle),
-                  subtitle: Text(measurementsSubtitle),
-                  leading: PrideColoredLeading(
-                    icon: Icons.straighten,
-                    color: prideSettingsIconColor(1),
+                  title: Text(l10n.ordersComposerOrderItemsTitle),
+                  subtitle: Text(
+                    _draft.hasAtLeastOneItem
+                        ? l10n.ordersComposerOrderItemsSelectedCount(
+                            _draft.selectedGarmentTypes.length,
+                          )
+                        : l10n.ordersComposerNoItemsError,
                   ),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => _openMeasurementsEditor(context, l10n),
-                ),
-                if (_measurementsController.text.trim().isEmpty)
-                  _composerRequiredHint(l10n.ordersComposerMeasurementsRequired),
-                if (referenceOrder != null)
-                  ComposerMeasurementsPreviousReference(
-                    referenceOrder: referenceOrder,
-                    l10n: l10n,
-                    currentMeasurementsText: _measurementsController.text,
-                    currentIsMeaningfulForDiff:
-                        _measurementsController.text.trim().isNotEmpty,
-                    onUsePrevious: () =>
-                        _applyPreviousMeasurements(referenceOrder),
-                  ),
-              ],
-            ),
-          ),
-          const SizedBox(height: _kComposerSectionGap),
-          Card(
-            clipBehavior: Clip.antiAlias,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                ListTile(
-                  title: Text(l10n.ordersComposerStyleTitle),
-                  subtitle: Text(styleSubtitle, maxLines: 3),
-                  isThreeLine: styleSubtitle.length > 48,
-                  leading: PrideColoredLeading(
-                    icon: Icons.checkroom_outlined,
-                    color: prideSettingsIconColor(2),
-                  ),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => _openStyleSheet(context),
-                ),
-                if (_styleName.trim().isEmpty)
-                  _composerRequiredHint(l10n.ordersComposerStyleRequired),
-                if (referenceOrder != null &&
-                    previousStyleDisplayText(referenceOrder).isNotEmpty)
-                  ComposerSectionPreviousReference(
-                    l10n: l10n,
-                    previousText: previousStyleDisplayText(referenceOrder),
-                    currentTextForDiff: currentStyleForDiff,
-                    currentIsMeaningfulForDiff: _styleName.trim().isNotEmpty,
-                    usePreviousLabel: l10n.ordersComposerUsePreviousStyleCta,
-                    onUsePrevious: () => _applyPreviousStyle(referenceOrder),
-                  ),
-                if (referenceOrder != null)
-                  ComposerDesignPreviousReference(
-                    referenceOrder: referenceOrder,
-                    l10n: l10n,
-                    currentDesignSummary: currentDesignSummary,
-                    currentIsMeaningfulForDiff:
-                        currentDesignSummary.isNotEmpty,
-                    onUsePrevious: () => _applyPreviousDesign(referenceOrder),
-                  ),
-              ],
-            ),
-          ),
-          const SizedBox(height: _kComposerSectionGap),
-          Card(
-            clipBehavior: Clip.antiAlias,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                ListTile(
-                  title: Text(l10n.ordersComposerFabricTitle),
-                  subtitle: Text(fabricSubtitle, maxLines: 2),
-                  isThreeLine: fabricSubtitle.length > 48,
-                  leading: PrideColoredLeading(
-                    icon: Icons.texture_outlined,
-                    color: prideSettingsIconColor(3),
-                  ),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => _openFabricSheet(context),
                 ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                  child: Text(
-                    l10n.ordersComposerFabricOptional,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.outline,
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final type in GarmentType.values)
+                        FilterChip(
+                          label: Text(composerGarmentLabel(l10n, type)),
+                          selected: _draft.items[type]!.included,
+                          onSelected: (v) => _onGarmentChipSelected(type, v),
                         ),
+                    ],
                   ),
                 ),
-                if (referenceOrder != null && referenceOrder.hasCustomerFabric)
-                  ComposerSectionPreviousReference(
-                    l10n: l10n,
-                    previousText:
-                        previousFabricDisplayText(referenceOrder, l10n),
-                    currentTextForDiff: _hasFabric ? fabricSubtitle : null,
-                    currentIsMeaningfulForDiff: _hasFabric,
-                    usePreviousLabel: l10n.ordersComposerUsePreviousFabricCta,
-                    onUsePrevious: () => _applyPreviousFabric(referenceOrder),
-                  ),
+                if (!_draft.hasAtLeastOneItem)
+                  _composerRequiredHint(l10n.ordersComposerNoItemsError),
               ],
             ),
           ),
+          for (final type in _draft.selectedGarmentTypes) ...[
+            OrderComposerItemCard(
+              l10n: l10n,
+              garmentType: type,
+              draft: _itemDraft(type),
+              priceController: _itemPriceControllers[type]!,
+              expanded: _itemCardExpanded[type] ?? false,
+              onExpandedChanged: (v) =>
+                  setState(() => _itemCardExpanded[type] = v),
+              onOpenMeasurements: () =>
+                  _openMeasurementsEditor(context, l10n, type),
+              onOpenStyle: () => _openStyleSheet(context, type),
+              onOpenFabric: () => _openFabricSheet(context, type),
+              onPriceChanged: () => _onItemPriceChanged(type),
+              onUseSameFabric: type == GarmentType.waistcoat &&
+                      _draft.items[GarmentType.perahanTunban]!.included &&
+                      _draft.items[GarmentType.perahanTunban]!.hasFabric
+                  ? _copyFabricFromPerahanToWaistcoat
+                  : null,
+              measurementsTrailing: type == GarmentType.perahanTunban &&
+                      referenceOrder != null &&
+                      _draft.showPerahanPreviousReference
+                  ? ComposerMeasurementsPreviousReference(
+                      referenceOrder: referenceOrder,
+                      l10n: l10n,
+                      currentMeasurementsText:
+                          _itemDraft(type).measurementsSnapshot,
+                      currentIsMeaningfulForDiff:
+                          _itemDraft(type).hasMeasurements,
+                      onUsePrevious: () =>
+                          _applyPreviousMeasurements(referenceOrder),
+                    )
+                  : null,
+              styleTrailing: type == GarmentType.perahanTunban &&
+                      referenceOrder != null &&
+                      _draft.showPerahanPreviousReference &&
+                      previousStyleDisplayText(referenceOrder).isNotEmpty
+                  ? ComposerSectionPreviousReference(
+                      l10n: l10n,
+                      previousText: previousStyleDisplayText(referenceOrder),
+                      currentTextForDiff: currentStyleForDiff,
+                      currentIsMeaningfulForDiff:
+                          perahanDraft.styleName.trim().isNotEmpty,
+                      usePreviousLabel: l10n.ordersComposerUsePreviousStyleCta,
+                      onUsePrevious: () => _applyPreviousStyle(referenceOrder),
+                    )
+                  : null,
+              fabricTrailing: type == GarmentType.perahanTunban &&
+                      referenceOrder != null &&
+                      _draft.showPerahanPreviousReference &&
+                      referenceOrder.hasCustomerFabric
+                  ? ComposerSectionPreviousReference(
+                      l10n: l10n,
+                      previousText:
+                          previousFabricDisplayText(referenceOrder, l10n),
+                      currentTextForDiff: perahanDraft.hasFabric
+                          ? l10n.ordersComposerFabricPartialSummary(
+                              perahanDraft.fabricName.trim().isEmpty
+                                  ? '—'
+                                  : perahanDraft.fabricName.trim(),
+                              perahanDraft.fabricColor.trim().isEmpty
+                                  ? '—'
+                                  : perahanDraft.fabricColor.trim(),
+                            )
+                          : null,
+                      currentIsMeaningfulForDiff: perahanDraft.hasFabric,
+                      usePreviousLabel: l10n.ordersComposerUsePreviousFabricCta,
+                      onUsePrevious: () => _applyPreviousFabric(referenceOrder),
+                    )
+                  : null,
+            ),
+            if (type == GarmentType.perahanTunban &&
+                referenceOrder != null &&
+                _draft.showPerahanPreviousReference)
+              ComposerDesignPreviousReference(
+                referenceOrder: referenceOrder,
+                l10n: l10n,
+                currentDesignSummary: currentDesignSummary,
+                currentIsMeaningfulForDiff: currentDesignSummary.isNotEmpty,
+                onUsePrevious: () => _applyPreviousDesign(referenceOrder),
+              ),
+          ],
           const SizedBox(height: _kComposerSectionGap),
           Card(
             clipBehavior: Clip.antiAlias,

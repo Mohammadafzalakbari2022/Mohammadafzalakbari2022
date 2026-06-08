@@ -1608,6 +1608,44 @@ class AppLocalizationsPs extends AppLocalizations {
   }
 
   @override
+  String get ordersComposerOrderItemsTitle => 'د امر توکي';
+
+  @override
+  String ordersComposerOrderItemsSelectedCount(int count) {
+    return '$count توکي ټاکل شوي';
+  }
+
+  @override
+  String get garmentPerahanTunban => 'پېراهن‌تنبان';
+
+  @override
+  String get garmentWaistcoat => 'واسکټ';
+
+  @override
+  String get ordersComposerItemPriceLabel => 'د توکي بیه';
+
+  @override
+  String get ordersComposerItemPriceRequired => 'د توکي بیه ولیکئ';
+
+  @override
+  String get ordersComposerItemReady => 'چمتو';
+
+  @override
+  String get ordersComposerAddWaistcoatCta => 'واسکټ اضافه کړئ';
+
+  @override
+  String get ordersComposerAddPerahanTunbanCta => 'پېراهن‌تنبان اضافه کړئ';
+
+  @override
+  String get ordersComposerNoItemsError => 'لږ تر لږه یو د امر توکی وټاکئ';
+
+  @override
+  String get ordersComposerItemBreakdownTitle => 'د توکو د بیې تفصیل';
+
+  @override
+  String get ordersComposerUseSameFabricCta => 'هماغه ټوکر وکاروئ';
+
+  @override
   String get ordersComposerCustomerTitle => 'پیرودونکی';
 
   @override

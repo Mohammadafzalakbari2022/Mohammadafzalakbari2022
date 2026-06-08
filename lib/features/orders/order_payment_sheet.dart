@@ -10,6 +10,8 @@ import 'package:pride_v3/core/widgets/pride_modal_bottom_sheet.dart';
 import 'package:pride_v3/core/widgets/pride_money_field.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 import '../../data/local/order_summary.dart';
+import 'order_composer_draft.dart';
+import 'order_composer_item_card.dart';
 import '../../data/local/payment_summary.dart';
 import '../../data/local/sync_outbox_kinds.dart';
 import '../../data/providers/local_data_providers.dart';
@@ -33,12 +35,16 @@ Future<OrderPaymentDraftResult?> showOrderPaymentDraftSheet({
   required BuildContext context,
   int initialTotalMinor = 0,
   int initialPaidMinor = 0,
+  List<OrderPaymentBreakdownLine> itemBreakdown = const [],
+  bool totalReadOnly = false,
 }) {
   return showPrideModalBottomSheet<OrderPaymentDraftResult>(
     context: context,
     builder: (ctx) => _OrderPaymentDraftSheet(
       initialTotalMinor: initialTotalMinor,
       initialPaidMinor: initialPaidMinor,
+      itemBreakdown: itemBreakdown,
+      totalReadOnly: totalReadOnly,
     ),
   );
 }
@@ -71,10 +77,14 @@ class _OrderPaymentDraftSheet extends StatefulWidget {
   const _OrderPaymentDraftSheet({
     required this.initialTotalMinor,
     required this.initialPaidMinor,
+    this.itemBreakdown = const [],
+    this.totalReadOnly = false,
   });
 
   final int initialTotalMinor;
   final int initialPaidMinor;
+  final List<OrderPaymentBreakdownLine> itemBreakdown;
+  final bool totalReadOnly;
 
   @override
   State<_OrderPaymentDraftSheet> createState() => _OrderPaymentDraftSheetState();
@@ -104,7 +114,10 @@ class _OrderPaymentDraftSheetState extends State<_OrderPaymentDraftSheet> {
 
   void _revalidate() => setState(() => _error = null);
 
-  int? get _parsedTotal => tryParseMoneyAmount(_totalCtrl.text);
+  int? get _parsedTotal {
+    if (widget.totalReadOnly) return widget.initialTotalMinor;
+    return tryParseMoneyAmount(_totalCtrl.text);
+  }
 
   int get _parsedPaid => tryParseMoneyAmount(_paidCtrl.text) ?? 0;
 
@@ -181,13 +194,53 @@ class _OrderPaymentDraftSheetState extends State<_OrderPaymentDraftSheet> {
         controller: scroll,
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
         children: [
-          PrideMoneyField(
-            controller: _totalCtrl,
-            labelText: l10n.ordersComposerPriceLabel,
-            hintText: l10n.ordersComposerPriceHint,
-            textInputAction: TextInputAction.next,
-          ),
-          const SizedBox(height: 12),
+          if (widget.itemBreakdown.isNotEmpty) ...[
+            Text(
+              l10n.ordersComposerItemBreakdownTitle,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+            ),
+            const SizedBox(height: 8),
+            for (final line in widget.itemBreakdown)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        composerGarmentLabel(l10n, line.garmentType),
+                      ),
+                    ),
+                    Text(
+                      AppNumberFormat.formatMoney(l10n, line.amountMinor),
+                    ),
+                  ],
+                ),
+              ),
+            const Divider(height: 20),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(l10n.ordersComposerTotalLabel),
+              trailing: Text(
+                AppNumberFormat.formatMoney(
+                  l10n,
+                  widget.initialTotalMinor,
+                ),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+            ),
+            const SizedBox(height: 12),
+          ] else
+            PrideMoneyField(
+              controller: _totalCtrl,
+              labelText: l10n.ordersComposerPriceLabel,
+              hintText: l10n.ordersComposerPriceHint,
+              textInputAction: TextInputAction.next,
+            ),
+          if (widget.itemBreakdown.isEmpty) const SizedBox(height: 12),
           PrideMoneyField(
             controller: _paidCtrl,
             labelText: l10n.ordersComposerReceivedNowLabel,
