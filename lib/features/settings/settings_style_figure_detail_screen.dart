@@ -228,21 +228,14 @@ class _SettingsStyleFigureDetailScreenState
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final figuresAsync = ref.watch(styleAllFiguresStreamProvider);
+    final figureAsync = ref.watch(styleFigureByIdProvider(widget.figureId));
     final canEdit = !ref.watch(licenseEditingBlockedProvider);
     final textOptionsAsync =
         ref.watch(styleFigureTextOptionsProvider(widget.figureId));
     final sizeOptionsAsync =
         ref.watch(styleFigureSizeOptionsProvider(widget.figureId));
-    return figuresAsync.when(
-      data: (figures) {
-        StyleFigureSummary? figure;
-        for (final f in figures) {
-          if (f.internalId == widget.figureId) {
-            figure = f;
-            break;
-          }
-        }
+    return figureAsync.when(
+      data: (figure) {
         if (figure == null) {
           return Scaffold(
             appBar: AppBar(

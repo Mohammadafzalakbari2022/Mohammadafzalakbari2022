@@ -50,6 +50,7 @@ import '../local/isar_order_repository.dart';
 import '../local/isar_payment_repository.dart';
 import '../local/isar_task_repository.dart';
 import '../local/customer_list_repository.dart';
+import '../local/order_internal_ids_lookup_key.dart';
 import '../local/order_list_repository.dart';
 import '../local/customer_summary.dart';
 import '../local/entities/order_style_snapshot_entity.dart';
@@ -140,6 +141,28 @@ final ordersListStreamProvider =
   final shopId = ref.watch(effectiveShopIdProvider);
   yield* repo.watchOrders(shopId);
 });
+
+final orderByIdProvider = StreamProvider.family<OrderSummary?, String>(
+  (ref, orderId) async* {
+    final repo = await ref.watch(orderListRepositoryProvider.future);
+    yield* repo.watchOrderByInternalId(orderId);
+  },
+);
+
+/// Resolves orders by internal id, including soft-deleted (payment ledger / audit).
+///
+/// Family key must be [orderInternalIdsLookupKey] — not a raw [List] (unstable identity).
+final ordersByInternalIdsProvider =
+    FutureProvider.family<Map<String, OrderSummary>, String>(
+  (ref, lookupKey) async {
+    final repo = await ref.watch(orderListRepositoryProvider.future);
+    final shopId = ref.watch(effectiveShopIdProvider);
+    return repo.resolveOrdersByInternalIds(
+      shopId: shopId,
+      internalIds: orderInternalIdsFromLookupKey(lookupKey),
+    );
+  },
+);
 
 final customersListStreamProvider =
     StreamProvider<List<CustomerSummary>>((ref) async* {
@@ -385,6 +408,13 @@ final styleAllFiguresStreamProvider =
     shopId,
     garmentTypeIndex: GarmentType.perahanTunban.code,
   );
+});
+
+final styleFigureByIdProvider = StreamProvider.family<
+    StyleFigureSummary?, String>((ref, figureId) async* {
+  final repo = await ref.watch(styleCatalogRepositoryProvider.future);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchStyleFigureById(shopId, figureId);
 });
 
 final styleFigureTextOptionsProvider = StreamProvider.family<

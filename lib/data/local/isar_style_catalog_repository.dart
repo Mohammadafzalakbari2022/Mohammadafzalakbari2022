@@ -94,6 +94,25 @@ class IsarStyleCatalogRepository implements StyleCatalogRepository {
         .map(_mapFigures);
   }
 
+  @override
+  Stream<StyleFigureSummary?> watchStyleFigureById(
+    String shopId,
+    String internalId,
+  ) {
+    return _isar.styleFigureEntitys
+        .filter()
+        .shopIdEqualTo(shopId)
+        .and()
+        .internalIdEqualTo(internalId)
+        .and()
+        .deletedAtIsNull()
+        .watch(fireImmediately: true)
+        .map((rows) {
+          if (rows.isEmpty) return null;
+          return _mapFigures(rows).first;
+        });
+  }
+
   List<StyleNameSummary> _mapNames(List<StyleNameEntity> rows) {
     final list = rows
         .map(

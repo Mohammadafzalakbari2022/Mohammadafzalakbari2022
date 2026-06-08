@@ -259,7 +259,8 @@
     }
   },
   "ordersWebDataHint": "د ویب مخکتنه له نمونې ډیټا کار اخلي (Isar په اندروید/iOS/ډیسکټاپ کې).",
-  "ordersNumberPrefix": "شم. {number}",
+  "orderIdLabel": "د امر پېژند",
+  "ordersNumberPrefix": "د امر پېژند: {number}",
   "@ordersNumberPrefix": {
     "placeholders": {
       "number": {
@@ -542,6 +543,7 @@
   },
   "reportsPaymentsTotalLabel": "ټول",
   "reportsPaymentsEmpty": "په دې نیټې موده کې ورکړه نشته.",
+  "reportsPaymentsLoadError": "ورکړې نشي پورته کولی. بیا هڅه وکړئ یا له مدیر سره اړیکه ونیسئ.",
   "reportsPaymentsUnknownOrder": "نامعلوم امر",
   "reportsPaymentsAdjustmentChip": "سمون",
   "reportsPaymentsSectionHeader": "{title} — {total}",
@@ -1016,6 +1018,15 @@
   "invoiceCatalogDesignerLabel": "ډیزاینر",
   "invoiceDesignSectionTitle": "ډیزاین او سټایل",
   "invoiceStyleFiguresLabel": "د سټایل شکلونه",
+  "invoicePaymentSummaryTitle": "د تادیاتو لنډیز",
+  "invoiceGarmentTotalLabel": "د جامو مجموعه",
+  "invoiceDiscountLabel": "تخفیف",
+  "invoiceAdditionalChargesLabel": "اضافي لګښتونه",
+  "invoiceGrandTotalLabel": "ټول مجموعه",
+  "invoiceRemainingBalanceLabel": "پاتې بیلانس",
+  "invoiceReferenceDesignLabel": "مرجعي ډیزاین",
+  "invoiceGeneratedByKhayat": "د Khayat ERP لخوا تولید شوی",
+  "invoiceGeneratedDateLabel": "د تولید نېټه",
   "settingsStyleHubTitle": "د امر سټایل",
   "settingsStyleGarmentTabsLabel": "د جامې کتابتون",
   "settingsStylePerahanLibraryTitle": "د پېراهن‌تنبان شکلونه",
@@ -1102,8 +1113,8 @@
   "saveCta": "ساتل",
   "customersCreated": "پیرودونکی جوړ شو.",
   "customerIdLabel": "د پیرودونکي پېژند",
-  "customerIdShortLabel": "پېژند",
-  "customersIdPrefix": "پېژند {number}",
+  "customerIdShortLabel": "د پیرودونکي پېژند",
+  "customersIdPrefix": "د پیرودونکي پېژند: {number}",
   "@customersIdPrefix": {
     "placeholders": {
       "number": {
@@ -1206,7 +1217,7 @@
   "dashboardNotificationsViewAll": "ټولې خبرتیاوې وګورئ",
   "notifSeedWelcomeTitle": "خیاط ته ښه راغلاست",
   "notifSeedWelcomeBody": "د امر تازه معلومات او د هټۍ خبرتیاوې به دلته ښکاره شي. د لوستلو لپاره کرښه پرانیزئ.",
-  "notifOrderStatusTitle": "امر {orderNo}",
+  "notifOrderStatusTitle": "د امر پېژند: {orderNo}",
   "@notifOrderStatusTitle": {
     "placeholders": {
       "orderNo": {
@@ -1803,6 +1814,7 @@
   "defaultShopPhone": "0701234567",
   "orderShareInvoiceTooltip": "فاکتور شریکول",
   "orderShareInvoicePdfCta": "د PDF فاکتور شریکول",
+  "orderShareInvoicePdfGenerateFail": "فاکتور نشي تولیدولی. مهرباني وکړئ له مدیر سره اړیکه ونیسئ.",
   "orderShareContactPermissionDenied": "د اړیکو اجازه بنده ده — فاکتور شریک شو، خو پیرودونکی په تلیفون کې نه دی خوندي شوی.",
   "orderShareInvoiceSharedSheet": "د PDF فاکتور لیږلو لپاره واتساپ یا بل اپ غوره کړئ.",
   "orderShareInvoiceFail": "شریکول ناکام: {detail}",
@@ -1813,7 +1825,7 @@
       }
     }
   },
-  "orderShareInvoiceSubject": "امر {orderNo}",
+  "orderShareInvoiceSubject": "د امر پېژند: {orderNo}",
   "@orderShareInvoiceSubject": {
     "placeholders": {
       "orderNo": {
@@ -1821,7 +1833,7 @@
       }
     }
   },
-  "orderShareInvoiceWhatsappCaption": "د {orderNo} امر فاکتور — {customerName}",
+  "orderShareInvoiceWhatsappCaption": "فاکتور — د امر پېژند: {orderNo} — {customerName}",
   "@orderShareInvoiceWhatsappCaption": {
     "placeholders": {
       "orderNo": {

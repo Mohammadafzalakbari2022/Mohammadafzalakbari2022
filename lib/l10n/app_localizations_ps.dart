@@ -351,8 +351,11 @@ class AppLocalizationsPs extends AppLocalizations {
       'د ویب مخکتنه له نمونې ډیټا کار اخلي (Isar په اندروید/iOS/ډیسکټاپ کې).';
 
   @override
+  String get orderIdLabel => 'د امر پېژند';
+
+  @override
   String ordersNumberPrefix(String number) {
-    return 'شم. $number';
+    return 'د امر پېژند: $number';
   }
 
   @override
@@ -949,6 +952,10 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get reportsPaymentsEmpty => 'په دې نیټې موده کې ورکړه نشته.';
+
+  @override
+  String get reportsPaymentsLoadError =>
+      'ورکړې نشي پورته کولی. بیا هڅه وکړئ یا له مدیر سره اړیکه ونیسئ.';
 
   @override
   String get reportsPaymentsUnknownOrder => 'نامعلوم امر';
@@ -2117,6 +2124,33 @@ class AppLocalizationsPs extends AppLocalizations {
   String get invoiceStyleFiguresLabel => 'د سټایل شکلونه';
 
   @override
+  String get invoicePaymentSummaryTitle => 'د تادیاتو لنډیز';
+
+  @override
+  String get invoiceGarmentTotalLabel => 'د جامو مجموعه';
+
+  @override
+  String get invoiceDiscountLabel => 'تخفیف';
+
+  @override
+  String get invoiceAdditionalChargesLabel => 'اضافي لګښتونه';
+
+  @override
+  String get invoiceGrandTotalLabel => 'ټول مجموعه';
+
+  @override
+  String get invoiceRemainingBalanceLabel => 'پاتې بیلانس';
+
+  @override
+  String get invoiceReferenceDesignLabel => 'مرجعي ډیزاین';
+
+  @override
+  String get invoiceGeneratedByKhayat => 'د Khayat ERP لخوا تولید شوی';
+
+  @override
+  String get invoiceGeneratedDateLabel => 'د تولید نېټه';
+
+  @override
   String get settingsStyleHubTitle => 'د امر سټایل';
 
   @override
@@ -2391,11 +2425,11 @@ class AppLocalizationsPs extends AppLocalizations {
   String get customerIdLabel => 'د پیرودونکي پېژند';
 
   @override
-  String get customerIdShortLabel => 'پېژند';
+  String get customerIdShortLabel => 'د پیرودونکي پېژند';
 
   @override
   String customersIdPrefix(String number) {
-    return 'پېژند $number';
+    return 'د پیرودونکي پېژند: $number';
   }
 
   @override
@@ -2615,7 +2649,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String notifOrderStatusTitle(String orderNo) {
-    return 'امر $orderNo';
+    return 'د امر پېژند: $orderNo';
   }
 
   @override
@@ -4138,6 +4172,10 @@ class AppLocalizationsPs extends AppLocalizations {
   String get orderShareInvoicePdfCta => 'د PDF فاکتور شریکول';
 
   @override
+  String get orderShareInvoicePdfGenerateFail =>
+      'فاکتور نشي تولیدولی. مهرباني وکړئ له مدیر سره اړیکه ونیسئ.';
+
+  @override
   String get orderShareContactPermissionDenied =>
       'د اړیکو اجازه بنده ده — فاکتور شریک شو، خو پیرودونکی په تلیفون کې نه دی خوندي شوی.';
 
@@ -4152,12 +4190,12 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String orderShareInvoiceSubject(String orderNo) {
-    return 'امر $orderNo';
+    return 'د امر پېژند: $orderNo';
   }
 
   @override
   String orderShareInvoiceWhatsappCaption(String orderNo, String customerName) {
-    return 'د $orderNo امر فاکتور — $customerName';
+    return 'فاکتور — د امر پېژند: $orderNo — $customerName';
   }
 
   @override

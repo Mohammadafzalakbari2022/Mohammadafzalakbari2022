@@ -190,6 +190,9 @@ class _OrdersFilteredListBodyState extends ConsumerState<OrdersFilteredListBody>
       data: (c) => c,
       orElse: () => const <CustomerSummary>[],
     );
+    final customerDisplayNoById = <String, String>{
+      for (final c in customers) c.internalId: c.displayCustomerNo,
+    };
     final detailed = widget.listDensity == OrdersFilteredListDensity.detailed;
 
     return Column(
@@ -249,7 +252,10 @@ class _OrdersFilteredListBodyState extends ConsumerState<OrdersFilteredListBody>
         Expanded(
           child: asyncOrders.when(
             data: (orders) {
-              final filtered = filter.apply(orders);
+              final filtered = filter.apply(
+                orders,
+                customerDisplayNoById: customerDisplayNoById,
+              );
               if (orders.isEmpty) {
                 return Center(
                   child: Padding(
@@ -304,6 +310,8 @@ class _OrdersFilteredListBodyState extends ConsumerState<OrdersFilteredListBody>
 
                   return OrderListTile(
                     order: o,
+                    customerDisplayNo:
+                        customerDisplayNoById[o.customerInternalId] ?? '',
                     paidAmountMinor: paidMinor,
                     remainingAmountMinor: remainingMinor,
                     l10n: l10n,

@@ -18,6 +18,14 @@ class OpenUnpaidReportScreen extends ConsumerWidget {
     final locale = Localizations.localeOf(context).toString();
     final calendar = ref.watch(dateCalendarSystemProvider);
     final asyncOrders = ref.watch(ordersListStreamProvider);
+    final customerDisplayNoById = ref
+            .watch(customersListStreamProvider)
+            .maybeWhen(
+              data: (customers) => <String, String>{
+                for (final c in customers) c.internalId: c.displayCustomerNo,
+              },
+              orElse: () => const <String, String>{},
+            );
 
     return Scaffold(
       appBar: AppBar(
@@ -70,6 +78,8 @@ class OpenUnpaidReportScreen extends ConsumerWidget {
                   l10n: l10n,
                   locale: locale,
                   calendar: calendar,
+                  customerDisplayNo:
+                      customerDisplayNoById[o.customerInternalId] ?? '',
                 ),
               ),
             ],

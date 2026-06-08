@@ -410,61 +410,51 @@ class IsarOrderRepository implements OrderListRepository {
         .asyncMap(_mapOrders);
   }
 
+  @override
+  Stream<OrderSummary?> watchOrderByInternalId(String internalId) {
+    final id = internalId.trim();
+    if (id.isEmpty) {
+      return Stream.value(null);
+    }
+    return _isar.orderEntitys
+        .filter()
+        .internalIdEqualTo(id)
+        .watch(fireImmediately: true)
+        .asyncMap((rows) async {
+          if (rows.isEmpty) return null;
+          return _mapOrderEntity(rows.first);
+        });
+  }
+
+  @override
+  Future<Map<String, OrderSummary>> resolveOrdersByInternalIds({
+    required String shopId,
+    required Iterable<String> internalIds,
+  }) async {
+    final ids = internalIds
+        .map((id) => id.trim())
+        .where((id) => id.isNotEmpty)
+        .toSet();
+    if (ids.isEmpty) return {};
+
+    final out = <String, OrderSummary>{};
+    for (final id in ids) {
+      final entity = await _isar.orderEntitys
+          .filter()
+          .shopIdEqualTo(shopId)
+          .and()
+          .internalIdEqualTo(id)
+          .findFirst();
+      if (entity == null) continue;
+      out[id] = await _mapOrderEntity(entity);
+    }
+    return out;
+  }
+
   Future<List<OrderSummary>> _mapOrders(List<OrderEntity> orders) async {
     final list = <OrderSummary>[];
     for (final o in orders) {
-      final c = await _isar.customerEntitys
-          .filter()
-          .internalIdEqualTo(o.customerInternalId)
-          .findFirst();
-      final payments = await _isar.paymentEntitys
-          .filter()
-          .orderInternalIdEqualTo(o.internalId)
-          .findAll();
-      final paidMinor = payments.fold<int>(0, (sum, p) => sum + p.amountMinor);
-      final snapName = o.customerNameSnapshot.trim();
-      final snapPhone = o.customerPhoneSnapshot.trim();
-      final itemRows = await loadActiveOrderItems(_isar, o.internalId);
-      final items = itemRows.map(orderItemSummaryFromEntity).toList();
-      final flat = flatGarmentFieldsForOrderEntity(order: o, items: items);
-      list.add(
-        OrderSummary(
-          shopId: o.shopId,
-          internalId: o.internalId,
-          displayOrderNo: o.displayOrderNo,
-          customerInternalId: o.customerInternalId,
-          customerName:
-              snapName.isNotEmpty ? snapName : (c?.name ?? '—'),
-          customerPhone: snapPhone.isNotEmpty ? snapPhone : c?.phone,
-          customerChangeHistory:
-              parseOrderCustomerHistoryJson(o.customerChangeHistoryJson),
-          measurementsSnapshot: flat.measurementsSnapshot,
-          internalNotes: o.internalNotes,
-          sourceMeasurementProfileId: flat.sourceMeasurementProfileId,
-          sourceMeasurementProfileLabel: flat.sourceMeasurementProfileLabel,
-          styleName: flat.styleName,
-          styleNameInternalId: flat.styleNameInternalId,
-          styleSelectionJson: flat.styleSelectionJson,
-          styleSummary: flat.styleSummary,
-          catalogItemInternalId: flat.catalogItemInternalId,
-          catalogDesignNameSnapshot: flat.catalogDesignNameSnapshot,
-          catalogDesignerShopNameSnapshot: flat.catalogDesignerShopNameSnapshot,
-          catalogImagePathSnapshot: flat.catalogImagePathSnapshot,
-          catalogThumbnailPathSnapshot: flat.catalogThumbnailPathSnapshot,
-          fabricNameSnapshot: flat.fabricNameSnapshot,
-          fabricColorSnapshot: flat.fabricColorSnapshot,
-          fabricIdSnapshot: flat.fabricIdSnapshot,
-          fabricNamePresetInternalId: flat.fabricNamePresetInternalId,
-          fabricColorPresetInternalId: flat.fabricColorPresetInternalId,
-          items: items,
-          status: orderStatusFromCode(o.statusIndex),
-          deliveryDate: o.deliveryDate,
-          createdAt: o.createdAt ?? o.updatedAt,
-          updatedAt: o.updatedAt,
-          totalAmountMinor: o.totalAmountMinor,
-          paidAmountMinor: paidMinor,
-        ),
-      );
+      list.add(await _mapOrderEntity(o));
     }
     list.sort((a, b) {
       final aCreated = a.createdAt;
@@ -472,6 +462,58 @@ class IsarOrderRepository implements OrderListRepository {
       return bCreated.compareTo(aCreated);
     });
     return list;
+  }
+
+  Future<OrderSummary> _mapOrderEntity(OrderEntity o) async {
+    final c = await _isar.customerEntitys
+        .filter()
+        .internalIdEqualTo(o.customerInternalId)
+        .findFirst();
+    final payments = await _isar.paymentEntitys
+        .filter()
+        .orderInternalIdEqualTo(o.internalId)
+        .findAll();
+    final paidMinor = payments.fold<int>(0, (sum, p) => sum + p.amountMinor);
+    final snapName = o.customerNameSnapshot.trim();
+    final snapPhone = o.customerPhoneSnapshot.trim();
+    final itemRows = await loadActiveOrderItems(_isar, o.internalId);
+    final items = itemRows.map(orderItemSummaryFromEntity).toList();
+    final flat = flatGarmentFieldsForOrderEntity(order: o, items: items);
+    return OrderSummary(
+      shopId: o.shopId,
+      internalId: o.internalId,
+      displayOrderNo: o.displayOrderNo,
+      customerInternalId: o.customerInternalId,
+      customerName: snapName.isNotEmpty ? snapName : (c?.name ?? '—'),
+      customerPhone: snapPhone.isNotEmpty ? snapPhone : c?.phone,
+      customerChangeHistory:
+          parseOrderCustomerHistoryJson(o.customerChangeHistoryJson),
+      measurementsSnapshot: flat.measurementsSnapshot,
+      internalNotes: o.internalNotes,
+      sourceMeasurementProfileId: flat.sourceMeasurementProfileId,
+      sourceMeasurementProfileLabel: flat.sourceMeasurementProfileLabel,
+      styleName: flat.styleName,
+      styleNameInternalId: flat.styleNameInternalId,
+      styleSelectionJson: flat.styleSelectionJson,
+      styleSummary: flat.styleSummary,
+      catalogItemInternalId: flat.catalogItemInternalId,
+      catalogDesignNameSnapshot: flat.catalogDesignNameSnapshot,
+      catalogDesignerShopNameSnapshot: flat.catalogDesignerShopNameSnapshot,
+      catalogImagePathSnapshot: flat.catalogImagePathSnapshot,
+      catalogThumbnailPathSnapshot: flat.catalogThumbnailPathSnapshot,
+      fabricNameSnapshot: flat.fabricNameSnapshot,
+      fabricColorSnapshot: flat.fabricColorSnapshot,
+      fabricIdSnapshot: flat.fabricIdSnapshot,
+      fabricNamePresetInternalId: flat.fabricNamePresetInternalId,
+      fabricColorPresetInternalId: flat.fabricColorPresetInternalId,
+      items: items,
+      status: orderStatusFromCode(o.statusIndex),
+      deliveryDate: o.deliveryDate,
+      createdAt: o.createdAt ?? o.updatedAt,
+      updatedAt: o.updatedAt,
+      totalAmountMinor: o.totalAmountMinor,
+      paidAmountMinor: paidMinor,
+    );
   }
 
   Future<void> _insertSnapshotInTxn({

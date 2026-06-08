@@ -41,7 +41,10 @@ abstract class StyleCatalogRepository {
     int garmentTypeIndex = 0,
   });
 
-
+  Stream<StyleFigureSummary?> watchStyleFigureById(
+    String shopId,
+    String internalId,
+  );
 
   Stream<List<StyleFigureTextOptionSummary>> watchTextOptionsForFigure(
 

@@ -338,6 +338,23 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
     );
   }
 
+  @override
+  Stream<StyleFigureSummary?> watchStyleFigureById(
+    String shopId,
+    String internalId,
+  ) async* {
+    await seedIfEmpty(shopId);
+    StyleFigureSummary? find() {
+      for (final f in _figures) {
+        if (f.internalId == internalId && f.shopId == shopId) return f;
+      }
+      return null;
+    }
+
+    yield find();
+    yield* _figuresCtrl.stream.map((_) => find());
+  }
+
   int _maxOrder<T>(Iterable<T> items, int Function(T) order) {
     var max = 0;
     for (final e in items) {

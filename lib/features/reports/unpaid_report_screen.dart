@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pride_v3/core/calendar/app_calendar_format.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../data/local/order_summary.dart';
 import '../../data/providers/local_data_providers.dart';
 import 'report_money_format.dart';
+import 'report_order_row.dart';
 
 enum _UnpaidDeliveryFilter { all, overdue, dueWithin7Days }
 
@@ -98,6 +98,14 @@ class _UnpaidReportScreenState extends ConsumerState<UnpaidReportScreen> {
     final calendar = ref.watch(dateCalendarSystemProvider);
 
     final asyncOrders = ref.watch(ordersListStreamProvider);
+    final customerDisplayNoById = ref
+            .watch(customersListStreamProvider)
+            .maybeWhen(
+              data: (customers) => <String, String>{
+                for (final c in customers) c.internalId: c.displayCustomerNo,
+              },
+              orElse: () => const <String, String>{},
+            );
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -226,28 +234,14 @@ class _UnpaidReportScreenState extends ConsumerState<UnpaidReportScreen> {
                 )
               else
                 ...filtered.map(
-                  (o) => Card(
-                    child: ListTile(
-                      title: Text(
-                        '${l10n.ordersNumberPrefix(o.displayOrderNo)} · ${o.customerName}',
-                      ),
-                      subtitle: Text(
-                        l10n.ordersDeliveryOn(
-                          AppCalendarFormat.mediumDate(
-                            l10n,
-                            calendar,
-                            o.deliveryDate,
-                            locale,
-                          ),
-                        ),
-                      ),
-                      trailing: Chip(
-                        label: Text(
-                          reportFormatMoney(l10n, o.remainingAmountMinor),
-                        ),
-                      ),
-                      onTap: () => context.push('/app/orders/${o.internalId}'),
-                    ),
+                  (o) => ReportOrderRow(
+                    order: o,
+                    l10n: l10n,
+                    locale: locale,
+                    calendar: calendar,
+                    trailingMoneyMinor: o.remainingAmountMinor,
+                    customerDisplayNo:
+                        customerDisplayNoById[o.customerInternalId] ?? '',
                   ),
                 ),
             ],

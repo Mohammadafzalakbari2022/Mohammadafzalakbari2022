@@ -20,6 +20,7 @@ import 'order_receipt_style_content.dart';
 import 'receipt_branding.dart';
 import 'receipt_line_wrap.dart';
 import 'shop_logo_raster.dart';
+import 'order_receipt_customer_lookup.dart';
 import 'thermal_printer_prefs.dart';
 import 'thermal_printer_socket.dart';
 import 'thermal_receipt_escpos.dart';
@@ -200,13 +201,17 @@ Future<void> printThermalOrderReceipt({
           order.hasCustomerFabric ? _thermalFabricLine(l10n, order) : null;
     }
 
+    final customerDisplayNo =
+        customerDisplayNoForOrder(ref, order.customerInternalId);
+
     final content = OrderReceiptEscPosContent(
       headerLogo: headerLogo,
       shopLine: branding.shopDisplayName,
       shopPhoneLine: branding.shopPhoneLine,
       shopAddressLines: branding.addressLines,
-      orderLine: l10n.ordersNumberPrefix(order.displayOrderNo),
+      customerIdLine: receiptCustomerIdLine(l10n, customerDisplayNo),
       customerLine: '${l10n.receiptCustomerLabel}: ${order.customerName}',
+      orderLine: receiptOrderIdLine(l10n, order.displayOrderNo),
       phoneLine: (phone != null && phone.isNotEmpty)
           ? '${l10n.receiptPhoneLabel}: $phone'
           : null,

@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pride_v3/core/formatting/app_number_format.dart';
-import 'package:pride_v3/core/formatting/display_customer_no_format.dart';
 import 'package:pride_v3/core/formatting/display_order_no_format.dart';
 import 'package:pride_v3/core/calendar/app_calendar_format.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
@@ -13,6 +12,7 @@ import 'package:pride_v3/core/calendar/date_calendar_system.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import 'package:pride_v3/app/app_theme.dart';
+import 'package:pride_v3/core/widgets/customer_id_badge.dart';
 import 'package:pride_v3/core/widgets/pride_action_buttons.dart';
 import 'package:pride_v3/core/widgets/pride_carved_section.dart';
 import 'package:pride_v3/core/feedback/app_feedback.dart';
@@ -215,18 +215,11 @@ class OrderDetailScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).toString();
     final calendar = ref.watch(dateCalendarSystemProvider);
-    final asyncOrders = ref.watch(ordersListStreamProvider);
+    final asyncOrder = ref.watch(orderByIdProvider(orderId));
     String formatMoney(int minor) => AppNumberFormat.formatMoney(l10n, minor);
 
-    return asyncOrders.when(
-      data: (orders) {
-        OrderSummary? found;
-        for (final o in orders) {
-          if (o.internalId == orderId) {
-            found = o;
-            break;
-          }
-        }
+    return asyncOrder.when(
+      data: (found) {
         if (found == null) {
           return Scaffold(
             appBar: AppBar(
@@ -257,14 +250,6 @@ class OrderDetailScreen extends ConsumerWidget {
             break;
           }
         }
-        final customerIdDisplay =
-            linkedCustomer != null &&
-                    parseStoredDisplayCustomerNo(
-                      linkedCustomer.displayCustomerNo,
-                    ) >
-                        0
-                ? formatDisplayCustomerNo(linkedCustomer.displayCustomerNo)
-                : null;
         final snapshotAsync =
             ref.watch(orderMeasurementSnapshotProvider(orderId));
         final editBlockedByLicense = ref.watch(licenseEditingBlockedProvider);
@@ -289,7 +274,16 @@ class OrderDetailScreen extends ConsumerWidget {
               icon: const Icon(Icons.close),
               onPressed: () => context.pop(),
             ),
-            title: Text(displayOrderNumberLabel(l10n, o.displayOrderNo)),
+            title: linkedCustomer != null &&
+                    parseStoredDisplayCustomerNo(
+                      linkedCustomer.displayCustomerNo,
+                    ) >
+                        0
+                ? CustomerIdBadge(
+                    storedCustomerNo: linkedCustomer.displayCustomerNo,
+                    compact: true,
+                  )
+                : Text(o.customerName),
             actions: [
               if (!editBlockedByLicense)
                 PopupMenuButton<String>(
@@ -513,12 +507,11 @@ class OrderDetailScreen extends ConsumerWidget {
                       label: l10n.customerNameLabel,
                       value: o.customerName,
                     ),
-                    if (customerIdDisplay != null)
-                      OrderDetailFieldTile(
-                        icon: Icons.badge_outlined,
-                        label: l10n.customerIdLabel,
-                        value: customerIdDisplay,
-                      ),
+                    OrderDetailFieldTile(
+                      icon: Icons.receipt_long_outlined,
+                      label: l10n.orderIdLabel,
+                      value: displayOrderNumberLabel(l10n, o.displayOrderNo),
+                    ),
                     OrderDetailFieldTile(
                       icon: Icons.phone_outlined,
                       label: l10n.customerPhoneLabel,

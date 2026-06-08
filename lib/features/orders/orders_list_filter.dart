@@ -1,5 +1,7 @@
+import '../../data/local/customer_display_no.dart';
 import '../../data/local/entities/order_status.dart';
 import '../../data/local/order_summary.dart';
+import '../../core/formatting/display_order_no_format.dart';
 
 /// Delivery date filter for the orders list (plan-12).
 enum OrdersDeliveryDatePreset {
@@ -107,16 +109,23 @@ class OrdersListFilter {
     }
   }
 
-  List<OrderSummary> apply(List<OrderSummary> source, {DateTime? now}) {
+  List<OrderSummary> apply(
+    List<OrderSummary> source, {
+    DateTime? now,
+    Map<String, String> customerDisplayNoById = const {},
+  }) {
     final clock = now ?? DateTime.now();
     var list = source;
-    final q = query.trim().toLowerCase();
+    final q = query.trim();
+    final qLower = q.toLowerCase();
     if (q.isNotEmpty) {
       list = list.where((o) {
         final phone = (o.customerPhone ?? '').toLowerCase();
-        return o.displayOrderNo.toLowerCase().contains(q) ||
-            o.customerName.toLowerCase().contains(q) ||
-            phone.contains(q);
+        final customerNo = customerDisplayNoById[o.customerInternalId] ?? '';
+        return displayOrderNoMatchesQuery(o.displayOrderNo, q) ||
+            customerDisplayNoMatchesQuery(customerNo, q) ||
+            o.customerName.toLowerCase().contains(qLower) ||
+            phone.contains(qLower);
       }).toList();
     }
     if (statusFilter.isNotEmpty) {

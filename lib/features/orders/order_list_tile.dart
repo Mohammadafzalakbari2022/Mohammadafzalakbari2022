@@ -3,15 +3,17 @@ import 'package:pride_v3/app/app_theme.dart';
 import 'package:pride_v3/core/calendar/app_calendar_format.dart';
 import 'package:pride_v3/core/calendar/date_calendar_system.dart';
 import 'package:pride_v3/core/formatting/app_number_format.dart';
-import 'package:pride_v3/core/formatting/display_order_no_format.dart';
+import 'package:pride_v3/core/widgets/customer_id_badge.dart';
+import 'package:pride_v3/core/widgets/order_id_label.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
+import '../../data/local/customer_display_no.dart';
 import '../../data/local/order_summary.dart';
 import 'order_garment_summary.dart';
 import 'order_payment_rules.dart';
 import 'order_status_label.dart';
 
-/// Single order row for [OrdersFilteredListBody]: order badge, customer, meta chips.
+/// Single order row for [OrdersFilteredListBody]: customer ID first, order ID second.
 class OrderListTile extends StatelessWidget {
   const OrderListTile({
     super.key,
@@ -25,6 +27,7 @@ class OrderListTile extends StatelessWidget {
     this.paidAmountMinor,
     this.remainingAmountMinor,
     this.stylePreviewLine,
+    this.customerDisplayNo = '',
   });
 
   final OrderSummary order;
@@ -37,6 +40,7 @@ class OrderListTile extends StatelessWidget {
   final VoidCallback onTap;
   final String Function(int minor) formatMoney;
   final String? stylePreviewLine;
+  final String customerDisplayNo;
 
   @override
   Widget build(BuildContext context) {
@@ -58,8 +62,7 @@ class OrderListTile extends StatelessWidget {
     final remainingMinor = remainingAmountMinor ??
         OrderPaymentRules.remainingMinor(order.totalAmountMinor, paidMinor);
     final isUnpaid = remainingMinor > 0;
-    final orderNoLabel =
-        displayOrderNumberLabel(l10n, order.displayOrderNo);
+    final showCustomerId = parseStoredDisplayCustomerNo(customerDisplayNo) > 0;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -78,10 +81,19 @@ class OrderListTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: _OrderNumberBadge(label: orderNoLabel),
-                ),
+                if (showCustomerId) ...[
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: CustomerIdBadge(
+                      storedCustomerNo: customerDisplayNo,
+                      compact: true,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                ],
+                _CustomerNameBadge(name: order.customerName),
+                const SizedBox(height: 6),
+                OrderIdLabel(storedOrderNo: order.displayOrderNo),
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 6,
@@ -109,8 +121,6 @@ class OrderListTile extends StatelessWidget {
                       ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                _CustomerNameBadge(name: order.customerName),
                 if (order.customerPhone != null &&
                     order.customerPhone!.trim().isNotEmpty) ...[
                   const SizedBox(height: 6),
@@ -195,39 +205,6 @@ class OrderListTile extends StatelessWidget {
                 ],
               ],
             ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _OrderNumberBadge extends StatelessWidget {
-  const _OrderNumberBadge({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: scheme.primary,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: scheme.primary.withValues(alpha: 0.85),
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsetsDirectional.fromSTEB(10, 5, 10, 5),
-        child: Text(
-          label,
-          style: theme.textTheme.labelLarge?.copyWith(
-            color: scheme.onPrimary,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 0.3,
           ),
         ),
       ),

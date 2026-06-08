@@ -11,6 +11,15 @@ import 'order_summary.dart';
 abstract class OrderListRepository {
   Stream<List<OrderSummary>> watchOrders([String shopId = kDevShopId]);
 
+  /// Single order by canonical internal id (includes soft-deleted rows for audit/ledger).
+  Stream<OrderSummary?> watchOrderByInternalId(String internalId);
+
+  /// Batch resolve orders for payment ledger / reports (includes soft-deleted).
+  Future<Map<String, OrderSummary>> resolveOrdersByInternalIds({
+    required String shopId,
+    required Iterable<String> internalIds,
+  });
+
   /// Structured measurements captured at order creation (plan-02).
   Stream<OrderMeasurementSnapshotView?> watchOrderMeasurementSnapshot(
     String orderInternalId,

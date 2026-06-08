@@ -28,4 +28,17 @@ void main() {
       expect(formatDisplayOrderNo('  00000007  '), '00007');
     });
   });
+
+  group('displayOrderNoMatchesQuery', () {
+    test('matches formatted and stored digits', () {
+      expect(displayOrderNoMatchesQuery('00000042', '42'), isTrue);
+      expect(displayOrderNoMatchesQuery('00000042', '00042'), isTrue);
+      expect(displayOrderNoMatchesQuery('00100000', '100000'), isTrue);
+    });
+
+    test('returns false for unrelated queries', () {
+      expect(displayOrderNoMatchesQuery('00000042', 'ahmad'), isFalse);
+      expect(displayOrderNoMatchesQuery('', '42'), isFalse);
+    });
+  });
 }

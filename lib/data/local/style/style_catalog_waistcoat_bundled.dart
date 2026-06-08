@@ -11,7 +11,11 @@ class BundledWaistcoatPartTemplate {
 class BundledWaistcoatFigureTemplate {
   const BundledWaistcoatFigureTemplate({required this.internalId, required this.partInternalId, required this.folderKey, required this.fileBase, required this.displayName, required this.sortOrder});
   final String internalId; final String partInternalId; final String folderKey; final String fileBase; final String displayName; final int sortOrder;
-  String get imageRef => StyleFigureImageRef.waistcoatAssetKey('$folderKey/$fileBase');
+  int get shapeNumber => sortOrder ~/ 10;
+
+  String get imageRef => StyleFigureImageRef.waistcoatBundledKey(shapeNumber);
+
+  String get sourceRelativePath => '$folderKey/$fileBase.png';
 }
 
 const bundledWaistcoatPartTemplates = <BundledWaistcoatPartTemplate>[

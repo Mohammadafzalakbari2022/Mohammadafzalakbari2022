@@ -6,14 +6,10 @@ import 'package:pride_v3/core/calendar/app_calendar_format.dart';
 
 import 'package:pride_v3/core/calendar/date_calendar_system.dart';
 
-import 'package:pride_v3/core/formatting/display_order_no_format.dart';
-
+import 'package:pride_v3/core/widgets/order_id_label.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
-
-
 import '../../data/local/entities/order_status.dart';
-
 import '../../data/local/order_summary.dart';
 
 import 'order_detail_field_tile.dart';
@@ -168,33 +164,6 @@ class OrderDetailHeroCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: scheme.primary,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsetsDirectional.fromSTEB(
-                              8,
-                              4,
-                              8,
-                              4,
-                            ),
-                            child: Text(
-                              displayOrderNumberLabel(
-                                l10n,
-                                order.displayOrderNo,
-                              ),
-                              style: theme.textTheme.labelLarge?.copyWith(
-                                color: scheme.onPrimary,
-                                fontWeight: FontWeight.w800,
-                              ),
-                              maxLines: 2,
-                              softWrap: true,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
                         Text(
                           order.customerName,
                           style: theme.textTheme.titleLarge?.copyWith(
@@ -204,6 +173,8 @@ class OrderDetailHeroCard extends StatelessWidget {
                           maxLines: 3,
                           softWrap: true,
                         ),
+                        const SizedBox(height: 6),
+                        OrderIdLabel(storedOrderNo: order.displayOrderNo),
                       ],
                     ),
                   ),

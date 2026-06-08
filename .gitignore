@@ -60,6 +60,7 @@ third_party/**/.gradle/
 .env
 .env.*
 !.env.example
+config/dart_defines_secrets.json
 android/key.properties
 *.jks
 *.keystore

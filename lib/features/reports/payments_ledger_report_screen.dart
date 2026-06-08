@@ -5,9 +5,13 @@ import 'package:pride_v3/core/calendar/app_calendar_format.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
 import 'package:pride_v3/core/calendar/date_calendar_system.dart';
 import 'package:pride_v3/core/calendar/report_month_period.dart';
+import 'package:pride_v3/core/widgets/customer_id_badge.dart';
+import 'package:pride_v3/core/widgets/order_id_label.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../auth/auth_providers.dart';
+import '../../data/local/customer_display_no.dart';
+import '../../data/local/order_internal_ids_lookup_key.dart';
 import '../../data/local/order_summary.dart';
 import '../../data/local/payment_summary.dart';
 import '../../data/providers/local_data_providers.dart';
@@ -80,11 +84,33 @@ class _PaymentsLedgerReportScreenState
     DateCalendarSystem calendar,
     PaymentSummary p,
     Map<String, OrderSummary> byOrderId,
+    Map<String, String> customerDisplayNoById,
   ) {
     final o = byOrderId[p.orderInternalId];
-    final line1 = o == null
-        ? l10n.reportsPaymentsUnknownOrder
-        : '${l10n.ordersNumberPrefix(o.displayOrderNo)} · ${o.customerName}';
+    final customerNo =
+        o == null ? '' : (customerDisplayNoById[o.customerInternalId] ?? '');
+    final title = o == null
+        ? Text(l10n.reportsPaymentsUnknownOrder)
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (parseStoredDisplayCustomerNo(customerNo) > 0) ...[
+                CustomerIdBadge(
+                  storedCustomerNo: customerNo,
+                  compact: true,
+                ),
+                const SizedBox(height: 6),
+              ],
+              Text(
+                o.customerName,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+              const SizedBox(height: 2),
+              OrderIdLabel(storedOrderNo: o.displayOrderNo),
+            ],
+          );
     final dateLineRow = AppCalendarFormat.mediumDate(
       l10n,
       calendar,
@@ -98,7 +124,7 @@ class _PaymentsLedgerReportScreenState
     ];
     return Card(
       child: ListTile(
-        title: Text(line1),
+        title: title,
         subtitle: Text(subtitleParts.join(' · ')),
         trailing: Chip(
           label: Text(reportFormatMoneyDelta(l10n, p.amountMinor)),
@@ -118,6 +144,7 @@ class _PaymentsLedgerReportScreenState
     _LedgerGroupMode mode,
     List<PaymentSummary> list,
     Map<String, OrderSummary> byOrderId,
+    Map<String, String> customerDisplayNoById,
   ) {
     final theme = Theme.of(context);
     final byBucket = <DateTime, List<PaymentSummary>>{};
@@ -176,6 +203,7 @@ class _PaymentsLedgerReportScreenState
             calendar,
             p,
             byOrderId,
+            customerDisplayNoById,
           ),
         );
       }
@@ -192,7 +220,24 @@ class _PaymentsLedgerReportScreenState
 
     final shopId = ref.watch(effectiveShopIdProvider);
     final asyncPayments = ref.watch(paymentsForShopProvider(shopId));
-    final asyncOrders = ref.watch(ordersListStreamProvider);
+    final asyncCustomers = ref.watch(customersListStreamProvider);
+
+    final orderLookupKey = asyncPayments.maybeWhen(
+      data: (payments) => orderInternalIdsLookupKey(
+        payments.map((p) => p.orderInternalId),
+      ),
+      orElse: () => '',
+    );
+    final asyncOrderLookup = ref.watch(
+      ordersByInternalIdsProvider(orderLookupKey),
+    );
+
+    final customerDisplayNoById = asyncCustomers.maybeWhen(
+      data: (customers) => <String, String>{
+        for (final c in customers) c.internalId: c.displayCustomerNo,
+      },
+      orElse: () => const <String, String>{},
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -211,15 +256,11 @@ class _PaymentsLedgerReportScreenState
       ),
       body: asyncPayments.when(
         data: (payments) {
-          return asyncOrders.when(
-            data: (orders) {
-              final byOrderId = <String, OrderSummary>{};
-              for (final o in orders) {
-                byOrderId[o.internalId] = o;
-              }
-
+          return asyncOrderLookup.when(
+            data: (byOrderId) {
               final list = _filterPayments(payments, range);
-              final totalMinor = list.fold<int>(0, (s, p) => s + p.amountMinor);
+              final totalMinor =
+                  list.fold<int>(0, (s, p) => s + p.amountMinor);
 
               return ListView(
                 padding: const EdgeInsets.all(16),
@@ -317,6 +358,7 @@ class _PaymentsLedgerReportScreenState
                       _groupMode,
                       list,
                       byOrderId,
+                      customerDisplayNoById,
                     ),
                 ],
               );
@@ -325,7 +367,10 @@ class _PaymentsLedgerReportScreenState
             error: (e, _) => Center(
               child: Padding(
                 padding: const EdgeInsets.all(24),
-                child: Text('$e', textAlign: TextAlign.center),
+                child: Text(
+                  l10n.reportsPaymentsLoadError,
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
           );
@@ -334,7 +379,10 @@ class _PaymentsLedgerReportScreenState
         error: (e, _) => Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
-            child: Text('$e', textAlign: TextAlign.center),
+            child: Text(
+              l10n.reportsPaymentsLoadError,
+              textAlign: TextAlign.center,
+            ),
           ),
         ),
       ),

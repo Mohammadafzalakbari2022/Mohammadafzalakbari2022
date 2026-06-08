@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pride_v3/app/app_theme.dart';
 import 'package:pride_v3/core/calendar/app_calendar_format.dart';
-import 'package:pride_v3/core/formatting/display_customer_no_format.dart';
 import 'package:pride_v3/core/calendar/date_calendar_system.dart';
+import 'package:pride_v3/core/widgets/customer_id_badge.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../data/local/customer_display_no.dart';
@@ -46,10 +46,8 @@ class CustomerListTile extends StatelessWidget {
       locale,
     );
     final phone = customer.phone ?? l10n.customersPhoneMissing;
-    final customerIdLabel = parseStoredDisplayCustomerNo(customer.displayCustomerNo) >
-            0
-        ? displayCustomerNumberLabel(l10n, customer.displayCustomerNo)
-        : null;
+    final showCustomerId =
+        parseStoredDisplayCustomerNo(customer.displayCustomerNo) > 0;
     final meta = orderCount == 0
         ? l10n.customersRowNoOrdersYet
         : l10n.customersRowMeta(
@@ -100,28 +98,14 @@ class CustomerListTile extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (isSelected) ...[
-                          Text(
-                            phone,
-                            style: theme.textTheme.labelLarge?.copyWith(
-                              color: scheme.primary,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.4,
-                            ),
+                        if (showCustomerId) ...[
+                          CustomerIdBadge(
+                            storedCustomerNo: customer.displayCustomerNo,
+                            compact: true,
                           ),
                           const SizedBox(height: 8),
                         ],
                         _CustomerNameBadge(name: customer.name),
-                        if (customerIdLabel != null) ...[
-                          const SizedBox(height: 6),
-                          Text(
-                            customerIdLabel,
-                            style: theme.textTheme.labelMedium?.copyWith(
-                              color: scheme.onSurfaceVariant,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
                         const SizedBox(height: 8),
                         Row(
                           children: [

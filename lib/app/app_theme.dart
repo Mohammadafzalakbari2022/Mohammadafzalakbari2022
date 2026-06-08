@@ -5,8 +5,62 @@ import 'package:flutter/material.dart';
 
 const Color _seed = Color(0xFF7C3AED);
 
+/// Muted slate used for customer ID badges (distinct from brand purple).
+const Color kPrideCustomerIdLight = Color(0xFF475569);
+const Color kPrideCustomerIdOnLight = Color(0xFFF8FAFC);
+const Color kPrideCustomerIdDark = Color(0xFF94A3B8);
+const Color kPrideCustomerIdOnDark = Color(0xFF0F172A);
+
 /// Semantic button intents — each maps to a distinct vibrant color.
 enum PrideButtonVariant { primary, add, edit, delete, cancel, warning, payment }
+
+/// Customer ID chip colors — shared across lists, detail headers, and badges.
+@immutable
+class PrideCustomerIdColors extends ThemeExtension<PrideCustomerIdColors> {
+  const PrideCustomerIdColors({
+    required this.background,
+    required this.onBackground,
+  });
+
+  final Color background;
+  final Color onBackground;
+
+  static const PrideCustomerIdColors light = PrideCustomerIdColors(
+    background: kPrideCustomerIdLight,
+    onBackground: kPrideCustomerIdOnLight,
+  );
+
+  static const PrideCustomerIdColors dark = PrideCustomerIdColors(
+    background: kPrideCustomerIdDark,
+    onBackground: kPrideCustomerIdOnDark,
+  );
+
+  @override
+  PrideCustomerIdColors copyWith({
+    Color? background,
+    Color? onBackground,
+  }) {
+    return PrideCustomerIdColors(
+      background: background ?? this.background,
+      onBackground: onBackground ?? this.onBackground,
+    );
+  }
+
+  @override
+  PrideCustomerIdColors lerp(
+    ThemeExtension<PrideCustomerIdColors>? other,
+    double t,
+  ) {
+    if (other is! PrideCustomerIdColors) return this;
+    return PrideCustomerIdColors(
+      background: Color.lerp(background, other.background, t)!,
+      onBackground: Color.lerp(onBackground, other.onBackground, t)!,
+    );
+  }
+}
+
+PrideCustomerIdColors prideCustomerIdColors(BuildContext context) =>
+    Theme.of(context).extension<PrideCustomerIdColors>()!;
 
 /// Vibrant semantic colors for actions (add, edit, delete, …).
 
@@ -539,6 +593,7 @@ ThemeData buildPrideLightTheme({
     scheme,
     Brightness.light,
     PrideActionColors.light,
+    PrideCustomerIdColors.light,
     fontFamily: fontFamily,
   );
 }
@@ -614,6 +669,7 @@ ThemeData buildPrideDarkTheme({
     scheme,
     Brightness.dark,
     PrideActionColors.dark,
+    PrideCustomerIdColors.dark,
     fontFamily: fontFamily,
   );
 }
@@ -621,7 +677,8 @@ ThemeData buildPrideDarkTheme({
 ThemeData _buildTheme(
   ColorScheme scheme,
   Brightness brightness,
-  PrideActionColors actions, {
+  PrideActionColors actions,
+  PrideCustomerIdColors customerIdColors, {
   String? fontFamily,
 }) {
   final isDark = brightness == Brightness.dark;
@@ -653,7 +710,7 @@ ThemeData _buildTheme(
     textTheme: textTheme,
     fontFamily: fontFamily,
 
-    extensions: [actions],
+    extensions: [actions, customerIdColors],
 
     appBarTheme: AppBarTheme(
       centerTitle: false,

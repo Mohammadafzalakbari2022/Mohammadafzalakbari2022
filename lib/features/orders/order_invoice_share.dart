@@ -10,6 +10,8 @@ import 'package:pride_v3/core/calendar/app_calendar_format.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
 import 'package:pride_v3/core/feedback/app_feedback.dart';
 import 'package:pride_v3/core/formatting/display_order_no_format.dart';
+import 'package:pride_v3/core/printing/order_receipt_customer_lookup.dart';
+import 'package:pride_v3/core/printing/invoice/invoice_pdf_debug_dump.dart';
 import 'package:pride_v3/core/printing/invoice_pdf.dart';
 import 'package:pride_v3/core/printing/invoice_pdf_images.dart';
 import 'package:pride_v3/core/printing/invoice_share_contact.dart';
@@ -107,6 +109,25 @@ Future<void> shareOrderInvoice({
       styleSnap: styleSnap,
       catalogFigures: catalogFigures,
     );
+    final customerDisplayNo =
+        customerDisplayNoForOrder(ref, order.customerInternalId);
+
+    // designRail kept for backward compatibility; v2 PDF loads images per garment.
+    if (kDebugMode) {
+      await writeInvoicePdfDebugDump(
+        buildInvoicePdfDebugPayload(
+          order: order,
+          payments: payments,
+          garmentInputs: garmentInputs,
+          styleSnap: styleSnap,
+          measurementSnap: measurementSnap,
+          catalogFigures: catalogFigures,
+          customerDisplayNo: customerDisplayNo,
+          shop: shop,
+        ),
+      );
+    }
+
     final pdfBytes = await buildOrderInvoicePdf(
       l10n: l10n,
       shop: shop,
@@ -123,6 +144,7 @@ Future<void> shareOrderInvoice({
       styleSnap: styleSnap,
       catalogFigures: catalogFigures,
       garmentInputs: garmentInputs,
+      customerDisplayNo: customerDisplayNo,
     );
 
     final rawPhone = order.customerPhone?.trim();
@@ -249,14 +271,22 @@ Future<void> shareOrderInvoice({
         message: l10n.orderShareInvoiceSharedSheet,
       );
     }
-  } catch (e) {
+  } catch (e, st) {
     closeLoadingDialog();
     if (context.mounted) {
+      final message = e is InvoicePdfGenerationException
+          ? l10n.orderShareInvoicePdfGenerateFail
+          : l10n.orderShareInvoiceFail(e.toString());
+      if (e is InvoicePdfGenerationException) {
+        debugPrint('Invoice share PDF failure: ${e.cause}\n${e.stackTrace}');
+      } else {
+        debugPrint('Invoice share failure: $e\n$st');
+      }
       showAppFeedback(
         context,
         ref,
         kind: AppFeedbackKind.error,
-        message: l10n.orderShareInvoiceFail(e.toString()),
+        message: message,
       );
     }
   }

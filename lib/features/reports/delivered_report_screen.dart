@@ -10,7 +10,7 @@ import 'package:pride_v3/l10n/app_localizations.dart';
 import '../../data/local/entities/order_status.dart';
 import '../../data/local/order_summary.dart';
 import '../../data/providers/local_data_providers.dart';
-import 'report_money_format.dart';
+import 'report_order_row.dart';
 
 class DeliveredReportScreen extends ConsumerStatefulWidget {
   const DeliveredReportScreen({super.key});
@@ -61,6 +61,14 @@ class _DeliveredReportScreenState extends ConsumerState<DeliveredReportScreen> {
     final canNext = canAdvanceReportMonth(start, sys);
 
     final asyncOrders = ref.watch(ordersListStreamProvider);
+    final customerDisplayNoById = ref
+            .watch(customersListStreamProvider)
+            .maybeWhen(
+              data: (customers) => <String, String>{
+                for (final c in customers) c.internalId: c.displayCustomerNo,
+              },
+              orElse: () => const <String, String>{},
+            );
 
     return Scaffold(
       appBar: AppBar(
@@ -124,28 +132,14 @@ class _DeliveredReportScreenState extends ConsumerState<DeliveredReportScreen> {
                   separatorBuilder: (_, _) => const SizedBox(height: 8),
                   itemBuilder: (context, i) {
                     final o = delivered[i];
-                    return Card(
-                      child: ListTile(
-                        title: Text(
-                          '${l10n.ordersNumberPrefix(o.displayOrderNo)} · ${o.customerName}',
-                        ),
-                        subtitle: Text(
-                          l10n.ordersDeliveryOn(
-                            AppCalendarFormat.mediumDate(
-                              l10n,
-                              sys,
-                              o.deliveryDate,
-                              locale,
-                            ),
-                          ),
-                        ),
-                        trailing: Text(
-                          reportFormatMoney(l10n, o.totalAmountMinor),
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ),
-                        onTap: () =>
-                            context.push('/app/orders/${o.internalId}'),
-                      ),
+                    return ReportOrderRow(
+                      order: o,
+                      l10n: l10n,
+                      locale: locale,
+                      calendar: sys,
+                      trailingMoneyMinor: o.totalAmountMinor,
+                      customerDisplayNo:
+                          customerDisplayNoById[o.customerInternalId] ?? '',
                     );
                   },
                 );

@@ -10,7 +10,9 @@ import '../../features/reports/report_money_format.dart';
 
 import '../../features/settings/shop_profile.dart';
 
+import 'package:pride_v3/core/formatting/display_customer_no_format.dart';
 import 'package:pride_v3/core/formatting/display_order_no_format.dart';
+import '../../data/local/customer_display_no.dart';
 import '../../l10n/app_localizations.dart';
 
 import 'receipt_branding.dart';
@@ -103,6 +105,8 @@ String buildOrderInvoiceShareText({
 
   OrderStyleSnapshotView? styleSnap,
 
+  String customerDisplayNo = '',
+
 }) {
 
   const wrapChars = 32;
@@ -123,9 +127,13 @@ String buildOrderInvoiceShareText({
 
   _writeShareHeader(buf, branding, l10n);
 
-  buf.writeln(displayOrderNumberLabel(l10n, order.displayOrderNo));
+  if (parseStoredDisplayCustomerNo(customerDisplayNo) > 0) {
+    buf.writeln(displayCustomerNumberLabel(l10n, customerDisplayNo));
+  }
 
   buf.writeln('${l10n.receiptCustomerLabel}: ${order.customerName}');
+
+  buf.writeln(displayOrderNumberLabel(l10n, order.displayOrderNo));
 
   final cPhone = order.customerPhone?.trim();
 

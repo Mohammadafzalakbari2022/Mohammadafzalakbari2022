@@ -327,6 +327,41 @@ class MemoryOrderRepository implements OrderListRepository {
     yield* _controller.stream.map((_) => _sortedForShop(shopId));
   }
 
+  @override
+  Stream<OrderSummary?> watchOrderByInternalId(String internalId) async* {
+    await seedIfEmpty();
+    final id = internalId.trim();
+    OrderSummary? current() {
+      final i = _indexOfOrder(id);
+      return i < 0 ? null : _orders[i];
+    }
+
+    yield current();
+    yield* _controller.stream.map((_) => current());
+  }
+
+  @override
+  Future<Map<String, OrderSummary>> resolveOrdersByInternalIds({
+    required String shopId,
+    required Iterable<String> internalIds,
+  }) async {
+    await seedIfEmpty();
+    final ids = internalIds
+        .map((id) => id.trim())
+        .where((id) => id.isNotEmpty)
+        .toSet();
+    if (ids.isEmpty) return {};
+
+    final out = <String, OrderSummary>{};
+    for (final o in _orders) {
+      if (o.shopId != shopId) continue;
+      if (ids.contains(o.internalId)) {
+        out[o.internalId] = o;
+      }
+    }
+    return out;
+  }
+
   List<OrderSummary> _sortedForShop(String shopId) {
     final list = _orders.where((o) => o.shopId == shopId).toList()
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));

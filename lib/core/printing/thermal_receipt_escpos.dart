@@ -121,6 +121,8 @@ class OrderReceiptEscPosContent {
 
     this.shopAddressLines = const [],
 
+    this.customerIdLine,
+
     required this.orderLine,
 
     required this.customerLine,
@@ -170,6 +172,8 @@ class OrderReceiptEscPosContent {
   final String? shopPhoneLine;
 
   final List<String> shopAddressLines;
+
+  final String? customerIdLine;
 
   final String orderLine;
 
@@ -380,19 +384,19 @@ Future<List<int>> buildThermalOrderReceipt({
 
   _appendReceiptHeader(gen, bytes, c);
 
-  bytes.addAll(
-
-    gen.text(
-
-      receiptLatin1Safe(c.orderLine),
-
-      styles: const PosStyles(bold: true),
-
-    ),
-
-  );
+  final customerId = c.customerIdLine?.trim();
+  if (customerId != null && customerId.isNotEmpty) {
+    bytes.addAll(
+      gen.text(
+        receiptLatin1Safe(customerId),
+        styles: const PosStyles(bold: true),
+      ),
+    );
+  }
 
   bytes.addAll(gen.text(receiptLatin1Safe(c.customerLine)));
+
+  bytes.addAll(gen.text(receiptLatin1Safe(c.orderLine)));
 
   final phone = c.phoneLine?.trim();
 

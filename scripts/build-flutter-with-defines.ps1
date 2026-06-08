@@ -1,4 +1,6 @@
 # Run flutter with stacked --dart-define-from-file (plan-20). No .env files.
+# Optional third layer: config/dart_defines_secrets.json (gitignored; copy from
+# dart_defines_secrets.json.example for PRIDE_SENTRY_DSN and PRIDE_OWNER_PASSWORD_SHA256).
 # Usage:
 #   .\scripts\build-flutter-with-defines.ps1 build web --release
 #   .\scripts\build-flutter-with-defines.ps1 staging build web --release
@@ -28,6 +30,11 @@ $files = @(
     (Join-Path $configDir "dart_defines_base.json")
     (Join-Path $configDir "dart_defines_$environment.json")
 )
+
+$secretsFile = Join-Path $configDir "dart_defines_secrets.json"
+if (Test-Path $secretsFile) {
+    $files += $secretsFile
+}
 
 foreach ($f in $files) {
     if (-not (Test-Path $f)) {

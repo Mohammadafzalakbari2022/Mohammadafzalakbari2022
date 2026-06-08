@@ -259,7 +259,8 @@
     }
   },
   "ordersWebDataHint": "پیش‌نمایش وب از دادهٔ نمونه در حافظه استفاده می‌کند (Isar روی اندروید/iOS/دسکتاپ).",
-  "ordersNumberPrefix": "شماره {number}",
+  "orderIdLabel": "شناسه سفارش",
+  "ordersNumberPrefix": "شناسه سفارش: {number}",
   "@ordersNumberPrefix": {
     "placeholders": {
       "number": {
@@ -542,6 +543,7 @@
   },
   "reportsPaymentsTotalLabel": "جمع",
   "reportsPaymentsEmpty": "در این بازهٔ تاریخ پرداختی وجود ندارد.",
+  "reportsPaymentsLoadError": "بارگذاری پرداخت‌ها ممکن نشد. دوباره تلاش کنید یا با مدیر تماس بگیرید.",
   "reportsPaymentsUnknownOrder": "سفارش نامشخص",
   "reportsPaymentsAdjustmentChip": "اصلاحیه",
   "reportsPaymentsSectionHeader": "{title} — {total}",
@@ -1016,6 +1018,15 @@
   "invoiceCatalogDesignerLabel": "طراح",
   "invoiceDesignSectionTitle": "طراحی و استایل",
   "invoiceStyleFiguresLabel": "اشکال استایل",
+  "invoicePaymentSummaryTitle": "خلاصه پرداخت",
+  "invoiceGarmentTotalLabel": "جمع لباس‌ها",
+  "invoiceDiscountLabel": "تخفیف",
+  "invoiceAdditionalChargesLabel": "هزینه‌های اضافی",
+  "invoiceGrandTotalLabel": "جمع کل",
+  "invoiceRemainingBalanceLabel": "مانده حساب",
+  "invoiceReferenceDesignLabel": "طرح مرجع",
+  "invoiceGeneratedByKhayat": "تولید شده توسط Khayat ERP",
+  "invoiceGeneratedDateLabel": "تاریخ تولید",
   "settingsStyleHubTitle": "استایل سفارش",
   "settingsStyleGarmentTabsLabel": "کتابخانه جامه",
   "settingsStylePerahanLibraryTitle": "اشکال پیراهن‌تنبان",
@@ -1102,8 +1113,8 @@
   "saveCta": "ذخیره",
   "customersCreated": "مشتری ایجاد شد.",
   "customerIdLabel": "شناسه مشتری",
-  "customerIdShortLabel": "شناسه",
-  "customersIdPrefix": "شناسه {number}",
+  "customerIdShortLabel": "شناسه مشتری",
+  "customersIdPrefix": "شناسه مشتری: {number}",
   "@customersIdPrefix": {
     "placeholders": {
       "number": {
@@ -1206,7 +1217,7 @@
   "dashboardNotificationsViewAll": "همه اعلان‌ها",
   "notifSeedWelcomeTitle": "به خیاط خوش آمدید",
   "notifSeedWelcomeBody": "به‌روزرسانی سفارش‌ها و اعلان‌های فروشگاه اینجا نمایش داده می‌شود. برای خوانده‌شدن ردیف را باز کنید.",
-  "notifOrderStatusTitle": "سفارش {orderNo}",
+  "notifOrderStatusTitle": "شناسه سفارش: {orderNo}",
   "@notifOrderStatusTitle": {
     "placeholders": {
       "orderNo": {
@@ -1803,6 +1814,7 @@
   "defaultShopPhone": "0701234567",
   "orderShareInvoiceTooltip": "اشتراک فاکتور",
   "orderShareInvoicePdfCta": "اشتراک فاکتور PDF",
+  "orderShareInvoicePdfGenerateFail": "تولید فاکتور ممکن نشد. لطفاً با مدیر تماس بگیرید.",
   "orderShareContactPermissionDenied": "اجازه مخاطبین خاموش است — فاکتور اشتراک شد، اما مشتری در تلفن ذخیره نشد.",
   "orderShareInvoiceSharedSheet": "واتساپ یا برنامه دیگر را برای ارسال فاکتور PDF انتخاب کنید.",
   "orderShareInvoiceFail": "ارسال فاکتور ناموفق: {detail}",
@@ -1813,7 +1825,7 @@
       }
     }
   },
-  "orderShareInvoiceSubject": "سفارش {orderNo}",
+  "orderShareInvoiceSubject": "شناسه سفارش: {orderNo}",
   "@orderShareInvoiceSubject": {
     "placeholders": {
       "orderNo": {
@@ -1821,7 +1833,7 @@
       }
     }
   },
-  "orderShareInvoiceWhatsappCaption": "فاکتور سفارش {orderNo} — {customerName}",
+  "orderShareInvoiceWhatsappCaption": "فاکتور — شناسه سفارش: {orderNo} — {customerName}",
   "@orderShareInvoiceWhatsappCaption": {
     "placeholders": {
       "orderNo": {

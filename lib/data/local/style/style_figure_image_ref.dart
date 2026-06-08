@@ -8,8 +8,16 @@ abstract final class StyleFigureImageRef {
   static String bundledAssetKey(int shapeNumber) =>
       '${assetPrefix}shape_$shapeNumber';
 
+  /// ASCII-safe bundled key (`asset:wc:12`) — preferred on Android.
+  static String waistcoatBundledKey(int shapeNumber) =>
+      '$waistcoatAssetPrefix$shapeNumber';
+
+  /// Legacy Persian path key; still resolved for old DB rows until repair runs.
   static String waistcoatAssetKey(String relativePathWithoutExt) =>
       '$waistcoatAssetPrefix$relativePathWithoutExt';
+
+  static String waistcoatBundledAssetPath(int shapeNumber) =>
+      'assets/style_figures_waistcoat/wc_${shapeNumber.toString().padLeft(2, '0')}.png';
 
   /// Bundled PNG index from refs like [assetPrefix]shape_3, or null.
   static int? bundledShapeNumber(String imageRef) {
@@ -30,6 +38,10 @@ abstract final class StyleFigureImageRef {
     if (!imageRef.startsWith(waistcoatAssetPrefix)) return null;
     final rel = imageRef.substring(waistcoatAssetPrefix.length);
     if (rel.isEmpty) return null;
+    final shapeNumber = int.tryParse(rel);
+    if (shapeNumber != null && !rel.contains('/')) {
+      return waistcoatBundledAssetPath(shapeNumber);
+    }
     return 'assets/style_figures_waistcoat/$rel.png';
   }
 

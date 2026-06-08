@@ -10,9 +10,11 @@ Use this checklist when submitting **Pride** to Google Play Console.
 2. Push is already done; run **Actions** → **Deploy Privacy Policy (GitHub Pages)** → **Run workflow** if needed.
 3. After a green run, open **Settings → Pages** and copy the site URL. It is usually:
 
-**https://mohammadafzalakbari2022.github.io/Mohammadafzalakbari2022/docs/privacy-policy.html**
+**https://mohammadafzalakbari2022.github.io/Mohammadafzalakbari2022/privacy-policy.html**
 
-(Live now — open that link in your browser to confirm.)
+(After one-time setup in `docs/GITHUB_PAGES_SETUP.md`. The old path `/docs/privacy-policy.html` redirects here.)
+
+Open that link in your browser to confirm before Play Console submission.
 
 Use that **exact** URL in Play Console.
 
@@ -85,6 +87,6 @@ Edit **`docs/privacy-policy.html`** (and copy the same changes to **`web/privacy
 
 Open in a browser (GitHub Pages URL after setup):
 
-- https://mohammadafzalakbari2022.github.io/Mohammadafzalakbari2022/docs/privacy-policy.html
+- https://mohammadafzalakbari2022.github.io/Mohammadafzalakbari2022/privacy-policy.html
 
 You should see the purple header and full policy text. Use this exact URL in Play Console.

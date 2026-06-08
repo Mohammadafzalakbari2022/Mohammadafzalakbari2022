@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import 'package:pride_v3/core/widgets/shop_logo_image.dart';
@@ -11,6 +13,7 @@ class DefaultShopBanner extends StatelessWidget {
     this.maxHeight = 120,
     this.borderRadius = 12,
     this.compact = false,
+    this.showShopNameText = true,
   });
 
   final String shopName;
@@ -18,6 +21,7 @@ class DefaultShopBanner extends StatelessWidget {
   final double maxHeight;
   final double borderRadius;
   final bool compact;
+  final bool showShopNameText;
 
   static const double kAspectRatio = 3;
 
@@ -35,10 +39,9 @@ class DefaultShopBanner extends StatelessWidget {
             ? constraints.maxWidth
             : screenWidth;
         final naturalHeight = maxW / kAspectRatio;
-        final height = naturalHeight.clamp(
-          compact ? 40.0 : 64.0,
-          maxHeight,
-        );
+        final minH = compact ? 40.0 : 64.0;
+        final effectiveMin = math.min(minH, maxHeight);
+        final height = naturalHeight.clamp(effectiveMin, maxHeight);
 
         return SizedBox(
           width: double.infinity,
@@ -87,31 +90,33 @@ class DefaultShopBanner extends StatelessWidget {
                       compact ? 10 : 14,
                       compact ? 6 : 10,
                     ),
-                    child: Row(
-                      children: [
-                        ShopLogoImage(
-                          logoRelativePath: logoRelativePath,
-                          size: logoSize,
-                          borderRadius: compact ? 8 : 10,
-                        ),
-                        SizedBox(width: compact ? 8 : 12),
-                        Expanded(
-                          child: Text(
-                            name,
-                            maxLines: compact ? 1 : 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: (compact
-                                    ? theme.textTheme.titleSmall
-                                    : theme.textTheme.titleMedium)
-                                ?.copyWith(
-                              color: scheme.onPrimary,
-                              fontWeight: FontWeight.w800,
-                              height: 1.15,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                    child: showShopNameText
+                        ? Row(
+                            children: [
+                              ShopLogoImage(
+                                logoRelativePath: logoRelativePath,
+                                size: logoSize,
+                                borderRadius: compact ? 8 : 10,
+                              ),
+                              SizedBox(width: compact ? 8 : 12),
+                              Expanded(
+                                child: Text(
+                                  name,
+                                  maxLines: compact ? 1 : 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: (compact
+                                          ? theme.textTheme.titleSmall
+                                          : theme.textTheme.titleMedium)
+                                      ?.copyWith(
+                                    color: scheme.onPrimary,
+                                    fontWeight: FontWeight.w800,
+                                    height: 1.15,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                        : const SizedBox.shrink(),
                   ),
                 ],
               ),

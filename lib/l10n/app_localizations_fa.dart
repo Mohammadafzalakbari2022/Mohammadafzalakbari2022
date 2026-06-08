@@ -355,8 +355,11 @@ class AppLocalizationsFa extends AppLocalizations {
       'پیش‌نمایش وب از دادهٔ نمونه در حافظه استفاده می‌کند (Isar روی اندروید/iOS/دسکتاپ).';
 
   @override
+  String get orderIdLabel => 'شناسه سفارش';
+
+  @override
   String ordersNumberPrefix(String number) {
-    return 'شماره $number';
+    return 'شناسه سفارش: $number';
   }
 
   @override
@@ -953,6 +956,10 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get reportsPaymentsEmpty => 'در این بازهٔ تاریخ پرداختی وجود ندارد.';
+
+  @override
+  String get reportsPaymentsLoadError =>
+      'بارگذاری پرداخت‌ها ممکن نشد. دوباره تلاش کنید یا با مدیر تماس بگیرید.';
 
   @override
   String get reportsPaymentsUnknownOrder => 'سفارش نامشخص';
@@ -2119,6 +2126,33 @@ class AppLocalizationsFa extends AppLocalizations {
   String get invoiceStyleFiguresLabel => 'اشکال استایل';
 
   @override
+  String get invoicePaymentSummaryTitle => 'خلاصه پرداخت';
+
+  @override
+  String get invoiceGarmentTotalLabel => 'جمع لباس‌ها';
+
+  @override
+  String get invoiceDiscountLabel => 'تخفیف';
+
+  @override
+  String get invoiceAdditionalChargesLabel => 'هزینه‌های اضافی';
+
+  @override
+  String get invoiceGrandTotalLabel => 'جمع کل';
+
+  @override
+  String get invoiceRemainingBalanceLabel => 'مانده حساب';
+
+  @override
+  String get invoiceReferenceDesignLabel => 'طرح مرجع';
+
+  @override
+  String get invoiceGeneratedByKhayat => 'تولید شده توسط Khayat ERP';
+
+  @override
+  String get invoiceGeneratedDateLabel => 'تاریخ تولید';
+
+  @override
   String get settingsStyleHubTitle => 'استایل سفارش';
 
   @override
@@ -2393,11 +2427,11 @@ class AppLocalizationsFa extends AppLocalizations {
   String get customerIdLabel => 'شناسه مشتری';
 
   @override
-  String get customerIdShortLabel => 'شناسه';
+  String get customerIdShortLabel => 'شناسه مشتری';
 
   @override
   String customersIdPrefix(String number) {
-    return 'شناسه $number';
+    return 'شناسه مشتری: $number';
   }
 
   @override
@@ -2618,7 +2652,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String notifOrderStatusTitle(String orderNo) {
-    return 'سفارش $orderNo';
+    return 'شناسه سفارش: $orderNo';
   }
 
   @override
@@ -4142,6 +4176,10 @@ class AppLocalizationsFa extends AppLocalizations {
   String get orderShareInvoicePdfCta => 'اشتراک فاکتور PDF';
 
   @override
+  String get orderShareInvoicePdfGenerateFail =>
+      'تولید فاکتور ممکن نشد. لطفاً با مدیر تماس بگیرید.';
+
+  @override
   String get orderShareContactPermissionDenied =>
       'اجازه مخاطبین خاموش است — فاکتور اشتراک شد، اما مشتری در تلفن ذخیره نشد.';
 
@@ -4156,12 +4194,12 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String orderShareInvoiceSubject(String orderNo) {
-    return 'سفارش $orderNo';
+    return 'شناسه سفارش: $orderNo';
   }
 
   @override
   String orderShareInvoiceWhatsappCaption(String orderNo, String customerName) {
-    return 'فاکتور سفارش $orderNo — $customerName';
+    return 'فاکتور — شناسه سفارش: $orderNo — $customerName';
   }
 
   @override

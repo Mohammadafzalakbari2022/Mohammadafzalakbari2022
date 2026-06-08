@@ -1,0 +1,48 @@
+﻿source,dari_label,folder,file,size
+01_style_front_shape/01_straight_front.png,جلو صاف,01_شکل_و_استایل_جلو,01_جلو_صاف.png,143x144
+01_style_front_shape/02_v_front.png,جلو هفت,01_شکل_و_استایل_جلو,02_جلو_هفت.png,143x144
+01_style_front_shape/03_round_front.png,جلو گرد,01_شکل_و_استایل_جلو,03_جلو_گرد.png,143x144
+01_style_front_shape/04_overlapping_front.png,جلو روی‌هم,01_شکل_و_استایل_جلو,04_جلو_رویهم.png,143x144
+01_style_front_shape/05_closed_front.png,جلو بسته,01_شکل_و_استایل_جلو,05_جلو_بسته.png,143x144
+01_style_front_shape/06_mandarin_front.png,جلو یخن چینی,01_شکل_و_استایل_جلو,06_جلو_یخن_چینی.png,143x144
+01_style_front_shape/07_open_front.png,جلو باز,01_شکل_و_استایل_جلو,07_جلو_باز.png,143x144
+02_collar_style/08_no_collar.png,بدون یخن,02_استایل_یخن,08_بدون_یخن.png,142x113
+02_collar_style/09_band_mandarin_collar.png,یخن بند / چینی,02_استایل_یخن,09_یخن_بند_چینی.png,142x113
+02_collar_style/10_short_stand_collar.png,یخن ایستاده کوتاه,02_استایل_یخن,10_یخن_ایستاده_کوتاه.png,142x113
+02_collar_style/11_high_stand_collar.png,یخن ایستاده بلند,02_استایل_یخن,11_یخن_ایستاده_بلند.png,142x113
+02_collar_style/12_v_neck.png,یخن هفت,02_استایل_یخن,12_یخن_هفت.png,142x113
+02_collar_style/13_round_neck.png,یخن گرد,02_استایل_یخن,13_یخن_گرد.png,142x113
+03_pocket_styles/14_no_pocket.png,بدون جیب,03_استایل_جیب,14_بدون_جیب.png,142x139
+03_pocket_styles/15_chest_pocket_welt.png,جیب سینه / دهان‌جیب,03_استایل_جیب,15_جیب_سینه_دهان_جیب.png,142x139
+03_pocket_styles/16_chest_pocket_flap.png,جیب سینه / سرجیب‌دار,03_استایل_جیب,16_جیب_سینه_سرجیب_دار.png,142x139
+03_pocket_styles/17_two_lower_pockets_welt.png,دو جیب پایین / دهان‌جیب,03_استایل_جیب,17_دو_جیب_پایین_دهان_جیب.png,151x139
+03_pocket_styles/18_two_lower_pockets_flap.png,دو جیب پایین / سرجیب‌دار,03_استایل_جیب,18_دو_جیب_پایین_سرجیب_دار.png,151x139
+03_pocket_styles/19_four_pockets.png,چهار جیب,03_استایل_جیب,19_چهار_جیب.png,142x139
+03_pocket_styles/20_inside_pocket.png,جیب داخلی,03_استایل_جیب,20_جیب_داخلی.png,144x139
+04_back_style/21_same_fabric_back.png,عقب از همان تکه,04_استایل_عقب,21_عقب_از_همان_تکه.png,123x112
+04_back_style/22_lining_back.png,عقب آستر دار,04_استایل_عقب,22_عقب_آستر_دار.png,123x112
+04_back_style/23_adjustable_belt.png,کمربند تنظیمی,04_استایل_عقب,23_کمربند_تنظیمی.png,123x112
+04_back_style/24_side_vents.png,چاک کناری,04_استایل_عقب,24_چاک_کناری.png,123x112
+05_bottom_shape/25_straight_bottom.png,پایین صاف,05_شکل_پایین,25_پایین_صاف.png,110x112
+05_bottom_shape/26_round_front_bottom.png,پایین جلو گرد,05_شکل_پایین,26_پایین_جلو_گرد.png,110x112
+05_bottom_shape/27_pointed_front_bottom.png,پایین جلو نوک‌تیز,05_شکل_پایین,27_پایین_جلو_نوک_تیز.png,110x112
+05_bottom_shape/28_slight_curve.png,کمی خمیده,05_شکل_پایین,28_کمی_خمیده.png,110x112
+05_bottom_shape/29_long_prince_coat.png,بلند / پرنس‌کوت,05_شکل_پایین,29_بلند_پرنس_کوت.png,110x112
+06_button_style/30_normal_buttons.png,دکمه معمولی,06_استایل_دکمه,30_دکمه_معمولی.png,84x125
+06_button_style/31_metal_buttons.png,دکمه فلزی,06_استایل_دکمه,31_دکمه_فلزی.png,84x125
+06_button_style/32_fabric_covered_buttons.png,دکمه روکش / تکه‌ای,06_استایل_دکمه,32_دکمه_روکش_تکه‌ای.png,84x125
+06_button_style/33_fancy_buttons.png,دکمه زینتی,06_استایل_دکمه,33_دکمه_زینتی.png,84x125
+06_button_style/34_hidden_buttons.png,دکمه پنهان,06_استایل_دکمه,34_دکمه_پنهان.png,84x125
+06_button_style/35_loop_buttons.png,دکمه حلقه‌ای,06_استایل_دکمه,35_دکمه_حلقه‌ای.png,84x125
+07_decoration_details/36_plain.png,ساده,07_تزئینات_و_جزئیات,36_ساده.png,84x125
+07_decoration_details/37_piping.png,لبه‌دوزی,07_تزئینات_و_جزئیات,37_لبه_دوزی.png,84x125
+07_decoration_details/38_contrast_piping.png,لبه‌دوزی / متضاد,07_تزئینات_و_جزئیات,38_لبه_دوزی_متضاد.png,85x125
+07_decoration_details/39_embroidery.png,گلدوزی,07_تزئینات_و_جزئیات,39_گلدوزی.png,86x125
+07_decoration_details/40_collar_embroidery.png,گلدوزی یخن,07_تزئینات_و_جزئیات,40_گلدوزی_یخن.png,98x125
+07_decoration_details/41_pocket_embroidery.png,گلدوزی جیب,07_تزئینات_و_جزئیات,41_گلدوزی_جیب.png,112x125
+08_additional_parts/42_shoulder_shape.png,شکل شانه,08_بخش‌های_اضافی,42_شکل_شانه.png,133x111
+08_additional_parts/43_armhole_shape.png,حلقه آستین,08_بخش‌های_اضافی,43_حلقه_آستین.png,133x111
+08_additional_parts/44_front_facing.png,لایی روی جلو,08_بخش‌های_اضافی,44_لایی_روی_جلو.png,133x111
+08_additional_parts/45_back_facing.png,لایی روی عقب,08_بخش‌های_اضافی,45_لایی_روی_عقب.png,133x111
+08_additional_parts/46_lining.png,آستر,08_بخش‌های_اضافی,46_آستر.png,113x111
+08_additional_parts/47_interfacing.png,لایی چسپ,08_بخش‌های_اضافی,47_لایی_چسپ.png,112x111

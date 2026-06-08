@@ -18,3 +18,21 @@ String formatDisplayOrderNo(String stored) {
 String displayOrderNumberLabel(AppLocalizations l10n, String storedOrderNo) {
   return l10n.ordersNumberPrefix(formatDisplayOrderNo(storedOrderNo));
 }
+
+/// Whether [query] digits match stored or formatted order number.
+bool displayOrderNoMatchesQuery(String displayOrderNo, String query) {
+  final q = query.trim();
+  if (q.isEmpty) return false;
+  final qDigits = q.replaceAll(RegExp(r'\D'), '');
+  if (qDigits.isEmpty) return false;
+
+  final stored = displayOrderNo.trim();
+  if (stored.isEmpty) return false;
+
+  final storedDigits = stored.replaceAll(RegExp(r'\D'), '');
+  if (storedDigits.contains(qDigits)) return true;
+
+  final formatted = formatDisplayOrderNo(stored);
+  if (formatted.isEmpty) return false;
+  return formatted.contains(qDigits);
+}

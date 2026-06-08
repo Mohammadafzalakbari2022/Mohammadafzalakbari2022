@@ -16,12 +16,13 @@ class ShellAppBarBranding extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final logoPath = ref.watch(shopProfileProvider).valueOrNull?.logoRelativePath;
+    final shop = ref.watch(shopProfileProvider).valueOrNull;
 
     return ShopIdentityHeader(
       variant: ShopIdentityVariant.compact,
       shopName: shopName,
-      logoRelativePath: logoPath,
+      logoRelativePath: shop?.logoRelativePath,
+      bannerRelativePath: shop?.bannerRelativePath,
       onTap: onTap,
     );
   }
