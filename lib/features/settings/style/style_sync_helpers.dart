@@ -22,10 +22,14 @@ void enqueueStyleNameUpsert(
   WidgetRef ref, {
   required String internalId,
   required String name,
+  int? garmentTypeIndex,
   int? sortOrder,
   bool? isActive,
 }) {
   final map = <String, dynamic>{'name': name};
+  if (garmentTypeIndex != null) {
+    map['garment_type_index'] = garmentTypeIndex;
+  }
   if (sortOrder != null) map['sort_order'] = sortOrder;
   if (isActive != null) map['is_active'] = isActive;
   recordSyncOutboxMutation(
@@ -51,10 +55,14 @@ void enqueueStylePartUpsert(
   WidgetRef ref, {
   required String internalId,
   required String name,
+  int? garmentTypeIndex,
   int? sortOrder,
   bool? isActive,
 }) {
   final map = <String, dynamic>{'name': name};
+  if (garmentTypeIndex != null) {
+    map['garment_type_index'] = garmentTypeIndex;
+  }
   if (sortOrder != null) map['sort_order'] = sortOrder;
   if (isActive != null) map['is_active'] = isActive;
   recordSyncOutboxMutation(
@@ -82,6 +90,7 @@ void enqueueStyleFigureUpsert(
   required String partInternalId,
   required String name,
   required String imageRef,
+  int? garmentTypeIndex,
   int? sortOrder,
   bool? isActive,
 }) {
@@ -90,6 +99,9 @@ void enqueueStyleFigureUpsert(
     'part_internal_id': partInternalId,
     'image_ref': imageRef,
   };
+  if (garmentTypeIndex != null) {
+    map['garment_type_index'] = garmentTypeIndex;
+  }
   if (sortOrder != null) map['sort_order'] = sortOrder;
   if (isActive != null) map['is_active'] = isActive;
   recordSyncOutboxMutation(

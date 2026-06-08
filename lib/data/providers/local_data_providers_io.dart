@@ -8,6 +8,7 @@ import '../local/entities/measurement_profile_entity.dart';
 import '../local/entities/measurement_profile_item_entity.dart';
 import '../local/entities/measurement_type_entity.dart';
 import '../local/entities/customer_entity.dart';
+import '../local/entities/garment_type.dart';
 import '../local/entities/order_entity.dart';
 import '../local/entities/order_item_entity.dart';
 import '../local/entities/order_measurement_snapshot_entity.dart';
@@ -295,18 +296,56 @@ final styleCatalogRepositoryProvider =
   return repo;
 });
 
+final styleNamesForGarmentProvider = StreamProvider.family<
+    List<StyleNameSummary>, GarmentType>((ref, garment) async* {
+  final repo = await ref.watch(styleCatalogRepositoryProvider.future);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchStyleNames(shopId, garmentTypeIndex: garment.code);
+});
+
+final stylePartsForGarmentProvider = StreamProvider.family<
+    List<StylePartSummary>, GarmentType>((ref, garment) async* {
+  final repo = await ref.watch(styleCatalogRepositoryProvider.future);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchStyleParts(shopId, garmentTypeIndex: garment.code);
+});
+
+final styleFiguresForGarmentProvider = StreamProvider.family<
+    List<StyleFigureSummary>, GarmentType>((ref, garment) async* {
+  final repo = await ref.watch(styleCatalogRepositoryProvider.future);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchAllFigures(shopId, garmentTypeIndex: garment.code);
+});
+
+final styleFigureConfigsForGarmentProvider = FutureProvider.family<
+    Map<String, StyleFigureConfigSummary>, GarmentType>((ref, garment) async {
+  final repo = await ref.watch(styleCatalogRepositoryProvider.future);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  return repo.loadAllFigureConfigs(
+    shopId,
+    garmentTypeIndex: garment.code,
+  );
+});
+
+/// Perahan/Tunban only — preserves legacy order detail, PDF, and receipt flows.
 final styleNamesStreamProvider =
     StreamProvider<List<StyleNameSummary>>((ref) async* {
   final repo = await ref.watch(styleCatalogRepositoryProvider.future);
   final shopId = ref.watch(effectiveShopIdProvider);
-  yield* repo.watchStyleNames(shopId);
+  yield* repo.watchStyleNames(
+    shopId,
+    garmentTypeIndex: GarmentType.perahanTunban.code,
+  );
 });
 
 final stylePartsStreamProvider =
     StreamProvider<List<StylePartSummary>>((ref) async* {
   final repo = await ref.watch(styleCatalogRepositoryProvider.future);
   final shopId = ref.watch(effectiveShopIdProvider);
-  yield* repo.watchStyleParts(shopId);
+  yield* repo.watchStyleParts(
+    shopId,
+    garmentTypeIndex: GarmentType.perahanTunban.code,
+  );
 });
 
 final styleFiguresForPartProvider = StreamProvider.family<
@@ -316,11 +355,15 @@ final styleFiguresForPartProvider = StreamProvider.family<
   yield* repo.watchFiguresForPart(shopId, partInternalId);
 });
 
+/// Perahan/Tunban figures only — preserves legacy order detail and print flows.
 final styleAllFiguresStreamProvider =
     StreamProvider<List<StyleFigureSummary>>((ref) async* {
   final repo = await ref.watch(styleCatalogRepositoryProvider.future);
   final shopId = ref.watch(effectiveShopIdProvider);
-  yield* repo.watchAllFigures(shopId);
+  yield* repo.watchAllFigures(
+    shopId,
+    garmentTypeIndex: GarmentType.perahanTunban.code,
+  );
 });
 
 final styleFigureTextOptionsProvider = StreamProvider.family<

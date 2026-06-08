@@ -5,10 +5,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
+import '../../data/local/entities/garment_type.dart';
 import '../../data/local/style_name_summary.dart';
 import '../../data/providers/local_data_providers.dart';
 import '../../auth/auth_providers.dart';
 import '../../licensing/license_providers.dart';
+import 'style/settings_style_garment_provider.dart';
+import 'style/settings_style_garment_selector.dart';
 import 'style/style_sync_helpers.dart';
 
 Future<void> _showNameDialog({
@@ -51,8 +54,12 @@ class SettingsStyleNamesScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
-    final namesAsync = ref.watch(styleNamesStreamProvider);
+    final garment = ref.watch(settingsStyleGarmentProvider);
+    final namesAsync = ref.watch(styleNamesForGarmentProvider(garment));
     final canEdit = !ref.watch(licenseEditingBlockedProvider);
+    final emptyMessage = garment == GarmentType.waistcoat
+        ? l10n.settingsStyleWaistcoatEmptyTitle
+        : l10n.settingsStyleNamesEmpty;
 
     return Scaffold(
       appBar: AppBar(
@@ -75,11 +82,13 @@ class SettingsStyleNamesScreen extends ConsumerWidget {
                     final id = await repo.createStyleName(
                       shopId: ref.read(effectiveShopIdProvider),
                       name: name,
+                      garmentTypeIndex: garment.code,
                     );
                     enqueueStyleNameUpsert(
                       ref,
                       internalId: id,
                       name: name,
+                      garmentTypeIndex: garment.code,
                       isActive: true,
                     );
                   },
@@ -89,14 +98,23 @@ class SettingsStyleNamesScreen extends ConsumerWidget {
               label: Text(l10n.settingsStyleNameAddCta),
             )
           : null,
-      body: namesAsync.when(
-        data: (names) => _NamesList(
-          names: names,
-          canEdit: canEdit,
-          l10n: l10n,
-        ),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('$e')),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SettingsStyleGarmentSelector(),
+          Expanded(
+            child: namesAsync.when(
+              data: (names) => _NamesList(
+                names: names,
+                canEdit: canEdit,
+                l10n: l10n,
+                emptyMessage: emptyMessage,
+              ),
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => Center(child: Text('$e')),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -107,16 +125,18 @@ class _NamesList extends ConsumerWidget {
     required this.names,
     required this.canEdit,
     required this.l10n,
+    required this.emptyMessage,
   });
 
   final List<StyleNameSummary> names;
   final bool canEdit;
   final AppLocalizations l10n;
+  final String emptyMessage;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (names.isEmpty) {
-      return Center(child: Text(l10n.settingsStyleNamesEmpty));
+      return Center(child: Text(emptyMessage));
     }
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 88),

@@ -18,9 +18,15 @@ abstract class StyleCatalogRepository {
 
 
 
-  Stream<List<StyleNameSummary>> watchStyleNames(String shopId);
+  Stream<List<StyleNameSummary>> watchStyleNames(
+    String shopId, {
+    int garmentTypeIndex = 0,
+  });
 
-  Stream<List<StylePartSummary>> watchStyleParts(String shopId);
+  Stream<List<StylePartSummary>> watchStyleParts(
+    String shopId, {
+    int garmentTypeIndex = 0,
+  });
 
   Stream<List<StyleFigureSummary>> watchFiguresForPart(
 
@@ -30,7 +36,10 @@ abstract class StyleCatalogRepository {
 
   );
 
-  Stream<List<StyleFigureSummary>> watchAllFigures(String shopId);
+  Stream<List<StyleFigureSummary>> watchAllFigures(
+    String shopId, {
+    int garmentTypeIndex = 0,
+  });
 
 
 
@@ -57,23 +66,18 @@ abstract class StyleCatalogRepository {
   /// Loads configuration for all non-deleted figures in the shop.
 
   Future<Map<String, StyleFigureConfigSummary>> loadAllFigureConfigs(
-
     String shopId, {
-
     bool activeFiguresOnly = false,
-
+    int? garmentTypeIndex,
   });
 
 
 
   Future<String> createStyleName({
-
     required String shopId,
-
     required String name,
-
+    int garmentTypeIndex = 0,
     int? sortOrder,
-
   });
 
   Future<void> updateStyleName({
@@ -93,13 +97,10 @@ abstract class StyleCatalogRepository {
 
 
   Future<String> createStylePart({
-
     required String shopId,
-
     required String name,
-
+    int garmentTypeIndex = 0,
     int? sortOrder,
-
   });
 
   Future<void> updateStylePart({

@@ -2,9 +2,12 @@ import 'dart:async';
 
 import 'package:uuid/uuid.dart';
 
+import 'entities/garment_type.dart';
 import 'measurement_unit_codes.dart';
 import 'seed_data.dart';
 import 'style/style_catalog_bundled_figures.dart';
+import 'style/style_catalog_seed.dart';
+import 'style/style_catalog_waistcoat_bundled.dart';
 import 'style/style_figure_image_ref.dart';
 import 'style_catalog_repository.dart';
 import 'style_figure_config_summary.dart';
@@ -40,10 +43,20 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
 
   @override
   Future<void> seedIfEmpty(String shopId) async {
-    final hasNames = _names.any((n) => n.shopId == shopId);
-    if (hasNames) {
-      _ensureParts(shopId);
-      _ensureBundledFigures(shopId);
+    _seedPerahanNamesIfMissing(shopId);
+    _seedPerahanPartsIfMissing(shopId);
+    _ensureBundledFigures(shopId);
+    _seedWaistcoatNameIfMissing(shopId);
+    _seedWaistcoatPartsIfMissing(shopId);
+    _ensureBundledWaistcoatFigures(shopId);
+  }
+
+  void _seedPerahanNamesIfMissing(String shopId) {
+    if (_names.any(
+      (n) =>
+          n.shopId == shopId &&
+          n.garmentTypeIndex == GarmentType.perahanTunban.code,
+    )) {
       return;
     }
     final names = [
@@ -58,52 +71,24 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
         StyleNameSummary(
           internalId: n.$1,
           shopId: shopId,
+          garmentTypeIndex: GarmentType.perahanTunban.code,
           name: n.$2,
           sortOrder: n.$3,
           isActive: true,
         ),
       );
     }
-    final parts = [
-      (DevSeedIds.stylePartSleeve, 'Sleeve', 10),
-      (DevSeedIds.stylePartCollar, 'Collar', 20),
-      (DevSeedIds.stylePartPocket, 'Pocket', 30),
-      (DevSeedIds.stylePartCuff, 'Cuff', 40),
-      (DevSeedIds.stylePartNeck, 'Neck', 50),
-      (DevSeedIds.stylePartFront, 'Front', 60),
-      (DevSeedIds.stylePartBottom, 'Bottom', 70),
-    ];
-    for (final p in parts) {
-      _parts.add(
-        StylePartSummary(
-          internalId: p.$1,
-          shopId: shopId,
-          name: p.$2,
-          sortOrder: p.$3,
-          isActive: true,
-        ),
-      );
-    }
-    for (final template in bundledStyleFigureTemplates) {
-      _figures.add(
-        StyleFigureSummary(
-          internalId: template.internalId,
-          shopId: shopId,
-          partInternalId: template.partInternalId,
-          name: '',
-          imageRef: template.imageRef,
-          sortOrder: template.sortOrder,
-          isActive: true,
-        ),
-      );
-    }
     _emitNames();
-    _emitParts();
-    _emitFigures();
   }
 
-  void _ensureParts(String shopId) {
-    if (_parts.any((p) => p.shopId == shopId)) return;
+  void _seedPerahanPartsIfMissing(String shopId) {
+    if (_parts.any(
+      (p) =>
+          p.shopId == shopId &&
+          p.garmentTypeIndex == GarmentType.perahanTunban.code,
+    )) {
+      return;
+    }
     final parts = [
       (DevSeedIds.stylePartSleeve, 'Sleeve', 10),
       (DevSeedIds.stylePartCollar, 'Collar', 20),
@@ -118,6 +103,7 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
         StylePartSummary(
           internalId: p.$1,
           shopId: shopId,
+          garmentTypeIndex: GarmentType.perahanTunban.code,
           name: p.$2,
           sortOrder: p.$3,
           isActive: true,
@@ -139,6 +125,7 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
             internalId: template.internalId,
             shopId: shopId,
             partInternalId: template.partInternalId,
+            garmentTypeIndex: GarmentType.perahanTunban.code,
             name: '',
             imageRef: template.imageRef,
             sortOrder: template.sortOrder,
@@ -159,12 +146,15 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
         existingSortOrder: old.sortOrder,
         isDeleted: false,
       );
-      if (!needsRepair) continue;
+      if (!needsRepair && old.garmentTypeIndex == GarmentType.perahanTunban.code) {
+        continue;
+      }
 
       _figures[idx] = StyleFigureSummary(
         internalId: old.internalId,
         shopId: shopId,
         partInternalId: template.partInternalId,
+        garmentTypeIndex: GarmentType.perahanTunban.code,
         name: old.name,
         imageRef: template.imageRef,
         sortOrder: template.sortOrder,
@@ -175,16 +165,129 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
     if (changed) _emitFigures();
   }
 
-  List<StyleNameSummary> _namesFor(String shopId) =>
-      _names.where((e) => e.shopId == shopId).toList()
+  void _seedWaistcoatNameIfMissing(String shopId) {
+    if (_names.any(
+      (n) =>
+          n.shopId == shopId &&
+          n.garmentTypeIndex == GarmentType.waistcoat.code,
+    )) {
+      return;
+    }
+    _names.add(
+      StyleNameSummary(
+        internalId: DevSeedIds.waistcoatStyleName,
+        shopId: shopId,
+        garmentTypeIndex: GarmentType.waistcoat.code,
+        name: 'Waistcoat',
+        sortOrder: 10,
+        isActive: true,
+      ),
+    );
+    _emitNames();
+  }
+
+  void _seedWaistcoatPartsIfMissing(String shopId) {
+    var changed = false;
+    for (final template in bundledWaistcoatPartTemplates) {
+      if (_parts.any((p) => p.internalId == template.internalId)) continue;
+      _parts.add(
+        StylePartSummary(
+          internalId: template.internalId,
+          shopId: shopId,
+          garmentTypeIndex: GarmentType.waistcoat.code,
+          name: template.folderKey,
+          sortOrder: template.sortOrder,
+          isActive: true,
+        ),
+      );
+      changed = true;
+    }
+    if (changed) _emitParts();
+  }
+
+  void _ensureBundledWaistcoatFigures(String shopId) {
+    var changed = false;
+    for (final template in bundledWaistcoatFigureTemplates) {
+      final idx = _figures.indexWhere(
+        (f) => f.internalId == template.internalId,
+      );
+      if (idx < 0) {
+        _figures.add(
+          StyleFigureSummary(
+            internalId: template.internalId,
+            shopId: shopId,
+            partInternalId: template.partInternalId,
+            garmentTypeIndex: GarmentType.waistcoat.code,
+            name: template.displayName,
+            imageRef: template.imageRef,
+            sortOrder: template.sortOrder,
+            isActive: true,
+          ),
+        );
+        changed = true;
+        continue;
+      }
+
+      final old = _figures[idx];
+      final needsRepair = bundledWaistcoatFigureNeedsRepair(
+        shopId: shopId,
+        template: template,
+        existingShopId: old.shopId,
+        existingImageRef: old.imageRef,
+        existingPartInternalId: old.partInternalId,
+        existingSortOrder: old.sortOrder,
+        existingGarmentTypeIndex: old.garmentTypeIndex,
+        isDeleted: false,
+      );
+      if (!needsRepair) continue;
+
+      _figures[idx] = StyleFigureSummary(
+        internalId: old.internalId,
+        shopId: shopId,
+        partInternalId: template.partInternalId,
+        garmentTypeIndex: GarmentType.waistcoat.code,
+        name: old.name.trim().isNotEmpty ? old.name : template.displayName,
+        imageRef: template.imageRef,
+        sortOrder: template.sortOrder,
+        isActive: old.isActive,
+      );
+      changed = true;
+    }
+    if (changed) _emitFigures();
+  }
+
+  List<StyleNameSummary> _namesFor(
+    String shopId, {
+    int garmentTypeIndex = 0,
+  }) =>
+      _names
+          .where(
+            (e) =>
+                e.shopId == shopId && e.garmentTypeIndex == garmentTypeIndex,
+          )
+          .toList()
         ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
 
-  List<StylePartSummary> _partsFor(String shopId) =>
-      _parts.where((e) => e.shopId == shopId).toList()
+  List<StylePartSummary> _partsFor(
+    String shopId, {
+    int garmentTypeIndex = 0,
+  }) =>
+      _parts
+          .where(
+            (e) =>
+                e.shopId == shopId && e.garmentTypeIndex == garmentTypeIndex,
+          )
+          .toList()
         ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
 
-  List<StyleFigureSummary> _figuresFor(String shopId, {String? partId}) {
-    var list = _figures.where((e) => e.shopId == shopId);
+  List<StyleFigureSummary> _figuresFor(
+    String shopId, {
+    String? partId,
+    int garmentTypeIndex = 0,
+  }) {
+    var list = _figures.where(
+      (e) => e.shopId == shopId && e.garmentTypeIndex == garmentTypeIndex,
+    );
     if (partId != null) {
       list = list.where((e) => e.partInternalId == partId);
     }
@@ -192,17 +295,25 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
   }
 
   @override
-  Stream<List<StyleNameSummary>> watchStyleNames(String shopId) async* {
+  Stream<List<StyleNameSummary>> watchStyleNames(
+    String shopId, {
+    int garmentTypeIndex = 0,
+  }) async* {
     await seedIfEmpty(shopId);
-    yield _namesFor(shopId);
-    yield* _namesCtrl.stream.map((_) => _namesFor(shopId));
+    yield _namesFor(shopId, garmentTypeIndex: garmentTypeIndex);
+    yield* _namesCtrl.stream
+        .map((_) => _namesFor(shopId, garmentTypeIndex: garmentTypeIndex));
   }
 
   @override
-  Stream<List<StylePartSummary>> watchStyleParts(String shopId) async* {
+  Stream<List<StylePartSummary>> watchStyleParts(
+    String shopId, {
+    int garmentTypeIndex = 0,
+  }) async* {
     await seedIfEmpty(shopId);
-    yield _partsFor(shopId);
-    yield* _partsCtrl.stream.map((_) => _partsFor(shopId));
+    yield _partsFor(shopId, garmentTypeIndex: garmentTypeIndex);
+    yield* _partsCtrl.stream
+        .map((_) => _partsFor(shopId, garmentTypeIndex: garmentTypeIndex));
   }
 
   @override
@@ -217,10 +328,15 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
   }
 
   @override
-  Stream<List<StyleFigureSummary>> watchAllFigures(String shopId) async* {
+  Stream<List<StyleFigureSummary>> watchAllFigures(
+    String shopId, {
+    int garmentTypeIndex = 0,
+  }) async* {
     await seedIfEmpty(shopId);
-    yield _figuresFor(shopId);
-    yield* _figuresCtrl.stream.map((_) => _figuresFor(shopId));
+    yield _figuresFor(shopId, garmentTypeIndex: garmentTypeIndex);
+    yield* _figuresCtrl.stream.map(
+      (_) => _figuresFor(shopId, garmentTypeIndex: garmentTypeIndex),
+    );
   }
 
   int _maxOrder<T>(Iterable<T> items, int Function(T) order) {
@@ -236,6 +352,7 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
   Future<String> createStyleName({
     required String shopId,
     required String name,
+    int garmentTypeIndex = 0,
     int? sortOrder,
   }) async {
     final id = _uuid.v4();
@@ -243,8 +360,13 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
       StyleNameSummary(
         internalId: id,
         shopId: shopId,
+        garmentTypeIndex: garmentTypeIndex,
         name: name.trim(),
-        sortOrder: sortOrder ?? _maxOrder(_namesFor(shopId), (e) => e.sortOrder),
+        sortOrder: sortOrder ??
+            _maxOrder(
+              _namesFor(shopId, garmentTypeIndex: garmentTypeIndex),
+              (e) => e.sortOrder,
+            ),
         isActive: true,
       ),
     );
@@ -265,6 +387,7 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
     _names[i] = StyleNameSummary(
       internalId: old.internalId,
       shopId: old.shopId,
+      garmentTypeIndex: old.garmentTypeIndex,
       name: name.trim().isNotEmpty ? name.trim() : old.name,
       sortOrder: sortOrder ?? old.sortOrder,
       isActive: isActive ?? old.isActive,
@@ -282,6 +405,7 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
   Future<String> createStylePart({
     required String shopId,
     required String name,
+    int garmentTypeIndex = 0,
     int? sortOrder,
   }) async {
     final id = _uuid.v4();
@@ -289,8 +413,13 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
       StylePartSummary(
         internalId: id,
         shopId: shopId,
+        garmentTypeIndex: garmentTypeIndex,
         name: name.trim(),
-        sortOrder: sortOrder ?? _maxOrder(_partsFor(shopId), (e) => e.sortOrder),
+        sortOrder: sortOrder ??
+            _maxOrder(
+              _partsFor(shopId, garmentTypeIndex: garmentTypeIndex),
+              (e) => e.sortOrder,
+            ),
         isActive: true,
       ),
     );
@@ -311,6 +440,7 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
     _parts[i] = StylePartSummary(
       internalId: old.internalId,
       shopId: old.shopId,
+      garmentTypeIndex: old.garmentTypeIndex,
       name: name.trim().isNotEmpty ? name.trim() : old.name,
       sortOrder: sortOrder ?? old.sortOrder,
       isActive: isActive ?? old.isActive,
@@ -334,12 +464,17 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
     required String imageRef,
     int? sortOrder,
   }) async {
+    final partIdx = _parts.indexWhere((p) => p.internalId == partInternalId);
+    final garmentTypeIndex = partIdx >= 0
+        ? _parts[partIdx].garmentTypeIndex
+        : GarmentType.perahanTunban.code;
     final id = _uuid.v4();
     _figures.add(
       StyleFigureSummary(
         internalId: id,
         shopId: shopId,
         partInternalId: partInternalId,
+        garmentTypeIndex: garmentTypeIndex,
         name: name.trim(),
         imageRef: imageRef.trim(),
         sortOrder: sortOrder ??
@@ -369,6 +504,7 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
       internalId: old.internalId,
       shopId: old.shopId,
       partInternalId: old.partInternalId,
+      garmentTypeIndex: old.garmentTypeIndex,
       name: name?.trim().isNotEmpty == true ? name!.trim() : old.name,
       imageRef: imageRef?.trim().isNotEmpty == true ? imageRef!.trim() : old.imageRef,
       sortOrder: sortOrder ?? old.sortOrder,
@@ -442,9 +578,16 @@ class MemoryStyleCatalogRepository implements StyleCatalogRepository {
   Future<Map<String, StyleFigureConfigSummary>> loadAllFigureConfigs(
     String shopId, {
     bool activeFiguresOnly = false,
+    int? garmentTypeIndex,
   }) async {
     await seedIfEmpty(shopId);
-    final figures = _figuresFor(shopId);
+    final List<StyleFigureSummary> figures;
+    if (garmentTypeIndex == null) {
+      figures = _figures.where((e) => e.shopId == shopId).toList()
+        ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+    } else {
+      figures = _figuresFor(shopId, garmentTypeIndex: garmentTypeIndex);
+    }
     final filtered =
         activeFiguresOnly ? figures.where((f) => f.isActive) : figures;
     final result = <String, StyleFigureConfigSummary>{};

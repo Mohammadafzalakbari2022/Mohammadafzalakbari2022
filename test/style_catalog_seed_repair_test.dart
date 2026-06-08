@@ -67,7 +67,12 @@ void main() {
 
       await repo.seedIfEmpty(shopId);
 
-      final figures = await repo.watchAllFigures(shopId).first;
+      final figures = await repo
+          .watchAllFigures(
+            shopId,
+            garmentTypeIndex: 0,
+          )
+          .first;
       expect(figures.length, bundledStyleFigureTemplates.length);
     });
 
@@ -109,7 +114,12 @@ void main() {
 
       await repo.seedIfEmpty(shopId);
 
-      final figures = await repo.watchAllFigures(shopId).first;
+      final figures = await repo
+          .watchAllFigures(
+            shopId,
+            garmentTypeIndex: 0,
+          )
+          .first;
       final first = figures.firstWhere(
         (f) => f.internalId == DevSeedIds.styleFigure1,
       );
@@ -138,7 +148,12 @@ void main() {
       await repo.seedIfEmpty(shopId);
       await repo.seedIfEmpty(shopId);
 
-      final figures = await repo.watchAllFigures(shopId).first;
+      final figures = await repo
+          .watchAllFigures(
+            shopId,
+            garmentTypeIndex: 0,
+          )
+          .first;
       expect(figures.length, bundledStyleFigureTemplates.length);
       expect(
         figures.map((f) => f.internalId).toSet().length,
@@ -158,7 +173,12 @@ void main() {
 
       await repo.seedIfEmpty(shopId);
 
-      final figures = await repo.watchAllFigures(shopId).first;
+      final figures = await repo
+          .watchAllFigures(
+            shopId,
+            garmentTypeIndex: 0,
+          )
+          .first;
       expect(figures.length, bundledStyleFigureTemplates.length + 1);
       final custom = figures.firstWhere((f) => f.internalId == customId);
       expect(custom.name, 'My custom shape');

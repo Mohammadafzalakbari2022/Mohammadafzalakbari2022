@@ -2097,6 +2097,30 @@ class AppLocalizationsFa extends AppLocalizations {
   String get settingsStyleHubTitle => 'استایل سفارش';
 
   @override
+  String get settingsStyleGarmentTabsLabel => 'کتابخانه جامه';
+
+  @override
+  String get settingsStylePerahanLibraryTitle => 'اشکال پیراهن‌تنبان';
+
+  @override
+  String get settingsStyleWaistcoatLibraryTitle => 'اشکال واسکت';
+
+  @override
+  String get settingsStyleWaistcoatEmptyTitle => 'هنوز شکل واسکتی نیست';
+
+  @override
+  String get settingsStyleWaistcoatEmptySubtitle =>
+      'بخش‌ها و اشکال واسکت را در تنظیمات ← استایل سفارش اضافه کنید.';
+
+  @override
+  String get ordersComposerWaistcoatStyleEmptyTitle =>
+      'شکل واسکتی در دسترس نیست';
+
+  @override
+  String get ordersComposerWaistcoatStyleEmptySubtitle =>
+      'اشکال واسکت را در تنظیمات ← استایل سفارش وارد یا اضافه کنید.';
+
+  @override
   String get settingsStyleTileTitle => 'استایل سفارش';
 
   @override

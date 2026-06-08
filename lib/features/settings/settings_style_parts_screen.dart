@@ -5,9 +5,13 @@ import 'package:pride_v3/app/app_theme.dart';
 import 'package:pride_v3/core/widgets/pride_action_buttons.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
+import '../../data/local/entities/garment_type.dart';
+import '../../data/local/style/style_part_section_label.dart';
 import '../../data/providers/local_data_providers.dart';
 import '../../auth/auth_providers.dart';
 import '../../licensing/license_providers.dart';
+import 'style/settings_style_garment_provider.dart';
+import 'style/settings_style_garment_selector.dart';
 import 'style/style_sync_helpers.dart';
 
 Future<void> _showPartNameDialog({
@@ -50,8 +54,12 @@ class SettingsStylePartsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
-    final partsAsync = ref.watch(stylePartsStreamProvider);
+    final garment = ref.watch(settingsStyleGarmentProvider);
+    final partsAsync = ref.watch(stylePartsForGarmentProvider(garment));
     final canEdit = !ref.watch(licenseEditingBlockedProvider);
+    final emptyMessage = garment == GarmentType.waistcoat
+        ? l10n.settingsStyleWaistcoatEmptyTitle
+        : l10n.settingsStylePartsEmpty;
 
     return Scaffold(
       appBar: AppBar(
@@ -74,11 +82,13 @@ class SettingsStylePartsScreen extends ConsumerWidget {
                     final id = await repo.createStylePart(
                       shopId: ref.read(effectiveShopIdProvider),
                       name: name,
+                      garmentTypeIndex: garment.code,
                     );
                     enqueueStylePartUpsert(
                       ref,
                       internalId: id,
                       name: name,
+                      garmentTypeIndex: garment.code,
                       isActive: true,
                     );
                   },
@@ -88,20 +98,28 @@ class SettingsStylePartsScreen extends ConsumerWidget {
               label: Text(l10n.settingsStylePartAddCta),
             )
           : null,
-      body: partsAsync.when(
-        data: (parts) {
-          if (parts.isEmpty) {
-            return Center(child: Text(l10n.settingsStylePartsEmpty));
-          }
-          return ListView.builder(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 88),
-            itemCount: parts.length,
-            itemBuilder: (context, index) {
-              final p = parts[index];
-              return Card(
-                margin: const EdgeInsets.only(bottom: 8),
-                child: ListTile(
-                  title: Text(p.name),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SettingsStyleGarmentSelector(),
+          Expanded(
+            child: partsAsync.when(
+              data: (parts) {
+                if (parts.isEmpty) {
+                  return Center(child: Text(emptyMessage));
+                }
+                return ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 88),
+                  itemCount: parts.length,
+                  itemBuilder: (context, index) {
+                    final p = parts[index];
+                    final title = garment == GarmentType.waistcoat
+                        ? stylePartSectionLabel(p.name)
+                        : p.name;
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      child: ListTile(
+                        title: Text(title),
                   subtitle: Text(
                     p.isActive
                         ? l10n.settingsStyleActiveLabel
@@ -199,11 +217,14 @@ class SettingsStylePartsScreen extends ConsumerWidget {
                       : null,
                 ),
               );
-            },
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('$e')),
+                  },
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => Center(child: Text('$e')),
+            ),
+          ),
+        ],
       ),
     );
   }

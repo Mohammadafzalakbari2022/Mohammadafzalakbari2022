@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../auth/auth_providers.dart';
 import '../local/dev_shop_constants.dart';
+import '../local/entities/garment_type.dart';
 import '../local/customer_list_repository.dart';
 import '../local/customer_summary.dart';
 import '../local/memory_customer_repository.dart';
@@ -219,18 +220,55 @@ final styleCatalogRepositoryProvider =
   return repo;
 });
 
+final styleNamesForGarmentProvider = StreamProvider.family<
+    List<StyleNameSummary>, GarmentType>((ref, garment) async* {
+  final repo = await ref.watch(styleCatalogRepositoryProvider.future);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchStyleNames(shopId, garmentTypeIndex: garment.code);
+});
+
+final stylePartsForGarmentProvider = StreamProvider.family<
+    List<StylePartSummary>, GarmentType>((ref, garment) async* {
+  final repo = await ref.watch(styleCatalogRepositoryProvider.future);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchStyleParts(shopId, garmentTypeIndex: garment.code);
+});
+
+final styleFiguresForGarmentProvider = StreamProvider.family<
+    List<StyleFigureSummary>, GarmentType>((ref, garment) async* {
+  final repo = await ref.watch(styleCatalogRepositoryProvider.future);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchAllFigures(shopId, garmentTypeIndex: garment.code);
+});
+
+final styleFigureConfigsForGarmentProvider = FutureProvider.family<
+    Map<String, StyleFigureConfigSummary>, GarmentType>((ref, garment) async {
+  final repo = await ref.watch(styleCatalogRepositoryProvider.future);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  return repo.loadAllFigureConfigs(
+    shopId,
+    garmentTypeIndex: garment.code,
+  );
+});
+
 final styleNamesStreamProvider =
     StreamProvider<List<StyleNameSummary>>((ref) async* {
   final repo = await ref.watch(styleCatalogRepositoryProvider.future);
   final shopId = ref.watch(effectiveShopIdProvider);
-  yield* repo.watchStyleNames(shopId);
+  yield* repo.watchStyleNames(
+    shopId,
+    garmentTypeIndex: GarmentType.perahanTunban.code,
+  );
 });
 
 final stylePartsStreamProvider =
     StreamProvider<List<StylePartSummary>>((ref) async* {
   final repo = await ref.watch(styleCatalogRepositoryProvider.future);
   final shopId = ref.watch(effectiveShopIdProvider);
-  yield* repo.watchStyleParts(shopId);
+  yield* repo.watchStyleParts(
+    shopId,
+    garmentTypeIndex: GarmentType.perahanTunban.code,
+  );
 });
 
 final styleFiguresForPartProvider = StreamProvider.family<
@@ -244,7 +282,10 @@ final styleAllFiguresStreamProvider =
     StreamProvider<List<StyleFigureSummary>>((ref) async* {
   final repo = await ref.watch(styleCatalogRepositoryProvider.future);
   final shopId = ref.watch(effectiveShopIdProvider);
-  yield* repo.watchAllFigures(shopId);
+  yield* repo.watchAllFigures(
+    shopId,
+    garmentTypeIndex: GarmentType.perahanTunban.code,
+  );
 });
 
 final styleFigureTextOptionsProvider = StreamProvider.family<

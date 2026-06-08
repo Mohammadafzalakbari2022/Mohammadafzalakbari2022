@@ -27,43 +27,48 @@ const StyleFigureEntitySchema = CollectionSchema(
       name: r'deletedAt',
       type: IsarType.dateTime,
     ),
-    r'imageRef': PropertySchema(
+    r'garmentTypeIndex': PropertySchema(
       id: 2,
+      name: r'garmentTypeIndex',
+      type: IsarType.long,
+    ),
+    r'imageRef': PropertySchema(
+      id: 3,
       name: r'imageRef',
       type: IsarType.string,
     ),
     r'internalId': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'internalId',
       type: IsarType.string,
     ),
     r'isActive': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'isActive',
       type: IsarType.bool,
     ),
     r'name': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'name',
       type: IsarType.string,
     ),
     r'partInternalId': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'partInternalId',
       type: IsarType.string,
     ),
     r'shopId': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'shopId',
       type: IsarType.string,
     ),
     r'sortOrder': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'sortOrder',
       type: IsarType.long,
     ),
     r'updatedAt': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'updatedAt',
       type: IsarType.dateTime,
     )
@@ -110,6 +115,19 @@ const StyleFigureEntitySchema = CollectionSchema(
           name: r'partInternalId',
           type: IndexType.hash,
           caseSensitive: true,
+        )
+      ],
+    ),
+    r'garmentTypeIndex': IndexSchema(
+      id: 1071229905578550785,
+      name: r'garmentTypeIndex',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'garmentTypeIndex',
+          type: IndexType.value,
+          caseSensitive: false,
         )
       ],
     ),
@@ -170,14 +188,15 @@ void _styleFigureEntitySerialize(
 ) {
   writer.writeDateTime(offsets[0], object.createdAt);
   writer.writeDateTime(offsets[1], object.deletedAt);
-  writer.writeString(offsets[2], object.imageRef);
-  writer.writeString(offsets[3], object.internalId);
-  writer.writeBool(offsets[4], object.isActive);
-  writer.writeString(offsets[5], object.name);
-  writer.writeString(offsets[6], object.partInternalId);
-  writer.writeString(offsets[7], object.shopId);
-  writer.writeLong(offsets[8], object.sortOrder);
-  writer.writeDateTime(offsets[9], object.updatedAt);
+  writer.writeLong(offsets[2], object.garmentTypeIndex);
+  writer.writeString(offsets[3], object.imageRef);
+  writer.writeString(offsets[4], object.internalId);
+  writer.writeBool(offsets[5], object.isActive);
+  writer.writeString(offsets[6], object.name);
+  writer.writeString(offsets[7], object.partInternalId);
+  writer.writeString(offsets[8], object.shopId);
+  writer.writeLong(offsets[9], object.sortOrder);
+  writer.writeDateTime(offsets[10], object.updatedAt);
 }
 
 StyleFigureEntity _styleFigureEntityDeserialize(
@@ -189,15 +208,16 @@ StyleFigureEntity _styleFigureEntityDeserialize(
   final object = StyleFigureEntity();
   object.createdAt = reader.readDateTime(offsets[0]);
   object.deletedAt = reader.readDateTimeOrNull(offsets[1]);
+  object.garmentTypeIndex = reader.readLong(offsets[2]);
   object.id = id;
-  object.imageRef = reader.readString(offsets[2]);
-  object.internalId = reader.readString(offsets[3]);
-  object.isActive = reader.readBool(offsets[4]);
-  object.name = reader.readString(offsets[5]);
-  object.partInternalId = reader.readString(offsets[6]);
-  object.shopId = reader.readString(offsets[7]);
-  object.sortOrder = reader.readLong(offsets[8]);
-  object.updatedAt = reader.readDateTime(offsets[9]);
+  object.imageRef = reader.readString(offsets[3]);
+  object.internalId = reader.readString(offsets[4]);
+  object.isActive = reader.readBool(offsets[5]);
+  object.name = reader.readString(offsets[6]);
+  object.partInternalId = reader.readString(offsets[7]);
+  object.shopId = reader.readString(offsets[8]);
+  object.sortOrder = reader.readLong(offsets[9]);
+  object.updatedAt = reader.readDateTime(offsets[10]);
   return object;
 }
 
@@ -213,20 +233,22 @@ P _styleFigureEntityDeserializeProp<P>(
     case 1:
       return (reader.readDateTimeOrNull(offset)) as P;
     case 2:
-      return (reader.readString(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 3:
       return (reader.readString(offset)) as P;
     case 4:
-      return (reader.readBool(offset)) as P;
-    case 5:
       return (reader.readString(offset)) as P;
+    case 5:
+      return (reader.readBool(offset)) as P;
     case 6:
       return (reader.readString(offset)) as P;
     case 7:
       return (reader.readString(offset)) as P;
     case 8:
-      return (reader.readLong(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 9:
+      return (reader.readLong(offset)) as P;
+    case 10:
       return (reader.readDateTime(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -309,6 +331,15 @@ extension StyleFigureEntityQueryWhereSort
   QueryBuilder<StyleFigureEntity, StyleFigureEntity, QAfterWhere> anyId() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(const IdWhereClause.any());
+    });
+  }
+
+  QueryBuilder<StyleFigureEntity, StyleFigureEntity, QAfterWhere>
+      anyGarmentTypeIndex() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        const IndexWhereClause.any(indexName: r'garmentTypeIndex'),
+      );
     });
   }
 
@@ -533,6 +564,99 @@ extension StyleFigureEntityQueryWhere
               includeUpper: false,
             ));
       }
+    });
+  }
+
+  QueryBuilder<StyleFigureEntity, StyleFigureEntity, QAfterWhereClause>
+      garmentTypeIndexEqualTo(int garmentTypeIndex) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'garmentTypeIndex',
+        value: [garmentTypeIndex],
+      ));
+    });
+  }
+
+  QueryBuilder<StyleFigureEntity, StyleFigureEntity, QAfterWhereClause>
+      garmentTypeIndexNotEqualTo(int garmentTypeIndex) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'garmentTypeIndex',
+              lower: [],
+              upper: [garmentTypeIndex],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'garmentTypeIndex',
+              lower: [garmentTypeIndex],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'garmentTypeIndex',
+              lower: [garmentTypeIndex],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'garmentTypeIndex',
+              lower: [],
+              upper: [garmentTypeIndex],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<StyleFigureEntity, StyleFigureEntity, QAfterWhereClause>
+      garmentTypeIndexGreaterThan(
+    int garmentTypeIndex, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'garmentTypeIndex',
+        lower: [garmentTypeIndex],
+        includeLower: include,
+        upper: [],
+      ));
+    });
+  }
+
+  QueryBuilder<StyleFigureEntity, StyleFigureEntity, QAfterWhereClause>
+      garmentTypeIndexLessThan(
+    int garmentTypeIndex, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'garmentTypeIndex',
+        lower: [],
+        upper: [garmentTypeIndex],
+        includeUpper: include,
+      ));
+    });
+  }
+
+  QueryBuilder<StyleFigureEntity, StyleFigureEntity, QAfterWhereClause>
+      garmentTypeIndexBetween(
+    int lowerGarmentTypeIndex,
+    int upperGarmentTypeIndex, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'garmentTypeIndex',
+        lower: [lowerGarmentTypeIndex],
+        includeLower: includeLower,
+        upper: [upperGarmentTypeIndex],
+        includeUpper: includeUpper,
+      ));
     });
   }
 
@@ -799,6 +923,62 @@ extension StyleFigureEntityQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'deletedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<StyleFigureEntity, StyleFigureEntity, QAfterFilterCondition>
+      garmentTypeIndexEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'garmentTypeIndex',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<StyleFigureEntity, StyleFigureEntity, QAfterFilterCondition>
+      garmentTypeIndexGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'garmentTypeIndex',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<StyleFigureEntity, StyleFigureEntity, QAfterFilterCondition>
+      garmentTypeIndexLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'garmentTypeIndex',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<StyleFigureEntity, StyleFigureEntity, QAfterFilterCondition>
+      garmentTypeIndexBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'garmentTypeIndex',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -1703,6 +1883,20 @@ extension StyleFigureEntityQuerySortBy
   }
 
   QueryBuilder<StyleFigureEntity, StyleFigureEntity, QAfterSortBy>
+      sortByGarmentTypeIndex() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'garmentTypeIndex', Sort.asc);
+    });
+  }
+
+  QueryBuilder<StyleFigureEntity, StyleFigureEntity, QAfterSortBy>
+      sortByGarmentTypeIndexDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'garmentTypeIndex', Sort.desc);
+    });
+  }
+
+  QueryBuilder<StyleFigureEntity, StyleFigureEntity, QAfterSortBy>
       sortByImageRef() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'imageRef', Sort.asc);
@@ -1842,6 +2036,20 @@ extension StyleFigureEntityQuerySortThenBy
       thenByDeletedAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<StyleFigureEntity, StyleFigureEntity, QAfterSortBy>
+      thenByGarmentTypeIndex() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'garmentTypeIndex', Sort.asc);
+    });
+  }
+
+  QueryBuilder<StyleFigureEntity, StyleFigureEntity, QAfterSortBy>
+      thenByGarmentTypeIndexDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'garmentTypeIndex', Sort.desc);
     });
   }
 
@@ -1988,6 +2196,13 @@ extension StyleFigureEntityQueryWhereDistinct
   }
 
   QueryBuilder<StyleFigureEntity, StyleFigureEntity, QDistinct>
+      distinctByGarmentTypeIndex() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'garmentTypeIndex');
+    });
+  }
+
+  QueryBuilder<StyleFigureEntity, StyleFigureEntity, QDistinct>
       distinctByImageRef({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'imageRef', caseSensitive: caseSensitive);
@@ -2064,6 +2279,13 @@ extension StyleFigureEntityQueryProperty
       deletedAtProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<StyleFigureEntity, int, QQueryOperations>
+      garmentTypeIndexProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'garmentTypeIndex');
     });
   }
 

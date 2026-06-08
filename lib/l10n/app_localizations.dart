@@ -3913,6 +3913,48 @@ abstract class AppLocalizations {
   /// **'Order style'**
   String get settingsStyleHubTitle;
 
+  /// No description provided for @settingsStyleGarmentTabsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Garment library'**
+  String get settingsStyleGarmentTabsLabel;
+
+  /// No description provided for @settingsStylePerahanLibraryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Perahan/Tunban shapes'**
+  String get settingsStylePerahanLibraryTitle;
+
+  /// No description provided for @settingsStyleWaistcoatLibraryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Waistcoat shapes'**
+  String get settingsStyleWaistcoatLibraryTitle;
+
+  /// No description provided for @settingsStyleWaistcoatEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No waistcoat shapes yet'**
+  String get settingsStyleWaistcoatEmptyTitle;
+
+  /// No description provided for @settingsStyleWaistcoatEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add waistcoat sections and shapes in Settings → Order style.'**
+  String get settingsStyleWaistcoatEmptySubtitle;
+
+  /// No description provided for @ordersComposerWaistcoatStyleEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No waistcoat shapes available'**
+  String get ordersComposerWaistcoatStyleEmptyTitle;
+
+  /// No description provided for @ordersComposerWaistcoatStyleEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Import or add waistcoat shapes in Settings → Order style.'**
+  String get ordersComposerWaistcoatStyleEmptySubtitle;
+
   /// No description provided for @settingsStyleTileTitle.
   ///
   /// In en, this message translates to:

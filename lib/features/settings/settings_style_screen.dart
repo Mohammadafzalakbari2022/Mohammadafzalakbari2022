@@ -1,13 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
-class SettingsStyleScreen extends StatelessWidget {
+import '../../data/local/entities/garment_type.dart';
+import 'style/settings_style_garment_provider.dart';
+import 'style/settings_style_garment_selector.dart';
+
+class SettingsStyleScreen extends ConsumerWidget {
   const SettingsStyleScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
+    final garment = ref.watch(settingsStyleGarmentProvider);
+    final libraryTitle = garment == GarmentType.waistcoat
+        ? l10n.settingsStyleWaistcoatLibraryTitle
+        : l10n.settingsStylePerahanLibraryTitle;
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -18,6 +28,14 @@ class SettingsStyleScreen extends StatelessWidget {
       ),
       body: ListView(
         children: [
+          const SettingsStyleGarmentSelector(),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+            child: Text(
+              libraryTitle,
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+          ),
           ListTile(
             leading: const Icon(Icons.style_outlined),
             title: Text(l10n.settingsStyleNamesTitle),

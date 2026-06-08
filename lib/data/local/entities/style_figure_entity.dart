@@ -15,6 +15,10 @@ class StyleFigureEntity {
   @Index()
   late String partInternalId;
 
+  /// [GarmentType] code (`0` = Perahan/Tunban, `1` = Waistcoat).
+  @Index()
+  int garmentTypeIndex = 0;
+
   late String name;
 
   /// [StyleFigureImageRef.assetPrefix] or [StyleFigureImageRef.filePrefix].

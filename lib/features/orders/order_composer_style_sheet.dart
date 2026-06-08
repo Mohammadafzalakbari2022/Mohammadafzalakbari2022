@@ -4,8 +4,12 @@ import 'package:pride_v3/core/widgets/pride_modal_bottom_sheet.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../data/local/entities/garment_type.dart';
+import '../../data/local/style/style_catalog_garment_helpers.dart';
 import '../../data/local/style/style_order_selection.dart';
+import '../../data/local/style/style_part_section_label.dart';
 import 'order_composer_item_card.dart';
+import '../../data/local/style_figure_config_summary.dart';
+import '../../data/local/style_figure_summary.dart';
 import '../../data/local/style_name_summary.dart';
 import '../../data/providers/local_data_providers.dart';
 import '../catalog/catalog_tile_image.dart';
@@ -130,8 +134,11 @@ class _OrderComposerStyleSheetState
     _customStyleCtrl.addListener(_onCustomStyleEdited);
   }
 
+  GarmentType get _garment =>
+      widget.garmentType ?? GarmentType.perahanTunban;
+
   void _onCustomStyleEdited() {
-    final names = ref.read(styleNamesStreamProvider).valueOrNull;
+    final names = ref.read(styleNamesForGarmentProvider(_garment)).valueOrNull;
     if (names == null || _selectedStyleNameId == null) return;
     final match = names.where((n) => n.internalId == _selectedStyleNameId);
     if (match.isEmpty) return;
@@ -199,9 +206,12 @@ class _OrderComposerStyleSheetState
 
     _syncNotesFromControllers();
 
-    final figures = ref.read(styleAllFiguresStreamProvider).valueOrNull ?? [];
-    final configs =
-        ref.read(styleAllFigureConfigsProvider).valueOrNull ?? const {};
+    final figures =
+        ref.read(styleFiguresForGarmentProvider(_garment)).valueOrNull ?? [];
+    final configs = ref
+            .read(styleFigureConfigsForGarmentProvider(_garment))
+            .valueOrNull ??
+        const {};
 
     final selection = buildStyleOrderSelectionFromDrafts(
       selectedFigureIds: _selectedFigureIds,
@@ -261,9 +271,12 @@ class _OrderComposerStyleSheetState
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final namesAsync = ref.watch(styleNamesStreamProvider);
-    final figuresAsync = ref.watch(styleAllFiguresStreamProvider);
-    final configsAsync = ref.watch(styleAllFigureConfigsProvider);
+    final garment = _garment;
+    final namesAsync = ref.watch(styleNamesForGarmentProvider(garment));
+    final figuresAsync = ref.watch(styleFiguresForGarmentProvider(garment));
+    final partsAsync = ref.watch(stylePartsForGarmentProvider(garment));
+    final configsAsync =
+        ref.watch(styleFigureConfigsForGarmentProvider(garment));
 
     return DraggableScrollableSheet(
       expand: false,
@@ -414,52 +427,82 @@ class _OrderComposerStyleSheetState
                           _selectedFigureIds,
                         );
                         if (listFigures.isEmpty) {
+                          if (garment == GarmentType.waistcoat) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  l10n.ordersComposerWaistcoatStyleEmptyTitle,
+                                  style:
+                                      Theme.of(context).textTheme.titleSmall,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  l10n.ordersComposerWaistcoatStyleEmptySubtitle,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurfaceVariant,
+                                      ),
+                                ),
+                              ],
+                            );
+                          }
                           return Text(l10n.ordersComposerStyleNoFigures);
                         }
                         return configsAsync.when(
-                          data: (configs) => LayoutBuilder(
-                            builder: (context, constraints) {
-                              const spacing = 8.0;
-                              final columns = orderComposerShapeGridColumns(
-                                constraints.maxWidth,
+                          data: (configs) {
+                            if (garment == GarmentType.waistcoat) {
+                              final parts = partsAsync.valueOrNull ?? const [];
+                              final sections = groupStyleFiguresByPart(
+                                figures: listFigures,
+                                parts: parts,
                               );
-                              final itemWidth = columns == 1
-                                  ? constraints.maxWidth
-                                  : (constraints.maxWidth -
-                                          spacing * (columns - 1)) /
-                                      columns;
-                              return Wrap(
-                                spacing: spacing,
-                                runSpacing: spacing,
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  for (final figure in listFigures)
-                                    SizedBox(
-                                      width: itemWidth,
-                                      child: OrderComposerShapeSelectTile(
-                                        figure: figure,
-                                        config: configs[figure.internalId],
-                                        draft: _drafts[figure.internalId] ??
-                                            ShapeConfigDraft(
-                                              shapeId: figure.internalId,
-                                            ),
-                                        selected: _selectedFigureIds
-                                            .contains(figure.internalId),
-                                        onToggleSelected: () =>
-                                            _toggleFigure(figure.internalId),
-                                        onDraftChanged: (draft) =>
-                                            _onDraftChanged(
-                                              figure.internalId,
-                                              draft,
-                                            ),
-                                        l10n: l10n,
-                                        noteController:
-                                            _noteControllers[figure.internalId],
+                                  for (final section in sections) ...[
+                                    Padding(
+                                      padding:
+                                          const EdgeInsets.only(bottom: 4),
+                                      child: Text(
+                                        stylePartSectionLabel(
+                                          section.part.name,
+                                        ),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelLarge,
                                       ),
                                     ),
+                                    _ComposerFigureGrid(
+                                      figures: section.figures,
+                                      configs: configs,
+                                      selectedFigureIds: _selectedFigureIds,
+                                      drafts: _drafts,
+                                      noteControllers: _noteControllers,
+                                      onToggleFigure: _toggleFigure,
+                                      onDraftChanged: _onDraftChanged,
+                                      l10n: l10n,
+                                    ),
+                                    const SizedBox(height: 12),
+                                  ],
                                 ],
                               );
-                            },
-                          ),
+                            }
+                            return _ComposerFigureGrid(
+                              figures: listFigures,
+                              configs: configs,
+                              selectedFigureIds: _selectedFigureIds,
+                              drafts: _drafts,
+                              noteControllers: _noteControllers,
+                              onToggleFigure: _toggleFigure,
+                              onDraftChanged: _onDraftChanged,
+                              l10n: l10n,
+                            );
+                          },
                           loading: () => const LinearProgressIndicator(),
                           error: (e, _) => Text('$e'),
                         );
@@ -472,6 +515,63 @@ class _OrderComposerStyleSheetState
               ),
             ],
           ),
+        );
+      },
+    );
+  }
+}
+
+class _ComposerFigureGrid extends StatelessWidget {
+  const _ComposerFigureGrid({
+    required this.figures,
+    required this.configs,
+    required this.selectedFigureIds,
+    required this.drafts,
+    required this.noteControllers,
+    required this.onToggleFigure,
+    required this.onDraftChanged,
+    required this.l10n,
+  });
+
+  final List<StyleFigureSummary> figures;
+  final Map<String, StyleFigureConfigSummary> configs;
+  final Set<String> selectedFigureIds;
+  final Map<String, ShapeConfigDraft> drafts;
+  final Map<String, TextEditingController> noteControllers;
+  final void Function(String id) onToggleFigure;
+  final void Function(String id, ShapeConfigDraft draft) onDraftChanged;
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const spacing = 8.0;
+        final columns = orderComposerShapeGridColumns(constraints.maxWidth);
+        final itemWidth = columns == 1
+            ? constraints.maxWidth
+            : (constraints.maxWidth - spacing * (columns - 1)) / columns;
+        return Wrap(
+          spacing: spacing,
+          runSpacing: spacing,
+          children: [
+            for (final figure in figures)
+              SizedBox(
+                width: itemWidth,
+                child: OrderComposerShapeSelectTile(
+                  figure: figure,
+                  config: configs[figure.internalId],
+                  draft: drafts[figure.internalId] ??
+                      ShapeConfigDraft(shapeId: figure.internalId),
+                  selected: selectedFigureIds.contains(figure.internalId),
+                  onToggleSelected: () => onToggleFigure(figure.internalId),
+                  onDraftChanged: (draft) =>
+                      onDraftChanged(figure.internalId, draft),
+                  l10n: l10n,
+                  noteController: noteControllers[figure.internalId],
+                ),
+              ),
+          ],
         );
       },
     );

@@ -1,6 +1,7 @@
 import 'package:isar/isar.dart';
 import 'package:uuid/uuid.dart';
 
+import 'entities/garment_type.dart';
 import 'entities/style_figure_entity.dart';
 import 'entities/style_figure_size_option_entity.dart';
 import 'entities/style_figure_text_option_entity.dart';
@@ -30,10 +31,15 @@ class IsarStyleCatalogRepository implements StyleCatalogRepository {
   }
 
   @override
-  Stream<List<StyleNameSummary>> watchStyleNames(String shopId) {
+  Stream<List<StyleNameSummary>> watchStyleNames(
+    String shopId, {
+    int garmentTypeIndex = 0,
+  }) {
     return _isar.styleNameEntitys
         .filter()
         .shopIdEqualTo(shopId)
+        .and()
+        .garmentTypeIndexEqualTo(garmentTypeIndex)
         .and()
         .deletedAtIsNull()
         .watch(fireImmediately: true)
@@ -41,10 +47,15 @@ class IsarStyleCatalogRepository implements StyleCatalogRepository {
   }
 
   @override
-  Stream<List<StylePartSummary>> watchStyleParts(String shopId) {
+  Stream<List<StylePartSummary>> watchStyleParts(
+    String shopId, {
+    int garmentTypeIndex = 0,
+  }) {
     return _isar.stylePartEntitys
         .filter()
         .shopIdEqualTo(shopId)
+        .and()
+        .garmentTypeIndexEqualTo(garmentTypeIndex)
         .and()
         .deletedAtIsNull()
         .watch(fireImmediately: true)
@@ -68,10 +79,15 @@ class IsarStyleCatalogRepository implements StyleCatalogRepository {
   }
 
   @override
-  Stream<List<StyleFigureSummary>> watchAllFigures(String shopId) {
+  Stream<List<StyleFigureSummary>> watchAllFigures(
+    String shopId, {
+    int garmentTypeIndex = 0,
+  }) {
     return _isar.styleFigureEntitys
         .filter()
         .shopIdEqualTo(shopId)
+        .and()
+        .garmentTypeIndexEqualTo(garmentTypeIndex)
         .and()
         .deletedAtIsNull()
         .watch(fireImmediately: true)
@@ -84,6 +100,7 @@ class IsarStyleCatalogRepository implements StyleCatalogRepository {
           (e) => StyleNameSummary(
             internalId: e.internalId,
             shopId: e.shopId,
+            garmentTypeIndex: e.garmentTypeIndex,
             name: e.name,
             sortOrder: e.sortOrder,
             isActive: e.isActive,
@@ -100,6 +117,7 @@ class IsarStyleCatalogRepository implements StyleCatalogRepository {
           (e) => StylePartSummary(
             internalId: e.internalId,
             shopId: e.shopId,
+            garmentTypeIndex: e.garmentTypeIndex,
             name: e.name,
             sortOrder: e.sortOrder,
             isActive: e.isActive,
@@ -117,6 +135,7 @@ class IsarStyleCatalogRepository implements StyleCatalogRepository {
             internalId: e.internalId,
             shopId: e.shopId,
             partInternalId: e.partInternalId,
+            garmentTypeIndex: e.garmentTypeIndex,
             name: e.name,
             imageRef: e.imageRef,
             sortOrder: e.sortOrder,
@@ -128,10 +147,15 @@ class IsarStyleCatalogRepository implements StyleCatalogRepository {
     return list;
   }
 
-  Future<int> _nextNameSortOrder(String shopId) async {
+  Future<int> _nextNameSortOrder(
+    String shopId,
+    int garmentTypeIndex,
+  ) async {
     final rows = await _isar.styleNameEntitys
         .filter()
         .shopIdEqualTo(shopId)
+        .and()
+        .garmentTypeIndexEqualTo(garmentTypeIndex)
         .and()
         .deletedAtIsNull()
         .findAll();
@@ -142,10 +166,15 @@ class IsarStyleCatalogRepository implements StyleCatalogRepository {
     return max + 10;
   }
 
-  Future<int> _nextPartSortOrder(String shopId) async {
+  Future<int> _nextPartSortOrder(
+    String shopId,
+    int garmentTypeIndex,
+  ) async {
     final rows = await _isar.stylePartEntitys
         .filter()
         .shopIdEqualTo(shopId)
+        .and()
+        .garmentTypeIndexEqualTo(garmentTypeIndex)
         .and()
         .deletedAtIsNull()
         .findAll();
@@ -176,16 +205,18 @@ class IsarStyleCatalogRepository implements StyleCatalogRepository {
   Future<String> createStyleName({
     required String shopId,
     required String name,
+    int garmentTypeIndex = 0,
     int? sortOrder,
   }) async {
     final trimmed = name.trim();
     if (trimmed.isEmpty) throw ArgumentError.value(name, 'name');
     final now = DateTime.now();
-    final so = sortOrder ?? await _nextNameSortOrder(shopId);
+    final so = sortOrder ?? await _nextNameSortOrder(shopId, garmentTypeIndex);
     final id = _uuid.v4();
     final e = StyleNameEntity()
       ..internalId = id
       ..shopId = shopId
+      ..garmentTypeIndex = garmentTypeIndex
       ..name = trimmed
       ..sortOrder = so
       ..isActive = true
@@ -228,16 +259,18 @@ class IsarStyleCatalogRepository implements StyleCatalogRepository {
   Future<String> createStylePart({
     required String shopId,
     required String name,
+    int garmentTypeIndex = 0,
     int? sortOrder,
   }) async {
     final trimmed = name.trim();
     if (trimmed.isEmpty) throw ArgumentError.value(name, 'name');
     final now = DateTime.now();
-    final so = sortOrder ?? await _nextPartSortOrder(shopId);
+    final so = sortOrder ?? await _nextPartSortOrder(shopId, garmentTypeIndex);
     final id = _uuid.v4();
     final e = StylePartEntity()
       ..internalId = id
       ..shopId = shopId
+      ..garmentTypeIndex = garmentTypeIndex
       ..name = trimmed
       ..sortOrder = so
       ..isActive = true
@@ -285,6 +318,9 @@ class IsarStyleCatalogRepository implements StyleCatalogRepository {
     int? sortOrder,
   }) async {
     if (imageRef.trim().isEmpty) throw ArgumentError.value(imageRef, 'imageRef');
+    final part = await _isar.stylePartEntitys.getByInternalId(partInternalId);
+    final garmentTypeIndex =
+        part?.garmentTypeIndex ?? GarmentType.perahanTunban.code;
     final now = DateTime.now();
     final so =
         sortOrder ?? await _nextFigureSortOrder(shopId, partInternalId);
@@ -293,6 +329,7 @@ class IsarStyleCatalogRepository implements StyleCatalogRepository {
       ..internalId = id
       ..shopId = shopId
       ..partInternalId = partInternalId
+      ..garmentTypeIndex = garmentTypeIndex
       ..name = name.trim()
       ..imageRef = imageRef.trim()
       ..sortOrder = so
@@ -377,13 +414,19 @@ class IsarStyleCatalogRepository implements StyleCatalogRepository {
   Future<Map<String, StyleFigureConfigSummary>> loadAllFigureConfigs(
     String shopId, {
     bool activeFiguresOnly = false,
+    int? garmentTypeIndex,
   }) async {
-    final figureRows = await _isar.styleFigureEntitys
+    final query = _isar.styleFigureEntitys
         .filter()
         .shopIdEqualTo(shopId)
         .and()
-        .deletedAtIsNull()
-        .findAll();
+        .deletedAtIsNull();
+    final figureRows = garmentTypeIndex == null
+        ? await query.findAll()
+        : await query
+            .and()
+            .garmentTypeIndexEqualTo(garmentTypeIndex)
+            .findAll();
     final figures = _mapFigures(figureRows);
     final filtered =
         activeFiguresOnly ? figures.where((f) => f.isActive) : figures;
@@ -673,6 +716,11 @@ class IsarStyleCatalogRepository implements StyleCatalogRepository {
     final name = syncPullString(m, const ['name']);
     if (name == null || name.trim().isEmpty) return;
     final sortOrder = syncPullInt(m, const ['sort_order', 'sortOrder']);
+    final garmentTypeIndex = syncPullInt(
+          m,
+          const ['garment_type_index', 'garmentTypeIndex'],
+        ) ??
+        GarmentType.perahanTunban.code;
     final isActive = syncPullBool(m, const ['is_active', 'isActive']) ?? true;
     final now = DateTime.now();
     final created =
@@ -682,10 +730,12 @@ class IsarStyleCatalogRepository implements StyleCatalogRepository {
     await _isar.writeTxn(() async {
       final existing = await _isar.styleNameEntitys.getByInternalId(internalId);
       if (existing == null) {
-        final so = sortOrder ?? await _nextNameSortOrder(shopId);
+        final so =
+            sortOrder ?? await _nextNameSortOrder(shopId, garmentTypeIndex);
         final e = StyleNameEntity()
           ..internalId = internalId
           ..shopId = shopId
+          ..garmentTypeIndex = garmentTypeIndex
           ..name = name.trim()
           ..sortOrder = so
           ..isActive = isActive
@@ -696,6 +746,7 @@ class IsarStyleCatalogRepository implements StyleCatalogRepository {
       }
       existing
         ..shopId = shopId
+        ..garmentTypeIndex = garmentTypeIndex
         ..name = name.trim()
         ..sortOrder = sortOrder ?? existing.sortOrder
         ..isActive = isActive
@@ -720,6 +771,11 @@ class IsarStyleCatalogRepository implements StyleCatalogRepository {
     final name = syncPullString(m, const ['name']);
     if (name == null || name.trim().isEmpty) return;
     final sortOrder = syncPullInt(m, const ['sort_order', 'sortOrder']);
+    final garmentTypeIndex = syncPullInt(
+          m,
+          const ['garment_type_index', 'garmentTypeIndex'],
+        ) ??
+        GarmentType.perahanTunban.code;
     final isActive = syncPullBool(m, const ['is_active', 'isActive']) ?? true;
     final now = DateTime.now();
     final created =
@@ -729,10 +785,12 @@ class IsarStyleCatalogRepository implements StyleCatalogRepository {
     await _isar.writeTxn(() async {
       final existing = await _isar.stylePartEntitys.getByInternalId(internalId);
       if (existing == null) {
-        final so = sortOrder ?? await _nextPartSortOrder(shopId);
+        final so =
+            sortOrder ?? await _nextPartSortOrder(shopId, garmentTypeIndex);
         final e = StylePartEntity()
           ..internalId = internalId
           ..shopId = shopId
+          ..garmentTypeIndex = garmentTypeIndex
           ..name = name.trim()
           ..sortOrder = so
           ..isActive = isActive
@@ -743,6 +801,7 @@ class IsarStyleCatalogRepository implements StyleCatalogRepository {
       }
       existing
         ..shopId = shopId
+        ..garmentTypeIndex = garmentTypeIndex
         ..name = name.trim()
         ..sortOrder = sortOrder ?? existing.sortOrder
         ..isActive = isActive
@@ -779,6 +838,11 @@ class IsarStyleCatalogRepository implements StyleCatalogRepository {
       return;
     }
     final sortOrder = syncPullInt(m, const ['sort_order', 'sortOrder']);
+    final garmentTypeIndex = syncPullInt(
+          m,
+          const ['garment_type_index', 'garmentTypeIndex'],
+        ) ??
+        GarmentType.perahanTunban.code;
     final isActive = syncPullBool(m, const ['is_active', 'isActive']) ?? true;
     final now = DateTime.now();
     final created =
@@ -794,6 +858,7 @@ class IsarStyleCatalogRepository implements StyleCatalogRepository {
           ..internalId = internalId
           ..shopId = shopId
           ..partInternalId = partId
+          ..garmentTypeIndex = garmentTypeIndex
           ..name = name.trim()
           ..imageRef = imageRef.trim()
           ..sortOrder = so
@@ -806,6 +871,7 @@ class IsarStyleCatalogRepository implements StyleCatalogRepository {
       existing
         ..shopId = shopId
         ..partInternalId = partId
+        ..garmentTypeIndex = garmentTypeIndex
         ..name = name.trim()
         ..imageRef = imageRef.trim()
         ..sortOrder = sortOrder ?? existing.sortOrder

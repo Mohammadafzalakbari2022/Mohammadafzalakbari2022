@@ -5,12 +5,17 @@ import 'package:go_router/go_router.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../auth/auth_providers.dart';
+import '../../data/local/entities/garment_type.dart';
 import '../../data/local/seed_data.dart';
+import '../../data/local/style/style_catalog_garment_helpers.dart';
 import '../../data/local/style/style_figure_display_name.dart';
 import '../../data/local/style/style_figure_image_ref.dart';
+import '../../data/local/style/style_part_section_label.dart';
 import '../../data/local/style_figure_summary.dart';
 import '../../data/providers/local_data_providers.dart';
 import '../../licensing/license_providers.dart';
+import 'style/settings_style_garment_provider.dart';
+import 'style/settings_style_garment_selector.dart';
 import 'style/style_figure_image.dart';
 import 'style/style_figure_pick_image.dart';
 import 'style/style_sync_helpers.dart';
@@ -18,16 +23,23 @@ import 'style/style_sync_helpers.dart';
 class SettingsStyleFiguresScreen extends ConsumerWidget {
   const SettingsStyleFiguresScreen({super.key});
 
-  Future<String> _defaultPartId(WidgetRef ref) async {
-    final parts = ref.read(stylePartsStreamProvider).valueOrNull;
+  Future<String> _defaultPartId(WidgetRef ref, GarmentType garment) async {
+    final parts =
+        ref.read(stylePartsForGarmentProvider(garment)).valueOrNull;
     if (parts != null) {
       final active = parts.where((p) => p.isActive);
       if (active.isNotEmpty) return active.first.internalId;
     }
-    return DevSeedIds.stylePartSleeve;
+    return garment == GarmentType.waistcoat
+        ? DevSeedIds.waistcoatPart01
+        : DevSeedIds.stylePartSleeve;
   }
 
-  Future<void> _addFigure(BuildContext context, WidgetRef ref) async {
+  Future<void> _addFigure(
+    BuildContext context,
+    WidgetRef ref,
+    GarmentType garment,
+  ) async {
     final l10n = AppLocalizations.of(context)!;
     if (kIsWeb) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -39,7 +51,7 @@ class SettingsStyleFiguresScreen extends ConsumerWidget {
     final imageRef = await pickStyleFigureImageRef(context);
     if (imageRef == null || !context.mounted) return;
 
-    final partId = await _defaultPartId(ref);
+    final partId = await _defaultPartId(ref, garment);
     final repo = await ref.read(styleCatalogRepositoryProvider.future);
     final id = await repo.createStyleFigure(
       shopId: ref.read(effectiveShopIdProvider),
@@ -53,6 +65,7 @@ class SettingsStyleFiguresScreen extends ConsumerWidget {
       partInternalId: partId,
       name: '',
       imageRef: imageRef,
+      garmentTypeIndex: garment.code,
       isActive: true,
     );
   }
@@ -66,9 +79,12 @@ class SettingsStyleFiguresScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
-    final figuresAsync = ref.watch(styleAllFiguresStreamProvider);
+    final garment = ref.watch(settingsStyleGarmentProvider);
+    final figuresAsync = ref.watch(styleFiguresForGarmentProvider(garment));
+    final partsAsync = ref.watch(stylePartsForGarmentProvider(garment));
     final canEdit = !ref.watch(licenseEditingBlockedProvider);
     final width = MediaQuery.sizeOf(context).width;
+    final columns = _crossAxisCount(width);
 
     return Scaffold(
       appBar: AppBar(
@@ -80,38 +96,121 @@ class SettingsStyleFiguresScreen extends ConsumerWidget {
       ),
       floatingActionButton: canEdit && !kIsWeb
           ? FloatingActionButton.extended(
-              onPressed: () => _addFigure(context, ref),
+              onPressed: () => _addFigure(context, ref, garment),
               icon: const Icon(Icons.add_photo_alternate_outlined),
               label: Text(l10n.settingsStyleFigureAddCta),
             )
           : null,
-      body: figuresAsync.when(
-        data: (figures) {
-          final sorted = List<StyleFigureSummary>.from(figures)
-            ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
-          if (sorted.isEmpty) {
-            return Center(child: Text(l10n.settingsStyleFiguresEmpty));
-          }
-          return GridView.builder(
-            padding: const EdgeInsets.fromLTRB(8, 8, 8, 88),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: _crossAxisCount(width),
-              mainAxisSpacing: 8,
-              crossAxisSpacing: 8,
-              childAspectRatio: 0.78,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SettingsStyleGarmentSelector(),
+          Expanded(
+            child: figuresAsync.when(
+              data: (figures) {
+                final parts = partsAsync.valueOrNull ?? const [];
+                if (figures.isEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            garment == GarmentType.waistcoat
+                                ? l10n.settingsStyleWaistcoatEmptyTitle
+                                : l10n.settingsStyleFiguresEmpty,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          if (garment == GarmentType.waistcoat) ...[
+                            const SizedBox(height: 8),
+                            Text(
+                              l10n.settingsStyleWaistcoatEmptySubtitle,
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                  ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                if (garment == GarmentType.waistcoat && parts.isNotEmpty) {
+                  final sections = groupStyleFiguresByPart(
+                    figures: figures,
+                    parts: parts,
+                  );
+                  return ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(8, 8, 8, 88),
+                    itemCount: sections.length,
+                    itemBuilder: (context, sectionIndex) {
+                      final section = sections[sectionIndex];
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(8, 8, 8, 4),
+                            child: Text(
+                              stylePartSectionLabel(section.part.name),
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                          ),
+                          GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: columns,
+                              mainAxisSpacing: 8,
+                              crossAxisSpacing: 8,
+                              childAspectRatio: 0.78,
+                            ),
+                            itemCount: section.figures.length,
+                            itemBuilder: (context, index) => _FigureTile(
+                              figure: section.figures[index],
+                              canEdit: canEdit,
+                              l10n: l10n,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                        ],
+                      );
+                    },
+                  );
+                }
+
+                final sorted = List<StyleFigureSummary>.from(figures)
+                  ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+                return GridView.builder(
+                  padding: const EdgeInsets.fromLTRB(8, 8, 8, 88),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: columns,
+                    mainAxisSpacing: 8,
+                    crossAxisSpacing: 8,
+                    childAspectRatio: 0.78,
+                  ),
+                  itemCount: sorted.length,
+                  itemBuilder: (context, index) => _FigureTile(
+                    figure: sorted[index],
+                    canEdit: canEdit,
+                    l10n: l10n,
+                  ),
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => Center(child: Text('$e')),
             ),
-            itemCount: sorted.length,
-            itemBuilder: (context, index) {
-              return _FigureTile(
-                figure: sorted[index],
-                canEdit: canEdit,
-                l10n: l10n,
-              );
-            },
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('$e')),
+          ),
+        ],
       ),
     );
   }
@@ -212,7 +311,10 @@ class _FigureTile extends ConsumerWidget {
                           ),
                           child: Text(
                             l10n.settingsStyleInactiveLabel,
-                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(
                                   color: Colors.white,
                                 ),
                           ),

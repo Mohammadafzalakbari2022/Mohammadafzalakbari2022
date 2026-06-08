@@ -89,6 +89,7 @@ flutter:
 
   assets:
     - assets/style_figures/
+    - assets/style_figures_waistcoat/
     - assets/catalog_seed/
     - assets/branding/
     - assets/fonts/

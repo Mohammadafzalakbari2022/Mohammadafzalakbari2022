@@ -2108,6 +2108,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsStyleHubTitle => 'Order style';
 
   @override
+  String get settingsStyleGarmentTabsLabel => 'Garment library';
+
+  @override
+  String get settingsStylePerahanLibraryTitle => 'Perahan/Tunban shapes';
+
+  @override
+  String get settingsStyleWaistcoatLibraryTitle => 'Waistcoat shapes';
+
+  @override
+  String get settingsStyleWaistcoatEmptyTitle => 'No waistcoat shapes yet';
+
+  @override
+  String get settingsStyleWaistcoatEmptySubtitle =>
+      'Add waistcoat sections and shapes in Settings → Order style.';
+
+  @override
+  String get ordersComposerWaistcoatStyleEmptyTitle =>
+      'No waistcoat shapes available';
+
+  @override
+  String get ordersComposerWaistcoatStyleEmptySubtitle =>
+      'Import or add waistcoat shapes in Settings → Order style.';
+
+  @override
   String get settingsStyleTileTitle => 'Order style';
 
   @override

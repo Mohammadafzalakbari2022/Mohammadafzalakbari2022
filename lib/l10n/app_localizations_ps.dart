@@ -2095,6 +2095,30 @@ class AppLocalizationsPs extends AppLocalizations {
   String get settingsStyleHubTitle => 'د امر سټایل';
 
   @override
+  String get settingsStyleGarmentTabsLabel => 'د جامې کتابتون';
+
+  @override
+  String get settingsStylePerahanLibraryTitle => 'د پېراهن‌تنبان شکلونه';
+
+  @override
+  String get settingsStyleWaistcoatLibraryTitle => 'د واسکټ شکلونه';
+
+  @override
+  String get settingsStyleWaistcoatEmptyTitle => 'لا د واسکټ شکل نشته';
+
+  @override
+  String get settingsStyleWaistcoatEmptySubtitle =>
+      'د واسکټ برخې او شکلونه په تنظیماتو ← د امر سټایل کې زیات کړئ.';
+
+  @override
+  String get ordersComposerWaistcoatStyleEmptyTitle =>
+      'د واسکټ شکلونه شتون نلري';
+
+  @override
+  String get ordersComposerWaistcoatStyleEmptySubtitle =>
+      'د واسکټ شکلونه په تنظیماتو ← د امر سټایل کې وارد یا زیات کړئ.';
+
+  @override
   String get settingsStyleTileTitle => 'د امر سټایل';
 
   @override
