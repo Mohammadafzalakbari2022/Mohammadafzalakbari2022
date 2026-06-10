@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
-import 'package:pride_v3/core/calendar/report_month_period.dart';
 import 'package:pride_v3/core/widgets/pride_nav_card_tile.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
@@ -12,6 +11,7 @@ import '../../data/local/order_summary.dart';
 import '../../data/providers/local_data_providers.dart';
 import '../orders/order_status_label.dart';
 import 'report_money_format.dart';
+import 'report_calculations.dart';
 import 'reports_open_orders.dart';
 
 String? _ordersStatusSummaryLine(
@@ -42,25 +42,29 @@ class ReportsTabScreen extends ConsumerWidget {
 
     return asyncOrders.when(
       data: (orders) {
-        final unpaidTotal = orders.fold<int>(
-          0,
-          (sum, o) =>
-              sum + (o.remainingAmountMinor > 0 ? o.remainingAmountMinor : 0),
-        );
-        final openUnpaid = openUnpaidOrdersTotal(orders);
-        final statusLine = _ordersStatusSummaryLine(l10n, orders);
-
         return asyncPayments.when(
           data: (payments) {
+            final paidByOrderId =
+                ReportCalculations.paidByOrderIdFromPayments(payments);
+            const ledgerLoaded = true;
+            final unpaidTotal = ReportCalculations.sumAllUnpaidTotal(
+              orders: orders,
+              paidByOrderId: paidByOrderId,
+              paymentsLedgerLoaded: ledgerLoaded,
+            );
+            final openUnpaid = ReportCalculations.sumOpenUnpaidTotal(
+              orders: orders,
+              paidByOrderId: paidByOrderId,
+              paymentsLedgerLoaded: ledgerLoaded,
+            );
+            final statusLine = _ordersStatusSummaryLine(l10n, orders);
+
             final now = DateTime.now();
-            final start = startOfMonthContaining(now, calendar);
-            final end = endExclusiveForMonthStart(start, calendar);
-            final monthIncome = payments
-                .where(
-                  (p) =>
-                      !p.createdAt.isBefore(start) && p.createdAt.isBefore(end),
-                )
-                .fold<int>(0, (s, p) => s + p.amountMinor);
+            final monthIncome = ReportCalculations.monthPaymentIncome(
+              payments: payments,
+              now: now,
+              calendar: calendar,
+            );
 
             return ListView(
               padding: const EdgeInsets.all(16),

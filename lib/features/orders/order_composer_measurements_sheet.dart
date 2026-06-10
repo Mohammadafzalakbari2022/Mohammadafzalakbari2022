@@ -9,8 +9,11 @@ import '../../data/local/measurement_profile_line.dart';
 import '../../data/local/measurement_profile_summary.dart';
 import '../../data/local/measurement_type_summary.dart';
 import '../../data/local/order_measurement_snapshot_item_input.dart';
+import '../../data/local/order_item_summary.dart';
+import '../../data/local/order_summary.dart';
 import '../../data/providers/local_data_providers.dart';
 import '../settings/settings_providers.dart';
+import 'order_composer_reference.dart';
 
 /// Result of the full measurements editor (order hub).
 class OrderMeasurementsEditorResult {
@@ -38,6 +41,10 @@ Future<OrderMeasurementsEditorResult?> showOrderMeasurementsEditorSheet({
   required String? initialProfileId,
   required String initialProfileLabel,
   required List<MeasurementProfileSummary> profiles,
+  OrderSummary? referenceOrder,
+  OrderItemSummary? referenceItem,
+  VoidCallback? onUsePreviousMeasurements,
+  String Function(AppLocalizations l10n, int minor)? moneyFormatter,
 }) {
   return showPrideModalBottomSheet<OrderMeasurementsEditorResult>(
     context: context,
@@ -51,6 +58,10 @@ Future<OrderMeasurementsEditorResult?> showOrderMeasurementsEditorSheet({
         initialProfileId: initialProfileId,
         initialProfileLabel: initialProfileLabel,
         profiles: profiles,
+        referenceOrder: referenceOrder,
+        referenceItem: referenceItem,
+        onUsePreviousMeasurements: onUsePreviousMeasurements,
+        moneyFormatter: moneyFormatter,
       );
     },
   );
@@ -66,6 +77,10 @@ class _OrderMeasurementsEditorBody extends ConsumerStatefulWidget {
     required this.initialProfileId,
     required this.initialProfileLabel,
     required this.profiles,
+    this.referenceOrder,
+    this.referenceItem,
+    this.onUsePreviousMeasurements,
+    this.moneyFormatter,
   });
 
   final AppLocalizations l10n;
@@ -76,6 +91,10 @@ class _OrderMeasurementsEditorBody extends ConsumerStatefulWidget {
   final String? initialProfileId;
   final String initialProfileLabel;
   final List<MeasurementProfileSummary> profiles;
+  final OrderSummary? referenceOrder;
+  final OrderItemSummary? referenceItem;
+  final VoidCallback? onUsePreviousMeasurements;
+  final String Function(AppLocalizations l10n, int minor)? moneyFormatter;
 
   @override
   ConsumerState<_OrderMeasurementsEditorBody> createState() =>
@@ -233,13 +252,29 @@ class _OrderMeasurementsEditorBodyState
           builder: (ctx, scroll) {
             return Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                  child: Text(
-                    widget.l10n.ordersComposerMeasurementsSheetTitle,
-                    style: Theme.of(context).textTheme.titleMedium,
+                if (widget.referenceOrder != null &&
+                    widget.moneyFormatter != null)
+                  ComposerSheetPreviousHeader(
+                    title: widget.l10n.ordersComposerMeasurementsSheetTitle,
+                    previousSection: ComposerSheetPreviousSection(
+                      referenceOrder: widget.referenceOrder!,
+                      referenceItem: widget.referenceItem,
+                      kind: ComposerSheetPreviousKind.measurements,
+                      currentTextForDiff: widget.initialSnapshotText,
+                      currentIsMeaningfulForDiff:
+                          widget.initialSnapshotText.trim().isNotEmpty,
+                      onUsePrevious: widget.onUsePreviousMeasurements,
+                      money: widget.moneyFormatter!,
+                    ),
+                  )
+                else
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: Text(
+                      widget.l10n.ordersComposerMeasurementsSheetTitle,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                   ),
-                ),
                 if (widget.profiles.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),

@@ -2,31 +2,23 @@ import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 import 'package:pdf/widgets.dart' as pw;
 
-import '../../../data/local/customer_display_no.dart';
-import '../../../data/local/entities/garment_type.dart';
-import '../../../data/local/order_item_summary.dart';
 import '../../../data/local/order_measurement_snapshot_view.dart';
 import '../../../data/local/order_style_snapshot_view.dart';
 import '../../../data/local/order_summary.dart';
 import '../../../data/local/payment_summary.dart';
-import '../../../data/local/style/order_shape_selection_formatter.dart';
 import '../../../data/local/style_figure_summary.dart';
-import '../../../features/reports/report_money_format.dart';
 import '../../../features/settings/shop_profile.dart';
 import '../../../l10n/app_localizations.dart';
-import 'package:pride_v3/core/formatting/display_customer_no_format.dart';
-import 'package:pride_v3/core/formatting/display_order_no_format.dart';
-import '../../../features/orders/order_composer_item_card.dart';
 import '../invoice_pdf_font.dart';
-import '../invoice_pdf_measurements.dart';
 import '../pdf_bidi_text.dart';
 import '../receipt_branding.dart';
 import '../shop_logo_raster.dart';
+import 'invoice_document_builder.dart';
+import 'invoice_document_model.dart';
 import 'invoice_pdf_constants.dart';
 import 'invoice_pdf_debug_dump.dart';
 import 'invoice_pdf_garment_assets.dart';
 import 'invoice_pdf_garment_input.dart';
-import 'invoice_pdf_shape_model.dart';
 import 'invoice_pdf_text_sanitize.dart';
 import 'widgets/customer_card_widget.dart';
 import 'widgets/garment_section_widget.dart';
@@ -34,8 +26,9 @@ import 'widgets/invoice_footer_widget.dart';
 import 'widgets/invoice_header_widget.dart';
 import 'widgets/invoice_pdf_widgets_common.dart';
 import 'widgets/payment_summary_widget.dart';
+import 'widgets/shape_grid_widget.dart';
 
-/// Builds an A4 portrait invoice PDF (v2 layout).
+/// Builds an A4 portrait invoice PDF (v2 compact layout).
 Future<Uint8List> buildOrderInvoicePdfV2({
   required AppLocalizations l10n,
   required ShopProfile? shop,
@@ -68,26 +61,48 @@ Future<Uint8List> buildOrderInvoicePdfV2({
     await writeInvoicePdfDebugDump(payload);
   }
 
-  final fonts = await InvoicePdfFonts.load();
-  final branding = ReceiptBranding.fromShop(
-    shop: shop,
+  final document = await buildInvoiceDocument(
     l10n: l10n,
-    wrapChars: 56,
+    shop: shop,
+    order: order,
+    payments: payments,
+    deliveryDateText: deliveryDateText,
+    statusText: statusText,
+    createdDateText: createdDateText ?? '',
+    generatedDateText: generatedDateText ?? createdDateText ?? '',
+    measurementSnap: measurementSnap,
+    styleSnap: styleSnap,
+    catalogFigures: catalogFigures,
+    garmentInputs: garmentInputs,
+    customerDisplayNo: customerDisplayNo,
   );
 
-  final customerIdLabel = parseStoredDisplayCustomerNo(customerDisplayNo) > 0
-      ? displayCustomerNumberLabel(l10n, customerDisplayNo)
-      : null;
-  final orderIdLabel = displayOrderNumberLabel(l10n, order.displayOrderNo);
-  final takenDate = (createdDateText ?? '').trim().isNotEmpty
-      ? createdDateText!.trim()
-      : _fallbackDateText(order.createdAt);
-  final invoiceGeneratedDate =
-      (generatedDateText ?? takenDate).trim();
+  return buildOrderInvoicePdfFromDocument(
+    l10n: l10n,
+    shop: shop,
+    order: order,
+    payments: payments,
+    document: document,
+    textDirection: textDirection,
+    formatPaymentDate: formatPaymentDate,
+  );
+}
+
+/// Renders a pre-built [InvoiceDocumentModel] to PDF bytes.
+Future<Uint8List> buildOrderInvoicePdfFromDocument({
+  required AppLocalizations l10n,
+  required ShopProfile? shop,
+  required OrderSummary order,
+  required List<PaymentSummary> payments,
+  required InvoiceDocumentModel document,
+  required pw.TextDirection textDirection,
+  String Function(DateTime dateTime)? formatPaymentDate,
+}) async {
+  final fonts = await InvoicePdfFonts.load();
 
   pw.ImageProvider? logoProvider;
   final logoRaster = await loadReceiptHeaderLogoRaster(
-    userLogoRelativePath: shop?.logoRelativePath,
+    userLogoRelativePath: document.logoRelativePath,
     maxWidthPx: InvoicePdfLayout.headerLogoMaxPx,
   );
   if (logoRaster != null) {
@@ -98,7 +113,7 @@ Future<Uint8List> buildOrderInvoicePdfV2({
 
   pw.ImageProvider? bannerProvider;
   final bannerRaster = await loadShopBannerRasterIfPresent(
-    relativePath: shop?.bannerRelativePath,
+    relativePath: document.bannerRelativePath,
     maxWidthPx: 480,
   );
   if (bannerRaster != null) {
@@ -107,30 +122,17 @@ Future<Uint8List> buildOrderInvoicePdfV2({
     );
   }
 
-  final effectiveInputs = await _resolveGarmentInputs(
-    order: order,
-    garmentInputs: garmentInputs,
-    measurementSnap: measurementSnap,
-    styleSnap: styleSnap,
-    catalogFigures: catalogFigures,
-    l10n: l10n,
-  );
-
   final garmentBlocks = <InvoiceGarmentBlockData>[];
-  for (final input in effectiveInputs) {
-    garmentBlocks.add(await _buildGarmentBlock(input: input, l10n: l10n));
+  for (final garment in document.garments) {
+    garmentBlocks.add(await _renderGarmentBlock(garment: garment));
   }
 
   _logInvoiceBuildMetrics(
-    orderIdLabel: orderIdLabel,
-    customerIdLabel: customerIdLabel,
+    orderIdLabel: document.orderIdLabel,
+    customerIdLabel: document.customerIdLabel,
     garmentBlocks: garmentBlocks,
     paymentCount: payments.length,
   );
-
-  final garmentTotalMinor = order.items.isNotEmpty
-      ? order.itemPriceTotalAmountMinor
-      : order.totalAmountMinor;
 
   final doc = pw.Document(theme: InvoicePdfFonts.themeFor(fonts));
 
@@ -150,8 +152,8 @@ Future<Uint8List> buildOrderInvoicePdfV2({
           pageNumber: context.pageNumber,
           fonts: fonts,
           l10n: l10n,
-          orderIdLabel: orderIdLabel,
-          branding: branding,
+          orderIdLabel: document.orderIdLabel,
+          branding: document.branding,
           textDirection: textDirection,
         ),
       ),
@@ -161,14 +163,14 @@ Future<Uint8List> buildOrderInvoicePdfV2({
             textDirection: textDirection,
             child: invoiceHeaderWidget(
               fonts: fonts,
-              branding: branding,
+              branding: document.branding,
               logoProvider: logoProvider,
               uploadedBannerProvider: bannerProvider,
               l10n: l10n,
-              orderIdLabel: orderIdLabel,
-              statusText: statusText,
-              createdDateText: takenDate,
-              deliveryDateText: deliveryDateText,
+              orderIdLabel: document.orderIdLabel,
+              statusText: document.statusText,
+              createdDateText: document.createdDateText,
+              deliveryDateText: document.deliveryDateText,
               textDirection: textDirection,
             ),
           ),
@@ -178,9 +180,9 @@ Future<Uint8List> buildOrderInvoicePdfV2({
             child: customerCardWidget(
               fonts: fonts,
               l10n: l10n,
-              customerName: order.customerName,
-              phone: order.customerPhone ?? '',
-              customerIdLabel: customerIdLabel,
+              customerName: document.customer.name,
+              phone: document.customer.phone,
+              customerIdLabel: document.customerIdLabel,
               textDirection: textDirection,
             ),
           ),
@@ -203,7 +205,7 @@ Future<Uint8List> buildOrderInvoicePdfV2({
           }
         }
 
-        if (order.internalNotes.trim().isNotEmpty) {
+        if (document.internalNotes.isNotEmpty) {
           widgets.add(pw.SizedBox(height: InvoicePdfLayout.sectionGap));
           widgets.add(
             pw.Directionality(
@@ -214,7 +216,7 @@ Future<Uint8List> buildOrderInvoicePdfV2({
                   title: l10n.receiptInternalNotesHeader,
                   textDirection: textDirection,
                   child: pdfMixedTextWidget(
-                    text: pdfSanitizeLabel(order.internalNotes.trim()),
+                    text: pdfSanitizeLabel(document.internalNotes),
                     style: pw.TextStyle(
                       font: fonts.regular,
                       fontSize: InvoicePdfLayout.bodyFontSize,
@@ -235,10 +237,10 @@ Future<Uint8List> buildOrderInvoicePdfV2({
             child: paymentSummaryWidget(
               fonts: fonts,
               l10n: l10n,
-              garmentTotalMinor: garmentTotalMinor,
-              grandTotalMinor: order.totalAmountMinor,
-              paidMinor: order.paidAmountMinor,
-              remainingMinor: order.remainingAmountMinor,
+              garmentTotalMinor: document.payment.garmentTotalMinor,
+              grandTotalMinor: document.payment.grandTotalMinor,
+              paidMinor: document.payment.paidMinor,
+              remainingMinor: document.payment.remainingMinor,
               payments: payments,
               textDirection: textDirection,
               formatPaymentDate: formatPaymentDate,
@@ -253,8 +255,8 @@ Future<Uint8List> buildOrderInvoicePdfV2({
             child: invoiceFooterWidget(
               fonts: fonts,
               l10n: l10n,
-              branding: branding,
-              generatedDateText: invoiceGeneratedDate,
+              branding: document.branding,
+              generatedDateText: document.generatedDateText,
               textDirection: textDirection,
             ),
           ),
@@ -268,6 +270,42 @@ Future<Uint8List> buildOrderInvoicePdfV2({
   return doc.save();
 }
 
+Future<InvoiceGarmentBlockData> _renderGarmentBlock({
+  required InvoiceDocumentGarment garment,
+}) async {
+  pw.ImageProvider? referenceProvider;
+  if (garment.referenceDesign.hasImage) {
+    referenceProvider = await loadCatalogReferenceImageProvider(
+      garment.referenceDesign.catalogImagePath,
+    );
+  }
+
+  final shapeRenders = <InvoicePdfShapeRenderData>[];
+  for (final shape in garment.shapes) {
+    pw.ImageProvider? image;
+    if (shape.imageRef.isNotEmpty) {
+      image = await loadInvoiceShapeImageProvider(shape.imageRef);
+    }
+    shapeRenders.add(
+      InvoicePdfShapeRenderData(shape: shape, imageProvider: image),
+    );
+  }
+
+  return InvoiceGarmentBlockData(
+    title: garment.title,
+    priceLabel: garment.priceLabel,
+    measurementRows: garment.measurementRows,
+    referenceDesign: garment.referenceDesign,
+    referenceImageProvider: referenceProvider,
+    shapes: shapeRenders,
+    styleName: garment.styleName,
+    styleSummary: garment.styleSummary,
+    fabricLines: garment.fabricLines,
+    catalogLines: garment.catalogLines,
+    notes: garment.notes,
+  );
+}
+
 void _logInvoiceBuildMetrics({
   required String orderIdLabel,
   required String? customerIdLabel,
@@ -278,153 +316,18 @@ void _logInvoiceBuildMetrics({
 
   var measurementCount = 0;
   var shapeCount = 0;
-  var designImageCount = 0;
+  var referenceCount = 0;
   for (final block in garmentBlocks) {
     measurementCount += block.measurementRows.length;
-    shapeCount += block.shapeCards.length;
-    if (block.designImages.catalogProvider != null) designImageCount++;
-    designImageCount += block.designImages.referenceProviders.length;
+    shapeCount += block.shapes.length;
+    if (block.referenceDesign.hasImage) referenceCount++;
   }
 
   debugPrint(
     'Invoice PDF build: orderId=$orderIdLabel customerId=${customerIdLabel ?? '—'} '
     'garments=${garmentBlocks.length} measurements=$measurementCount '
-    'shapes=$shapeCount designImages=$designImageCount payments=$paymentCount',
+    'shapes=$shapeCount referenceDesigns=$referenceCount payments=$paymentCount',
   );
-}
-
-Future<List<InvoicePdfGarmentInput>> _resolveGarmentInputs({
-  required OrderSummary order,
-  required List<InvoicePdfGarmentInput> garmentInputs,
-  OrderMeasurementSnapshotView? measurementSnap,
-  OrderStyleSnapshotView? styleSnap,
-  List<StyleFigureSummary> catalogFigures = const [],
-  required AppLocalizations l10n,
-}) async {
-  if (garmentInputs.isNotEmpty) return garmentInputs;
-
-  final legacy = order.legacyPerahanTunbanItemView();
-  if (legacy != null) {
-    return [
-      InvoicePdfGarmentInput(
-        garmentLabel: composerGarmentLabel(l10n, GarmentType.perahanTunban),
-        item: legacy,
-        measurementSnap: measurementSnap,
-        styleSnap: styleSnap,
-        catalogFigures: catalogFigures,
-      ),
-    ];
-  }
-
-  if (order.items.length == 1) {
-    final item = order.sortedItems.first;
-    return [
-      InvoicePdfGarmentInput(
-        garmentLabel: composerGarmentLabel(l10n, item.garmentType),
-        item: item,
-        measurementSnap: measurementSnap,
-        styleSnap: styleSnap,
-        catalogFigures: catalogFigures,
-      ),
-    ];
-  }
-
-  return garmentInputs;
-}
-
-Future<InvoiceGarmentBlockData> _buildGarmentBlock({
-  required InvoicePdfGarmentInput input,
-  required AppLocalizations l10n,
-}) async {
-  final item = input.item;
-  final measurementRows = invoiceMeasurementRowsForItem(
-    l10n: l10n,
-    item: item,
-    measurementSnap: input.measurementSnap,
-  );
-
-  var shapeCards = List<InvoiceShapeCardData>.from(
-    await invoiceShapeCardsFromSnapshot(
-      snapshot: input.styleSnap,
-      l10n: l10n,
-      loadImage: loadInvoiceShapeImageProvider,
-    ),
-  );
-
-  if (shapeCards.isEmpty) {
-    final display = formatOrderShapeSelectionDisplay(
-      snapshot: input.styleSnap,
-      styleName: item.styleName,
-      styleSelectionJson: item.styleSelectionJson,
-      styleSummary: item.styleSummary,
-      catalogFigures: input.catalogFigures,
-    );
-    final imageById = <String, pw.ImageProvider?>{};
-    for (final figure in display.figures) {
-      if (figure.imageRef.trim().isEmpty) continue;
-      imageById[figure.shapeId] =
-          await loadInvoiceShapeImageProvider(figure.imageRef);
-    }
-    shapeCards.addAll(
-      invoiceShapeCardsFromDisplay(
-        display: display,
-        l10n: l10n,
-        imageByShapeId: imageById,
-      ),
-    );
-  }
-
-  final designImages = await loadGarmentDesignImages(
-    item: item,
-    styleSnap: input.styleSnap,
-    catalogFigures: input.catalogFigures,
-  );
-
-  return InvoiceGarmentBlockData(
-    title: input.garmentLabel,
-    priceLabel: reportFormatMoney(l10n, item.priceAmountMinor),
-    measurementRows: measurementRows,
-    designImages: designImages,
-    shapeCards: shapeCards,
-    styleName: pdfSanitizeLabel(item.styleName.trim()),
-    styleSummary: pdfSanitizeLabel(item.styleSummary.trim()),
-    fabricLines: _fabricLines(l10n, item),
-    catalogLines: _catalogLines(l10n, item),
-    notes: '',
-  );
-}
-
-List<String> _fabricLines(AppLocalizations l10n, OrderItemSummary item) {
-  final lines = <String>[];
-  if (item.fabricNameSnapshot.trim().isNotEmpty) {
-    lines.add(
-      '${l10n.receiptFabricNameLabel}: ${pdfSanitizeLabel(item.fabricNameSnapshot.trim())}',
-    );
-  }
-  if (item.fabricColorSnapshot.trim().isNotEmpty) {
-    lines.add(
-      '${l10n.receiptFabricColorLabel}: ${pdfSanitizeLabel(item.fabricColorSnapshot.trim())}',
-    );
-  }
-  if (item.fabricIdSnapshot.trim().isNotEmpty) {
-    lines.add(
-      '${l10n.receiptFabricIdLabel}: ${pdfSanitizeLabel(item.fabricIdSnapshot.trim())}',
-    );
-  }
-  return lines;
-}
-
-List<String> _catalogLines(AppLocalizations l10n, OrderItemSummary item) {
-  final lines = <String>[];
-  if (item.catalogDesignNameSnapshot.trim().isNotEmpty) {
-    lines.add(pdfSanitizeLabel(item.catalogDesignNameSnapshot.trim()));
-  }
-  if (item.catalogDesignerShopNameSnapshot.trim().isNotEmpty) {
-    lines.add(
-      '${l10n.invoiceCatalogDesignerLabel}: ${pdfSanitizeLabel(item.catalogDesignerShopNameSnapshot.trim())}',
-    );
-  }
-  return lines;
 }
 
 pw.Widget _continuationHeader({
@@ -465,16 +368,9 @@ pw.Widget _continuationHeader({
             font: fonts.regular,
             fontSize: InvoicePdfLayout.smallFontSize,
           ),
-          documentDirection: pw.TextDirection.ltr,
+          documentDirection: textDirection,
         ),
       ],
     ),
   );
-}
-
-String _fallbackDateText(DateTime dt) {
-  final y = dt.year.toString().padLeft(4, '0');
-  final m = dt.month.toString().padLeft(2, '0');
-  final d = dt.day.toString().padLeft(2, '0');
-  return '$y-$m-$d';
 }

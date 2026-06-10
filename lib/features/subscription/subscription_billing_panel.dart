@@ -217,6 +217,14 @@ class _SubscriptionBillingPanelState
           if (imageBytes != null) ...[
             BillingSettingsImageView(imageBytes: imageBytes),
             const SizedBox(height: 24),
+          ] else if (!_loadingBilling) ...[
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Text(
+                l10n.subscriptionBillingNoImagePoster,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ),
           ],
           _sectionTitle(context, l10n.subscriptionPaymentClaimTitle),
           if (!auth.isShopOwner)

@@ -1,3 +1,6 @@
+NOTE: Trilingual short + full descriptions (English, Dari, Pashto) are in:
+  PLAY_STORE_LISTINGS_EN_FA_PS.md
+
 Your application already sounds well-prepared for publishing. The structure, features, offline/online support, PDF invoices, thermal printer support, finance section, and tailor-focused workflow are all strong points for the Play Store listing.
 
 Your app name is:

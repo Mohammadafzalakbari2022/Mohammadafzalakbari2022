@@ -5,18 +5,29 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pride_v3/core/defaults/effective_shop_profile.dart';
 
-/// Shop logo from upload or bundled app icon, shown in a square frame.
+/// How the logo is framed in the UI.
+enum ShopLogoPresentation {
+  /// Settings and standalone rows — bordered square frame.
+  standalone,
+
+  /// On banner gradient or uploaded image — no visible background.
+  onBanner,
+}
+
+/// Shop logo from upload or bundled app icon.
 class ShopLogoImage extends StatelessWidget {
   const ShopLogoImage({
     super.key,
     this.logoRelativePath,
     this.size = 48,
     this.borderRadius = 8,
+    this.presentation = ShopLogoPresentation.standalone,
   });
 
   final String? logoRelativePath;
   final double size;
   final double borderRadius;
+  final ShopLogoPresentation presentation;
 
   @override
   Widget build(BuildContext context) {
@@ -58,8 +69,19 @@ class ShopLogoImage extends StatelessWidget {
   }
 
   Widget _framed(BuildContext context, Widget child) {
+    if (presentation == ShopLogoPresentation.onBanner) {
+      return SizedBox(
+        width: size,
+        height: size,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(borderRadius),
+          child: child,
+        ),
+      );
+    }
+
     final scheme = Theme.of(context).colorScheme;
-    final inset = (size * 0.1).clamp(3.0, 8.0);
+    final inset = (size * 0.08).clamp(2.0, 6.0);
     return Container(
       width: size,
       height: size,

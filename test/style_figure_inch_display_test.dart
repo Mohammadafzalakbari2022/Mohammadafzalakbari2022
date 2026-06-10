@@ -8,54 +8,51 @@ import 'package:pride_v3/data/local/style_figure_config_summary.dart';
 import 'package:pride_v3/data/local/style_figure_summary.dart';
 
 void main() {
-  group('formatInchValueLabel', () {
-    test('formats whole numbers without decimal', () {
-      expect(formatInchValueLabel(5), '5 inch');
-      expect(formatInchValueLabel(9), '9 inch');
-    });
-
-    test('formats decimal values', () {
-      expect(formatInchValueLabel(5.5), '5.5 inch');
-      expect(formatInchValueLabel(6.25), '6.25 inch');
-    });
-
-    test('returns empty for non-positive values', () {
-      expect(formatInchValueLabel(0), '');
-      expect(formatInchValueLabel(-1), '');
-    });
-  });
-
   group('parseInchMeasurementForStorage', () {
-    test('stores tailor text in label with zero valueInches', () {
+    test('preserves tailor text exactly', () {
       const input = '5 1/2 x 7 1/2 inch';
       final stored = parseInchMeasurementForStorage(input);
       expect(stored.label, input);
       expect(stored.valueInches, 0);
     });
 
-    test('stores unicode fraction measurements', () {
+    test('preserves unicode fraction measurements', () {
       const input = '5½ x 7½ inch';
       final stored = parseInchMeasurementForStorage(input);
       expect(stored.label, input);
       expect(stored.valueInches, 0);
     });
 
-    test('stores decimal dimension measurements', () {
+    test('preserves decimal dimension measurements without reformatting', () {
       const input = '5.5 x 7.5 inch';
       final stored = parseInchMeasurementForStorage(input);
       expect(stored.label, input);
       expect(stored.valueInches, 0);
     });
 
-    test('keeps pure numeric values for sync compatibility', () {
+    test('preserves pure numeric text without appending inch', () {
       final stored = parseInchMeasurementForStorage('5.5');
-      expect(stored.label, '5.5 inch');
+      expect(stored.label, '5.5');
       expect(stored.valueInches, 5.5);
+    });
+
+    test('preserves any unicode text', () {
+      const input = 'ABC اردو پښتو ½ @ #';
+      final stored = parseInchMeasurementForStorage(input);
+      expect(stored.label, input);
+      expect(stored.valueInches, 0);
+    });
+
+    test('preserves letters-only text', () {
+      const input = 'Large collar';
+      final stored = parseInchMeasurementForStorage(input);
+      expect(stored.label, input);
+      expect(stored.valueInches, 0);
     });
   });
 
   group('displayInchOptionLabel', () {
-    test('shows saved label text', () {
+    test('shows saved label text exactly', () {
       expect(
         displayInchOptionLabel(
           valueInches: 0,
@@ -65,18 +62,25 @@ void main() {
       );
     });
 
-    test('shows label for legacy numeric rows', () {
+    test('shows stored label without modification', () {
       expect(
         displayInchOptionLabel(valueInches: 5.5, label: '5.5 inch'),
         '5.5 inch',
       );
     });
 
-    test('falls back to valueInches when label is missing', () {
+    test('legacy numeric fallback without inch suffix', () {
       expect(
         displayInchOptionLabel(valueInches: 5.5, label: ''),
-        '5.5 inch',
+        '5.5',
       );
+      expect(
+        displayInchOptionLabel(valueInches: 5, label: ''),
+        '5',
+      );
+    });
+
+    test('prefers label over valueInches', () {
       expect(
         displayInchOptionLabel(valueInches: 0, label: 'Legacy size'),
         'Legacy size',
@@ -85,7 +89,7 @@ void main() {
   });
 
   group('MemoryStyleCatalogRepository inch option create', () {
-    test('auto-assigns sortOrder and generated label', () async {
+    test('auto-assigns sortOrder and preserves label', () async {
       final repo = MemoryStyleCatalogRepository();
       const shopId = 'shop-1';
       const figureId = 'figure-1';
@@ -93,13 +97,13 @@ void main() {
       final firstId = await repo.createStyleFigureSizeOption(
         shopId: shopId,
         styleFigureInternalId: figureId,
-        label: '5 inch',
+        label: '5',
         valueInches: 5,
       );
       final secondId = await repo.createStyleFigureSizeOption(
         shopId: shopId,
         styleFigureInternalId: figureId,
-        label: '5.5 inch',
+        label: '5.5',
         valueInches: 5.5,
       );
 
@@ -114,7 +118,7 @@ void main() {
       expect(displayInchOptionLabel(
         valueInches: second.valueInches,
         label: second.label,
-      ), '5.5 inch');
+      ), '5.5');
     });
 
     test('persists tailor measurement label', () async {
@@ -179,7 +183,7 @@ void main() {
         drafts: {
           figureId: ShapeConfigDraft(
             shapeId: figureId,
-            selectedSizeOptionId: sizeId,
+            selectedSizeOptionIds: {sizeId},
           ),
         },
         allFigures: [figure],

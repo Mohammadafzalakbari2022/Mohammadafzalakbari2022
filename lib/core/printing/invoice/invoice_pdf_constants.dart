@@ -8,9 +8,11 @@ abstract final class InvoicePdfLayout {
   static const pageMarginR = 18.0;
   static const pageMarginB = 16.0;
 
-  static const sectionGap = 10.0;
+  static const sectionGap = 6.0;
   static const cardRadius = 6.0;
   static const cardBorderWidth = 0.6;
+  static const cardBodyPadding = 6.0;
+  static const subsectionGap = 3.0;
 
   /// Banner height — primary header area (shop + order meta).
   static const bannerHeightPt = 96.0;
@@ -18,14 +20,23 @@ abstract final class InvoicePdfLayout {
   static const logoBoxPt = 52.0;
   static const headerLogoMaxPx = 200;
 
-  /// ~35% larger than legacy 185pt catalog display.
-  static const catalogDisplayHeightPt = 250.0;
+  /// Large catalog reference design — full content width.
+  static const catalogDisplayHeightPt = 320.0;
 
-  /// ~35% larger than legacy 72pt shape thumbnails.
+  /// Legacy row-card shape size (grid uses [shapeGridImagePt]).
   static const shapeImagePt = 98.0;
 
+  /// Shape grid layout.
+  static const shapeGridColumns = 3;
+  static const shapeGridImagePt = 64.0;
+  static const shapeGridCellGap = 4.0;
+  static const twoColumnGap = 8.0;
+
   /// Measurement table rows per chunk (MultiPage can span chunks across pages).
-  static const measurementRowsPerChunk = 10;
+  static const measurementRowsPerChunk = 16;
+
+  static const measurementCellPadding = 3.0;
+  static const paymentTableCellPadding = 3.0;
 
   static const shapeImageLoadPx = 196;
 

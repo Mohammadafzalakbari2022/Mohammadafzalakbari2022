@@ -278,6 +278,73 @@ Future<({bool ok, List<Map<String, dynamic>> rows, String? error})>
   }
 }
 
+/// `POST /admin/shops/:shopId/users/:userId/set-password` — direct support reset.
+Future<
+    ({
+      bool ok,
+      String? shopId,
+      String? userId,
+      String? username,
+      String? error,
+    })> postPrideApiAdminSetShopUserPassword({
+  required String accessToken,
+  required String shopId,
+  required String userId,
+  required String newPassword,
+  Duration timeout = const Duration(seconds: 20),
+}) async {
+  final base = PrideApiConfig.normalizedBase;
+  if (base == null) {
+    return (
+      ok: false,
+      shopId: null,
+      userId: null,
+      username: null,
+      error: 'API_BASE_URL not set',
+    );
+  }
+  try {
+    final response = await http
+        .post(
+          Uri.parse('$base/admin/shops/$shopId/users/$userId/set-password'),
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+          body: jsonEncode({'new_password': newPassword}),
+        )
+        .timeout(timeout);
+    if (response.statusCode == 200) {
+      final decoded = jsonDecode(response.body);
+      if (decoded is Map<String, dynamic>) {
+        return (
+          ok: true,
+          shopId: decoded['shop_id'] as String?,
+          userId: decoded['user_id'] as String?,
+          username: decoded['username'] as String?,
+          error: null,
+        );
+      }
+    }
+    return (
+      ok: false,
+      shopId: null,
+      userId: null,
+      username: null,
+      error: _extractErr(response.body) ?? 'HTTP ${response.statusCode}',
+    );
+  } on Exception catch (e) {
+    return (
+      ok: false,
+      shopId: null,
+      userId: null,
+      username: null,
+      error: e.toString(),
+    );
+  }
+}
+
 Future<({bool ok, String? error})> postPrideApiAdminResolvePasswordReset({
   required String accessToken,
   required String requestId,

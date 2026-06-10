@@ -61,12 +61,58 @@
     }
   },
   "devPortalResetsEmpty": "درخواست بازنشانی رمز در انتظار نیست.",
+  "devPortalResetsEmptyHint": "وقتی کاربر از صفحه ورود «فراموشی رمز» (یا تنظیمات → حساب) درخواست دهد، اینجا نمایش داده می‌شود. همچنین از تب فروشگاه‌ها می‌توانید مستقیم رمز تنظیم کنید.",
+  "devPortalResetsRequestedAt": "درخواست: {date}",
+  "@devPortalResetsRequestedAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "devPortalResetsSetPasswordTitle": "تنظیم رمز جدید",
   "devPortalResetsSetPasswordHint": "حداقل ۶ نویسه.",
   "devPortalResetsResolveCta": "اعمال رمز",
   "devPortalResetsResolved": "رمز به‌روز شد.",
   "devPortalResetsResolveFailed": "به‌روزرسانی ناموفق: {error}",
   "@devPortalResetsResolveFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "devPortalPasswordShareTitle": "اشتراک‌گذاری رمز جدید",
+  "devPortalPasswordShareUserLabel": "{shop} · {username}",
+  "@devPortalPasswordShareUserLabel": {
+    "placeholders": {
+      "shop": {
+        "type": "String"
+      },
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "devPortalPasswordShareMessage": "رمز ورود خیاط شما بازنشانی شد.\n\nفروشگاه: {shop}\nنام کاربری: {username}\nرمز جدید: {password}\n\nبا این اطلاعات وارد شوید. بعداً می‌توانید در تنظیمات رمز را عوض کنید.",
+  "@devPortalPasswordShareMessage": {
+    "placeholders": {
+      "shop": {
+        "type": "String"
+      },
+      "username": {
+        "type": "String"
+      },
+      "password": {
+        "type": "String"
+      }
+    }
+  },
+  "devPortalPasswordShareSubject": "رمز ورود خیاط",
+  "devPortalPasswordCopied": "رمز کپی شد.",
+  "devPortalShopSetPasswordCta": "تنظیم رمز",
+  "devPortalShopSetPasswordFailed": "تنظیم رمز ناموفق: {error}",
+  "@devPortalShopSetPasswordFailed": {
     "placeholders": {
       "error": {
         "type": "String"
@@ -106,7 +152,7 @@
   "devPortalShopUsersHeader": "حساب‌ها",
   "devPortalShopUserOwnerBadge": "مالک",
   "devPortalShopUserDeletedBadge": "حذف‌شده",
-  "devPortalShopUserPasswordNote": "رمز عبور به‌صورت هش روی سرور ذخیره شده است. برای تنظیم رمز جدید از برگه «بازیابی رمز» استفاده کنید.",
+  "devPortalShopUserPasswordNote": "برای تنظیم رمز جدید و اشتراک با کاربر، «تنظیم رمز» را بزنید.",
   "devPortalShopDisabledLabel": "غیرفعال",
   "devPortalShopActionsTooltip": "اقدامات فروشگاه",
   "devPortalShopDisableCta": "غیرفعال‌سازی فروشگاه",
@@ -1108,6 +1154,7 @@
   "settingsStyleFigureSizeOptionDeleteBody": "از فهرست حذف می‌شود. سفارش‌های قبلی تغییر نمی‌کنند.",
   "settingsStyleFigureLabelRequired": "نام جزئیات الزامی است.",
   "settingsStyleFigureValuePositiveRequired": "اندازه معتبر وارد کنید، مثلاً 5 1/2 x 7 1/2 inch.",
+  "settingsStyleFigureValueRequired": "مقدار گزینه اینچ را وارد کنید.",
   "settingsStyleActiveLabel": "فعال",
   "settingsStyleInactiveLabel": "غیرفعال",
   "saveCta": "ذخیره",
@@ -1280,6 +1327,7 @@
   "subscriptionBillingCopied": "کاپی شد",
   "subscriptionBillingOfflineCache": "اطلاعات ذخیره‌شده از {when}. برای تازه‌سازی آنلاین شوید.",
   "subscriptionBillingNotPublished": "دستورالعمل پرداخت هنوز منتشر نشده. از توزیع‌کننده بخواهید در پورتال توسعه‌دهنده → صورتحساب منتشر کند، یا کد فعال‌سازی را پایین وارد کنید.",
+  "subscriptionBillingNoImagePoster": "تصویر دستورالعمل پرداخت هنوز موجود نیست. می‌توانید ادعای پرداخت را پایین ارسال کنید یا با پشتیبانی تماس بگیرید.",
   "subscriptionBillingLoadError": "بارگذاری اطلاعات پرداخت ناموفق: {error}",
   "subscriptionPaymentClaimTitle": "پرداخت کردم (حساب پی)",
   "subscriptionPaymentClaimOwnerOnly": "فقط مالک دکان می‌تواند درخواست پرداخت بفرستد.",
@@ -1311,6 +1359,14 @@
   "devPortalBillingSettingsImageReplace": "جایگزینی تصویر",
   "devPortalBillingSettingsImageRemove": "حذف تصویر",
   "devPortalBillingSettingsImageTooLarge": "تصویر باید حداکثر ۱ مگابایت باشد. فایل کوچک‌تری انتخاب کنید.",
+  "devPortalBillingClaimsLoadError": "بارگذاری ادعاهای پرداخت ناموفق: {error}",
+  "@devPortalBillingClaimsLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "devPortalBillingLoadError": "بارگذاری مشخصات صورتحساب ناموفق: {error}",
   "devPortalBillingProfileTitle": "مشخصات حساب پی",
   "devPortalBillingPublished": "منتشر شده (برای دکان‌ها)",
@@ -1777,6 +1833,7 @@
   "invoiceContinuedLabel": "ادامه",
   "invoiceTakenDateLabel": "ثبت",
   "invoicePaymentDateLabel": "تاریخ",
+  "invoicePaymentMethodLabel": "روش",
   "invoiceMeasurementProfileLabel": "پروفایل اندازه",
   "invoiceStyleNameLabel": "استایل",
   "receiptStyleLabel": "یادداشت استایل",
@@ -1814,6 +1871,10 @@
   "defaultShopPhone": "0701234567",
   "orderShareInvoiceTooltip": "اشتراک فاکتور",
   "orderShareInvoicePdfCta": "اشتراک فاکتور PDF",
+  "orderViewInvoicePdfCta": "مشاهده PDF",
+  "orderViewInvoicePdfTooltip": "پیش‌نمایش فاکتور در برنامه",
+  "orderViewInvoicePdfTitle": "فاکتور · {orderNo}",
+  "orderViewInvoicePdfFail": "باز کردن فاکتور ممکن نشد: {detail}",
   "orderShareInvoicePdfGenerateFail": "تولید فاکتور ممکن نشد. لطفاً با مدیر تماس بگیرید.",
   "orderShareContactPermissionDenied": "اجازه مخاطبین خاموش است — فاکتور اشتراک شد، اما مشتری در تلفن ذخیره نشد.",
   "orderShareInvoiceSharedSheet": "واتساپ یا برنامه دیگر را برای ارسال فاکتور PDF انتخاب کنید.",

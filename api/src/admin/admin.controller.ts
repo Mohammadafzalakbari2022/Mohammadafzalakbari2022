@@ -209,6 +209,31 @@ export class AdminController {
     return { ok: true };
   }
 
+  /**
+   * `POST /admin/shops/:shopId/users/:userId/set-password` — direct support reset
+   * without a pending forgot-password request.
+   */
+  @Post('shops/:shopId/users/:userId/set-password')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  async setShopUserPassword(
+    @Req() req: Request & { user: PrideAccessPayload },
+    @Param('shopId') shopId: string,
+    @Param('userId') userId: string,
+    @Body() body: { new_password?: string },
+  ) {
+    if (!this.admin.isDeveloper(req.user)) {
+      throw new ForbiddenException();
+    }
+    const result = await this.admin.setShopUserPassword(
+      req.user.sub,
+      shopId,
+      userId,
+      body?.new_password ?? '',
+    );
+    return { ok: true, ...result };
+  }
+
   /** `POST /admin/shops/:shopId/disable` — block logins and sync (`plan-05`). */
   @Post('shops/:shopId/disable')
   @HttpCode(HttpStatus.OK)

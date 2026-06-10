@@ -1,10 +1,10 @@
-/// Formats a positive inch value for user-visible labels (e.g. 5.5 → "5.5 inch").
-String formatInchValueLabel(double valueInches) {
+/// Legacy numeric fallback for rows saved before label was authoritative.
+String _legacyNumericInchLabel(double valueInches) {
   if (valueInches <= 0) return '';
-  final text = valueInches == valueInches.roundToDouble()
-      ? '${valueInches.toInt()}'
-      : _trimTrailingZeros(valueInches);
-  return '$text inch';
+  if (valueInches == valueInches.roundToDouble()) {
+    return '${valueInches.toInt()}';
+  }
+  return _trimTrailingZeros(valueInches);
 }
 
 String _trimTrailingZeros(double value) {
@@ -25,26 +25,21 @@ class InchMeasurementStorage {
   final double valueInches;
 }
 
-/// Pure numeric input keeps [valueInches] for sync; tailor text stores [label] only.
+/// Stores [text] exactly in [label]; optional [valueInches] when purely numeric (sync only).
 InchMeasurementStorage parseInchMeasurementForStorage(String text) {
   final trimmed = text.trim();
   final numeric = double.tryParse(trimmed);
-  if (numeric != null && numeric > 0) {
-    return InchMeasurementStorage(
-      label: formatInchValueLabel(numeric),
-      valueInches: numeric,
-    );
-  }
-  return InchMeasurementStorage(label: trimmed, valueInches: 0);
+  final valueInches =
+      numeric != null && numeric > 0 ? numeric : 0.0;
+  return InchMeasurementStorage(label: trimmed, valueInches: valueInches);
 }
 
-/// Shows the saved measurement text; falls back to formatted [valueInches] for legacy rows.
+/// Shows the saved label text exactly; legacy rows without label use numeric string only.
 String displayInchOptionLabel({
   required double valueInches,
   required String label,
 }) {
   final trimmed = label.trim();
   if (trimmed.isNotEmpty) return trimmed;
-  if (valueInches > 0) return formatInchValueLabel(valueInches);
-  return '';
+  return _legacyNumericInchLabel(valueInches);
 }

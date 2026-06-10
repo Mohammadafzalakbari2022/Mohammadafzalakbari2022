@@ -44,6 +44,7 @@ export class PasswordResetService {
     Array<{
       id: string;
       shop_id: string;
+      shop_name: string;
       user_id: string;
       username: string;
       created_at: string;
@@ -53,9 +54,16 @@ export class PasswordResetService {
       where: { status: 'pending' },
       orderBy: { createdAt: 'asc' },
     });
+    const shopIds = [...new Set(rows.map((r) => r.shopId))];
+    const shops = await this.prisma.shop.findMany({
+      where: { id: { in: shopIds } },
+      select: { id: true, name: true },
+    });
+    const shopNames = new Map(shops.map((s) => [s.id, s.name]));
     return rows.map((r) => ({
       id: r.id,
       shop_id: r.shopId,
+      shop_name: shopNames.get(r.shopId) ?? r.shopId,
       user_id: r.userId,
       username: r.username,
       created_at: r.createdAt.toISOString(),

@@ -10,8 +10,10 @@ import 'package:pride_v3/l10n/app_localizations.dart';
 import '../../data/local/customer_summary.dart';
 import 'customer_search_filter.dart';
 import '../orders/order_composer_screen.dart';
+import '../../auth/auth_providers.dart';
 import '../../data/local/order_summary.dart';
 import '../../data/providers/local_data_providers.dart';
+import '../reports/report_calculations.dart';
 import 'customer_list_tile.dart';
 
 /// Searchable customer directory for the Customers tab (`/app/customers`).
@@ -44,12 +46,21 @@ class _CustomersListBodyState extends ConsumerState<CustomersListBody> {
   List<CustomerSummary> _filterCustomers(List<CustomerSummary> customers) =>
       filterCustomersBySearchQuery(customers, _query);
 
-  Map<String, _CustomerOrderStats> _statsForOrders(List<OrderSummary> orders) {
+  Map<String, _CustomerOrderStats> _statsForOrders(
+    List<OrderSummary> orders, {
+    Map<String, int> paidByOrderId = const {},
+    bool paymentsLedgerLoaded = false,
+  }) {
     final map = <String, _CustomerOrderStats>{};
     for (final o in orders) {
       final id = o.customerInternalId;
       final prev = map[id];
-      final unpaid = o.isUnpaid ? o.remainingAmountMinor : 0;
+      final remaining = ReportCalculations.effectiveRemainingMinor(
+        order: o,
+        paidByOrderId: paidByOrderId,
+        paymentsLedgerLoaded: paymentsLedgerLoaded,
+      );
+      final unpaid = remaining > 0 ? remaining : 0;
       map[id] = _CustomerOrderStats(
         orderCount: (prev?.orderCount ?? 0) + 1,
         unpaidMinor: (prev?.unpaidMinor ?? 0) + unpaid,
@@ -80,21 +91,32 @@ class _CustomersListBodyState extends ConsumerState<CustomersListBody> {
     final calendar = ref.watch(dateCalendarSystemProvider);
     final asyncCustomers = ref.watch(customersListStreamProvider);
     final asyncOrders = ref.watch(ordersListStreamProvider);
+    final shopId = ref.watch(effectiveShopIdProvider);
+    final asyncPayments = ref.watch(paymentsForShopProvider(shopId));
 
     return asyncCustomers.when(
       data: (customers) {
         return asyncOrders.when(
           data: (orders) {
-            final stats = _statsForOrders(orders);
-            final filtered = _filterCustomers(customers);
-            final selectedId = _selectedCustomerInternalId != null &&
-                    filtered.any(
-                      (c) => c.internalId == _selectedCustomerInternalId,
-                    )
-                ? _selectedCustomerInternalId
-                : null;
+            return asyncPayments.when(
+              data: (payments) {
+                final paidByOrderId =
+                    ReportCalculations.paidByOrderIdFromPayments(payments);
+                const ledgerLoaded = true;
+                final stats = _statsForOrders(
+                  orders,
+                  paidByOrderId: paidByOrderId,
+                  paymentsLedgerLoaded: ledgerLoaded,
+                );
+                final filtered = _filterCustomers(customers);
+                final selectedId = _selectedCustomerInternalId != null &&
+                        filtered.any(
+                          (c) => c.internalId == _selectedCustomerInternalId,
+                        )
+                    ? _selectedCustomerInternalId
+                    : null;
 
-            return Column(
+                return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (widget.showTopAddCustomerButton)
@@ -173,6 +195,10 @@ class _CustomersListBodyState extends ConsumerState<CustomersListBody> {
                         ),
                 ),
               ],
+            );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => Center(child: Text('$e')),
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),

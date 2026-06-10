@@ -4,23 +4,15 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../data/local/order_item_snapshot_key.dart';
-import '../../data/local/order_item_summary.dart';
 import '../../data/local/order_summary.dart';
 import '../../data/local/payment_summary.dart';
-import '../../data/local/style/order_shape_format_labels.dart';
-import '../../data/local/style/order_shape_selection_formatter.dart';
-import '../../data/providers/local_data_providers.dart';
-import '../../features/orders/order_composer_item_card.dart';
-import '../../features/reports/report_money_format.dart';
 import '../../features/settings/shop_profile_provider.dart';
 import '../../l10n/app_localizations.dart';
 import '../persistence/shared_preferences_provider.dart';
-import 'order_receipt_style_content.dart';
-import 'receipt_branding.dart';
+import 'invoice/invoice_document_thermal_renderer.dart';
+import 'invoice/order_invoice_loader.dart';
 import 'receipt_line_wrap.dart';
 import 'shop_logo_raster.dart';
-import 'order_receipt_customer_lookup.dart';
 import 'thermal_printer_prefs.dart';
 import 'thermal_printer_socket.dart';
 import 'thermal_receipt_escpos.dart';
@@ -55,25 +47,6 @@ Future<void> printThermalOrderReceipt({
   final paper = paperSizeFromMm(paperMm);
   final wrapChars = receiptWrapCharsForPaperMm(paperMm);
 
-  final shop = ref.read(shopProfileProvider).valueOrNull;
-  final branding = ReceiptBranding.fromShop(
-    shop: shop,
-    l10n: l10n,
-    wrapChars: wrapChars,
-  );
-
-  final total = reportFormatMoney(l10n, order.totalAmountMinor);
-  final paid = reportFormatMoney(l10n, order.paidAmountMinor);
-  final balance = reportFormatMoney(l10n, order.remainingAmountMinor);
-
-  final paymentRows = <String>[];
-  for (final p in payments) {
-    final amt = reportFormatMoney(l10n, p.amountMinor);
-    paymentRows.add('${p.method}  $amt');
-  }
-
-  final phone = order.customerPhone?.trim();
-
   if (!context.mounted) return;
   showDialog<void>(
     context: context,
@@ -85,154 +58,36 @@ Future<void> printThermalOrderReceipt({
   );
 
   try {
+    final shop = ref.read(shopProfileProvider).valueOrNull;
+    final request = await prepareOrderInvoicePdfRequest(
+      context: context,
+      ref: ref,
+      l10n: l10n,
+      order: order,
+      payments: payments,
+      deliveryDateText: deliveryDateText,
+      statusText: statusText,
+    );
+
+    final document = await loadInvoiceDocumentFromRef(
+      ref: ref,
+      request: request,
+      wrapChars: wrapChars,
+    );
+
     final headerLogo = await loadReceiptHeaderLogoRaster(
       userLogoRelativePath: shop?.logoRelativePath,
       maxWidthPx: paper.width,
     );
 
-    final formatLabels = orderShapeFormatLabels(l10n);
-    final figureThumbWidth =
-        (paper.width * 0.42).round().clamp(80, paper.width);
-
-    final multiGarment = order.items.length > 1;
-    final garmentSections = <ThermalGarmentSection>[];
-
-    String? measurementsLine;
-    String? styleLine;
-    String? catalogDesignLine;
-    String? fabricLine;
-    List<ReceiptStyleFigure> styleFigures = const [];
-
-    if (multiGarment) {
-      for (final item in order.sortedItems) {
-        final snapKey = OrderItemSnapshotKey(
-          orderInternalId: order.internalId,
-          orderItemInternalId: item.internalId,
-        );
-        final measurementSnap = ref
-            .read(orderItemMeasurementSnapshotProvider(snapKey))
-            .valueOrNull;
-        final styleSnap =
-            ref.read(orderItemStyleSnapshotProvider(snapKey)).valueOrNull;
-        final catalogFigures = ref
-                .read(styleFiguresForGarmentProvider(item.garmentType))
-                .valueOrNull ??
-            const [];
-
-        final styleDisplay = formatOrderShapeSelectionDisplay(
-          snapshot: styleSnap,
-          styleName: item.styleName,
-          styleSelectionJson: item.styleSelectionJson,
-          styleSummary: item.styleSummary,
-          catalogFigures: catalogFigures,
-          labels: formatLabels,
-        );
-        final styleContent = resolveOrderReceiptStyleContentForItem(
-          item: item,
-          styleSnap: styleSnap,
-          catalogFigures: catalogFigures,
-          styleLabel: l10n.receiptStyleLabel,
-          formatLabels: formatLabels,
-        );
-        final receiptFigures = await loadReceiptStyleFigureImages(
-          display: styleDisplay,
-          maxWidthPx: figureThumbWidth,
-        );
-
-        garmentSections.add(
-          ThermalGarmentSection(
-            garmentLabel: composerGarmentLabel(l10n, item.garmentType),
-            priceLine:
-                '${l10n.ordersComposerItemPriceLabel}: ${reportFormatMoney(l10n, item.priceAmountMinor)}',
-            measurementsLine: formatReceiptMeasurementsLineForItem(
-              item: item,
-              measurementSnap: measurementSnap,
-              label: l10n.receiptMeasurementsLabel,
-            ),
-            styleLine: styleContent.styleLine,
-            catalogDesignLine: item.catalogDesignNameSnapshot.trim().isEmpty
-                ? null
-                : '${l10n.receiptCatalogDesignLabel}: ${item.catalogDesignNameSnapshot.trim()}',
-            fabricLine: item.hasFabric
-                ? _thermalFabricLineForItem(l10n, item)
-                : null,
-            styleFigures: receiptFigures,
-          ),
-        );
-      }
-    } else {
-      final styleSnap =
-          ref.read(orderStyleSnapshotProvider(order.internalId)).valueOrNull;
-      final measurementSnap = ref
-          .read(orderMeasurementSnapshotProvider(order.internalId))
-          .valueOrNull;
-      final allFigures =
-          ref.read(styleAllFiguresStreamProvider).valueOrNull ?? const [];
-
-      final styleDisplay = formatOrderShapeSelectionDisplay(
-        snapshot: styleSnap,
-        styleName: order.styleName,
-        styleSelectionJson: order.styleSelectionJson,
-        styleSummary: order.styleSummary,
-        catalogFigures: allFigures,
-        labels: formatLabels,
-      );
-      final styleContent = resolveOrderReceiptStyleContent(
-        order: order,
-        styleSnap: styleSnap,
-        catalogFigures: allFigures,
-        styleLabel: l10n.receiptStyleLabel,
-        formatLabels: formatLabels,
-      );
-      styleFigures = await loadReceiptStyleFigureImages(
-        display: styleDisplay,
-        maxWidthPx: figureThumbWidth,
-      );
-      measurementsLine = formatReceiptMeasurementsLine(
-        order: order,
-        measurementSnap: measurementSnap,
-        label: l10n.receiptMeasurementsLabel,
-      );
-      styleLine = styleContent.styleLine;
-      catalogDesignLine = order.catalogDesignNameSnapshot.trim().isEmpty
-          ? null
-          : '${l10n.receiptCatalogDesignLabel}: ${order.catalogDesignNameSnapshot.trim()}';
-      fabricLine =
-          order.hasCustomerFabric ? _thermalFabricLine(l10n, order) : null;
-    }
-
-    final customerDisplayNo =
-        customerDisplayNoForOrder(ref, order.customerInternalId);
-
-    final content = OrderReceiptEscPosContent(
+    final content = await renderThermalReceiptContent(
+      l10n: l10n,
+      document: document,
+      deliveryDateText: deliveryDateText,
+      statusText: statusText,
+      paperWidthPx: paper.width,
       headerLogo: headerLogo,
-      shopLine: branding.shopDisplayName,
-      shopPhoneLine: branding.shopPhoneLine,
-      shopAddressLines: branding.addressLines,
-      customerIdLine: receiptCustomerIdLine(l10n, customerDisplayNo),
-      customerLine: '${l10n.receiptCustomerLabel}: ${order.customerName}',
-      orderLine: receiptOrderIdLine(l10n, order.displayOrderNo),
-      phoneLine: (phone != null && phone.isNotEmpty)
-          ? '${l10n.receiptPhoneLabel}: $phone'
-          : null,
-      deliveryLine: '${l10n.receiptDeliveryLabel}: $deliveryDateText',
-      statusLine: '${l10n.receiptStatusLabel}: $statusText',
-      measurementsLine: measurementsLine,
-      styleLine: styleLine,
-      catalogDesignLine: catalogDesignLine,
-      fabricLine: fabricLine,
-      styleFigures: styleFigures,
-      garmentSections: garmentSections,
-      internalNotesLine: order.internalNotes.trim().isEmpty
-          ? null
-          : '${l10n.receiptInternalNotesHeader}:\n${order.internalNotes.trim()}',
-      totalLine: '${l10n.receiptTotalLabel}: $total',
-      paidLine: '${l10n.receiptPaidLabel}: $paid',
-      balanceLine: '${l10n.receiptBalanceLabel}: $balance',
-      paymentHeader: l10n.receiptPaymentsHeader,
-      paymentRows: paymentRows,
-      footerAddressLines: branding.addressLines,
-      footerThankYouLines: branding.thankYouLines,
+      formatPaymentDate: request.formatPaymentDate,
     );
 
     final bytes = await buildThermalOrderReceipt(paper: paper, c: content);
@@ -255,41 +110,4 @@ Future<void> printThermalOrderReceipt({
       );
     }
   }
-}
-
-String _thermalFabricLine(AppLocalizations l10n, OrderSummary order) {
-  final parts = <String>[];
-  final name = order.fabricNameSnapshot.trim();
-  final color = order.fabricColorSnapshot.trim();
-  final id = order.fabricIdSnapshot.trim();
-  if (name.isNotEmpty) {
-    parts.add('${l10n.receiptFabricNameLabel}: $name');
-  }
-  if (color.isNotEmpty) {
-    parts.add('${l10n.receiptFabricColorLabel}: $color');
-  }
-  if (id.isNotEmpty) {
-    parts.add('${l10n.receiptFabricIdLabel}: $id');
-  }
-  return '${l10n.receiptFabricLabel}:\n${parts.join('\n')}';
-}
-
-String _thermalFabricLineForItem(
-  AppLocalizations l10n,
-  OrderItemSummary item,
-) {
-  final parts = <String>[];
-  final name = item.fabricNameSnapshot.trim();
-  final color = item.fabricColorSnapshot.trim();
-  final id = item.fabricIdSnapshot.trim();
-  if (name.isNotEmpty) {
-    parts.add('${l10n.receiptFabricNameLabel}: $name');
-  }
-  if (color.isNotEmpty) {
-    parts.add('${l10n.receiptFabricColorLabel}: $color');
-  }
-  if (id.isNotEmpty) {
-    parts.add('${l10n.receiptFabricIdLabel}: $id');
-  }
-  return '${l10n.receiptFabricLabel}:\n${parts.join('\n')}';
 }

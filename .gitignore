@@ -35,6 +35,15 @@ migrate_working_dir/
 /Khayat-android.apk
 /Khayat-release.aab
 /Khayat-windows-x64.zip
+/Khayat-windows.msix
+*.msix
+
+# Store-folder release binaries (markdown/listings in those folders stay tracked)
+play store ready files/*.apk
+play store ready files/*.aab
+microsoft store ready files/*.zip
+microsoft store ready files/*.cer
+/config/msix_publisher.txt
 /coverage/
 
 # Symbolication related

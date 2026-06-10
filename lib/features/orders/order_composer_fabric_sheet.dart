@@ -5,7 +5,10 @@ import 'package:pride_v3/core/widgets/pride_modal_bottom_sheet.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../data/local/fabric_preset_summary.dart';
+import '../../data/local/order_item_summary.dart';
+import '../../data/local/order_summary.dart';
 import '../../data/providers/local_data_providers.dart';
+import 'order_composer_reference.dart';
 
 class OrderComposerFabricResult {
   const OrderComposerFabricResult({
@@ -35,6 +38,11 @@ Future<OrderComposerFabricResult?> showOrderComposerFabricSheet({
   String initialFabricId = '',
   String? initialNamePresetId,
   String? initialColorPresetId,
+  OrderSummary? referenceOrder,
+  OrderItemSummary? referenceItem,
+  VoidCallback? onUsePreviousFabric,
+  String Function(AppLocalizations l10n, int minor)? moneyFormatter,
+  String initialFabricSummary = '',
 }) {
   return showPrideModalBottomSheet<OrderComposerFabricResult?>(
     context: context,
@@ -44,6 +52,11 @@ Future<OrderComposerFabricResult?> showOrderComposerFabricSheet({
       initialFabricId: initialFabricId,
       initialNamePresetId: initialNamePresetId,
       initialColorPresetId: initialColorPresetId,
+      referenceOrder: referenceOrder,
+      referenceItem: referenceItem,
+      onUsePreviousFabric: onUsePreviousFabric,
+      moneyFormatter: moneyFormatter,
+      initialFabricSummary: initialFabricSummary,
     ),
   );
 }
@@ -55,6 +68,11 @@ class _OrderComposerFabricSheet extends ConsumerStatefulWidget {
     required this.initialFabricId,
     this.initialNamePresetId,
     this.initialColorPresetId,
+    this.referenceOrder,
+    this.referenceItem,
+    this.onUsePreviousFabric,
+    this.moneyFormatter,
+    this.initialFabricSummary = '',
   });
 
   final String initialName;
@@ -62,6 +80,11 @@ class _OrderComposerFabricSheet extends ConsumerStatefulWidget {
   final String initialFabricId;
   final String? initialNamePresetId;
   final String? initialColorPresetId;
+  final OrderSummary? referenceOrder;
+  final OrderItemSummary? referenceItem;
+  final VoidCallback? onUsePreviousFabric;
+  final String Function(AppLocalizations l10n, int minor)? moneyFormatter;
+  final String initialFabricSummary;
 
   @override
   ConsumerState<_OrderComposerFabricSheet> createState() =>
@@ -230,6 +253,21 @@ class _OrderComposerFabricSheetState
                         ScrollViewKeyboardDismissBehavior.onDrag,
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                     children: [
+                      if (widget.referenceOrder != null &&
+                          widget.moneyFormatter != null)
+                        ComposerSheetPreviousHeader(
+                          title: l10n.ordersComposerFabricSheetTitle,
+                          previousSection: ComposerSheetPreviousSection(
+                            referenceOrder: widget.referenceOrder!,
+                            referenceItem: widget.referenceItem,
+                            kind: ComposerSheetPreviousKind.fabric,
+                            currentTextForDiff: widget.initialFabricSummary,
+                            currentIsMeaningfulForDiff:
+                                widget.initialFabricSummary.trim().isNotEmpty,
+                            onUsePrevious: widget.onUsePreviousFabric,
+                            money: widget.moneyFormatter!,
+                          ),
+                        ),
                       Text(
                         l10n.ordersComposerFabricNameLabel,
                         style: Theme.of(context).textTheme.titleSmall,

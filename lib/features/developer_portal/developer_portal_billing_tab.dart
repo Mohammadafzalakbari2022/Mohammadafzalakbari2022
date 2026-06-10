@@ -43,6 +43,7 @@ class _DeveloperPortalBillingTabState
   String _claimFilter = 'pending';
   List<Map<String, dynamic>> _claims = const [];
   bool _loadingClaims = false;
+  String? _claimsError;
 
   @override
   void initState() {
@@ -150,13 +151,26 @@ class _DeveloperPortalBillingTabState
     if (!mounted) return;
     setState(() {
       _loadingClaims = false;
-      if (r.ok) _claims = r.rows;
+      if (r.ok) {
+        _claims = r.rows;
+        _claimsError = null;
+      } else {
+        _claimsError = r.error ?? 'HTTP';
+      }
     });
   }
 
   Future<void> _pickImage() async {
     final picked = await pickBillingSettingsImage();
-    if (!mounted || picked == null) return;
+    if (!mounted) return;
+    if (picked == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(widget.l10n.devPortalBillingSettingsImageTooLarge),
+        ),
+      );
+      return;
+    }
     if (picked.bytes.length > billingSettingsImageMaxBytes) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(widget.l10n.devPortalBillingSettingsImageTooLarge)),
@@ -394,7 +408,7 @@ class _DeveloperPortalBillingTabState
           ),
           const SizedBox(height: 12),
           FilledButton.icon(
-            onPressed: _saving || _error != null ? null : _save,
+            onPressed: _saving ? null : _save,
             icon: _saving
                 ? const SizedBox(
                     width: 18,
@@ -427,6 +441,16 @@ class _DeveloperPortalBillingTabState
             },
           ),
           const SizedBox(height: 12),
+          if (_claimsError != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Text(
+                widget.l10n.devPortalBillingClaimsLoadError(_claimsError!),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.error,
+                ),
+              ),
+            ),
           if (_loadingClaims)
             const Center(child: CircularProgressIndicator())
           else if (_claims.isEmpty)

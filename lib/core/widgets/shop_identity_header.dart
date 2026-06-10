@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:pride_v3/core/widgets/default_shop_banner.dart';
 import 'package:pride_v3/core/widgets/shop_banner_file.dart';
+import 'package:pride_v3/core/widgets/shop_logo_image.dart';
 
 /// Where [ShopIdentityHeader] is shown.
 enum ShopIdentityVariant {
@@ -62,7 +63,7 @@ class ShopIdentityHeader extends StatelessWidget {
   }
 }
 
-/// Uploaded or default banner strip (~3:1).
+/// Uploaded or default banner strip (~3:1) with logo + full shop name overlay.
 class ShopIdentityBannerStrip extends StatelessWidget {
   const ShopIdentityBannerStrip({
     super.key,
@@ -72,6 +73,7 @@ class ShopIdentityBannerStrip extends StatelessWidget {
     this.maxHeight = 120,
     this.horizontalPadding = 12,
     this.showShopNameText = true,
+    this.compact = false,
   });
 
   final String shopName;
@@ -80,6 +82,7 @@ class ShopIdentityBannerStrip extends StatelessWidget {
   final double maxHeight;
   final double horizontalPadding;
   final bool showShopNameText;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -100,6 +103,7 @@ class ShopIdentityBannerStrip extends StatelessWidget {
             logoRelativePath: logoRelativePath,
             maxHeight: maxHeight,
             showShopNameText: showShopNameText,
+            compact: compact,
           ),
         ),
       );
@@ -118,29 +122,20 @@ class ShopIdentityBannerStrip extends StatelessWidget {
                 logoRelativePath: logoRelativePath,
                 maxHeight: maxHeight,
                 showShopNameText: showShopNameText,
+                compact: compact,
               ),
             );
           }
 
           final file = snap.data;
           if (file != null) {
-            return SizedBox(
-              width: double.infinity,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.file(
-                  file,
-                  width: double.infinity,
-                  height: maxHeight,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => DefaultShopBanner(
-                    shopName: shopName,
-                    logoRelativePath: logoRelativePath,
-                    maxHeight: maxHeight,
-                    showShopNameText: showShopNameText,
-                  ),
-                ),
-              ),
+            return _UploadedBannerWithOverlay(
+              file: file,
+              shopName: shopName,
+              logoRelativePath: logoRelativePath,
+              maxHeight: maxHeight,
+              showShopNameText: showShopNameText,
+              compact: compact,
             );
           }
 
@@ -151,10 +146,128 @@ class ShopIdentityBannerStrip extends StatelessWidget {
               logoRelativePath: logoRelativePath,
               maxHeight: maxHeight,
               showShopNameText: showShopNameText,
+              compact: compact,
             ),
           );
         },
       ),
+    );
+  }
+}
+
+class _UploadedBannerWithOverlay extends StatelessWidget {
+  const _UploadedBannerWithOverlay({
+    required this.file,
+    required this.shopName,
+    this.logoRelativePath,
+    required this.maxHeight,
+    required this.showShopNameText,
+    required this.compact,
+  });
+
+  final File file;
+  final String shopName;
+  final String? logoRelativePath;
+  final double maxHeight;
+  final bool showShopNameText;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final name = shopName.trim().isEmpty ? ' ' : shopName.trim();
+    final logoSize = compact ? 48.0 : 72.0;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth.isFinite && constraints.maxWidth > 0
+            ? constraints.maxWidth
+            : MediaQuery.sizeOf(context).width;
+        final naturalHeight = width / DefaultShopBanner.kAspectRatio;
+        final minH = compact ? 48.0 : 72.0;
+        final height = naturalHeight.clamp(minH, maxHeight);
+
+        return SizedBox(
+          width: double.infinity,
+          height: height,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Image.file(
+                  file,
+                  width: double.infinity,
+                  height: height,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) =>
+                      DefaultShopBanner(
+                    shopName: shopName,
+                    logoRelativePath: logoRelativePath,
+                    maxHeight: maxHeight,
+                    showShopNameText: showShopNameText,
+                    compact: compact,
+                  ),
+                ),
+                if (showShopNameText)
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                        colors: [
+                          Colors.black.withValues(alpha: 0.55),
+                          Colors.black.withValues(alpha: 0.15),
+                          Colors.transparent,
+                        ],
+                      ),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsetsDirectional.fromSTEB(
+                        compact ? 10 : 14,
+                        compact ? 8 : 12,
+                        compact ? 10 : 14,
+                        compact ? 8 : 12,
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          ShopLogoImage(
+                            logoRelativePath: logoRelativePath,
+                            size: logoSize,
+                            borderRadius: compact ? 8 : 10,
+                            presentation: ShopLogoPresentation.onBanner,
+                          ),
+                          SizedBox(width: compact ? 10 : 14),
+                          Expanded(
+                            child: Text(
+                              name,
+                              softWrap: true,
+                              style: (compact
+                                      ? theme.textTheme.titleSmall
+                                      : theme.textTheme.titleMedium)
+                                  ?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w800,
+                                height: 1.2,
+                                shadows: const [
+                                  Shadow(
+                                    blurRadius: 4,
+                                    color: Colors.black54,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -174,16 +287,14 @@ class _CompactIdentity extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final content = ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 280, minWidth: 120),
-      child: ShopIdentityBannerStrip(
-        shopName: shopName,
-        logoRelativePath: logoRelativePath,
-        bannerRelativePath: bannerRelativePath,
-        maxHeight: 44,
-        horizontalPadding: 0,
-        showShopNameText: true,
-      ),
+    final content = ShopIdentityBannerStrip(
+      shopName: shopName,
+      logoRelativePath: logoRelativePath,
+      bannerRelativePath: bannerRelativePath,
+      maxHeight: 56,
+      horizontalPadding: 0,
+      showShopNameText: true,
+      compact: true,
     );
 
     if (onTap == null) return content;
@@ -243,8 +354,10 @@ class _DashboardIdentity extends StatelessWidget {
               shopName: shopName,
               logoRelativePath: logoRelativePath,
               bannerRelativePath: bannerRelativePath,
+              maxHeight: 140,
               horizontalPadding: 12,
-              showShopNameText: false,
+              showShopNameText: true,
+              compact: false,
             ),
           ],
         ),

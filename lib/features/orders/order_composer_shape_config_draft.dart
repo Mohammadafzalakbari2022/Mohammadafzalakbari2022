@@ -7,21 +7,22 @@ import '../../data/local/style_figure_summary.dart';
 class ShapeConfigDraft {
   ShapeConfigDraft({
     required this.shapeId,
-    this.selectedTextOptionId,
-    this.selectedSizeOptionId,
+    Set<String>? selectedTextOptionIds,
+    Set<String>? selectedSizeOptionIds,
     this.note = '',
-  });
+  })  : selectedTextOptionIds = selectedTextOptionIds ?? {},
+        selectedSizeOptionIds = selectedSizeOptionIds ?? {};
 
   final String shapeId;
-  String? selectedTextOptionId;
-  String? selectedSizeOptionId;
+  final Set<String> selectedTextOptionIds;
+  final Set<String> selectedSizeOptionIds;
   String note;
 
   ShapeConfigDraft copy() {
     return ShapeConfigDraft(
       shapeId: shapeId,
-      selectedTextOptionId: selectedTextOptionId,
-      selectedSizeOptionId: selectedSizeOptionId,
+      selectedTextOptionIds: Set<String>.from(selectedTextOptionIds),
+      selectedSizeOptionIds: Set<String>.from(selectedSizeOptionIds),
       note: note,
     );
   }
@@ -65,10 +66,14 @@ Map<String, ShapeConfigDraft> restoreShapeConfigDrafts(
     for (final item in selection.shapeItems) {
       drafts[item.shapeId] = ShapeConfigDraft(
         shapeId: item.shapeId,
-        selectedTextOptionId:
-            item.textOptions.isNotEmpty ? item.textOptions.first.id : null,
-        selectedSizeOptionId:
-            item.sizeOptions.isNotEmpty ? item.sizeOptions.first.id : null,
+        selectedTextOptionIds: item.textOptions
+            .map((o) => o.id)
+            .where((id) => id.isNotEmpty)
+            .toSet(),
+        selectedSizeOptionIds: item.sizeOptions
+            .map((o) => o.id)
+            .where((id) => id.isNotEmpty)
+            .toSet(),
         note: item.noteSnapshot?.trim() ?? '',
       );
     }
@@ -109,34 +114,26 @@ StyleOrderSelection buildStyleOrderSelectionFromDrafts({
     final sizeSnapshots = <OrderShapeSizeSnapshot>[];
 
     if (config != null) {
-      if (draft.selectedTextOptionId != null) {
-        for (final option in config.textOptions) {
-          if (option.internalId == draft.selectedTextOptionId) {
-            textSnapshots.add(
-              OrderShapeOptionSnapshot(
-                id: option.internalId,
-                labelSnapshot: option.label,
-              ),
-            );
-            break;
-          }
-        }
+      for (final option in config.textOptions) {
+        if (!draft.selectedTextOptionIds.contains(option.internalId)) continue;
+        textSnapshots.add(
+          OrderShapeOptionSnapshot(
+            id: option.internalId,
+            labelSnapshot: option.label,
+          ),
+        );
       }
 
-      if (draft.selectedSizeOptionId != null) {
-        for (final option in config.sizeOptions) {
-          if (option.internalId == draft.selectedSizeOptionId) {
-            sizeSnapshots.add(
-              OrderShapeSizeSnapshot(
-                id: option.internalId,
-                valueSnapshot: option.valueInches,
-                labelSnapshot: option.label,
-                unitSnapshot: orderShapeSizeUnitLabel(option.unitCode),
-              ),
-            );
-            break;
-          }
-        }
+      for (final option in config.sizeOptions) {
+        if (!draft.selectedSizeOptionIds.contains(option.internalId)) continue;
+        sizeSnapshots.add(
+          OrderShapeSizeSnapshot(
+            id: option.internalId,
+            valueSnapshot: option.valueInches,
+            labelSnapshot: option.label,
+            unitSnapshot: orderShapeSizeUnitLabel(option.unitCode),
+          ),
+        );
       }
     }
 

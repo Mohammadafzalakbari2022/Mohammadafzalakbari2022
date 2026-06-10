@@ -172,6 +172,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get devPortalResetsEmpty => 'No pending password reset requests.';
 
   @override
+  String get devPortalResetsEmptyHint =>
+      'When a user taps Forgot password on the login screen (or Settings → Account), their request appears here. You can also open any shop on the Shops tab and set a password directly.';
+
+  @override
+  String devPortalResetsRequestedAt(String date) {
+    return 'Requested: $date';
+  }
+
+  @override
   String get devPortalResetsSetPasswordTitle => 'Set new password';
 
   @override
@@ -186,6 +195,37 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String devPortalResetsResolveFailed(String error) {
     return 'Could not update: $error';
+  }
+
+  @override
+  String get devPortalPasswordShareTitle => 'Share new password';
+
+  @override
+  String devPortalPasswordShareUserLabel(String shop, String username) {
+    return '$shop · $username';
+  }
+
+  @override
+  String devPortalPasswordShareMessage(
+    String shop,
+    String username,
+    String password,
+  ) {
+    return 'Your Khayat sign-in password was reset.\n\nShop: $shop\nUsername: $username\nNew password: $password\n\nSign in with these details. Change your password later in Settings if you wish.';
+  }
+
+  @override
+  String get devPortalPasswordShareSubject => 'Khayat sign-in password';
+
+  @override
+  String get devPortalPasswordCopied => 'Password copied.';
+
+  @override
+  String get devPortalShopSetPasswordCta => 'Set password';
+
+  @override
+  String devPortalShopSetPasswordFailed(String error) {
+    return 'Could not set password: $error';
   }
 
   @override
@@ -2429,6 +2469,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Enter a valid measurement, for example 5 1/2 x 7 1/2 inch.';
 
   @override
+  String get settingsStyleFigureValueRequired => 'Enter an inch option value.';
+
+  @override
   String get settingsStyleActiveLabel => 'Active';
 
   @override
@@ -2796,6 +2839,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Payment instructions are not published yet. Ask your distributor to publish them in Developer Portal → Billing, or enter an activation code below.';
 
   @override
+  String get subscriptionBillingNoImagePoster =>
+      'Payment instructions image is not available yet. You can still submit a payment claim below, or contact support.';
+
+  @override
   String subscriptionBillingLoadError(String error) {
     return 'Could not load payment info: $error';
   }
@@ -2896,6 +2943,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get devPortalBillingSettingsImageTooLarge =>
       'Image must be 1 MB or less. Choose a smaller file.';
+
+  @override
+  String devPortalBillingClaimsLoadError(String error) {
+    return 'Could not load payment claims: $error';
+  }
 
   @override
   String devPortalBillingLoadError(String error) {
@@ -3681,7 +3733,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get devPortalShopUserPasswordNote =>
-      'Password is stored hashed on the server. Use the Password resets tab to set a new one.';
+      'Tap Set password to create a new one and share it with the user.';
 
   @override
   String get devPortalShopDisabledLabel => 'Disabled';
@@ -4088,6 +4140,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get invoicePaymentDateLabel => 'Date';
 
   @override
+  String get invoicePaymentMethodLabel => 'Method';
+
+  @override
   String get invoiceMeasurementProfileLabel => 'Measurement profile';
 
   @override
@@ -4204,6 +4259,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get orderShareInvoicePdfCta => 'Share PDF invoice';
+
+  @override
+  String get orderViewInvoicePdfCta => 'View PDF';
+
+  @override
+  String get orderViewInvoicePdfTooltip => 'Preview invoice in the app';
+
+  @override
+  String orderViewInvoicePdfTitle(String orderNo) {
+    return 'Invoice · $orderNo';
+  }
+
+  @override
+  String orderViewInvoicePdfFail(String detail) {
+    return 'Could not open invoice: $detail';
+  }
 
   @override
   String get orderShareInvoicePdfGenerateFail =>

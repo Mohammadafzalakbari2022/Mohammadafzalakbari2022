@@ -1,22 +1,32 @@
 import '../../data/local/entities/order_status.dart';
 import '../../data/local/order_summary.dart';
+import 'report_calculations.dart';
 
-bool isOpenOrderStatus(OrderLocalStatus status) {
-  return status == OrderLocalStatus.newOrder ||
-      status == OrderLocalStatus.inProgress ||
-      status == OrderLocalStatus.ready;
+export 'report_calculations.dart' show ReportCalculations;
+
+bool isOpenOrderStatus(OrderLocalStatus status) =>
+    ReportCalculations.isOpenOrderStatus(status);
+
+List<OrderSummary> openUnpaidOrders(
+  List<OrderSummary> orders, {
+  Map<String, int> paidByOrderId = const {},
+  bool paymentsLedgerLoaded = false,
+}) {
+  return ReportCalculations.openUnpaidOrders(
+    orders: orders,
+    paidByOrderId: paidByOrderId,
+    paymentsLedgerLoaded: paymentsLedgerLoaded,
+  );
 }
 
-List<OrderSummary> openUnpaidOrders(List<OrderSummary> orders) {
-  return orders
-      .where(
-        (o) => isOpenOrderStatus(o.status) && o.remainingAmountMinor > 0,
-      )
-      .toList()
-    ..sort((a, b) => b.remainingAmountMinor.compareTo(a.remainingAmountMinor));
-}
-
-int openUnpaidOrdersTotal(List<OrderSummary> orders) {
-  return openUnpaidOrders(orders)
-      .fold<int>(0, (sum, o) => sum + o.remainingAmountMinor);
+int openUnpaidOrdersTotal(
+  List<OrderSummary> orders, {
+  Map<String, int> paidByOrderId = const {},
+  bool paymentsLedgerLoaded = false,
+}) {
+  return ReportCalculations.sumOpenUnpaidTotal(
+    orders: orders,
+    paidByOrderId: paidByOrderId,
+    paymentsLedgerLoaded: paymentsLedgerLoaded,
+  );
 }

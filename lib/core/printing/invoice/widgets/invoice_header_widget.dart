@@ -184,10 +184,7 @@ pw.Widget _shopColumn({
             fontSize: 12,
             color: color,
           ),
-          documentDirection:
-              pdfValueShouldRenderLtr(branding.shopDisplayName)
-                  ? pw.TextDirection.ltr
-                  : textDirection,
+          documentDirection: textDirection,
           maxLines: 3,
         ),
       ),
@@ -212,7 +209,7 @@ pw.Widget _orderMetaColumn({
       pdfMixedTextWidget(
         text: pdfSanitizeLabel(orderIdLabel),
         style: pw.TextStyle(font: fonts.bold, fontSize: 10, color: color),
-        documentDirection: pw.TextDirection.ltr,
+        documentDirection: textDirection,
       ),
       pw.SizedBox(height: 3),
       _bannerMetaLine(fonts, l10n.receiptStatusLabel, statusText, color, textDirection),
@@ -242,8 +239,7 @@ pw.Widget _contactColumn({
       pdfMixedTextWidget(
         text: line,
         style: pw.TextStyle(font: fonts.regular, fontSize: 8, color: color),
-        documentDirection:
-            pdfValueShouldRenderLtr(line) ? pw.TextDirection.ltr : textDirection,
+        documentDirection: textDirection,
         maxLines: 2,
       ),
     );

@@ -13,6 +13,7 @@ import 'developer_portal_account_tab.dart';
 import 'developer_portal_codes_tab.dart';
 import 'developer_portal_billing_tab.dart';
 import 'developer_portal_diagnostics_tab.dart';
+import 'developer_portal_password_share.dart';
 import 'developer_portal_support_tab.dart';
 
 /// Developer portal shell (plan-18): overview, activation codes, shops, resets, diagnostics.
@@ -617,6 +618,54 @@ class _DevPortalShopsTabState extends ConsumerState<_DevPortalShopsTab> {
     await _load();
   }
 
+  Future<void> _setUserPassword({
+    required String shopId,
+    required String shopLabel,
+    required Map<String, dynamic> user,
+  }) async {
+    final userId = '${user['id'] ?? ''}'.trim();
+    final username = '${user['username'] ?? ''}'.trim();
+    if (userId.isEmpty || username.isEmpty) return;
+    final deleted = user['deleted_at'];
+    if (deleted != null &&
+        '$deleted'.trim().isNotEmpty &&
+        '$deleted' != 'null') {
+      return;
+    }
+    final pw = await showDeveloperPortalSetPasswordDialog(
+      context,
+      widget.l10n,
+      subtitle: widget.l10n.devPortalPasswordShareUserLabel(shopLabel, username),
+    );
+    if (pw == null || pw.trim().length < 6) return;
+    final token = ref.read(authSessionProvider).accessToken;
+    if (token == null) return;
+    final r = await postPrideApiAdminSetShopUserPassword(
+      accessToken: token,
+      shopId: shopId,
+      userId: userId,
+      newPassword: pw,
+    );
+    if (!mounted) return;
+    if (!r.ok) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            widget.l10n.devPortalShopSetPasswordFailed(r.error ?? 'HTTP'),
+          ),
+        ),
+      );
+      return;
+    }
+    await showDeveloperPortalPasswordShareDialog(
+      context,
+      widget.l10n,
+      shopLabel: shopLabel,
+      username: r.username ?? username,
+      password: pw,
+    );
+  }
+
   Future<void> _pushTest(String shopId, String shopLabel) async {
     final titleCtrl = TextEditingController(text: widget.l10n.appTitle);
     final bodyCtrl = TextEditingController(text: 'Test: $shopLabel');
@@ -906,10 +955,20 @@ class _DevPortalShopsTabState extends ConsumerState<_DevPortalShopsTab> {
                               '${u['deleted_at']}'.trim().isNotEmpty &&
                               '${u['deleted_at']}' != 'null')
                             widget.l10n.devPortalShopUserDeletedBadge,
-                          if (u['has_password'] == true)
-                            widget.l10n.devPortalShopUserPasswordNote,
                         ].join(' · '),
                       ),
+                      trailing: (u['deleted_at'] == null ||
+                              '${u['deleted_at']}'.trim().isEmpty ||
+                              '${u['deleted_at']}' == 'null')
+                          ? TextButton(
+                              onPressed: () => _setUserPassword(
+                                shopId: id,
+                                shopLabel: name.isEmpty ? id : name,
+                                user: u,
+                              ),
+                              child: Text(widget.l10n.devPortalShopSetPasswordCta),
+                            )
+                          : null,
                       isThreeLine: true,
                     ),
                 const SizedBox(height: 8),
@@ -1011,51 +1070,34 @@ class _DevPortalResetsTabState extends ConsumerState<_DevPortalResetsTab> {
   Future<void> _resolve(Map<String, dynamic> row) async {
     final id = '${row['id'] ?? ''}';
     if (id.isEmpty) return;
-    final pwCtrl = TextEditingController();
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(widget.l10n.devPortalResetsSetPasswordTitle),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(widget.l10n.devPortalResetsSetPasswordHint),
-            const SizedBox(height: 12),
-            TextField(
-              controller: pwCtrl,
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: widget.l10n.loginPasswordLabel,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(MaterialLocalizations.of(ctx).cancelButtonLabel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(widget.l10n.devPortalResetsResolveCta),
-          ),
-        ],
-      ),
+    final shopLabel = '${row['shop_name'] ?? row['shop_id'] ?? ''}';
+    final username = '${row['username'] ?? ''}';
+    final pw = await showDeveloperPortalSetPasswordDialog(
+      context,
+      widget.l10n,
+      subtitle: widget.l10n.devPortalPasswordShareUserLabel(shopLabel, username),
     );
-    if (ok != true) return;
+    if (pw == null || pw.trim().length < 6) return;
     final auth = ref.read(authSessionProvider);
     final token = auth.accessToken;
     if (token == null) return;
     final res = await postPrideApiAdminResolvePasswordReset(
       accessToken: token,
       requestId: id,
-      newPassword: pwCtrl.text,
+      newPassword: pw,
     );
     if (!mounted) return;
     final messenger = ScaffoldMessenger.of(context);
     if (res.ok) {
       messenger.showSnackBar(
         SnackBar(content: Text(widget.l10n.devPortalResetsResolved)),
+      );
+      await showDeveloperPortalPasswordShareDialog(
+        context,
+        widget.l10n,
+        shopLabel: shopLabel,
+        username: username,
+        password: pw,
       );
       await _load();
     } else {
@@ -1067,6 +1109,18 @@ class _DevPortalResetsTabState extends ConsumerState<_DevPortalResetsTab> {
         ),
       );
     }
+  }
+
+  String _formatRequestedAt(BuildContext context, String raw) {
+    final parsed = DateTime.tryParse(raw);
+    if (parsed == null) return raw;
+    final local = parsed.toLocal();
+    return MaterialLocalizations.of(context).formatFullDate(local) +
+        ' · ' +
+        MaterialLocalizations.of(context).formatTimeOfDay(
+          TimeOfDay.fromDateTime(local),
+          alwaysUse24HourFormat: MediaQuery.alwaysUse24HourFormatOf(context),
+        );
   }
 
   @override
@@ -1094,7 +1148,29 @@ class _DevPortalResetsTabState extends ConsumerState<_DevPortalResetsTab> {
       );
     }
     if (_rows.isEmpty) {
-      return Center(child: Text(widget.l10n.devPortalResetsEmpty));
+      return ListView(
+        padding: const EdgeInsets.all(24),
+        children: [
+          Text(
+            widget.l10n.devPortalResetsEmpty,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            widget.l10n.devPortalResetsEmptyHint,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 16),
+          Center(
+            child: FilledButton(
+              onPressed: _load,
+              child: Text(widget.l10n.devPortalRetryCta),
+            ),
+          ),
+        ],
+      );
     }
     return RefreshIndicator(
       onRefresh: _load,
@@ -1111,11 +1187,22 @@ class _DevPortalResetsTabState extends ConsumerState<_DevPortalResetsTab> {
           final m = _rows[rowIndex];
           final username = '${m['username'] ?? ''}';
           final shopId = '${m['shop_id'] ?? ''}';
+          final shopName = '${m['shop_name'] ?? shopId}';
           final created = '${m['created_at'] ?? ''}';
           return Card(
             child: ListTile(
               title: Text(username),
-              subtitle: Text('$shopId · $created'),
+              subtitle: Text(
+                [
+                  shopName,
+                  shopId,
+                  if (created.isNotEmpty)
+                    widget.l10n.devPortalResetsRequestedAt(
+                      _formatRequestedAt(context, created),
+                    ),
+                ].join('\n'),
+              ),
+              isThreeLine: true,
               trailing: const Icon(Icons.chevron_right),
               onTap: () => _resolve(m),
             ),

@@ -97,7 +97,7 @@ pw.Widget paymentSummaryWidget({
             ),
           ),
           if (payments.isNotEmpty) ...[
-            pw.SizedBox(height: 8),
+            pw.SizedBox(height: 6),
             pdfMixedTextWidget(
               text: pdfSanitizeLabel(l10n.receiptPaymentsHeader),
               style: pw.TextStyle(
@@ -108,16 +108,13 @@ pw.Widget paymentSummaryWidget({
               documentDirection: textDirection,
             ),
             pw.SizedBox(height: 4),
-            for (var i = 0; i < payments.length; i++) ...[
-              if (i > 0) pw.SizedBox(height: 4),
-              _paymentLedgerRow(
-                fonts: fonts,
-                l10n: l10n,
-                payment: payments[i],
-                formatPaymentDate: formatPaymentDate,
-                textDirection: textDirection,
-              ),
-            ],
+            _paymentLedgerTable(
+              fonts: fonts,
+              l10n: l10n,
+              payments: payments,
+              formatPaymentDate: formatPaymentDate,
+              textDirection: textDirection,
+            ),
           ],
         ],
       ),
@@ -162,60 +159,112 @@ pw.Widget _moneyRow({
   );
 }
 
-pw.Widget _paymentLedgerRow({
+pw.Widget _paymentLedgerTable({
   required InvoicePdfFontSet fonts,
   required AppLocalizations l10n,
-  required PaymentSummary payment,
+  required List<PaymentSummary> payments,
   String Function(DateTime dateTime)? formatPaymentDate,
   required pw.TextDirection textDirection,
 }) {
-  final method = formatInvoicePaymentMethod(l10n, payment.method);
-  final amount = reportFormatMoney(l10n, payment.amountMinor);
-  final dateText = formatPaymentDate?.call(payment.createdAt) ??
-      _fallbackPaymentDate(payment.createdAt);
+  final pad = InvoicePdfLayout.paymentTableCellPadding;
+  return pw.Table(
+    border: pw.TableBorder.all(color: InvoicePdfColors.border, width: 0.4),
+    defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
+    columnWidths: {
+      0: const pw.FlexColumnWidth(2.2),
+      1: const pw.FlexColumnWidth(2),
+      2: const pw.FlexColumnWidth(1.5),
+    },
+    children: [
+      pw.TableRow(
+        decoration: pw.BoxDecoration(color: InvoicePdfColors.surfaceAlt),
+        children: [
+          _paymentTableCell(
+            fonts: fonts,
+            text: l10n.invoicePaymentDateLabel,
+            textDirection: textDirection,
+            bold: true,
+            pad: pad,
+          ),
+          _paymentTableCell(
+            fonts: fonts,
+            text: l10n.invoicePaymentMethodLabel,
+            textDirection: textDirection,
+            bold: true,
+            pad: pad,
+          ),
+          _paymentTableCell(
+            fonts: fonts,
+            text: l10n.paymentAmountLabel,
+            textDirection: textDirection,
+            bold: true,
+            pad: pad,
+            alignEnd: true,
+          ),
+        ],
+      ),
+      for (final payment in payments)
+        pw.TableRow(
+          children: [
+            _paymentTableCell(
+              fonts: fonts,
+              text: formatPaymentDate?.call(payment.createdAt) ??
+                  _fallbackPaymentDate(payment.createdAt),
+              textDirection: pw.TextDirection.ltr,
+              pad: pad,
+            ),
+            _paymentTableCell(
+              fonts: fonts,
+              text: formatInvoicePaymentMethod(l10n, payment.method),
+              textDirection: textDirection,
+              pad: pad,
+            ),
+            _paymentTableCell(
+              fonts: fonts,
+              text: reportFormatMoney(l10n, payment.amountMinor),
+              textDirection: textDirection,
+              pad: pad,
+              alignEnd: true,
+              money: true,
+            ),
+          ],
+        ),
+    ],
+  );
+}
 
-  return pw.Container(
-    padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-    decoration: pw.BoxDecoration(
-      color: PdfColors.white,
-      borderRadius: pw.BorderRadius.circular(4),
-      border: pw.Border.all(color: InvoicePdfColors.border, width: 0.4),
-    ),
-    child: pw.Row(
-      crossAxisAlignment: pw.CrossAxisAlignment.start,
-      children: [
-        pw.Expanded(
-          flex: 3,
-          child: pdfMixedTextWidget(
-            text: pdfSanitizeLabel(method),
-            style: pw.TextStyle(
-              font: fonts.regular,
-              fontSize: InvoicePdfLayout.smallFontSize,
-            ),
-            documentDirection: textDirection,
-          ),
-        ),
-        pw.Expanded(
-          flex: 2,
-          child: pdfMixedTextWidget(
-            text: '${pdfSanitizeLabel(l10n.invoicePaymentDateLabel)}: $dateText',
-            style: pw.TextStyle(
-              font: fonts.regular,
-              fontSize: InvoicePdfLayout.smallFontSize,
-            ),
-            documentDirection: pw.TextDirection.ltr,
-          ),
-        ),
-        pdfMoneyWidget(
-          formattedMoney: amount,
+pw.Widget _paymentTableCell({
+  required InvoicePdfFontSet fonts,
+  required String text,
+  required pw.TextDirection textDirection,
+  required double pad,
+  bool bold = false,
+  bool alignEnd = false,
+  bool money = false,
+}) {
+  final child = money
+      ? pdfMoneyWidget(
+          formattedMoney: pdfSanitizeLabel(text),
           style: pw.TextStyle(
             font: fonts.bold,
             fontSize: InvoicePdfLayout.smallFontSize,
           ),
           documentDirection: textDirection,
-        ),
-      ],
-    ),
+        )
+      : pdfMixedTextWidget(
+          text: pdfSanitizeLabel(text),
+          style: pw.TextStyle(
+            font: bold ? fonts.bold : fonts.regular,
+            fontSize: InvoicePdfLayout.smallFontSize,
+          ),
+          documentDirection: textDirection,
+        );
+
+  return pw.Padding(
+    padding: pw.EdgeInsets.all(pad),
+    child: alignEnd
+        ? pw.Align(alignment: pw.Alignment.centerRight, child: child)
+        : child,
   );
 }
 

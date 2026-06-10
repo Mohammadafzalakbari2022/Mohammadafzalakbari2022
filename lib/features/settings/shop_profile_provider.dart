@@ -27,6 +27,7 @@ class ShopProfileNotifier extends AsyncNotifier<ShopProfile> {
           ? null
           : receiptThanks,
       logoRelativePath: profile.logoRelativePath,
+      bannerRelativePath: profile.bannerRelativePath,
     );
 
     await saveShopProfile(next);

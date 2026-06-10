@@ -55,9 +55,9 @@ try {
     if (-not (Test-Path $winRelease)) {
         throw "Windows build output not found at $winRelease"
     }
-    $exe = Get-ChildItem $winRelease -Filter "*.exe" | Where-Object { $_.Name -notmatch "flutter" } | Select-Object -First 1
-    if (-not $exe -or $exe.Length -lt 1MB) {
-        throw "Windows release exe missing or too small ($($exe.FullName))"
+    $exe = Join-Path $winRelease "pride_v3.exe"
+    if (-not (Test-Path $exe) -or (Get-Item $exe).Length -lt 1MB) {
+        throw "Windows release exe missing or too small ($exe)"
     }
 
     $zipPath = Join-Path $Root "Khayat-windows-x64.zip"

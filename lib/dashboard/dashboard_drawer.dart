@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:pride_v3/app/app_theme.dart';
 import 'package:pride_v3/core/calendar/app_calendar_format.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
-import 'package:pride_v3/core/calendar/report_month_period.dart';
 import 'package:pride_v3/core/formatting/display_order_no_format.dart';
 import 'package:pride_v3/core/widgets/pride_nav_card_tile.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
@@ -16,6 +15,7 @@ import '../data/local/entities/order_status.dart';
 import '../data/local/order_summary.dart';
 import '../data/providers/local_data_providers.dart';
 import '../features/orders/order_status_label.dart';
+import '../features/reports/report_calculations.dart';
 import '../features/reports/report_money_format.dart';
 import '../features/settings/settings_providers.dart';
 import '../features/settings/shop_profile_provider.dart';
@@ -211,25 +211,21 @@ class _DashboardDrawerState extends ConsumerState<DashboardDrawer> {
                     return paymentsAsync.when(
                       data: (payments) {
                         final now = DateTime.now();
-                        final monthStart =
-                            startOfMonthContaining(now, calendar);
-                        final monthEnd =
-                            endExclusiveForMonthStart(monthStart, calendar);
-                        final monthIncome = payments
-                            .where(
-                              (p) =>
-                                  !p.createdAt.isBefore(monthStart) &&
-                                  p.createdAt.isBefore(monthEnd),
-                            )
-                            .fold<int>(0, (s, p) => s + p.amountMinor);
+                        final monthIncome = ReportCalculations.monthPaymentIncome(
+                          payments: payments,
+                          now: now,
+                          calendar: calendar,
+                        );
 
-                        final unpaidTotal = orders.fold<int>(
-                          0,
-                          (sum, o) =>
-                              sum +
-                              (o.remainingAmountMinor > 0
-                                  ? o.remainingAmountMinor
-                                  : 0),
+                        final paidByOrderId =
+                            ReportCalculations.paidByOrderIdFromPayments(
+                          payments,
+                        );
+                        const ledgerLoaded = true;
+                        final unpaidTotal = ReportCalculations.sumAllUnpaidTotal(
+                          orders: orders,
+                          paidByOrderId: paidByOrderId,
+                          paymentsLedgerLoaded: ledgerLoaded,
                         );
 
                         int count(OrderLocalStatus s) =>

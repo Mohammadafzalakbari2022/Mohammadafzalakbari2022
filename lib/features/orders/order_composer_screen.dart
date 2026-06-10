@@ -12,6 +12,7 @@ import 'package:pride_v3/core/feedback/app_feedback.dart';
 import 'package:pride_v3/core/widgets/pride_action_buttons.dart';
 import 'package:pride_v3/core/widgets/pride_close_button.dart';
 import 'package:pride_v3/core/widgets/pride_form_bottom_bar.dart';
+import 'package:pride_v3/core/widgets/pride_modal_bottom_sheet.dart';
 import 'package:pride_v3/core/widgets/pride_alert_dialog.dart';
 import 'package:pride_v3/core/printing/thermal_print_order.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
@@ -46,6 +47,7 @@ import 'order_composer_fabric_sheet.dart';
 import 'order_composer_reference.dart';
 import 'order_composer_style_sheet.dart';
 import 'order_invoice_share.dart';
+import 'order_invoice_view.dart';
 import 'package:pride_v3/core/formatting/digit_normalizer.dart';
 
 import 'order_payment_mutations.dart';
@@ -223,11 +225,6 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     });
   }
 
-  void _onItemPriceChanged(GarmentType type) {
-    final minor = tryParseMoneyAmount(_itemPriceControllers[type]!.text) ?? 0;
-    setState(() => _draft = _draft.updateItemPrice(type, minor));
-  }
-
   void _clearItemDrafts() {
     _draft = OrderComposerDraft.initial();
     _styleSelections[GarmentType.perahanTunban] =
@@ -331,6 +328,15 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     GarmentType garmentType,
   ) async {
     final draft = _itemDraft(garmentType);
+    final orders = ref.read(ordersListStreamProvider).valueOrNull ?? const [];
+    final referenceOrder = _selectedCustomerId == null
+        ? null
+        : resolveReferenceOrder(
+            customerOrdersForReference(orders, _selectedCustomerId!),
+            _referenceOrderOverrideId,
+          );
+    final refItem =
+        referenceOrder != null ? referenceOrderItem(referenceOrder, garmentType) : null;
     final result = await showOrderComposerStyleSheet(
       context: context,
       ref: ref,
@@ -344,6 +350,23 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       initialCatalogDesignerShopName: draft.catalogDesignerShopName,
       initialCatalogImagePath: draft.catalogImagePath,
       initialCatalogThumbnailPath: draft.catalogThumbnailPath,
+      referenceOrder: referenceOrder,
+      referenceItem: refItem,
+      initialStyleSummary: draft.styleSummary,
+      moneyFormatter: _money,
+      onUsePreviousStyle: referenceOrder != null
+          ? () {
+              _applyPreviousStyle(referenceOrder, garmentType);
+              if (context.mounted) Navigator.of(context).pop();
+            }
+          : null,
+      onUsePreviousDesign:
+          referenceOrder != null && garmentType == GarmentType.perahanTunban
+              ? () async {
+                  await _applyPreviousDesign(referenceOrder);
+                  if (context.mounted) Navigator.of(context).pop();
+                }
+              : null,
     );
     if (!mounted || result == null) return;
     setState(() {
@@ -367,16 +390,44 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
   Future<void> _openPaymentSheet(BuildContext context) async {
     final total = _composerTotalMinor;
     final paid = _composerPaidMinor;
+    final l10n = AppLocalizations.of(context)!;
+    final orders = ref.read(ordersListStreamProvider).valueOrNull ?? const [];
+    final referenceOrder = _selectedCustomerId == null
+        ? null
+        : resolveReferenceOrder(
+            customerOrdersForReference(orders, _selectedCustomerId!),
+            _referenceOrderOverrideId,
+          );
+    Widget? previousSection;
+    if (referenceOrder != null) {
+      previousSection = ComposerSheetPreviousHeader(
+        title: l10n.ordersComposerPreviousOrderTitle,
+        previousSection: ComposerSheetPreviousSection(
+          referenceOrder: referenceOrder,
+          kind: ComposerSheetPreviousKind.payment,
+          currentTextForDiff: _money(l10n, paid),
+          currentIsMeaningfulForDiff: paid > 0,
+          money: _money,
+        ),
+      );
+    }
     final result = await showOrderPaymentDraftSheet(
       context: context,
       initialTotalMinor: total,
       initialPaidMinor: paid,
       itemBreakdown: paymentBreakdownFromDraft(_draft),
       totalReadOnly: true,
+      previousOrderSection: previousSection,
     );
     if (!mounted || result == null) return;
     setState(() {
       _paidController.text = result.initialPaidMinor.toString();
+      for (final entry in result.itemPricesMinor.entries) {
+        final minor = entry.value;
+        _itemPriceControllers[entry.key]!.text =
+            minor > 0 ? minor.toString() : '';
+        _draft = _draft.updateItemPrice(entry.key, minor);
+      }
     });
   }
 
@@ -384,7 +435,24 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     BuildContext context,
     GarmentType garmentType,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     final draft = _itemDraft(garmentType);
+    final orders = ref.read(ordersListStreamProvider).valueOrNull ?? const [];
+    final referenceOrder = _selectedCustomerId == null
+        ? null
+        : resolveReferenceOrder(
+            customerOrdersForReference(orders, _selectedCustomerId!),
+            _referenceOrderOverrideId,
+          );
+    final refItem =
+        referenceOrder != null ? referenceOrderItem(referenceOrder, garmentType) : null;
+    final fabricSummary = draft.hasFabric
+        ? l10n.ordersComposerFabricSummary(
+            draft.fabricName,
+            draft.fabricColor,
+            draft.fabricId,
+          )
+        : '';
     final result = await showOrderComposerFabricSheet(
       context: context,
       initialName: draft.fabricName,
@@ -392,6 +460,16 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       initialFabricId: draft.fabricId,
       initialNamePresetId: draft.fabricNamePresetInternalId,
       initialColorPresetId: draft.fabricColorPresetInternalId,
+      referenceOrder: referenceOrder,
+      referenceItem: refItem,
+      initialFabricSummary: fabricSummary,
+      moneyFormatter: _money,
+      onUsePreviousFabric: referenceOrder != null
+          ? () {
+              _applyPreviousFabric(referenceOrder, garmentType);
+              if (context.mounted) Navigator.of(context).pop();
+            }
+          : null,
     );
     if (!mounted) return;
     setState(() {
@@ -438,24 +516,86 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     });
   }
 
-  Future<void> _pickDeliveryDate(BuildContext context) async {
+  Future<void> _openDeliverySheet(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
     final now = DateTime.now();
-    final initial = _deliveryDate ?? now.add(const Duration(days: 2));
     final calendar = ref.read(dateCalendarSystemProvider);
-    final picked = await showAppDatePicker(
+    final locale = Localizations.localeOf(context).toString();
+    final orders = ref.read(ordersListStreamProvider).valueOrNull ?? const [];
+    final referenceOrder = _selectedCustomerId == null
+        ? null
+        : resolveReferenceOrder(
+            customerOrdersForReference(orders, _selectedCustomerId!),
+            _referenceOrderOverrideId,
+          );
+    final deliveryLabel = _deliveryDate == null
+        ? l10n.ordersComposerDeliveryDateUnset
+        : AppCalendarFormat.mediumDate(l10n, calendar, _deliveryDate!, locale);
+
+    final picked = await showPrideModalBottomSheet<DateTime>(
       context: context,
-      l10n: l10n,
-      system: calendar,
-      initialDate: initial,
-      firstDate: DateTime(now.year - 1),
-      lastDate: DateTime(now.year + 3),
+      builder: (ctx) {
+        return PrideDraggableSheetScaffold(
+          header: Padding(
+            padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
+            child: Row(
+              children: [
+                IconButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  icon: const Icon(Icons.close),
+                ),
+                Expanded(
+                  child: Text(
+                    l10n.ordersComposerDeliveryDateTitle,
+                    style: Theme.of(ctx).textTheme.titleLarge,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          body: (scroll) => ListView(
+            controller: scroll,
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            children: [
+              if (referenceOrder != null) ...[
+                ComposerSheetPreviousSection(
+                  referenceOrder: referenceOrder,
+                  kind: ComposerSheetPreviousKind.delivery,
+                  currentTextForDiff: deliveryLabel,
+                  currentIsMeaningfulForDiff: _deliveryDate != null,
+                  money: _money,
+                ),
+                const Divider(height: 24),
+              ],
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(l10n.ordersComposerDeliveryDateTitle),
+                subtitle: Text(deliveryLabel),
+                trailing: const Icon(Icons.event_outlined),
+                onTap: () async {
+                  final initial = _deliveryDate ?? now.add(const Duration(days: 2));
+                  final date = await showAppDatePicker(
+                    context: ctx,
+                    l10n: l10n,
+                    system: calendar,
+                    initialDate: initial,
+                    firstDate: DateTime(now.year - 1),
+                    lastDate: DateTime(now.year + 3),
+                  );
+                  if (date == null || !ctx.mounted) return;
+                  Navigator.pop(
+                    ctx,
+                    DateTime(date.year, date.month, date.day),
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
-    if (!mounted) return;
-    if (picked == null) return;
-    setState(
-      () => _deliveryDate = DateTime(picked.year, picked.month, picked.day),
-    );
+    if (!mounted || picked == null) return;
+    setState(() => _deliveryDate = picked);
   }
 
   Future<void> _confirmReset(BuildContext context, AppLocalizations l10n) async {
@@ -720,6 +860,15 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
 
     if (!context.mounted) return;
     final draft = _itemDraft(garmentType);
+    final orders = ref.read(ordersListStreamProvider).valueOrNull ?? const [];
+    final referenceOrder = _selectedCustomerId == null
+        ? null
+        : resolveReferenceOrder(
+            customerOrdersForReference(orders, _selectedCustomerId!),
+            _referenceOrderOverrideId,
+          );
+    final refItem =
+        referenceOrder != null ? referenceOrderItem(referenceOrder, garmentType) : null;
     final r = await showOrderMeasurementsEditorSheet(
       context: context,
       ref: ref,
@@ -733,6 +882,15 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       initialProfileId: draft.sourceMeasurementProfileId,
       initialProfileLabel: draft.sourceMeasurementProfileLabel,
       profiles: profiles,
+      referenceOrder: referenceOrder,
+      referenceItem: refItem,
+      moneyFormatter: _money,
+      onUsePreviousMeasurements: referenceOrder != null
+          ? () async {
+              await _applyPreviousMeasurements(referenceOrder, garmentType);
+              if (context.mounted) Navigator.of(context).pop();
+            }
+          : null,
     );
     if (r == null || !mounted) return;
     setState(() {
@@ -798,6 +956,33 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
                           const <PaymentSummary>[];
                   await printThermalOrderReceipt(
                     context: ctx,
+                    ref: ref,
+                    l10n: l10n,
+                    order: o,
+                    payments: payments,
+                    deliveryDateText: AppCalendarFormat.mediumDate(
+                      l10n,
+                      calendar,
+                      o.deliveryDate,
+                      locale,
+                    ),
+                    statusText: orderStatusLabel(o.status, l10n),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.visibility_outlined),
+                title: Text(l10n.orderViewInvoicePdfCta),
+                subtitle: Text(l10n.orderViewInvoicePdfTooltip),
+                onTap: () async {
+                  Navigator.pop(ctx);
+                  final o = await _waitOrderSummary(orderId);
+                  if (!context.mounted || o == null) return;
+                  final payments =
+                      ref.read(paymentsForOrderProvider(o.internalId)).valueOrNull ??
+                          const <PaymentSummary>[];
+                  await viewOrderInvoicePdf(
+                    context: context,
                     ref: ref,
                     l10n: l10n,
                     order: o,
@@ -1333,32 +1518,44 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
                 ),
                 if (_selectedCustomerId == null)
                   _composerRequiredHint(l10n.ordersComposerCustomerRequired),
-                if (referenceOrder != null &&
-                    (referenceOrder.customerName.trim() !=
-                            (_selectedCustomerName ?? '').trim() ||
-                        (referenceOrder.customerPhone ?? '').trim() !=
-                            (_selectedCustomerPhone ?? '').trim())) ...[
-                  ComposerSectionPreviousReference(
-                    l10n: l10n,
-                    previousText: referenceOrder.customerPhone == null
-                        ? referenceOrder.customerName
-                        : '${referenceOrder.customerName} • ${referenceOrder.customerPhone}',
-                    currentTextForDiff: _selectedCustomerLabel,
-                    currentIsMeaningfulForDiff: true,
-                    collapsible: false,
+                if (_selectedCustomerId != null) ...[
+                  Builder(
+                    builder: (context) {
+                      final customerOrders = customerOrdersForReference(
+                        ordersForRef,
+                        _selectedCustomerId!,
+                      );
+                      if (customerOrders.length <= 1) {
+                        return const SizedBox.shrink();
+                      }
+                      return Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: TextButton.icon(
+                          onPressed: () => showComposerReferenceOrderPicker(
+                            context,
+                            l10n,
+                            calendar,
+                            locale,
+                            customerOrders,
+                            referenceOrder?.internalId ??
+                                customerOrders.first.internalId,
+                            (id) => setState(
+                              () => _referenceOrderOverrideId = id,
+                            ),
+                            _money,
+                            referencePaidByOrderId,
+                            paymentsLedgerLoaded,
+                          ),
+                          icon: const Icon(Icons.swap_horiz, size: 18),
+                          label: Text(l10n.ordersComposerChangeReferenceOrderCta),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ],
             ),
           ),
-          if (_selectedCustomerId != null)
-            ComposerPreviousOrderReferenceCard(
-              customerId: _selectedCustomerId!,
-              selectedReferenceOrderId: _referenceOrderOverrideId,
-              onReferenceOrderSelected: (id) =>
-                  setState(() => _referenceOrderOverrideId = id),
-              money: _money,
-            ),
           const SizedBox(height: _kComposerSectionGap),
           Card(
             clipBehavior: Clip.antiAlias,
@@ -1399,120 +1596,22 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
             Builder(
               builder: (context) {
                 final itemDraft = _itemDraft(type);
-                final refItem = referenceOrder != null
-                    ? referenceOrderItem(referenceOrder, type)
-                    : null;
-                final previousStyleText = refItem != null
-                    ? previousItemStyleDisplayText(refItem)
-                    : (referenceOrder != null &&
-                            type == GarmentType.perahanTunban
-                        ? previousStyleDisplayText(referenceOrder)
-                        : '');
-                final previousFabricText = refItem != null
-                    ? previousItemFabricDisplayText(refItem, l10n)
-                    : (referenceOrder != null &&
-                            type == GarmentType.perahanTunban
-                        ? previousFabricDisplayText(referenceOrder, l10n)
-                        : '');
-                final currentStyleForItem = itemDraft.styleName.trim().isNotEmpty
-                    ? (itemDraft.styleSummary.trim().isNotEmpty
-                        ? itemDraft.styleSummary.trim()
-                        : itemDraft.styleName.trim())
-                    : null;
-                final currentDesignForItem =
-                    itemDraft.catalogDesignName.trim().isNotEmpty
-                        ? itemDraft.catalogDesignName.trim()
-                        : '';
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    OrderComposerItemCard(
-                      l10n: l10n,
-                      garmentType: type,
-                      draft: itemDraft,
-                      priceController: _itemPriceControllers[type]!,
-                      expanded: _itemCardExpanded[type] ?? false,
-                      onExpandedChanged: (v) =>
-                          setState(() => _itemCardExpanded[type] = v),
-                      onOpenMeasurements: () =>
-                          _openMeasurementsEditor(context, l10n, type),
-                      onOpenStyle: () => _openStyleSheet(context, type),
-                      onOpenFabric: () => _openFabricSheet(context, type),
-                      onPriceChanged: () => _onItemPriceChanged(type),
-                      onUseSameFabric: type == GarmentType.waistcoat &&
-                              _draft.items[GarmentType.perahanTunban]!
-                                  .included &&
-                              _draft.items[GarmentType.perahanTunban]!.hasFabric
-                          ? _copyFabricFromPerahanToWaistcoat
-                          : null,
-                      measurementsTrailing: referenceOrder != null &&
-                              _draft.showPreviousReferenceForGarment(type)
-                          ? ComposerMeasurementsPreviousReference(
-                              referenceOrder: referenceOrder,
-                              referenceItem: refItem,
-                              l10n: l10n,
-                              currentMeasurementsText:
-                                  itemDraft.measurementsSnapshot,
-                              currentIsMeaningfulForDiff:
-                                  itemDraft.hasMeasurements,
-                              onUsePrevious: () => _applyPreviousMeasurements(
-                                referenceOrder,
-                                type,
-                              ),
-                            )
-                          : null,
-                      styleTrailing: referenceOrder != null &&
-                              _draft.showPreviousReferenceForGarment(type) &&
-                              previousStyleText.isNotEmpty
-                          ? ComposerSectionPreviousReference(
-                              l10n: l10n,
-                              previousText: previousStyleText,
-                              currentTextForDiff: currentStyleForItem,
-                              currentIsMeaningfulForDiff:
-                                  itemDraft.styleName.trim().isNotEmpty,
-                              usePreviousLabel:
-                                  l10n.ordersComposerUsePreviousStyleCta,
-                              onUsePrevious: () =>
-                                  _applyPreviousStyle(referenceOrder, type),
-                            )
-                          : null,
-                      fabricTrailing: referenceOrder != null &&
-                              _draft.showPreviousReferenceForGarment(type) &&
-                              previousFabricText.isNotEmpty
-                          ? ComposerSectionPreviousReference(
-                              l10n: l10n,
-                              previousText: previousFabricText,
-                              currentTextForDiff: itemDraft.hasFabric
-                                  ? l10n.ordersComposerFabricPartialSummary(
-                                      itemDraft.fabricName.trim().isEmpty
-                                          ? '—'
-                                          : itemDraft.fabricName.trim(),
-                                      itemDraft.fabricColor.trim().isEmpty
-                                          ? '—'
-                                          : itemDraft.fabricColor.trim(),
-                                    )
-                                  : null,
-                              currentIsMeaningfulForDiff: itemDraft.hasFabric,
-                              usePreviousLabel:
-                                  l10n.ordersComposerUsePreviousFabricCta,
-                              onUsePrevious: () =>
-                                  _applyPreviousFabric(referenceOrder, type),
-                            )
-                          : null,
-                    ),
-                    if (type == GarmentType.perahanTunban &&
-                        referenceOrder != null &&
-                        _draft.showPreviousReferenceForGarment(type))
-                      ComposerDesignPreviousReference(
-                        referenceOrder: referenceOrder,
-                        l10n: l10n,
-                        currentDesignSummary: currentDesignForItem,
-                        currentIsMeaningfulForDiff:
-                            currentDesignForItem.isNotEmpty,
-                        onUsePrevious: () =>
-                            _applyPreviousDesign(referenceOrder),
-                      ),
-                  ],
+                return OrderComposerItemCard(
+                  l10n: l10n,
+                  garmentType: type,
+                  draft: itemDraft,
+                  expanded: _itemCardExpanded[type] ?? false,
+                  onExpandedChanged: (v) =>
+                      setState(() => _itemCardExpanded[type] = v),
+                  onOpenMeasurements: () =>
+                      _openMeasurementsEditor(context, l10n, type),
+                  onOpenStyle: () => _openStyleSheet(context, type),
+                  onOpenFabric: () => _openFabricSheet(context, type),
+                  onUseSameFabric: type == GarmentType.waistcoat &&
+                          _draft.items[GarmentType.perahanTunban]!.included &&
+                          _draft.items[GarmentType.perahanTunban]!.hasFabric
+                      ? _copyFabricFromPerahanToWaistcoat
+                      : null,
                 );
               },
             ),
@@ -1531,20 +1630,10 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
                   title: Text(l10n.ordersComposerDeliveryDateTitle),
                   subtitle: Text(deliveryLabel),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () => _pickDeliveryDate(context),
+                  onTap: () => _openDeliverySheet(context),
                 ),
                 if (_deliveryDate == null)
                   _composerRequiredHint(l10n.ordersComposerDeliveryDateUnset),
-                if (referenceOrder != null)
-                  ComposerSectionPreviousReference(
-                    l10n: l10n,
-                    previousText:
-                        '${l10n.ordersComposerPreviousDeliveryLabel}: ${AppCalendarFormat.mediumDate(l10n, calendar, referenceOrder.deliveryDate, locale)}',
-                    currentTextForDiff:
-                        _deliveryDate == null ? null : deliveryLabel,
-                    currentIsMeaningfulForDiff: _deliveryDate != null,
-                    collapsible: false,
-                  ),
               ],
             ),
           ),
@@ -1581,20 +1670,6 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
                     if (!paymentOk)
                       _composerRequiredHint(
                         l10n.ordersComposerPaymentRequired,
-                      ),
-                    if (referenceOrder != null)
-                      ComposerSectionPreviousReference(
-                        l10n: l10n,
-                        previousText: formatReferenceOrderPaymentSummary(
-                          l10n,
-                          referenceOrder,
-                          referencePaidByOrderId,
-                          paymentsLedgerLoaded,
-                          _money,
-                        ),
-                        currentTextForDiff: total > 0 ? paymentSubtitle : null,
-                        currentIsMeaningfulForDiff: total > 0,
-                        collapsible: false,
                       ),
                   ],
                 ),

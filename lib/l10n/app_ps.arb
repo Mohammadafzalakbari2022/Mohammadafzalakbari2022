@@ -61,12 +61,58 @@
     }
   },
   "devPortalResetsEmpty": "د پاسورډ بیا تنظیم غوښتنې په تمه نشته.",
+  "devPortalResetsEmptyHint": "کله چې کارونکی په ننوتلو کې «پاسورډ هیر شوی» (یا تنظیمات → حساب) غوښتنه وکړي، دلته ښکارېږي. تاسو کولی شئ له هټۍ ټب څخه مستقیم پاسورډ ټاکئ.",
+  "devPortalResetsRequestedAt": "غوښتنه: {date}",
+  "@devPortalResetsRequestedAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "devPortalResetsSetPasswordTitle": "نوی پاسورډ ټاکل",
   "devPortalResetsSetPasswordHint": "لږترلږه ۶ توري.",
   "devPortalResetsResolveCta": "پاسورډ پلي کړئ",
   "devPortalResetsResolved": "پاسورډ تازه شو.",
   "devPortalResetsResolveFailed": "تازه کول ناکام: {error}",
   "@devPortalResetsResolveFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "devPortalPasswordShareTitle": "نوی پاسورډ شریک کړئ",
+  "devPortalPasswordShareUserLabel": "{shop} · {username}",
+  "@devPortalPasswordShareUserLabel": {
+    "placeholders": {
+      "shop": {
+        "type": "String"
+      },
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "devPortalPasswordShareMessage": "ستاسو د خیاط ننوتلو پاسورډ بیا تنظیم شو.\n\nهټۍ: {shop}\nکارن نوم: {username}\nنوی پاسورډ: {password}\n\nپه دې معلوماتو ننوځئ. وروسته په تنظیماتو کې پاسورډ بدل کړئ.",
+  "@devPortalPasswordShareMessage": {
+    "placeholders": {
+      "shop": {
+        "type": "String"
+      },
+      "username": {
+        "type": "String"
+      },
+      "password": {
+        "type": "String"
+      }
+    }
+  },
+  "devPortalPasswordShareSubject": "د خیاط ننوتلو پاسورډ",
+  "devPortalPasswordCopied": "پاسورډ کاپي شو.",
+  "devPortalShopSetPasswordCta": "پاسورډ ټاکل",
+  "devPortalShopSetPasswordFailed": "پاسورډ ټاکل ناکام: {error}",
+  "@devPortalShopSetPasswordFailed": {
     "placeholders": {
       "error": {
         "type": "String"
@@ -106,7 +152,7 @@
   "devPortalShopUsersHeader": "حسابونه",
   "devPortalShopUserOwnerBadge": "خاوند",
   "devPortalShopUserDeletedBadge": "ړنګ شوی",
-  "devPortalShopUserPasswordNote": "پټنوم په سرور کې هش شوی دی. د نوي پټنوم لپاره د پټنوم بیاځای کولو برخه وکاروئ.",
+  "devPortalShopUserPasswordNote": "د نوي پاسورډ لپاره «پاسورډ ټاکل» وکاروئ او له کارونکي سره شریک کړئ.",
   "devPortalShopDisabledLabel": "غیرفعال",
   "devPortalShopActionsTooltip": "د هټۍ کړنې",
   "devPortalShopDisableCta": "هټۍ غیرفعاله کړئ",
@@ -1108,6 +1154,7 @@
   "settingsStyleFigureSizeOptionDeleteBody": "له کتلاګ څخه لرې کېږي. پخواني امرونه بدل نه کېږي.",
   "settingsStyleFigureLabelRequired": "د جزئیات نوم اړین دی.",
   "settingsStyleFigureValuePositiveRequired": "معتبر اندازه ولیکئ، لکه 5 1/2 x 7 1/2 inch.",
+  "settingsStyleFigureValueRequired": "د انچ اختیار ارزښت ولیکئ.",
   "settingsStyleActiveLabel": "فعال",
   "settingsStyleInactiveLabel": "غیرفعال",
   "saveCta": "ساتل",
@@ -1280,6 +1327,7 @@
   "subscriptionBillingCopied": "کاپي شو",
   "subscriptionBillingOfflineCache": "خوندي معلومات له {when}. د تازه کولو لپاره انلاین شئ.",
   "subscriptionBillingNotPublished": "د تادیې لارښوونې لا خپرې نه دي. له خپل توزیع‌کونکي وغواړئ په پراختیاګر پورټل → بلینګ کې خپورې کړي، یا لاندې فعالولو کوډ ولیکئ.",
+  "subscriptionBillingNoImagePoster": "د تادیې لارښوونې انځور لا شتون نلري. تاسو لاندې ادعای تادیه لېږلی شئ یا له ملاتړ سره اړیکه ونیسئ.",
   "subscriptionBillingLoadError": "د تادیې معلومات نه لوستل کېږي: {error}",
   "subscriptionPaymentClaimTitle": "ما تادیه کړې (حساب پی)",
   "subscriptionPaymentClaimOwnerOnly": "یوازې د هټۍ خاوند کولی شي غوښتنه ولیږي.",
@@ -1311,6 +1359,14 @@
   "devPortalBillingSettingsImageReplace": "انځور بدل کړئ",
   "devPortalBillingSettingsImageRemove": "انځور لرې کړئ",
   "devPortalBillingSettingsImageTooLarge": "انځور باید تر ۱ مېګابایټ زیات نه وي. کوچنی فایل وټاکئ.",
+  "devPortalBillingClaimsLoadError": "د تادیې ادعاوې نه لوستل کېږي: {error}",
+  "@devPortalBillingClaimsLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "devPortalBillingLoadError": "د بلینګ پروفایل بارول ناکام: {error}",
   "devPortalBillingProfileTitle": "د حساب پی پروفایل",
   "devPortalBillingPublished": "خپور شوی (د هټیو لپاره)",
@@ -1777,6 +1833,7 @@
   "invoiceContinuedLabel": "دوام",
   "invoiceTakenDateLabel": "اخیستل",
   "invoicePaymentDateLabel": "نېټه",
+  "invoicePaymentMethodLabel": "طریقه",
   "invoiceMeasurementProfileLabel": "د اندازې پروفایل",
   "invoiceStyleNameLabel": "سټایل",
   "receiptStyleLabel": "د سټایل یادښتونه",
@@ -1814,6 +1871,10 @@
   "defaultShopPhone": "0701234567",
   "orderShareInvoiceTooltip": "فاکتور شریکول",
   "orderShareInvoicePdfCta": "د PDF فاکتور شریکول",
+  "orderViewInvoicePdfCta": "PDF وګورئ",
+  "orderViewInvoicePdfTooltip": "په اپ کې فاکتور وګورئ",
+  "orderViewInvoicePdfTitle": "فاکتور · {orderNo}",
+  "orderViewInvoicePdfFail": "فاکتور نشي خلاصیدلی: {detail}",
   "orderShareInvoicePdfGenerateFail": "فاکتور نشي تولیدولی. مهرباني وکړئ له مدیر سره اړیکه ونیسئ.",
   "orderShareContactPermissionDenied": "د اړیکو اجازه بنده ده — فاکتور شریک شو، خو پیرودونکی په تلیفون کې نه دی خوندي شوی.",
   "orderShareInvoiceSharedSheet": "د PDF فاکتور لیږلو لپاره واتساپ یا بل اپ غوره کړئ.",

@@ -4,16 +4,16 @@ import 'package:go_router/go_router.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
+import '../../auth/auth_providers.dart';
 import '../../data/local/order_summary.dart';
 import '../../data/providers/local_data_providers.dart';
+import 'report_calculations.dart';
 import 'report_money_format.dart';
 import 'report_order_row.dart';
 
 enum _UnpaidDeliveryFilter { all, overdue, dueWithin7Days }
 
 enum _UnpaidAmountFilter { any, under5000, band5000to20000, over20000 }
-
-DateTime _dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
 
 class UnpaidReportScreen extends ConsumerStatefulWidget {
   const UnpaidReportScreen({super.key});
@@ -27,54 +27,80 @@ class _UnpaidReportScreenState extends ConsumerState<UnpaidReportScreen> {
   _UnpaidAmountFilter _amountFilter = _UnpaidAmountFilter.any;
   bool _sortByAmountDesc = true;
 
+  int _remaining(
+    OrderSummary o,
+    Map<String, int> paidByOrderId,
+    bool ledgerLoaded,
+  ) =>
+      ReportCalculations.effectiveRemainingMinor(
+        order: o,
+        paidByOrderId: paidByOrderId,
+        paymentsLedgerLoaded: ledgerLoaded,
+      );
+
   List<OrderSummary> _filterUnpaid(
     List<OrderSummary> unpaid,
     DateTime now,
+    Map<String, int> paidByOrderId,
+    bool ledgerLoaded,
   ) {
-    final today = _dateOnly(now);
     switch (_deliveryFilter) {
       case _UnpaidDeliveryFilter.all:
         return unpaid;
       case _UnpaidDeliveryFilter.overdue:
         return unpaid
-            .where((o) => _dateOnly(o.deliveryDate).isBefore(today))
+            .where((o) => ReportCalculations.isOverdueOpenOrder(o, now))
             .toList();
       case _UnpaidDeliveryFilter.dueWithin7Days:
+        final today = ReportCalculations.dateOnly(now);
         final end = today.add(const Duration(days: 7));
         return unpaid.where((o) {
-          final d = _dateOnly(o.deliveryDate);
+          final d = ReportCalculations.dateOnly(o.deliveryDate);
           return !d.isBefore(today) && !d.isAfter(end);
         }).toList();
     }
   }
 
-  void _applySort(List<OrderSummary> list) {
+  void _applySort(
+    List<OrderSummary> list,
+    Map<String, int> paidByOrderId,
+    bool ledgerLoaded,
+  ) {
     if (_sortByAmountDesc) {
       list.sort(
-        (a, b) =>
-            b.remainingAmountMinor.compareTo(a.remainingAmountMinor),
+        (a, b) => _remaining(b, paidByOrderId, ledgerLoaded)
+            .compareTo(_remaining(a, paidByOrderId, ledgerLoaded)),
       );
     } else {
       list.sort((a, b) => a.deliveryDate.compareTo(b.deliveryDate));
     }
   }
 
-  List<OrderSummary> _filterAmount(List<OrderSummary> list) {
+  List<OrderSummary> _filterAmount(
+    List<OrderSummary> list,
+    Map<String, int> paidByOrderId,
+    bool ledgerLoaded,
+  ) {
     switch (_amountFilter) {
       case _UnpaidAmountFilter.any:
         return list;
       case _UnpaidAmountFilter.under5000:
-        return list.where((o) => o.remainingAmountMinor < 5000).toList();
+        return list
+            .where((o) => _remaining(o, paidByOrderId, ledgerLoaded) < 5000)
+            .toList();
       case _UnpaidAmountFilter.band5000to20000:
         return list
             .where(
-              (o) =>
-                  o.remainingAmountMinor >= 5000 &&
-                  o.remainingAmountMinor <= 20000,
+              (o) {
+                final r = _remaining(o, paidByOrderId, ledgerLoaded);
+                return r >= 5000 && r <= 20000;
+              },
             )
             .toList();
       case _UnpaidAmountFilter.over20000:
-        return list.where((o) => o.remainingAmountMinor > 20000).toList();
+        return list
+            .where((o) => _remaining(o, paidByOrderId, ledgerLoaded) > 20000)
+            .toList();
     }
   }
 
@@ -98,6 +124,8 @@ class _UnpaidReportScreenState extends ConsumerState<UnpaidReportScreen> {
     final calendar = ref.watch(dateCalendarSystemProvider);
 
     final asyncOrders = ref.watch(ordersListStreamProvider);
+    final shopId = ref.watch(effectiveShopIdProvider);
+    final asyncPayments = ref.watch(paymentsForShopProvider(shopId));
     final customerDisplayNoById = ref
             .watch(customersListStreamProvider)
             .maybeWhen(
@@ -116,15 +144,33 @@ class _UnpaidReportScreenState extends ConsumerState<UnpaidReportScreen> {
       ),
       body: asyncOrders.when(
         data: (orders) {
-          final unpaidBase =
-              orders.where((o) => o.remainingAmountMinor > 0).toList();
-          final filtered =
-              _filterAmount(_filterUnpaid(unpaidBase, DateTime.now()));
-          _applySort(filtered);
-          final totalRemaining =
-              filtered.fold<int>(0, (s, o) => s + o.remainingAmountMinor);
+          return asyncPayments.when(
+            data: (payments) {
+              final paidByOrderId =
+                  ReportCalculations.paidByOrderIdFromPayments(payments);
+              const ledgerLoaded = true;
+              final unpaidBase = ReportCalculations.unpaidOrders(
+                orders: orders,
+                paidByOrderId: paidByOrderId,
+                paymentsLedgerLoaded: ledgerLoaded,
+              );
+              final filtered = _filterAmount(
+                _filterUnpaid(
+                  unpaidBase,
+                  DateTime.now(),
+                  paidByOrderId,
+                  ledgerLoaded,
+                ),
+                paidByOrderId,
+                ledgerLoaded,
+              );
+              _applySort(filtered, paidByOrderId, ledgerLoaded);
+              final totalRemaining = filtered.fold<int>(
+                0,
+                (s, o) => s + _remaining(o, paidByOrderId, ledgerLoaded),
+              );
 
-          return ListView(
+              return ListView(
             padding: const EdgeInsets.all(16),
             children: [
               Card(
@@ -239,12 +285,22 @@ class _UnpaidReportScreenState extends ConsumerState<UnpaidReportScreen> {
                     l10n: l10n,
                     locale: locale,
                     calendar: calendar,
-                    trailingMoneyMinor: o.remainingAmountMinor,
+                    trailingMoneyMinor:
+                        _remaining(o, paidByOrderId, ledgerLoaded),
                     customerDisplayNo:
                         customerDisplayNoById[o.customerInternalId] ?? '',
                   ),
                 ),
-            ],
+              ],
+            );
+            },
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (e, _) => Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Text('$e', textAlign: TextAlign.center),
+              ),
+            ),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),

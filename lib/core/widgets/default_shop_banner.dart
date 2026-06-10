@@ -30,7 +30,7 @@ class DefaultShopBanner extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final name = shopName.trim().isEmpty ? ' ' : shopName.trim();
-    final logoSize = compact ? 36.0 : 52.0;
+    final logoSize = compact ? 48.0 : 72.0;
     final screenWidth = MediaQuery.sizeOf(context).width;
 
     return LayoutBuilder(
@@ -39,7 +39,7 @@ class DefaultShopBanner extends StatelessWidget {
             ? constraints.maxWidth
             : screenWidth;
         final naturalHeight = maxW / kAspectRatio;
-        final minH = compact ? 40.0 : 64.0;
+        final minH = compact ? 48.0 : 72.0;
         final effectiveMin = math.min(minH, maxHeight);
         final height = naturalHeight.clamp(effectiveMin, maxHeight);
 
@@ -83,41 +83,41 @@ class DefaultShopBanner extends StatelessWidget {
                       color: Colors.white.withValues(alpha: 0.08),
                     ),
                   ),
-                  Padding(
-                    padding: EdgeInsetsDirectional.fromSTEB(
-                      compact ? 10 : 14,
-                      compact ? 6 : 10,
-                      compact ? 10 : 14,
-                      compact ? 6 : 10,
+                  if (showShopNameText)
+                    Padding(
+                      padding: EdgeInsetsDirectional.fromSTEB(
+                        compact ? 10 : 14,
+                        compact ? 8 : 12,
+                        compact ? 10 : 14,
+                        compact ? 8 : 12,
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          ShopLogoImage(
+                            logoRelativePath: logoRelativePath,
+                            size: logoSize,
+                            borderRadius: compact ? 8 : 10,
+                            presentation: ShopLogoPresentation.onBanner,
+                          ),
+                          SizedBox(width: compact ? 10 : 14),
+                          Expanded(
+                            child: Text(
+                              name,
+                              softWrap: true,
+                              style: (compact
+                                      ? theme.textTheme.titleSmall
+                                      : theme.textTheme.titleMedium)
+                                  ?.copyWith(
+                                color: scheme.onPrimary,
+                                fontWeight: FontWeight.w800,
+                                height: 1.2,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    child: showShopNameText
-                        ? Row(
-                            children: [
-                              ShopLogoImage(
-                                logoRelativePath: logoRelativePath,
-                                size: logoSize,
-                                borderRadius: compact ? 8 : 10,
-                              ),
-                              SizedBox(width: compact ? 8 : 12),
-                              Expanded(
-                                child: Text(
-                                  name,
-                                  maxLines: compact ? 1 : 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: (compact
-                                          ? theme.textTheme.titleSmall
-                                          : theme.textTheme.titleMedium)
-                                      ?.copyWith(
-                                    color: scheme.onPrimary,
-                                    fontWeight: FontWeight.w800,
-                                    height: 1.15,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          )
-                        : const SizedBox.shrink(),
-                  ),
                 ],
               ),
             ),
@@ -148,6 +148,7 @@ class ShopLogoNameFallback extends StatelessWidget {
 
     return Row(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ShopLogoImage(
           logoRelativePath: logoRelativePath,
@@ -158,8 +159,7 @@ class ShopLogoNameFallback extends StatelessWidget {
         Flexible(
           child: Text(
             shopName,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+            softWrap: true,
             style: theme.textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.w700,
               color: scheme.onSurface,

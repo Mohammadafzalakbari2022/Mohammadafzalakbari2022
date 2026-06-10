@@ -83,10 +83,7 @@ pw.Widget buildPdfShopBannerSection({
                   fontSize: 14,
                   color: PdfColors.white,
                 ),
-                documentDirection:
-                    pdfValueShouldRenderLtr(branding.shopDisplayName)
-                        ? pw.TextDirection.ltr
-                        : textDirection,
+                documentDirection: textDirection,
                 maxLines: 2,
               ),
             ),

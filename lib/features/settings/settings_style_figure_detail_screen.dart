@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pride_v3/app/app_theme.dart';
+import 'package:pride_v3/core/input/pride_ltr_input.dart';
 import 'package:pride_v3/core/widgets/pride_action_buttons.dart';
 import 'package:pride_v3/core/widgets/pride_carved_section.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
@@ -94,11 +95,13 @@ Future<void> showStyleFigureSizeOptionDialog({
       title: Text(title),
       content: TextField(
         controller: valueCtrl,
+        autofocus: true,
+        textDirection: PrideLtrInput.direction,
+        textAlign: PrideLtrInput.align,
         decoration: InputDecoration(
           labelText: l10n.settingsStyleFigureValueInchesLabel,
           border: const OutlineInputBorder(),
         ),
-        autofocus: true,
       ),
       actions: prideDialogCancelSave(
         context: ctx,
@@ -113,9 +116,9 @@ Future<void> showStyleFigureSizeOptionDialog({
   valueCtrl.dispose();
 
   if (ok != true || !context.mounted) return;
-  if (!isValidInchMeasurementText(valueText)) {
+  if (!isNonEmptyShapeOptionLabel(valueText)) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.settingsStyleFigureValuePositiveRequired)),
+      SnackBar(content: Text(l10n.settingsStyleFigureValueRequired)),
     );
     return;
   }
@@ -775,8 +778,8 @@ class _SizeOptionList extends StatelessWidget {
           Card(
             margin: const EdgeInsets.only(bottom: 8),
             child: ListTile(
-              title: Text(
-                displayInchOptionLabel(
+              title: PrideLtrText(
+                text: displayInchOptionLabel(
                   valueInches: option.valueInches,
                   label: option.label,
                 ),

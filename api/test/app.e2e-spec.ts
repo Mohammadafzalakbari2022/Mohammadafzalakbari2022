@@ -457,6 +457,52 @@ describe('AppController (e2e)', () => {
       .expect(403);
   });
 
+  it('direct admin set-password without pending request', async () => {
+    const prisma = new PrismaClient();
+    try {
+      const login = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ username: 'owner', password: 'changeme', shop_id: 'dev' })
+        .expect(200);
+      const token = login.body.access_token as string;
+      const owner = await prisma.shopUser.findFirstOrThrow({
+        where: { shopId: 'dev', username: 'owner', deletedAt: null },
+      });
+      const prev = process.env.PRIDE_DEVELOPER_IDS;
+      process.env.PRIDE_DEVELOPER_IDS = owner.id;
+      try {
+        await request(app.getHttpServer())
+          .post(`/admin/shops/dev/users/${owner.id}/set-password`)
+          .set('Authorization', `Bearer ${token}`)
+          .send({ new_password: 'support-reset-99' })
+          .expect(200)
+          .expect((res) => {
+            expect(res.body.ok).toBe(true);
+            expect(res.body.username).toBe('owner');
+          });
+
+        await request(app.getHttpServer())
+          .post('/auth/login')
+          .send({
+            username: 'owner',
+            password: 'support-reset-99',
+            shop_id: 'dev',
+          })
+          .expect(200);
+
+        await request(app.getHttpServer())
+          .post(`/admin/shops/dev/users/${owner.id}/set-password`)
+          .set('Authorization', `Bearer ${token}`)
+          .send({ new_password: 'changeme' })
+          .expect(200);
+      } finally {
+        process.env.PRIDE_DEVELOPER_IDS = prev;
+      }
+    } finally {
+      await prisma.$disconnect();
+    }
+  });
+
   it('/admin/password-reset-requests (GET) 403 for non-developer JWT', async () => {
     const login = await request(app.getHttpServer())
       .post('/auth/login')
@@ -619,7 +665,7 @@ describe('AppController (e2e)', () => {
           .expect(200)
           .expect((res) => {
             expect(res.body.is_published).toBe(false);
-            expect(res.body.schema_version).toBe(1);
+            expect(res.body.schema_version).toBe(2);
           });
       } finally {
         process.env.PRIDE_DEVELOPER_IDS = prev;
@@ -656,19 +702,22 @@ describe('AppController (e2e)', () => {
       const prev = process.env.PRIDE_DEVELOPER_IDS;
       process.env.PRIDE_DEVELOPER_IDS = owner.id;
       try {
+        const tinyPng = Buffer.from([
+          0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+        ]);
         await request(app.getHttpServer())
           .post('/admin/billing-info')
           .set('Authorization', `Bearer ${token}`)
           .send({
             is_published: true,
-            hesab_pay_account_name: 'Afghan Pride',
-            hesab_pay_account_number: '0700123456',
-            hesab_pay_payment_link: 'https://hesab.example/pay/pride',
-            hesab_pay_payment_link_label: { en: 'Pay with Hesab Pay' },
-            price_1_year_afn: 5000,
-            payment_steps: { en: 'Pay at Hesab Pay center.' },
+            settings_image_base64: tinyPng.toString('base64'),
+            settings_image_mime_type: 'image/png',
           })
-          .expect(200);
+          .expect(200)
+          .expect((res) => {
+            expect(res.body.schema_version).toBe(2);
+            expect(res.body.has_settings_image).toBe(true);
+          });
 
         await request(app.getHttpServer())
           .get('/license/billing-info')
@@ -676,13 +725,8 @@ describe('AppController (e2e)', () => {
           .expect(200)
           .expect((res) => {
             expect(res.body.is_published).toBe(true);
-            expect(res.body.hesab_pay_account_number).toBe('0700123456');
-            expect(res.body.hesab_pay_payment_link).toBe(
-              'https://hesab.example/pay/pride',
-            );
-            expect(res.body.hesab_pay_payment_link_label).toBe(
-              'Pay with Hesab Pay',
-            );
+            expect(res.body.schema_version).toBe(2);
+            expect(res.body.has_settings_image).toBe(true);
           });
 
         const claim = await request(app.getHttpServer())

@@ -7,7 +7,6 @@ import 'package:pdf/widgets.dart' as pw;
 import '../../../data/local/catalog/catalog_image_ref.dart';
 import '../../../data/local/order_item_summary.dart';
 import '../../../data/local/order_style_snapshot_view.dart';
-import '../../../data/local/style/order_style_figures_resolver.dart';
 import '../../../data/local/style_figure_summary.dart';
 import '../style_figure_raster.dart';
 import 'invoice_pdf_constants.dart';
@@ -35,6 +34,12 @@ Future<pw.ImageProvider?> loadInvoiceShapeImageProvider(String imageRef) async {
   return _rasterToProvider(raster);
 }
 
+Future<pw.ImageProvider?> loadCatalogReferenceImageProvider(String? path) async {
+  final trimmed = path?.trim();
+  if (trimmed == null || trimmed.isEmpty) return null;
+  return _rasterToProvider(await _loadCatalogRaster(trimmed));
+}
+
 Future<InvoiceGarmentDesignImages> loadGarmentDesignImages({
   required OrderItemSummary item,
   OrderStyleSnapshotView? styleSnap,
@@ -46,32 +51,9 @@ Future<InvoiceGarmentDesignImages> loadGarmentDesignImages({
     catalog = _rasterToProvider(await _loadCatalogRaster(catalogPath));
   }
 
-  final refs = <String>{};
-  final snapFigures = styleSnap?.figures ?? [];
-  if (snapFigures.isNotEmpty) {
-    for (final f in snapFigures) {
-      final ref = f.imageRefSnapshot.trim();
-      if (ref.isNotEmpty) refs.add(ref);
-    }
-  } else {
-    final selected = resolveOrderStyleFigures(
-      styleSelectionJson: item.styleSelectionJson,
-      allFigures: catalogFigures,
-    );
-    for (final f in selected.take(InvoicePdfLayout.maxShapesPerGarment)) {
-      if (f.imageRef.trim().isNotEmpty) refs.add(f.imageRef.trim());
-    }
-  }
-
-  final referenceProviders = <pw.ImageProvider>[];
-  for (final ref in refs) {
-    final provider = await loadInvoiceShapeImageProvider(ref);
-    if (provider != null) referenceProviders.add(provider);
-  }
-
   return InvoiceGarmentDesignImages(
     catalogProvider: catalog,
-    referenceProviders: referenceProviders,
+    referenceProviders: const [],
   );
 }
 

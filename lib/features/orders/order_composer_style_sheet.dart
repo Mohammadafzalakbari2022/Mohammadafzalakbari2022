@@ -16,6 +16,9 @@ import '../catalog/catalog_tile_image.dart';
 import 'order_composer_catalog_picker.dart';
 import 'order_composer_shape_config_draft.dart';
 import 'order_composer_shape_select_tile.dart';
+import 'order_composer_reference.dart';
+import '../../data/local/order_item_summary.dart';
+import '../../data/local/order_summary.dart';
 
 class OrderComposerStyleResult {
   const OrderComposerStyleResult({
@@ -55,6 +58,12 @@ Future<OrderComposerStyleResult?> showOrderComposerStyleSheet({
   String initialCatalogDesignerShopName = '',
   String? initialCatalogImagePath,
   String? initialCatalogThumbnailPath,
+  OrderSummary? referenceOrder,
+  OrderItemSummary? referenceItem,
+  VoidCallback? onUsePreviousStyle,
+  VoidCallback? onUsePreviousDesign,
+  String Function(AppLocalizations l10n, int minor)? moneyFormatter,
+  String initialStyleSummary = '',
 }) {
   return showPrideModalBottomSheet<OrderComposerStyleResult>(
     context: context,
@@ -68,6 +77,12 @@ Future<OrderComposerStyleResult?> showOrderComposerStyleSheet({
       initialCatalogDesignerShopName: initialCatalogDesignerShopName,
       initialCatalogImagePath: initialCatalogImagePath,
       initialCatalogThumbnailPath: initialCatalogThumbnailPath,
+      referenceOrder: referenceOrder,
+      referenceItem: referenceItem,
+      onUsePreviousStyle: onUsePreviousStyle,
+      onUsePreviousDesign: onUsePreviousDesign,
+      moneyFormatter: moneyFormatter,
+      initialStyleSummary: initialStyleSummary,
     ),
   );
 }
@@ -83,6 +98,12 @@ class _OrderComposerStyleSheet extends ConsumerStatefulWidget {
     this.initialCatalogDesignerShopName = '',
     this.initialCatalogImagePath,
     this.initialCatalogThumbnailPath,
+    this.referenceOrder,
+    this.referenceItem,
+    this.onUsePreviousStyle,
+    this.onUsePreviousDesign,
+    this.moneyFormatter,
+    this.initialStyleSummary = '',
   });
 
   final GarmentType? garmentType;
@@ -94,6 +115,12 @@ class _OrderComposerStyleSheet extends ConsumerStatefulWidget {
   final String initialCatalogDesignerShopName;
   final String? initialCatalogImagePath;
   final String? initialCatalogThumbnailPath;
+  final OrderSummary? referenceOrder;
+  final OrderItemSummary? referenceItem;
+  final VoidCallback? onUsePreviousStyle;
+  final VoidCallback? onUsePreviousDesign;
+  final String Function(AppLocalizations l10n, int minor)? moneyFormatter;
+  final String initialStyleSummary;
 
   @override
   ConsumerState<_OrderComposerStyleSheet> createState() =>
@@ -316,6 +343,23 @@ class _OrderComposerStyleSheetState
                   controller: scrollController,
                   padding: EdgeInsets.fromLTRB(12, 8, 12, 24 + keyboard),
                   children: [
+                    if (widget.referenceOrder != null &&
+                        widget.moneyFormatter != null)
+                      ComposerSheetPreviousHeader(
+                        title: widget.garmentType != null
+                            ? '${composerGarmentLabel(l10n, widget.garmentType!)} · ${l10n.ordersComposerStyleSheetTitle}'
+                            : l10n.ordersComposerStyleSheetTitle,
+                        previousSection: ComposerSheetPreviousSection(
+                          referenceOrder: widget.referenceOrder!,
+                          referenceItem: widget.referenceItem,
+                          kind: ComposerSheetPreviousKind.style,
+                          currentTextForDiff: widget.initialStyleSummary,
+                          currentIsMeaningfulForDiff:
+                              widget.initialStyleSummary.trim().isNotEmpty,
+                          onUsePrevious: widget.onUsePreviousStyle,
+                          money: widget.moneyFormatter!,
+                        ),
+                      ),
                     Text(
                       l10n.ordersComposerStyleMainTitle,
                       style: Theme.of(context).textTheme.titleSmall,
@@ -397,6 +441,18 @@ class _OrderComposerStyleSheetState
                           ),
                         ],
                       ),
+                    if (widget.referenceOrder != null &&
+                        widget.garmentType == GarmentType.perahanTunban) ...[
+                      const SizedBox(height: 8),
+                      ComposerDesignPreviousReference(
+                        referenceOrder: widget.referenceOrder!,
+                        l10n: l10n,
+                        currentDesignSummary: _catalogDesignName,
+                        currentIsMeaningfulForDiff:
+                            _catalogDesignName.trim().isNotEmpty,
+                        onUsePrevious: widget.onUsePreviousDesign,
+                      ),
+                    ],
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,

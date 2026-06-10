@@ -168,6 +168,15 @@ class AppLocalizationsPs extends AppLocalizations {
   String get devPortalResetsEmpty => 'د پاسورډ بیا تنظیم غوښتنې په تمه نشته.';
 
   @override
+  String get devPortalResetsEmptyHint =>
+      'کله چې کارونکی په ننوتلو کې «پاسورډ هیر شوی» (یا تنظیمات → حساب) غوښتنه وکړي، دلته ښکارېږي. تاسو کولی شئ له هټۍ ټب څخه مستقیم پاسورډ ټاکئ.';
+
+  @override
+  String devPortalResetsRequestedAt(String date) {
+    return 'غوښتنه: $date';
+  }
+
+  @override
   String get devPortalResetsSetPasswordTitle => 'نوی پاسورډ ټاکل';
 
   @override
@@ -182,6 +191,37 @@ class AppLocalizationsPs extends AppLocalizations {
   @override
   String devPortalResetsResolveFailed(String error) {
     return 'تازه کول ناکام: $error';
+  }
+
+  @override
+  String get devPortalPasswordShareTitle => 'نوی پاسورډ شریک کړئ';
+
+  @override
+  String devPortalPasswordShareUserLabel(String shop, String username) {
+    return '$shop · $username';
+  }
+
+  @override
+  String devPortalPasswordShareMessage(
+    String shop,
+    String username,
+    String password,
+  ) {
+    return 'ستاسو د خیاط ننوتلو پاسورډ بیا تنظیم شو.\n\nهټۍ: $shop\nکارن نوم: $username\nنوی پاسورډ: $password\n\nپه دې معلوماتو ننوځئ. وروسته په تنظیماتو کې پاسورډ بدل کړئ.';
+  }
+
+  @override
+  String get devPortalPasswordShareSubject => 'د خیاط ننوتلو پاسورډ';
+
+  @override
+  String get devPortalPasswordCopied => 'پاسورډ کاپي شو.';
+
+  @override
+  String get devPortalShopSetPasswordCta => 'پاسورډ ټاکل';
+
+  @override
+  String devPortalShopSetPasswordFailed(String error) {
+    return 'پاسورډ ټاکل ناکام: $error';
   }
 
   @override
@@ -2410,6 +2450,9 @@ class AppLocalizationsPs extends AppLocalizations {
       'معتبر اندازه ولیکئ، لکه 5 1/2 x 7 1/2 inch.';
 
   @override
+  String get settingsStyleFigureValueRequired => 'د انچ اختیار ارزښت ولیکئ.';
+
+  @override
   String get settingsStyleActiveLabel => 'فعال';
 
   @override
@@ -2772,6 +2815,10 @@ class AppLocalizationsPs extends AppLocalizations {
       'د تادیې لارښوونې لا خپرې نه دي. له خپل توزیع‌کونکي وغواړئ په پراختیاګر پورټل → بلینګ کې خپورې کړي، یا لاندې فعالولو کوډ ولیکئ.';
 
   @override
+  String get subscriptionBillingNoImagePoster =>
+      'د تادیې لارښوونې انځور لا شتون نلري. تاسو لاندې ادعای تادیه لېږلی شئ یا له ملاتړ سره اړیکه ونیسئ.';
+
+  @override
   String subscriptionBillingLoadError(String error) {
     return 'د تادیې معلومات نه لوستل کېږي: $error';
   }
@@ -2871,6 +2918,11 @@ class AppLocalizationsPs extends AppLocalizations {
   @override
   String get devPortalBillingSettingsImageTooLarge =>
       'انځور باید تر ۱ مېګابایټ زیات نه وي. کوچنی فایل وټاکئ.';
+
+  @override
+  String devPortalBillingClaimsLoadError(String error) {
+    return 'د تادیې ادعاوې نه لوستل کېږي: $error';
+  }
 
   @override
   String devPortalBillingLoadError(String error) {
@@ -3649,7 +3701,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get devPortalShopUserPasswordNote =>
-      'پټنوم په سرور کې هش شوی دی. د نوي پټنوم لپاره د پټنوم بیاځای کولو برخه وکاروئ.';
+      'د نوي پاسورډ لپاره «پاسورډ ټاکل» وکاروئ او له کارونکي سره شریک کړئ.';
 
   @override
   String get devPortalShopDisabledLabel => 'غیرفعال';
@@ -4055,6 +4107,9 @@ class AppLocalizationsPs extends AppLocalizations {
   String get invoicePaymentDateLabel => 'نېټه';
 
   @override
+  String get invoicePaymentMethodLabel => 'طریقه';
+
+  @override
   String get invoiceMeasurementProfileLabel => 'د اندازې پروفایل';
 
   @override
@@ -4170,6 +4225,22 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get orderShareInvoicePdfCta => 'د PDF فاکتور شریکول';
+
+  @override
+  String get orderViewInvoicePdfCta => 'PDF وګورئ';
+
+  @override
+  String get orderViewInvoicePdfTooltip => 'په اپ کې فاکتور وګورئ';
+
+  @override
+  String orderViewInvoicePdfTitle(String orderNo) {
+    return 'فاکتور · $orderNo';
+  }
+
+  @override
+  String orderViewInvoicePdfFail(String detail) {
+    return 'فاکتور نشي خلاصیدلی: $detail';
+  }
 
   @override
   String get orderShareInvoicePdfGenerateFail =>

@@ -382,6 +382,18 @@ abstract class AppLocalizations {
   /// **'No pending password reset requests.'**
   String get devPortalResetsEmpty;
 
+  /// No description provided for @devPortalResetsEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'When a user taps Forgot password on the login screen (or Settings → Account), their request appears here. You can also open any shop on the Shops tab and set a password directly.'**
+  String get devPortalResetsEmptyHint;
+
+  /// No description provided for @devPortalResetsRequestedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested: {date}'**
+  String devPortalResetsRequestedAt(String date);
+
   /// No description provided for @devPortalResetsSetPasswordTitle.
   ///
   /// In en, this message translates to:
@@ -411,6 +423,52 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not update: {error}'**
   String devPortalResetsResolveFailed(String error);
+
+  /// No description provided for @devPortalPasswordShareTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share new password'**
+  String get devPortalPasswordShareTitle;
+
+  /// No description provided for @devPortalPasswordShareUserLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{shop} · {username}'**
+  String devPortalPasswordShareUserLabel(String shop, String username);
+
+  /// No description provided for @devPortalPasswordShareMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Khayat sign-in password was reset.\n\nShop: {shop}\nUsername: {username}\nNew password: {password}\n\nSign in with these details. Change your password later in Settings if you wish.'**
+  String devPortalPasswordShareMessage(
+    String shop,
+    String username,
+    String password,
+  );
+
+  /// No description provided for @devPortalPasswordShareSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Khayat sign-in password'**
+  String get devPortalPasswordShareSubject;
+
+  /// No description provided for @devPortalPasswordCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Password copied.'**
+  String get devPortalPasswordCopied;
+
+  /// No description provided for @devPortalShopSetPasswordCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Set password'**
+  String get devPortalShopSetPasswordCta;
+
+  /// No description provided for @devPortalShopSetPasswordFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not set password: {error}'**
+  String devPortalShopSetPasswordFailed(String error);
 
   /// No description provided for @loginFieldRequired.
   ///
@@ -4495,6 +4553,12 @@ abstract class AppLocalizations {
   /// **'Enter a valid measurement, for example 5 1/2 x 7 1/2 inch.'**
   String get settingsStyleFigureValuePositiveRequired;
 
+  /// No description provided for @settingsStyleFigureValueRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an inch option value.'**
+  String get settingsStyleFigureValueRequired;
+
   /// No description provided for @settingsStyleActiveLabel.
   ///
   /// In en, this message translates to:
@@ -5143,6 +5207,12 @@ abstract class AppLocalizations {
   /// **'Payment instructions are not published yet. Ask your distributor to publish them in Developer Portal → Billing, or enter an activation code below.'**
   String get subscriptionBillingNotPublished;
 
+  /// No description provided for @subscriptionBillingNoImagePoster.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment instructions image is not available yet. You can still submit a payment claim below, or contact support.'**
+  String get subscriptionBillingNoImagePoster;
+
   /// No description provided for @subscriptionBillingLoadError.
   ///
   /// In en, this message translates to:
@@ -5328,6 +5398,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Image must be 1 MB or less. Choose a smaller file.'**
   String get devPortalBillingSettingsImageTooLarge;
+
+  /// No description provided for @devPortalBillingClaimsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load payment claims: {error}'**
+  String devPortalBillingClaimsLoadError(String error);
 
   /// No description provided for @devPortalBillingLoadError.
   ///
@@ -6650,7 +6726,7 @@ abstract class AppLocalizations {
   /// No description provided for @devPortalShopUserPasswordNote.
   ///
   /// In en, this message translates to:
-  /// **'Password is stored hashed on the server. Use the Password resets tab to set a new one.'**
+  /// **'Tap Set password to create a new one and share it with the user.'**
   String get devPortalShopUserPasswordNote;
 
   /// No description provided for @devPortalShopDisabledLabel.
@@ -7385,6 +7461,12 @@ abstract class AppLocalizations {
   /// **'Date'**
   String get invoicePaymentDateLabel;
 
+  /// No description provided for @invoicePaymentMethodLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Method'**
+  String get invoicePaymentMethodLabel;
+
   /// No description provided for @invoiceMeasurementProfileLabel.
   ///
   /// In en, this message translates to:
@@ -7606,6 +7688,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Share PDF invoice'**
   String get orderShareInvoicePdfCta;
+
+  /// No description provided for @orderViewInvoicePdfCta.
+  ///
+  /// In en, this message translates to:
+  /// **'View PDF'**
+  String get orderViewInvoicePdfCta;
+
+  /// No description provided for @orderViewInvoicePdfTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview invoice in the app'**
+  String get orderViewInvoicePdfTooltip;
+
+  /// No description provided for @orderViewInvoicePdfTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice · {orderNo}'**
+  String orderViewInvoicePdfTitle(String orderNo);
+
+  /// No description provided for @orderViewInvoicePdfFail.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open invoice: {detail}'**
+  String orderViewInvoicePdfFail(String detail);
 
   /// No description provided for @orderShareInvoicePdfGenerateFail.
   ///

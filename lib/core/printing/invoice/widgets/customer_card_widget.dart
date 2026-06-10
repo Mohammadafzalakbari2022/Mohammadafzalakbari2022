@@ -38,7 +38,7 @@ pw.Widget customerCardWidget({
                 fontSize: InvoicePdfLayout.customerIdBadgeFontSize,
                 color: PdfColors.white,
               ),
-              documentDirection: pw.TextDirection.ltr,
+              documentDirection: textDirection,
             ),
           ),
           pw.SizedBox(height: 8),

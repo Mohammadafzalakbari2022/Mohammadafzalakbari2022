@@ -23,6 +23,13 @@ Future<({Map<String, dynamic>? data, DateTime? fetchedAt})>
   try {
     final decoded = jsonDecode(raw);
     if (decoded is Map<String, dynamic>) {
+      final schema = decoded['schema_version'];
+      if (schema is int && schema < 2) {
+        return (data: null, fetchedAt: null);
+      }
+      if (schema is String && (int.tryParse(schema) ?? 0) < 2) {
+        return (data: null, fetchedAt: null);
+      }
       return (
         data: decoded,
         fetchedAt: atMs != null

@@ -9,9 +9,11 @@ const String kPdfLri = '\u2066';
 /// Pop Directional Isolate (U+2069) — retained for non-PDF / legacy string tests only.
 const String kPdfPdi = '\u2069';
 
-/// Latin letters/digits and common ID/phone/money tokens that must not reverse in RTL.
+/// Inch measurements, Latin IDs, phones — used by [pdfSplitMixedTextSegments] tests/helpers.
 final RegExp _latinDigitRun = RegExp(
-  r'[A-Za-z0-9][A-Za-z0-9_\-\./+#@]*|[+\d][+\d\s\-().]*',
+  r'[0-9][0-9\s./×xX\-]*|'
+  r'[A-Za-z][A-Za-z0-9_\-\./+#@]*|'
+  r'[+\d][+\d\s\-().]*',
 );
 
 /// One visual run inside mixed PDF text with an explicit direction (no U+2066/U+2069).
@@ -34,12 +36,49 @@ String pdfIsolateLtr(String text) {
 /// per segment instead of embedding U+2066/U+2069 (the PDF font engine draws them).
 String pdfProtectMixedText(String text) => text;
 
-/// Splits [text] into RTL/LTR runs for PDF widgets (no isolate characters).
+bool pdfHasArabicScript(String text) {
+  return RegExp(r'[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]').hasMatch(text);
+}
+
+/// True when [value] contains ASCII letters or digits (render LTR in RTL documents).
+bool pdfValueShouldRenderLtr(String value) {
+  return RegExp(r'[A-Za-z0-9]').hasMatch(value);
+}
+
+/// Chooses [pw.TextDirection] for a PDF string in a localized document.
+pw.TextDirection pdfResolveTextDirection({
+  required String text,
+  required pw.TextDirection documentDirection,
+  pw.TextDirection? override,
+}) {
+  if (override != null) return override;
+  if (text.isEmpty) return documentDirection;
+  if (!pdfHasArabicScript(text) && pdfValueShouldRenderLtr(text)) {
+    return pw.TextDirection.ltr;
+  }
+  return documentDirection;
+}
+
+pw.TextAlign? pdfResolveTextAlign({
+  required pw.TextDirection direction,
+  pw.TextAlign? textAlign,
+}) {
+  if (textAlign != null) return textAlign;
+  return direction == pw.TextDirection.rtl
+      ? pw.TextAlign.right
+      : pw.TextAlign.left;
+}
+
+/// Splits [text] into RTL/LTR runs (debug/tests only — widgets use full-string bidi).
 List<PdfTextSegment> pdfSplitMixedTextSegments(
   String text, {
   pw.TextDirection defaultDirection = pw.TextDirection.rtl,
 }) {
   if (text.isEmpty) return const [];
+
+  if (!pdfHasArabicScript(text) && pdfValueShouldRenderLtr(text)) {
+    return [PdfTextSegment(text, pw.TextDirection.ltr)];
+  }
 
   final segments = <PdfTextSegment>[];
   var lastEnd = 0;
@@ -66,97 +105,55 @@ List<PdfTextSegment> pdfSplitMixedTextSegments(
   return segments;
 }
 
-/// True when [value] contains ASCII letters or digits (render LTR in RTL documents).
-bool pdfValueShouldRenderLtr(String value) {
-  return RegExp(r'[A-Za-z0-9]').hasMatch(value);
-}
-
-/// PDF [pw.Text] replacement that keeps Latin/digit runs LTR without U+2066/U+2069.
+/// PDF text with correct RTL/LTR direction for Dari, Pashto, and embedded Latin.
+///
+/// Uses one [pw.Text] per run so the pdf package bidi/arabic shaper processes the
+/// full logical string — splitting into [pw.Wrap] children scrambles mixed lines.
 pw.Widget pdfMixedTextWidget({
   required String text,
   required pw.TextStyle style,
   pw.TextDirection documentDirection = pw.TextDirection.rtl,
+  pw.TextDirection? textDirection,
   pw.TextAlign? textAlign,
   int? maxLines,
 }) {
-  final segments = pdfSplitMixedTextSegments(
-    text,
-    defaultDirection: documentDirection,
+  if (text.isEmpty) return pw.SizedBox();
+
+  final direction = pdfResolveTextDirection(
+    text: text,
+    documentDirection: documentDirection,
+    override: textDirection,
   );
 
-  if (segments.length == 1) {
-    return pw.Text(
-      segments.first.text,
-      style: style,
-      textDirection: segments.first.direction,
-      textAlign: textAlign,
-      maxLines: maxLines,
-    );
-  }
-
-  return pw.Directionality(
-    textDirection: documentDirection,
-    child: pw.Wrap(
-      crossAxisAlignment: pw.WrapCrossAlignment.start,
-      children: [
-        for (final segment in segments)
-          pw.Text(
-            segment.text,
-            style: style,
-            textDirection: segment.direction,
-          ),
-      ],
-    ),
+  return pw.Text(
+    text,
+    style: style,
+    textDirection: direction,
+    textAlign: pdfResolveTextAlign(direction: direction, textAlign: textAlign),
+    maxLines: maxLines,
   );
 }
 
-/// Renders localized money (e.g. `500 افغانی`) with LTR digits and RTL currency text.
+/// Renders localized money (e.g. `500 افغانی`) with correct RTL ordering.
 pw.Widget pdfMoneyWidget({
   required String formattedMoney,
   required pw.TextStyle style,
   pw.TextDirection documentDirection = pw.TextDirection.rtl,
+  pw.TextAlign? textAlign,
 }) {
   final trimmed = formattedMoney.trim();
   if (trimmed.isEmpty) return pw.SizedBox();
 
-  final match =
-      RegExp(r'^([\d,.\+\-\u2212]+)\s+(.*)$', unicode: true).firstMatch(trimmed);
-  if (match == null) {
-    return pdfMixedTextWidget(
-      text: trimmed,
-      style: style,
-      documentDirection: documentDirection,
-    );
-  }
+  final direction = pdfResolveTextDirection(
+    text: trimmed,
+    documentDirection: documentDirection,
+  );
 
-  final digits = match.group(1)!;
-  final suffix = match.group(2)!.trim();
-  if (suffix.isEmpty) {
-    return pw.Text(
-      digits,
-      style: style,
-      textDirection: pw.TextDirection.ltr,
-    );
-  }
-
-  return pw.Directionality(
-    textDirection: documentDirection,
-    child: pw.Wrap(
-      spacing: 3,
-      crossAxisAlignment: pw.WrapCrossAlignment.center,
-      children: [
-        pw.Text(
-          digits,
-          style: style,
-          textDirection: pw.TextDirection.ltr,
-        ),
-        pw.Text(
-          suffix,
-          style: style,
-          textDirection: documentDirection,
-        ),
-      ],
-    ),
+  return pw.Text(
+    trimmed,
+    style: style,
+    textDirection: direction,
+    textAlign: pdfResolveTextAlign(direction: direction, textAlign: textAlign),
   );
 }
 
@@ -185,6 +182,7 @@ pw.Widget pdfCompactLabelValue({
             color: labelColor,
           ),
           textDirection: documentDirection,
+          textAlign: pdfResolveTextAlign(direction: documentDirection),
           maxLines: 3,
         ),
       ),
@@ -224,6 +222,7 @@ pw.Widget pdfMixedLabelValue({
           color: labelColor,
         ),
         textDirection: documentDirection,
+        textAlign: pdfResolveTextAlign(direction: documentDirection),
       ),
       pw.Expanded(
         child: pdfMixedTextWidget(

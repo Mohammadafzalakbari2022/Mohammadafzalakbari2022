@@ -35,6 +35,17 @@ Full release (APK + AAB + Windows zip):
 2. Or run once with VPN off/on if GitHub downloads are blocked.
 3. Verify: `flutter doctor -v` shows Visual Studio OK.
 
+## Microsoft Store (MSIX)
+
+```powershell
+.\scripts\build-windows-msix.ps1
+```
+
+- **Store upload:** copy `config\msix_publisher.txt.example` → `config\msix_publisher.txt` and paste your Partner Center **Publisher ID** (`CN=...`).
+- Output: `Khayat-windows.msix` and `microsoft store ready files\Khayat-windows.msix`
+
+See [`microsoft store ready files/MICROSOFT_STORE_DEPLOY.md`](../microsoft%20store%20ready%20files/MICROSOFT_STORE_DEPLOY.md).
+
 ## Play Store note
 
-Windows builds are for shop PCs only. Play Store uses **AAB** (`Khayat-release.aab`), which must be signed with `android\key.properties` (upload keystore).
+Android uses **AAB** (`Khayat-release.aab`) with `android\key.properties` (upload keystore).

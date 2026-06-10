@@ -1,22 +1,23 @@
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+import '../invoice_document_model.dart';
 import '../invoice_pdf_constants.dart';
-import '../invoice_pdf_garment_assets.dart';
-import '../invoice_pdf_shape_model.dart';
 import '../invoice_pdf_text_sanitize.dart';
 import '../../invoice_pdf_font.dart';
 import '../../invoice_pdf_measurements.dart';
 import '../../pdf_bidi_text.dart';
+import 'shape_grid_widget.dart';
 
-/// Resolved garment block for PDF rendering (all data stays together).
+/// Resolved garment block for PDF rendering.
 class InvoiceGarmentBlockData {
   const InvoiceGarmentBlockData({
     required this.title,
     required this.priceLabel,
     required this.measurementRows,
-    required this.designImages,
-    required this.shapeCards,
+    required this.referenceDesign,
+    required this.shapes,
+    this.referenceImageProvider,
     this.styleName = '',
     this.styleSummary = '',
     this.fabricLines = const [],
@@ -27,8 +28,9 @@ class InvoiceGarmentBlockData {
   final String title;
   final String priceLabel;
   final List<InvoiceMeasurementRow> measurementRows;
-  final InvoiceGarmentDesignImages designImages;
-  final List<InvoiceShapeCardData> shapeCards;
+  final InvoiceDocumentReferenceDesign referenceDesign;
+  final pw.ImageProvider? referenceImageProvider;
+  final List<InvoicePdfShapeRenderData> shapes;
   final String styleName;
   final String styleSummary;
   final List<String> fabricLines;
@@ -57,7 +59,7 @@ pw.Widget invoiceCardShell({
       crossAxisAlignment: pw.CrossAxisAlignment.stretch,
       children: [
         pw.Container(
-          padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           decoration: pw.BoxDecoration(
             color: titleBackground ?? InvoicePdfColors.accentLight,
             borderRadius: pw.BorderRadius.only(
@@ -76,7 +78,7 @@ pw.Widget invoiceCardShell({
           ),
         ),
         pw.Padding(
-          padding: const pw.EdgeInsets.all(10),
+          padding: const pw.EdgeInsets.all(InvoicePdfLayout.cardBodyPadding),
           child: child,
         ),
       ],
@@ -93,7 +95,7 @@ pw.Widget invoiceLabelValueRow({
 }) {
   if (label.trim().isEmpty) {
     return pw.Padding(
-      padding: const pw.EdgeInsets.only(bottom: 4),
+      padding: const pw.EdgeInsets.only(bottom: 3),
       child: pdfMixedTextWidget(
         text: pdfSanitizeLabel(value),
         style: pw.TextStyle(
@@ -106,7 +108,7 @@ pw.Widget invoiceLabelValueRow({
   }
 
   return pw.Padding(
-    padding: const pw.EdgeInsets.only(bottom: 4),
+    padding: const pw.EdgeInsets.only(bottom: 3),
     child: pdfCompactLabelValue(
       fonts: fonts,
       label: pdfSanitizeLabel(label),

@@ -5,24 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'package:pride_v3/core/calendar/app_calendar_format.dart';
-import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
 import 'package:pride_v3/core/feedback/app_feedback.dart';
 import 'package:pride_v3/core/formatting/display_order_no_format.dart';
-import 'package:pride_v3/core/printing/order_receipt_customer_lookup.dart';
-import 'package:pride_v3/core/printing/invoice/invoice_pdf_debug_dump.dart';
+import 'package:pride_v3/core/printing/invoice/order_invoice_loader.dart';
 import 'package:pride_v3/core/printing/invoice_pdf.dart';
-import 'package:pride_v3/core/printing/invoice_pdf_images.dart';
 import 'package:pride_v3/core/printing/invoice_share_contact.dart';
 import 'package:pride_v3/core/printing/phone_whatsapp.dart';
 import 'package:pride_v3/core/printing/whatsapp_invoice_share.dart';
-import 'package:pride_v3/data/local/order_item_snapshot_key.dart';
 import 'package:pride_v3/data/local/order_summary.dart';
 import 'package:pride_v3/data/local/payment_summary.dart';
-import 'package:pride_v3/data/providers/local_data_providers.dart';
-import 'package:pride_v3/features/orders/order_composer_item_card.dart';
-import 'package:pride_v3/features/settings/shop_profile_provider.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -54,97 +45,19 @@ Future<void> shareOrderInvoice({
   }
 
   try {
-    final shop = ref.read(shopProfileProvider).valueOrNull;
-    final locale = Localizations.localeOf(context).toString();
-    final calendar = ref.read(dateCalendarSystemProvider);
-    final localeObj = Localizations.localeOf(context);
-    final isRtl =
-        localeObj.languageCode == 'fa' || localeObj.languageCode == 'ps';
-    final textDirection =
-        isRtl ? pw.TextDirection.rtl : pw.TextDirection.ltr;
-    final createdDateText = AppCalendarFormat.dateTimeMedium(
-      l10n,
-      calendar,
-      order.createdAt,
-      locale,
-    );
-
-    final garmentInputs = <InvoicePdfGarmentInput>[];
-    if (order.items.length > 1) {
-      for (final item in order.sortedItems) {
-        final snapKey = OrderItemSnapshotKey(
-          orderInternalId: order.internalId,
-          orderItemInternalId: item.internalId,
-        );
-        final mSnap = ref
-            .read(orderItemMeasurementSnapshotProvider(snapKey))
-            .valueOrNull;
-        final sSnap =
-            ref.read(orderItemStyleSnapshotProvider(snapKey)).valueOrNull;
-        final figures = ref
-                .read(styleFiguresForGarmentProvider(item.garmentType))
-                .valueOrNull ??
-            const [];
-        garmentInputs.add(
-          InvoicePdfGarmentInput(
-            garmentLabel: composerGarmentLabel(l10n, item.garmentType),
-            item: item,
-            measurementSnap: mSnap,
-            styleSnap: sSnap,
-            catalogFigures: figures,
-          ),
-        );
-      }
-    }
-
-    final styleSnap =
-        ref.read(orderStyleSnapshotProvider(order.internalId)).valueOrNull;
-    final measurementSnap = ref
-        .read(orderMeasurementSnapshotProvider(order.internalId))
-        .valueOrNull;
-    final catalogFigures =
-        ref.read(styleAllFiguresStreamProvider).valueOrNull ?? const [];
-    final designRail = await loadInvoicePdfDesignRail(
-      order: order,
-      styleSnap: styleSnap,
-      catalogFigures: catalogFigures,
-    );
-    final customerDisplayNo =
-        customerDisplayNoForOrder(ref, order.customerInternalId);
-
-    // designRail kept for backward compatibility; v2 PDF loads images per garment.
-    if (kDebugMode) {
-      await writeInvoicePdfDebugDump(
-        buildInvoicePdfDebugPayload(
-          order: order,
-          payments: payments,
-          garmentInputs: garmentInputs,
-          styleSnap: styleSnap,
-          measurementSnap: measurementSnap,
-          catalogFigures: catalogFigures,
-          customerDisplayNo: customerDisplayNo,
-          shop: shop,
-        ),
-      );
-    }
-
-    final pdfBytes = await buildOrderInvoicePdf(
+    final request = await prepareOrderInvoicePdfRequest(
+      context: context,
+      ref: ref,
       l10n: l10n,
-      shop: shop,
       order: order,
       payments: payments,
       deliveryDateText: deliveryDateText,
       statusText: statusText,
-      textDirection: textDirection,
-      createdDateText: createdDateText,
-      formatPaymentDate: (dt) =>
-          AppCalendarFormat.mediumDate(l10n, calendar, dt, locale),
-      designRail: designRail,
-      measurementSnap: measurementSnap,
-      styleSnap: styleSnap,
-      catalogFigures: catalogFigures,
-      garmentInputs: garmentInputs,
-      customerDisplayNo: customerDisplayNo,
+    );
+
+    final pdfBytes = await loadOrderInvoicePdfBytesFromRef(
+      ref: ref,
+      request: request,
     );
 
     final rawPhone = order.customerPhone?.trim();

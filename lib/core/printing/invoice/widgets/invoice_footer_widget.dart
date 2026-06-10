@@ -43,9 +43,7 @@ pw.Widget invoiceFooterWidget({
                     color: InvoicePdfColors.accent,
                   ),
                   textAlign: pw.TextAlign.center,
-                  documentDirection: pdfValueShouldRenderLtr(line)
-                      ? pw.TextDirection.ltr
-                      : textDirection,
+                  documentDirection: textDirection,
                 ),
             ],
           ),

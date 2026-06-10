@@ -8,8 +8,8 @@ import 'package:pride_v3/core/calendar/report_month_period.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../auth/auth_providers.dart';
-import '../../data/local/order_summary.dart';
 import '../../data/providers/local_data_providers.dart';
+import 'report_calculations.dart';
 import 'report_daily_income_bars.dart';
 import 'report_money_format.dart';
 
@@ -31,22 +31,6 @@ class _MonthlyIncomeReportScreenState
 
   bool _canGoNext(DateTime start, DateCalendarSystem sys) =>
       canAdvanceReportMonth(start, sys);
-
-  int _unpaidDueInMonth(
-    List<OrderSummary> orders,
-    DateTime start,
-    DateTime end,
-  ) {
-    var sum = 0;
-    for (final o in orders) {
-      if (o.remainingAmountMinor <= 0) continue;
-      if (o.deliveryDate.isBefore(start) || !o.deliveryDate.isBefore(end)) {
-        continue;
-      }
-      sum += o.remainingAmountMinor;
-    }
-    return sum;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -213,30 +197,45 @@ class _MonthlyIncomeReportScreenState
           const SizedBox(height: 12),
           asyncOrders.when(
             data: (orders) {
-              final unpaid = _unpaidDueInMonth(orders, start, end);
-              return Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.reportsMonthlyUnpaidDueTitle,
-                        style: Theme.of(context).textTheme.titleMedium,
+              return asyncPayments.when(
+                data: (payments) {
+                  final paidByOrderId =
+                      ReportCalculations.paidByOrderIdFromPayments(payments);
+                  const ledgerLoaded = true;
+                  final unpaid = ReportCalculations.unpaidDueInMonthTotal(
+                    orders: orders,
+                    paidByOrderId: paidByOrderId,
+                    paymentsLedgerLoaded: ledgerLoaded,
+                    monthStart: start,
+                    monthEndExclusive: end,
+                  );
+                  return Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.reportsMonthlyUnpaidDueTitle,
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            l10n.reportsMonthlyUnpaidDueBody,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            reportFormatMoney(l10n, unpaid),
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        l10n.reportsMonthlyUnpaidDueBody,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        reportFormatMoney(l10n, unpaid),
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                    ],
-                  ),
-                ),
+                    ),
+                  );
+                },
+                loading: () => const SizedBox.shrink(),
+                error: (e, st) => const SizedBox.shrink(),
               );
             },
             loading: () => const SizedBox.shrink(),

@@ -9,6 +9,7 @@ import 'package:pride_v3/core/formatting/digit_normalizer.dart';
 import 'package:pride_v3/core/widgets/pride_modal_bottom_sheet.dart';
 import 'package:pride_v3/core/widgets/pride_money_field.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
+import '../../data/local/entities/garment_type.dart';
 import '../../data/local/order_summary.dart';
 import 'order_composer_draft.dart';
 import 'order_composer_item_card.dart';
@@ -26,10 +27,12 @@ class OrderPaymentDraftResult {
   const OrderPaymentDraftResult({
     required this.totalMinor,
     required this.initialPaidMinor,
+    this.itemPricesMinor = const {},
   });
 
   final int totalMinor;
   final int initialPaidMinor;
+  final Map<GarmentType, int> itemPricesMinor;
 }
 
 Future<OrderPaymentDraftResult?> showOrderPaymentDraftSheet({
@@ -38,6 +41,7 @@ Future<OrderPaymentDraftResult?> showOrderPaymentDraftSheet({
   int initialPaidMinor = 0,
   List<OrderPaymentBreakdownLine> itemBreakdown = const [],
   bool totalReadOnly = false,
+  Widget? previousOrderSection,
 }) {
   return showPrideModalBottomSheet<OrderPaymentDraftResult>(
     context: context,
@@ -46,6 +50,7 @@ Future<OrderPaymentDraftResult?> showOrderPaymentDraftSheet({
       initialPaidMinor: initialPaidMinor,
       itemBreakdown: itemBreakdown,
       totalReadOnly: totalReadOnly,
+      previousOrderSection: previousOrderSection,
     ),
   );
 }
@@ -80,51 +85,66 @@ class _OrderPaymentDraftSheet extends StatefulWidget {
     required this.initialPaidMinor,
     this.itemBreakdown = const [],
     this.totalReadOnly = false,
+    this.previousOrderSection,
   });
 
   final int initialTotalMinor;
   final int initialPaidMinor;
   final List<OrderPaymentBreakdownLine> itemBreakdown;
   final bool totalReadOnly;
+  final Widget? previousOrderSection;
 
   @override
   State<_OrderPaymentDraftSheet> createState() => _OrderPaymentDraftSheetState();
 }
 
 class _OrderPaymentDraftSheetState extends State<_OrderPaymentDraftSheet> {
-  late final TextEditingController _totalCtrl;
   late final TextEditingController _paidCtrl;
+  late final Map<GarmentType, TextEditingController> _itemPriceCtrls;
   String? _error;
 
   @override
   void initState() {
     super.initState();
-    _totalCtrl = TextEditingController(
-      text: widget.initialTotalMinor > 0
-          ? widget.initialTotalMinor.toString()
-          : '',
-    );
     _paidCtrl = TextEditingController(
       text: widget.initialPaidMinor > 0
           ? widget.initialPaidMinor.toString()
           : '',
     );
-    _totalCtrl.addListener(_revalidate);
+    _itemPriceCtrls = {
+      for (final line in widget.itemBreakdown)
+        line.garmentType: TextEditingController(
+          text: line.amountMinor > 0 ? line.amountMinor.toString() : '',
+        ),
+    };
     _paidCtrl.addListener(_revalidate);
+    for (final c in _itemPriceCtrls.values) {
+      c.addListener(_revalidate);
+    }
   }
 
   void _revalidate() => setState(() => _error = null);
 
-  int? get _parsedTotal {
-    if (widget.totalReadOnly) return widget.initialTotalMinor;
-    return tryParseMoneyAmount(_totalCtrl.text);
+  int get _parsedTotal {
+    var sum = 0;
+    for (final c in _itemPriceCtrls.values) {
+      sum += tryParseMoneyAmount(c.text) ?? 0;
+    }
+    return sum;
   }
 
   int get _parsedPaid => tryParseMoneyAmount(_paidCtrl.text) ?? 0;
 
+  Map<GarmentType, int> _parsedItemPrices() {
+    return {
+      for (final entry in _itemPriceCtrls.entries)
+        entry.key: tryParseMoneyAmount(entry.value.text) ?? 0,
+    };
+  }
+
   void _applyPaidInFull() {
     final total = _parsedTotal;
-    if (total == null || total <= 0) return;
+    if (total <= 0) return;
     setState(() => _paidCtrl.text = total.toString());
   }
 
@@ -134,12 +154,14 @@ class _OrderPaymentDraftSheetState extends State<_OrderPaymentDraftSheet> {
 
   @override
   void dispose() {
-    _totalCtrl
-      ..removeListener(_revalidate)
-      ..dispose();
     _paidCtrl
       ..removeListener(_revalidate)
       ..dispose();
+    for (final c in _itemPriceCtrls.values) {
+      c
+        ..removeListener(_revalidate)
+        ..dispose();
+    }
     super.dispose();
   }
 
@@ -147,7 +169,7 @@ class _OrderPaymentDraftSheetState extends State<_OrderPaymentDraftSheet> {
     final l10n = AppLocalizations.of(context)!;
     final total = _parsedTotal;
     final paid = _parsedPaid;
-    if (total == null) {
+    if (total <= 0) {
       setState(() => _error = l10n.ordersComposerPaymentRequired);
       return;
     }
@@ -159,7 +181,11 @@ class _OrderPaymentDraftSheetState extends State<_OrderPaymentDraftSheet> {
     }
     Navigator.pop(
       context,
-      OrderPaymentDraftResult(totalMinor: total, initialPaidMinor: paid),
+      OrderPaymentDraftResult(
+        totalMinor: total,
+        initialPaidMinor: paid,
+        itemPricesMinor: _parsedItemPrices(),
+      ),
     );
   }
 
@@ -168,11 +194,10 @@ class _OrderPaymentDraftSheetState extends State<_OrderPaymentDraftSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final total = _parsedTotal ?? 0;
+    final total = _parsedTotal;
     final paid = _parsedPaid;
     final due = OrderPaymentRules.remainingMinor(total, paid);
-    final valid =
-        _parsedTotal != null && OrderPaymentRules.isValidInitialPay(total, paid);
+    final valid = total > 0 && OrderPaymentRules.isValidInitialPay(total, paid);
     return PrideDraggableSheetScaffold(
       header: Padding(
         padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
@@ -195,57 +220,42 @@ class _OrderPaymentDraftSheetState extends State<_OrderPaymentDraftSheet> {
         controller: scroll,
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
         children: [
-          if (widget.itemBreakdown.isNotEmpty) ...[
-            Text(
-              l10n.ordersComposerItemBreakdownTitle,
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-            ),
-            const SizedBox(height: 8),
-            for (final line in widget.itemBreakdown)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        composerGarmentLabel(l10n, line.garmentType),
-                      ),
-                    ),
-                    Text(
-                      AppNumberFormat.formatMoney(l10n, line.amountMinor),
-                    ),
-                  ],
+          if (widget.previousOrderSection != null) ...[
+            widget.previousOrderSection!,
+            const Divider(height: 24),
+          ],
+          Text(
+            l10n.ordersComposerItemBreakdownTitle,
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
                 ),
-              ),
-            const Divider(height: 20),
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(l10n.ordersComposerTotalLabel),
-              trailing: Text(
-                AppNumberFormat.formatMoney(
-                  l10n,
-                  widget.initialTotalMinor,
-                ),
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-              ),
-            ),
-            const SizedBox(height: 12),
-          ] else
+          ),
+          const SizedBox(height: 8),
+          for (final line in widget.itemBreakdown) ...[
             PrideMoneyField(
-              controller: _totalCtrl,
-              labelText: l10n.ordersComposerPriceLabel,
+              controller: _itemPriceCtrls[line.garmentType]!,
+              labelText: composerGarmentLabel(l10n, line.garmentType),
               hintText: l10n.ordersComposerPriceHint,
               textInputAction: TextInputAction.next,
             ),
-          if (widget.itemBreakdown.isEmpty) const SizedBox(height: 12),
+            const SizedBox(height: 10),
+          ],
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text(l10n.ordersComposerTotalLabel),
+            trailing: Text(
+              AppNumberFormat.formatMoney(l10n, total),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+            ),
+          ),
+          const Divider(height: 16),
           PrideMoneyField(
             controller: _paidCtrl,
             labelText: l10n.ordersComposerReceivedNowLabel,
             hintText: l10n.ordersComposerReceivedNowHint,
+            textInputAction: TextInputAction.done,
           ),
           const SizedBox(height: 10),
           Wrap(
@@ -255,9 +265,7 @@ class _OrderPaymentDraftSheetState extends State<_OrderPaymentDraftSheet> {
               ActionChip(
                 avatar: const Icon(Icons.check_circle_outline, size: 20),
                 label: Text(l10n.ordersComposerPaidInFullCta),
-                onPressed: _parsedTotal != null && _parsedTotal! > 0
-                    ? _applyPaidInFull
-                    : null,
+                onPressed: total > 0 ? _applyPaidInFull : null,
               ),
               ActionChip(
                 avatar: const Icon(Icons.money_off_outlined, size: 20),

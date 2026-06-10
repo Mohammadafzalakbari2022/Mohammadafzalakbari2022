@@ -108,7 +108,8 @@ Tracked in [`IMPLEMENTATION_TODO.md`](../IMPLEMENTATION_TODO.md) and `plan-25-im
 ## Play Store & marketing assets
 
 - Privacy setup: [`play store ready files/PLAY_STORE_PRIVACY_SETUP.md`](../play%20store%20ready%20files/PLAY_STORE_PRIVACY_SETUP.md)
-- Listing copy / tags: [`play store ready files/description and tags for pride.txt`](../play%20store%20ready%20files/description%20and%20tags%20for%20pride.txt)
+- **Store listings (EN + Dari + Pashto):** [`play store ready files/PLAY_STORE_LISTINGS_EN_FA_PS.md`](../play%20store%20ready%20files/PLAY_STORE_LISTINGS_EN_FA_PS.md)
+- Listing copy / tags (English notes): [`play store ready files/description and tags for pride.txt`](../play%20store%20ready%20files/description%20and%20tags%20for%20pride.txt)
 - Privacy page: [`web/privacy-policy.html`](../web/privacy-policy.html)
 
 ## Environment & secrets

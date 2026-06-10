@@ -246,6 +246,41 @@ export class AdminService {
     });
   }
 
+  /** Direct password set for any active shop user (no pending request required). */
+  async setShopUserPassword(
+    developerSub: string,
+    shopId: string,
+    userId: string,
+    newPassword: string,
+  ): Promise<{ shop_id: string; user_id: string; username: string }> {
+    const sid = shopId?.trim() ?? '';
+    const uid = userId?.trim() ?? '';
+    const pw = newPassword?.trim() ?? '';
+    if (!sid || !uid) {
+      throw new BadRequestException('shop_id and user_id are required');
+    }
+    if (pw.length < 6) {
+      throw new BadRequestException('new_password must be at least 6 characters');
+    }
+    const user = await this.prisma.shopUser.findFirst({
+      where: { id: uid, shopId: sid, deletedAt: null },
+    });
+    if (!user) {
+      throw new NotFoundException('user not found');
+    }
+    await this.shopRegistry.setUserPasswordPlain(sid, uid, pw);
+    await this.appendAudit(developerSub, 'password_reset.direct', {
+      shop_id: sid,
+      user_id: uid,
+      username: user.username,
+    });
+    return {
+      shop_id: sid,
+      user_id: uid,
+      username: user.username,
+    };
+  }
+
   listActivationCodes() {
     return this.prisma.activationCode.findMany({
       orderBy: { createdAt: 'desc' },

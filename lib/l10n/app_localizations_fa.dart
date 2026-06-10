@@ -171,6 +171,15 @@ class AppLocalizationsFa extends AppLocalizations {
   String get devPortalResetsEmpty => 'درخواست بازنشانی رمز در انتظار نیست.';
 
   @override
+  String get devPortalResetsEmptyHint =>
+      'وقتی کاربر از صفحه ورود «فراموشی رمز» (یا تنظیمات → حساب) درخواست دهد، اینجا نمایش داده می‌شود. همچنین از تب فروشگاه‌ها می‌توانید مستقیم رمز تنظیم کنید.';
+
+  @override
+  String devPortalResetsRequestedAt(String date) {
+    return 'درخواست: $date';
+  }
+
+  @override
   String get devPortalResetsSetPasswordTitle => 'تنظیم رمز جدید';
 
   @override
@@ -185,6 +194,37 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String devPortalResetsResolveFailed(String error) {
     return 'به‌روزرسانی ناموفق: $error';
+  }
+
+  @override
+  String get devPortalPasswordShareTitle => 'اشتراک‌گذاری رمز جدید';
+
+  @override
+  String devPortalPasswordShareUserLabel(String shop, String username) {
+    return '$shop · $username';
+  }
+
+  @override
+  String devPortalPasswordShareMessage(
+    String shop,
+    String username,
+    String password,
+  ) {
+    return 'رمز ورود خیاط شما بازنشانی شد.\n\nفروشگاه: $shop\nنام کاربری: $username\nرمز جدید: $password\n\nبا این اطلاعات وارد شوید. بعداً می‌توانید در تنظیمات رمز را عوض کنید.';
+  }
+
+  @override
+  String get devPortalPasswordShareSubject => 'رمز ورود خیاط';
+
+  @override
+  String get devPortalPasswordCopied => 'رمز کپی شد.';
+
+  @override
+  String get devPortalShopSetPasswordCta => 'تنظیم رمز';
+
+  @override
+  String devPortalShopSetPasswordFailed(String error) {
+    return 'تنظیم رمز ناموفق: $error';
   }
 
   @override
@@ -2412,6 +2452,10 @@ class AppLocalizationsFa extends AppLocalizations {
       'اندازه معتبر وارد کنید، مثلاً 5 1/2 x 7 1/2 inch.';
 
   @override
+  String get settingsStyleFigureValueRequired =>
+      'مقدار گزینه اینچ را وارد کنید.';
+
+  @override
   String get settingsStyleActiveLabel => 'فعال';
 
   @override
@@ -2776,6 +2820,10 @@ class AppLocalizationsFa extends AppLocalizations {
       'دستورالعمل پرداخت هنوز منتشر نشده. از توزیع‌کننده بخواهید در پورتال توسعه‌دهنده → صورتحساب منتشر کند، یا کد فعال‌سازی را پایین وارد کنید.';
 
   @override
+  String get subscriptionBillingNoImagePoster =>
+      'تصویر دستورالعمل پرداخت هنوز موجود نیست. می‌توانید ادعای پرداخت را پایین ارسال کنید یا با پشتیبانی تماس بگیرید.';
+
+  @override
   String subscriptionBillingLoadError(String error) {
     return 'بارگذاری اطلاعات پرداخت ناموفق: $error';
   }
@@ -2875,6 +2923,11 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get devPortalBillingSettingsImageTooLarge =>
       'تصویر باید حداکثر ۱ مگابایت باشد. فایل کوچک‌تری انتخاب کنید.';
+
+  @override
+  String devPortalBillingClaimsLoadError(String error) {
+    return 'بارگذاری ادعاهای پرداخت ناموفق: $error';
+  }
 
   @override
   String devPortalBillingLoadError(String error) {
@@ -3651,7 +3704,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get devPortalShopUserPasswordNote =>
-      'رمز عبور به‌صورت هش روی سرور ذخیره شده است. برای تنظیم رمز جدید از برگه «بازیابی رمز» استفاده کنید.';
+      'برای تنظیم رمز جدید و اشتراک با کاربر، «تنظیم رمز» را بزنید.';
 
   @override
   String get devPortalShopDisabledLabel => 'غیرفعال';
@@ -4058,6 +4111,9 @@ class AppLocalizationsFa extends AppLocalizations {
   String get invoicePaymentDateLabel => 'تاریخ';
 
   @override
+  String get invoicePaymentMethodLabel => 'روش';
+
+  @override
   String get invoiceMeasurementProfileLabel => 'پروفایل اندازه';
 
   @override
@@ -4174,6 +4230,22 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get orderShareInvoicePdfCta => 'اشتراک فاکتور PDF';
+
+  @override
+  String get orderViewInvoicePdfCta => 'مشاهده PDF';
+
+  @override
+  String get orderViewInvoicePdfTooltip => 'پیش‌نمایش فاکتور در برنامه';
+
+  @override
+  String orderViewInvoicePdfTitle(String orderNo) {
+    return 'فاکتور · $orderNo';
+  }
+
+  @override
+  String orderViewInvoicePdfFail(String detail) {
+    return 'باز کردن فاکتور ممکن نشد: $detail';
+  }
 
   @override
   String get orderShareInvoicePdfGenerateFail =>

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
+import '../../core/input/pride_ltr_input.dart';
 import '../../data/local/style/style_figure_display_name.dart';
 import '../../data/local/style/style_figure_inch_display.dart';
 import '../../data/local/style_figure_config_summary.dart';
@@ -163,18 +164,18 @@ class OrderComposerShapeSelectTile extends StatelessWidget {
                     title: l10n.ordersComposerShapeDetailTitle,
                     children: [
                       for (final option in _activeTextOptions)
-                        ChoiceChip(
+                        FilterChip(
                           label: Text(option.label),
                           visualDensity: VisualDensity.compact,
                           materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          selected:
-                              draft.selectedTextOptionId == option.internalId,
-                          onSelected: (_) {
+                          selected: draft.selectedTextOptionIds
+                              .contains(option.internalId),
+                          onSelected: (selected) {
                             _updateDraft((d) {
-                              if (d.selectedTextOptionId == option.internalId) {
-                                d.selectedTextOptionId = null;
+                              if (selected) {
+                                d.selectedTextOptionIds.add(option.internalId);
                               } else {
-                                d.selectedTextOptionId = option.internalId;
+                                d.selectedTextOptionIds.remove(option.internalId);
                               }
                             });
                           },
@@ -188,23 +189,23 @@ class OrderComposerShapeSelectTile extends StatelessWidget {
                     title: l10n.ordersComposerShapeInchTitle,
                     children: [
                       for (final option in _activeSizeOptions)
-                        ChoiceChip(
-                          label: Text(
-                            displayInchOptionLabel(
+                        FilterChip(
+                          label: PrideLtrText(
+                            text: displayInchOptionLabel(
                               valueInches: option.valueInches,
                               label: option.label,
                             ),
                           ),
                           visualDensity: VisualDensity.compact,
                           materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          selected:
-                              draft.selectedSizeOptionId == option.internalId,
-                          onSelected: (_) {
+                          selected: draft.selectedSizeOptionIds
+                              .contains(option.internalId),
+                          onSelected: (selected) {
                             _updateDraft((d) {
-                              if (d.selectedSizeOptionId == option.internalId) {
-                                d.selectedSizeOptionId = null;
+                              if (selected) {
+                                d.selectedSizeOptionIds.add(option.internalId);
                               } else {
-                                d.selectedSizeOptionId = option.internalId;
+                                d.selectedSizeOptionIds.remove(option.internalId);
                               }
                             });
                           },

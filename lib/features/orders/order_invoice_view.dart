@@ -1,0 +1,94 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:printing/printing.dart';
+
+import '../../core/feedback/app_feedback.dart';
+import '../../core/formatting/display_order_no_format.dart';
+import '../../core/printing/invoice/order_invoice_loader.dart';
+import '../../core/printing/invoice_pdf.dart';
+import '../../data/local/order_summary.dart';
+import '../../data/local/payment_summary.dart';
+import '../../features/orders/order_invoice_pdf_viewer_screen.dart';
+import '../../l10n/app_localizations.dart';
+
+/// Generate invoice PDF and open in-app viewer (no share/download required).
+Future<void> viewOrderInvoicePdf({
+  required BuildContext context,
+  required WidgetRef ref,
+  required AppLocalizations l10n,
+  required OrderSummary order,
+  required List<PaymentSummary> payments,
+  required String deliveryDateText,
+  required String statusText,
+}) async {
+  if (!context.mounted) return;
+
+  showDialog<void>(
+    context: context,
+    barrierDismissible: false,
+    builder: (ctx) => const PopScope(
+      canPop: false,
+      child: Center(child: CircularProgressIndicator()),
+    ),
+  );
+  var loadingDialogOpen = true;
+  void closeLoadingDialog() {
+    if (!loadingDialogOpen || !context.mounted) return;
+    loadingDialogOpen = false;
+    Navigator.of(context, rootNavigator: true).pop();
+  }
+
+  try {
+    final request = await prepareOrderInvoicePdfRequest(
+      context: context,
+      ref: ref,
+      l10n: l10n,
+      order: order,
+      payments: payments,
+      deliveryDateText: deliveryDateText,
+      statusText: statusText,
+    );
+
+    final pdfBytes = await loadOrderInvoicePdfBytesFromRef(
+      ref: ref,
+      request: request,
+    );
+
+    closeLoadingDialog();
+
+    if (!context.mounted) return;
+
+    final displayNo = formatDisplayOrderNo(order.displayOrderNo);
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (ctx) => OrderInvoicePdfViewerScreen(
+          pdfBytes: pdfBytes,
+          title: l10n.orderViewInvoicePdfTitle(displayNo),
+          shareLabel: l10n.orderShareInvoicePdfCta,
+          onShare: () => Printing.sharePdf(
+            bytes: pdfBytes,
+            filename: 'invoice_${order.displayOrderNo}.pdf',
+          ),
+        ),
+      ),
+    );
+  } catch (e, st) {
+    closeLoadingDialog();
+    if (context.mounted) {
+      final message = e is InvoicePdfGenerationException
+          ? l10n.orderShareInvoicePdfGenerateFail
+          : l10n.orderViewInvoicePdfFail(e.toString());
+      if (e is InvoicePdfGenerationException) {
+        debugPrint('Invoice view PDF failure: ${e.cause}\n${e.stackTrace}');
+      } else {
+        debugPrint('Invoice view failure: $e\n$st');
+      }
+      showAppFeedback(
+        context,
+        ref,
+        kind: AppFeedbackKind.error,
+        message: message,
+      );
+    }
+  }
+}

@@ -4,6 +4,78 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:pride_v3/core/printing/pdf_bidi_text.dart';
 
 void main() {
+  group('pdfResolveTextDirection', () {
+    test('uses RTL for pure Dari text', () {
+      expect(
+        pdfResolveTextDirection(
+          text: 'مشتری: احمد',
+          documentDirection: pw.TextDirection.rtl,
+        ),
+        pw.TextDirection.rtl,
+      );
+    });
+
+    test('uses RTL for pure Pashto text', () {
+      expect(
+        pdfResolveTextDirection(
+          text: 'پیرودونکی: احمد',
+          documentDirection: pw.TextDirection.rtl,
+        ),
+        pw.TextDirection.rtl,
+      );
+    });
+
+    test('uses LTR for pure Latin order numbers', () {
+      expect(
+        pdfResolveTextDirection(
+          text: '00000042',
+          documentDirection: pw.TextDirection.rtl,
+        ),
+        pw.TextDirection.ltr,
+      );
+    });
+
+    test('uses RTL for mixed Dari and Latin', () {
+      expect(
+        pdfResolveTextDirection(
+          text: 'شکل: Shape1',
+          documentDirection: pw.TextDirection.rtl,
+        ),
+        pw.TextDirection.rtl,
+      );
+    });
+
+    test('uses RTL for localized order number label', () {
+      expect(
+        pdfResolveTextDirection(
+          text: 'شناسه سفارش: 00042',
+          documentDirection: pw.TextDirection.rtl,
+        ),
+        pw.TextDirection.rtl,
+      );
+    });
+
+    test('uses RTL for localized customer number label', () {
+      expect(
+        pdfResolveTextDirection(
+          text: 'شناسه مشتری: 00007',
+          documentDirection: pw.TextDirection.rtl,
+        ),
+        pw.TextDirection.rtl,
+      );
+    });
+
+    test('uses LTR for inch measurements without Arabic script', () {
+      expect(
+        pdfResolveTextDirection(
+          text: '5 X 5 1/2',
+          documentDirection: pw.TextDirection.rtl,
+        ),
+        pw.TextDirection.ltr,
+      );
+    });
+  });
+
   group('pdfSplitMixedTextSegments', () {
     test('marks Latin shape IDs as LTR segments', () {
       const input = 'شکل: Shape1';
@@ -43,6 +115,25 @@ void main() {
       expect(segments.first.text, arabic);
       expect(segments.first.direction, pw.TextDirection.rtl);
     });
+
+    test('keeps inch measurements in one LTR segment', () {
+      const measurement = '5 X 5 1/2';
+      final segments = pdfSplitMixedTextSegments(measurement);
+      expect(segments, hasLength(1));
+      expect(segments.first.text, measurement);
+      expect(segments.first.direction, pw.TextDirection.ltr);
+    });
+
+    test('keeps mixed Dari label with inch measurement readable', () {
+      const input = 'اندازه: 5 X 5 1/2';
+      final segments = pdfSplitMixedTextSegments(input);
+      final measurement = segments.firstWhere(
+        (s) => s.text.contains('5 X 5 1/2'),
+        orElse: () => throw StateError('measurement segment missing'),
+      );
+      expect(measurement.direction, pw.TextDirection.ltr);
+      expect(measurement.text, '5 X 5 1/2');
+    });
   });
 
   group('pdfProtectMixedText', () {
@@ -60,8 +151,7 @@ void main() {
   });
 
   group('pdfMoneyWidget', () {
-    test('keeps Dari currency suffix in RTL order', () {
-      // Simulates l10n.moneyAfn output for Persian.
+    test('builds widget for Dari currency suffix', () {
       const formatted = '500 افغانی';
       final widget = pdfMoneyWidget(
         formattedMoney: formatted,
@@ -77,6 +167,14 @@ void main() {
       expect(pdfValueShouldRenderLtr('Shape1'), isTrue);
       expect(pdfValueShouldRenderLtr('0701234567'), isTrue);
       expect(pdfValueShouldRenderLtr('احمد'), isFalse);
+    });
+  });
+
+  group('pdfHasArabicScript', () {
+    test('detects Dari and Pashto script', () {
+      expect(pdfHasArabicScript('احمد'), isTrue);
+      expect(pdfHasArabicScript('پیرودونکی'), isTrue);
+      expect(pdfHasArabicScript('Khayat'), isFalse);
     });
   });
 }

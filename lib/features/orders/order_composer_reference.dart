@@ -13,6 +13,8 @@ import 'package:pride_v3/data/local/entities/garment_type.dart';
 import 'package:pride_v3/data/local/order_item_snapshot_key.dart';
 import 'package:pride_v3/data/local/order_item_summary.dart';
 import 'package:pride_v3/data/local/order_summary.dart';
+import 'package:pride_v3/data/local/payment_summary.dart';
+import 'package:pride_v3/data/local/style/order_shape_selection_formatter.dart';
 import 'package:pride_v3/data/local/style/style_order_selection.dart';
 import 'package:pride_v3/data/providers/local_data_providers.dart';
 import 'package:pride_v3/features/catalog/catalog_tile_image.dart';
@@ -438,6 +440,227 @@ String previousFabricDisplayText(OrderSummary order, AppLocalizations l10n) {
   );
 }
 
+String previousShapeDisplayText(
+  OrderSummary order, {
+  OrderItemSummary? item,
+}) {
+  final json = item?.styleSelectionJson ?? order.styleSelectionJson;
+  if (json.trim().isEmpty) return '';
+  final display = formatOrderShapeSelectionDisplay(styleSelectionJson: json);
+  if (display.compactPreview.trim().isNotEmpty) {
+    return display.compactPreview.trim();
+  }
+  if (display.detailedText.trim().isNotEmpty) {
+    return display.detailedText.trim();
+  }
+  return display.summaryFallbackText.trim();
+}
+
+String previousStyleSheetDisplayText(
+  OrderSummary order, {
+  OrderItemSummary? item,
+}) {
+  final styleText = item != null
+      ? previousItemStyleDisplayText(item)
+      : previousStyleDisplayText(order);
+  final shapeText = previousShapeDisplayText(order, item: item);
+  if (styleText.isEmpty && shapeText.isEmpty) return '';
+  if (styleText.isEmpty) return shapeText;
+  if (shapeText.isEmpty) return styleText;
+  return '$styleText\n$shapeText';
+}
+
+String formatPreviousPaymentDetailText(
+  AppLocalizations l10n,
+  OrderSummary order,
+  List<PaymentSummary> payments,
+  Map<String, int> paidByOrderId,
+  bool paymentsLedgerLoaded,
+  String Function(AppLocalizations l10n, int minor) money,
+) {
+  final summary = formatReferenceOrderPaymentSummary(
+    l10n,
+    order,
+    paidByOrderId,
+    paymentsLedgerLoaded,
+    money,
+  );
+  final rows = payments
+      .where((p) => p.orderInternalId == order.internalId)
+      .toList()
+    ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+  if (rows.isEmpty) return summary;
+  final recent = rows.take(3).map((p) => money(l10n, p.amountMinor)).join(', ');
+  return '$summary\n$recent';
+}
+
+/// Which previous-order context to show at the top of a workflow sheet.
+enum ComposerSheetPreviousKind {
+  measurements,
+  style,
+  fabric,
+  payment,
+  delivery,
+}
+
+/// Previous-order block for workflow modal sheets (top section).
+class ComposerSheetPreviousSection extends ConsumerWidget {
+  const ComposerSheetPreviousSection({
+    super.key,
+    required this.referenceOrder,
+    required this.kind,
+    this.referenceItem,
+    this.currentTextForDiff,
+    this.currentIsMeaningfulForDiff = false,
+    this.onUsePrevious,
+    required this.money,
+  });
+
+  final OrderSummary referenceOrder;
+  final ComposerSheetPreviousKind kind;
+  final OrderItemSummary? referenceItem;
+  final String? currentTextForDiff;
+  final bool currentIsMeaningfulForDiff;
+  final VoidCallback? onUsePrevious;
+  final String Function(AppLocalizations l10n, int minor) money;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).toString();
+    final calendar = ref.watch(dateCalendarSystemProvider);
+    final orderNo = formatDisplayOrderNo(referenceOrder.displayOrderNo);
+
+    switch (kind) {
+      case ComposerSheetPreviousKind.measurements:
+        return ComposerMeasurementsPreviousReference(
+          referenceOrder: referenceOrder,
+          referenceItem: referenceItem,
+          l10n: l10n,
+          currentMeasurementsText: currentTextForDiff ?? '',
+          currentIsMeaningfulForDiff: currentIsMeaningfulForDiff,
+          onUsePrevious: onUsePrevious,
+        );
+      case ComposerSheetPreviousKind.style:
+        final text = previousStyleSheetDisplayText(
+          referenceOrder,
+          item: referenceItem,
+        );
+        if (text.trim().isEmpty) return const SizedBox.shrink();
+        return ComposerSectionPreviousReference(
+          l10n: l10n,
+          previousText: text,
+          currentTextForDiff: currentTextForDiff,
+          currentIsMeaningfulForDiff: currentIsMeaningfulForDiff,
+          usePreviousLabel: onUsePrevious != null
+              ? l10n.ordersComposerUsePreviousStyleCta
+              : null,
+          onUsePrevious: onUsePrevious,
+        );
+      case ComposerSheetPreviousKind.fabric:
+        final text = referenceItem != null
+            ? previousItemFabricDisplayText(referenceItem!, l10n)
+            : previousFabricDisplayText(referenceOrder, l10n);
+        if (text.trim().isEmpty) return const SizedBox.shrink();
+        return ComposerSectionPreviousReference(
+          l10n: l10n,
+          previousText: text,
+          currentTextForDiff: currentTextForDiff,
+          currentIsMeaningfulForDiff: currentIsMeaningfulForDiff,
+          usePreviousLabel: onUsePrevious != null
+              ? l10n.ordersComposerUsePreviousFabricCta
+              : null,
+          onUsePrevious: onUsePrevious,
+        );
+      case ComposerSheetPreviousKind.payment:
+        final shopId = ref.watch(effectiveShopIdProvider);
+        final paymentsAsync = ref.watch(paymentsForShopProvider(shopId));
+        return paymentsAsync.when(
+          loading: () => const SizedBox.shrink(),
+          error: (_, _) => const SizedBox.shrink(),
+          data: (payments) {
+            final paidByOrderId =
+                referencePaidByOrderIdFromPayments(
+              payments
+                  .map(
+                    (p) => (
+                      orderInternalId: p.orderInternalId,
+                      amountMinor: p.amountMinor,
+                    ),
+                  )
+                  .toList(),
+            );
+            final text = formatPreviousPaymentDetailText(
+              l10n,
+              referenceOrder,
+              payments,
+              paidByOrderId,
+              true,
+              money,
+            );
+            if (text.trim().isEmpty) return const SizedBox.shrink();
+            return ComposerSectionPreviousReference(
+              l10n: l10n,
+              previousText: text,
+              currentTextForDiff: currentTextForDiff,
+              currentIsMeaningfulForDiff: currentIsMeaningfulForDiff,
+              collapsible: true,
+            );
+          },
+        );
+      case ComposerSheetPreviousKind.delivery:
+        final deliveryText = AppCalendarFormat.mediumDate(
+          l10n,
+          calendar,
+          referenceOrder.deliveryDate,
+          locale,
+        );
+        return ComposerSectionPreviousReference(
+          l10n: l10n,
+          previousText:
+              '${l10n.ordersNumberPrefix(orderNo)}\n${l10n.ordersComposerPreviousDeliveryLabel}: $deliveryText',
+          currentTextForDiff: currentTextForDiff,
+          currentIsMeaningfulForDiff: currentIsMeaningfulForDiff,
+          collapsible: false,
+        );
+    }
+  }
+}
+
+/// Sheet header: title + previous order section + divider.
+class ComposerSheetPreviousHeader extends StatelessWidget {
+  const ComposerSheetPreviousHeader({
+    super.key,
+    required this.title,
+    required this.previousSection,
+  });
+
+  final String title;
+  final Widget previousSection;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          child: Text(
+            title,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: previousSection,
+        ),
+        const Divider(height: 24, indent: 16, endIndent: 16),
+      ],
+    );
+  }
+}
+
 // --- Widgets ---
 
 /// Compact previous-order reference card shown after customer selection.
@@ -625,7 +848,7 @@ class ComposerPreviousOrderReferenceCard extends ConsumerWidget {
                   Align(
                     alignment: AlignmentDirectional.centerStart,
                     child: TextButton.icon(
-                      onPressed: () => _showReferenceOrderPicker(
+                      onPressed: () => showComposerReferenceOrderPicker(
                         context,
                         l10n,
                         calendar,
@@ -655,7 +878,7 @@ class ComposerPreviousOrderReferenceCard extends ConsumerWidget {
   }
 }
 
-Future<void> _showReferenceOrderPicker(
+Future<void> showComposerReferenceOrderPicker(
   BuildContext context,
   AppLocalizations l10n,
   DateCalendarSystem calendar,

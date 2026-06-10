@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
+import '../../core/input/pride_ltr_input.dart';
 import '../../data/local/measurement_profile_formatting.dart';
 import '../../data/local/order_summary.dart';
 import '../../data/local/style/order_shape_selection_formatter.dart';
@@ -94,9 +95,10 @@ class OrderMeasurementsStylePanel extends ConsumerWidget {
                                 ? VisualDensity.compact
                                 : VisualDensity.standard,
                             title: Text(it.typeName),
-                            trailing: Text(
-                              '${it.value.trim()}'
-                              '${MeasurementProfileFormatting.unitSuffix(it.unitCode)}',
+                            trailing: PrideLtrText(
+                              text:
+                                  '${it.value.trim()}'
+                                  '${MeasurementProfileFormatting.unitSuffix(it.unitCode)}',
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                           ),

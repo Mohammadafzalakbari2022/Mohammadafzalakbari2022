@@ -6,9 +6,10 @@ import 'package:pride_v3/core/printing/thermal_print_order.dart';
 import 'package:pride_v3/data/local/order_summary.dart';
 import 'package:pride_v3/data/local/payment_summary.dart';
 import 'package:pride_v3/features/orders/order_invoice_share.dart';
+import 'package:pride_v3/features/orders/order_invoice_view.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
-/// Prominent share PDF + print actions on order detail (in addition to app bar).
+/// View PDF, share PDF, and print actions on order detail.
 class OrderDetailShareActions extends ConsumerWidget {
   const OrderDetailShareActions({
     super.key,
@@ -38,38 +39,49 @@ class OrderDetailShareActions extends ConsumerWidget {
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
-      child: Row(
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        alignment: WrapAlignment.center,
         children: [
-          Expanded(
-            child: FilledButton.tonalIcon(
-              onPressed: () => shareOrderInvoice(
-                context: context,
-                ref: ref,
-                l10n: l10n,
-                order: order,
-                payments: payments,
-                deliveryDateText: deliveryDateText,
-                statusText: statusText,
-              ),
-              icon: const Icon(Icons.picture_as_pdf_outlined),
-              label: Text(l10n.orderShareInvoicePdfCta),
+          FilledButton.tonalIcon(
+            onPressed: () => viewOrderInvoicePdf(
+              context: context,
+              ref: ref,
+              l10n: l10n,
+              order: order,
+              payments: payments,
+              deliveryDateText: deliveryDateText,
+              statusText: statusText,
             ),
+            icon: const Icon(Icons.visibility_outlined, size: 18),
+            label: Text(l10n.orderViewInvoicePdfCta),
           ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: OutlinedButton.icon(
-              onPressed: () => printThermalOrderReceipt(
-                context: context,
-                ref: ref,
-                l10n: l10n,
-                order: order,
-                payments: payments,
-                deliveryDateText: deliveryDateText,
-                statusText: statusText,
-              ),
-              icon: const Icon(Icons.print_outlined),
-              label: Text(l10n.orderPrintReceiptTooltip),
+          OutlinedButton.icon(
+            onPressed: () => shareOrderInvoice(
+              context: context,
+              ref: ref,
+              l10n: l10n,
+              order: order,
+              payments: payments,
+              deliveryDateText: deliveryDateText,
+              statusText: statusText,
             ),
+            icon: const Icon(Icons.picture_as_pdf_outlined, size: 18),
+            label: Text(l10n.orderShareInvoicePdfCta),
+          ),
+          OutlinedButton.icon(
+            onPressed: () => printThermalOrderReceipt(
+              context: context,
+              ref: ref,
+              l10n: l10n,
+              order: order,
+              payments: payments,
+              deliveryDateText: deliveryDateText,
+              statusText: statusText,
+            ),
+            icon: const Icon(Icons.print_outlined, size: 18),
+            label: Text(l10n.orderPrintReceiptTooltip),
           ),
         ],
       ),

@@ -61,12 +61,58 @@
     }
   },
   "devPortalResetsEmpty": "No pending password reset requests.",
+  "devPortalResetsEmptyHint": "When a user taps Forgot password on the login screen (or Settings → Account), their request appears here. You can also open any shop on the Shops tab and set a password directly.",
+  "devPortalResetsRequestedAt": "Requested: {date}",
+  "@devPortalResetsRequestedAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "devPortalResetsSetPasswordTitle": "Set new password",
   "devPortalResetsSetPasswordHint": "At least 6 characters.",
   "devPortalResetsResolveCta": "Apply password",
   "devPortalResetsResolved": "Password updated.",
   "devPortalResetsResolveFailed": "Could not update: {error}",
   "@devPortalResetsResolveFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "devPortalPasswordShareTitle": "Share new password",
+  "devPortalPasswordShareUserLabel": "{shop} · {username}",
+  "@devPortalPasswordShareUserLabel": {
+    "placeholders": {
+      "shop": {
+        "type": "String"
+      },
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "devPortalPasswordShareMessage": "Your Khayat sign-in password was reset.\n\nShop: {shop}\nUsername: {username}\nNew password: {password}\n\nSign in with these details. Change your password later in Settings if you wish.",
+  "@devPortalPasswordShareMessage": {
+    "placeholders": {
+      "shop": {
+        "type": "String"
+      },
+      "username": {
+        "type": "String"
+      },
+      "password": {
+        "type": "String"
+      }
+    }
+  },
+  "devPortalPasswordShareSubject": "Khayat sign-in password",
+  "devPortalPasswordCopied": "Password copied.",
+  "devPortalShopSetPasswordCta": "Set password",
+  "devPortalShopSetPasswordFailed": "Could not set password: {error}",
+  "@devPortalShopSetPasswordFailed": {
     "placeholders": {
       "error": {
         "type": "String"
@@ -1000,6 +1046,7 @@
   "settingsStyleFigureSizeOptionDeleteBody": "This removes the option from the catalog. Existing orders are not changed.",
   "settingsStyleFigureLabelRequired": "Detail name is required.",
   "settingsStyleFigureValuePositiveRequired": "Enter a valid measurement, for example 5 1/2 x 7 1/2 inch.",
+  "settingsStyleFigureValueRequired": "Enter an inch option value.",
   "settingsStyleActiveLabel": "Active",
   "settingsStyleInactiveLabel": "Inactive",
   "saveCta": "Save",
@@ -1171,6 +1218,7 @@
     }
   },
   "subscriptionBillingNotPublished": "Payment instructions are not published yet. Ask your distributor to publish them in Developer Portal → Billing, or enter an activation code below.",
+  "subscriptionBillingNoImagePoster": "Payment instructions image is not available yet. You can still submit a payment claim below, or contact support.",
   "subscriptionBillingLoadError": "Could not load payment info: {error}",
   "@subscriptionBillingLoadError": {
     "placeholders": {
@@ -1212,6 +1260,14 @@
   "devPortalBillingSettingsImageReplace": "Replace image",
   "devPortalBillingSettingsImageRemove": "Remove image",
   "devPortalBillingSettingsImageTooLarge": "Image must be 1 MB or less. Choose a smaller file.",
+  "devPortalBillingClaimsLoadError": "Could not load payment claims: {error}",
+  "@devPortalBillingClaimsLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "devPortalBillingLoadError": "Could not load billing profile: {error}",
   "@devPortalBillingLoadError": {
     "placeholders": {
@@ -1612,7 +1668,7 @@
   "devPortalShopUsersHeader": "Accounts",
   "devPortalShopUserOwnerBadge": "Owner",
   "devPortalShopUserDeletedBadge": "Removed",
-  "devPortalShopUserPasswordNote": "Password is stored hashed on the server. Use the Password resets tab to set a new one.",
+  "devPortalShopUserPasswordNote": "Tap Set password to create a new one and share it with the user.",
   "devPortalShopDisabledLabel": "Disabled",
   "devPortalShopActionsTooltip": "Shop actions",
   "devPortalShopDisableCta": "Disable shop",
@@ -1814,6 +1870,7 @@
   "invoiceContinuedLabel": "Continued",
   "invoiceTakenDateLabel": "Taken",
   "invoicePaymentDateLabel": "Date",
+  "invoicePaymentMethodLabel": "Method",
   "invoiceMeasurementProfileLabel": "Measurement profile",
   "invoiceStyleNameLabel": "Style",
   "receiptStyleLabel": "Style notes",
@@ -1851,6 +1908,24 @@
   "defaultShopPhone": "0701234567",
   "orderShareInvoiceTooltip": "Share invoice",
   "orderShareInvoicePdfCta": "Share PDF invoice",
+  "orderViewInvoicePdfCta": "View PDF",
+  "orderViewInvoicePdfTooltip": "Preview invoice in the app",
+  "orderViewInvoicePdfTitle": "Invoice · {orderNo}",
+  "@orderViewInvoicePdfTitle": {
+    "placeholders": {
+      "orderNo": {
+        "type": "String"
+      }
+    }
+  },
+  "orderViewInvoicePdfFail": "Could not open invoice: {detail}",
+  "@orderViewInvoicePdfFail": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
   "orderShareInvoicePdfGenerateFail": "Unable to generate invoice. Please contact your administrator.",
   "orderShareContactPermissionDenied": "Contacts permission is off — invoice shared, but the customer was not saved to your phone.",
   "orderShareInvoiceSharedSheet": "Choose WhatsApp or another app to send the PDF invoice.",

@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 3.6.0+35309
+version: 3.6.2+35313
 
 environment:
   sdk: ^3.10.4
@@ -55,6 +55,7 @@ dependencies:
   url_launcher: ^6.3.1
   qr_flutter: ^4.1.0
   pdf: ^3.8.4
+  printing: ^5.14.2
   flutter_contacts: ^1.1.9+2
   image: 3.3.0
   esc_pos_utils_plus: 2.0.4
@@ -71,6 +72,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   build_runner: ^2.4.13
   isar_generator: ^3.1.0+1
+  msix: ^3.16.13
 
 dependency_overrides:
   # pdf 3.8 TtfWriter crashes on Noto Arabic in release (null-check on compound glyphs).
@@ -129,3 +131,18 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+# Microsoft Store MSIX — publisher from Partner Center (config/msix_publisher.txt).
+# Build: .\scripts\build-windows-msix.ps1
+msix_config:
+  display_name: Khayat
+  publisher_display_name: Khayat
+  identity_name: pridev3.khayat
+  logo_path: assets/branding/app_icon.png
+  languages: en-us
+  capabilities: internetClient, privateNetworkClientServer
+  build_windows: false
+  install_certificate: false
+  output_path: .
+  output_name: Khayat-windows
+  architecture: x64

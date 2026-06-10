@@ -1,0 +1,5 @@
+# Copy to config/msix_publisher.txt (gitignored) with your Partner Center publisher CN.
+# Partner Center → Apps → Khayat → Product identity → Publisher ID
+#
+# Example (replace with your value):
+# CN=12345678-1234-1234-1234-123456789012

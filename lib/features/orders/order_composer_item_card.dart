@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pride_v3/app/app_theme.dart';
-import 'package:pride_v3/core/widgets/pride_money_field.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../data/local/entities/garment_type.dart';
@@ -40,32 +39,22 @@ class OrderComposerItemCard extends StatelessWidget {
     required this.l10n,
     required this.garmentType,
     required this.draft,
-    required this.priceController,
     required this.expanded,
     required this.onExpandedChanged,
     required this.onOpenMeasurements,
     required this.onOpenStyle,
     required this.onOpenFabric,
-    required this.onPriceChanged,
-    this.measurementsTrailing,
-    this.styleTrailing,
-    this.fabricTrailing,
     this.onUseSameFabric,
   });
 
   final AppLocalizations l10n;
   final GarmentType garmentType;
   final OrderItemDraft draft;
-  final TextEditingController priceController;
   final bool expanded;
   final ValueChanged<bool> onExpandedChanged;
   final VoidCallback onOpenMeasurements;
   final VoidCallback onOpenStyle;
   final VoidCallback onOpenFabric;
-  final VoidCallback onPriceChanged;
-  final Widget? measurementsTrailing;
-  final Widget? styleTrailing;
-  final Widget? fabricTrailing;
   final VoidCallback? onUseSameFabric;
 
   String get _styleSubtitle {
@@ -137,7 +126,6 @@ class OrderComposerItemCard extends StatelessWidget {
               trailing: const Icon(Icons.chevron_right),
               onTap: onOpenMeasurements,
             ),
-            if (measurementsTrailing != null) measurementsTrailing!,
             ListTile(
               title: Text(l10n.ordersComposerStyleTitle),
               subtitle: Text(_styleSubtitle, maxLines: 3),
@@ -149,7 +137,6 @@ class OrderComposerItemCard extends StatelessWidget {
               trailing: const Icon(Icons.chevron_right),
               onTap: onOpenStyle,
             ),
-            if (styleTrailing != null) styleTrailing!,
             ListTile(
               title: Text(l10n.ordersComposerFabricTitle),
               subtitle: Text(_fabricSubtitle, maxLines: 2),
@@ -172,23 +159,13 @@ class OrderComposerItemCard extends StatelessWidget {
                   ),
                 ),
               ),
-            if (fabricTrailing != null) fabricTrailing!,
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
               child: Text(
                 l10n.ordersComposerFabricOptional,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).colorScheme.outline,
                     ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-              child: PrideMoneyField(
-                controller: priceController,
-                labelText: l10n.ordersComposerItemPriceLabel,
-                hintText: l10n.ordersComposerPriceHint,
-                onChanged: (_) => onPriceChanged(),
               ),
             ),
           ],
