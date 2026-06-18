@@ -98,3 +98,8 @@ api/coverage/
 .cursor/mcp.json
 .agents/
 skills-lock.json
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
