@@ -366,11 +366,6 @@ class _OrderComposerStylePanelState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              l10n.ordersComposerStyleMainTitle,
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-            const SizedBox(height: 8),
             namesAsync.when(
               data: (names) {
                 final active = names.where((n) => n.isActive).toList();
@@ -405,12 +400,7 @@ class _OrderComposerStylePanelState
               ),
             ),
             if (garment == GarmentType.perahanTunban) ...[
-              const SizedBox(height: 16),
-              Text(
-                l10n.ordersComposerCatalogDesignTitle,
-                style: Theme.of(context).textTheme.titleSmall,
-              ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               if (_catalogDesignName.trim().isEmpty)
                 Text(
                   l10n.ordersComposerCatalogDesignNone,
@@ -480,12 +470,7 @@ class _OrderComposerStylePanelState
                 ],
               ),
             ],
-            const SizedBox(height: 16),
-            Text(
-              l10n.ordersComposerStyleFiguresTitle,
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             figuresAsync.when(
               data: (figures) {
                 final listFigures = figuresForOrderSelectionGrid(
@@ -494,26 +479,9 @@ class _OrderComposerStylePanelState
                 );
                 if (listFigures.isEmpty) {
                   if (garment == GarmentType.waistcoat) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.ordersComposerWaistcoatStyleEmptyTitle,
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          l10n.ordersComposerWaistcoatStyleEmptySubtitle,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurfaceVariant,
-                              ),
-                        ),
-                      ],
-                    );
+                    return const SizedBox.shrink();
                   }
-                  return Text(l10n.ordersComposerStyleNoFigures);
+                  return const SizedBox.shrink();
                 }
                 return configsAsync.when(
                   data: (configs) {
@@ -658,7 +626,7 @@ class _ComposerFigureGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        const spacing = 8.0;
+        const spacing = 6.0;
         final columns = orderComposerShapeGridColumns(constraints.maxWidth);
         final itemWidth = columns == 1
             ? constraints.maxWidth

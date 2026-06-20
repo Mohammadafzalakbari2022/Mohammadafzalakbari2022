@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pride_v3/app/app_theme.dart';
 import 'package:pride_v3/core/formatting/digit_normalizer.dart';
 import 'package:pride_v3/core/widgets/pride_money_field.dart';
 import 'package:pride_v3/core/widgets/pride_optional_field.dart';
@@ -63,169 +62,148 @@ class OrderComposerReceiptGarmentBlock extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final title = composerGarmentLabel(l10n, garmentType);
-    final colorIndex = garmentType == GarmentType.perahanTunban ? 1 : 2;
     final shopId = effectiveShopIdFromAuth(ref.watch(authSessionProvider).shopId);
+    final theme = Theme.of(context);
 
-    return Card(
-      margin: const EdgeInsets.fromLTRB(12, 0, 12, 10),
-      clipBehavior: Clip.antiAlias,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 12, 12, 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                PrideColoredLeading(
-                  icon: garmentType == GarmentType.perahanTunban
-                      ? Icons.checkroom_outlined
-                      : Icons.layers_outlined,
-                  color: prideSettingsIconColor(colorIndex),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleMedium,
+    return Padding(
+      padding: const EdgeInsets.only(top: 10, bottom: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Icon(
+                garmentType == GarmentType.perahanTunban
+                    ? Icons.checkroom_outlined
+                    : Icons.layers_outlined,
+                size: 20,
+                color: theme.colorScheme.primary,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  title,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              l10n.ordersComposerMeasurementsTitle,
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-            const SizedBox(height: 8),
-            OrderComposerMeasurementsPanel(
-              l10n: l10n,
-              shopId: shopId,
-              customerId: customerId,
-              initialSnapshotText: draft.measurementsSnapshot,
-              initialItems: draft.measurementSnapshotItems,
-              initialProfileId: draft.sourceMeasurementProfileId,
-              initialProfileLabel: draft.sourceMeasurementProfileLabel,
-              profiles: measurementProfiles,
-              referenceOrder: referenceOrder,
-              referenceItem: referenceItem,
-              onUsePreviousMeasurements: onUsePreviousMeasurements,
-              moneyFormatter: moneyFormatter,
-              onChanged: (result) {
-                onDraftChanged(
-                  draft.copyWith(
-                    measurementsSnapshot: result.measurementsSnapshot,
-                    measurementSnapshotItems: result.measurementSnapshotItems,
-                    sourceMeasurementProfileId: result.sourceMeasurementProfileId,
-                    sourceMeasurementProfileLabel:
-                        result.sourceMeasurementProfileLabel,
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 16),
-            Text(
-              l10n.ordersComposerStyleTitle,
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-            const SizedBox(height: 8),
-            OrderComposerStylePanel(
-              garmentType: garmentType,
-              initialMainStyle: draft.styleName,
-              initialStyleNameInternalId: draft.styleNameInternalId,
-              initialSelection: styleSelection,
-              initialCatalogItemInternalId: draft.catalogItemInternalId,
-              initialCatalogDesignName: draft.catalogDesignName,
-              initialCatalogDesignerShopName: draft.catalogDesignerShopName,
-              initialCatalogImagePath: draft.catalogImagePath,
-              initialCatalogThumbnailPath: draft.catalogThumbnailPath,
-              referenceOrder: referenceOrder,
-              referenceItem: referenceItem,
-              onUsePreviousStyle: onUsePreviousStyle,
-              onUsePreviousDesign: onUsePreviousDesign,
-              moneyFormatter: moneyFormatter,
-              initialStyleSummary: draft.styleSummary,
-              embedded: true,
-              onChanged: (result) {
-                if (result == null) return;
-                onStyleSelectionChanged(result.selection);
-                onDraftChanged(
-                  draft.copyWith(
-                    styleName: result.mainStyleName,
-                    styleNameInternalId: result.styleNameInternalId,
-                    styleSelectionJson: result.selection.toJsonString(),
-                    styleSummary: result.summary,
-                    catalogItemInternalId: result.catalogItemInternalId,
-                    catalogDesignName: result.catalogDesignName,
-                    catalogDesignerShopName: result.catalogDesignerShopName,
-                    catalogImagePath: result.catalogImagePath,
-                    catalogThumbnailPath: result.catalogThumbnailPath,
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 16),
-            Text(
-              l10n.ordersComposerFabricTitle,
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-            const SizedBox(height: 8),
-            OrderComposerFabricPanel(
-              l10n: l10n,
-              initialName: draft.fabricName,
-              initialColor: draft.fabricColor,
-              initialFabricId: draft.fabricId,
-              initialNamePresetId: draft.fabricNamePresetInternalId,
-              initialColorPresetId: draft.fabricColorPresetInternalId,
-              referenceOrder: referenceOrder,
-              referenceItem: referenceItem,
-              onUsePreviousFabric: onUsePreviousFabric,
-              moneyFormatter: moneyFormatter,
-              initialFabricSummary: draft.fabricName,
-              onChanged: (result) {
-                if (result == null) {
-                  onDraftChanged(
-                    draft.copyWith(
-                      fabricName: '',
-                      fabricColor: '',
-                      fabricId: '',
-                    ),
-                  );
-                  return;
-                }
-                onDraftChanged(
-                  draft.copyWith(
-                    fabricName: result.fabricName,
-                    fabricColor: result.fabricColor,
-                    fabricId: result.fabricId,
-                    fabricNamePresetInternalId: result.fabricNamePresetInternalId,
-                    fabricColorPresetInternalId: result.fabricColorPresetInternalId,
-                  ),
-                );
-              },
-            ),
-            if (onUseSameFabric != null) ...[
-              const SizedBox(height: 8),
-              Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: TextButton.icon(
-                  onPressed: onUseSameFabric,
-                  icon: const Icon(Icons.copy_outlined, size: 18),
-                  label: Text(l10n.ordersComposerUseSameFabricCta),
                 ),
               ),
             ],
-            const SizedBox(height: 12),
-            Text(
-              l10n.ordersComposerItemPriceLabel,
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-            const SizedBox(height: 8),
-            _ReceiptPriceField(
-              l10n: l10n,
-              controller: priceController,
+          ),
+          const SizedBox(height: 8),
+          OrderComposerMeasurementsPanel(
+            l10n: l10n,
+            shopId: shopId,
+            customerId: customerId,
+            initialSnapshotText: draft.measurementsSnapshot,
+            initialItems: draft.measurementSnapshotItems,
+            initialProfileId: draft.sourceMeasurementProfileId,
+            initialProfileLabel: draft.sourceMeasurementProfileLabel,
+            profiles: measurementProfiles,
+            referenceOrder: referenceOrder,
+            referenceItem: referenceItem,
+            onUsePreviousMeasurements: onUsePreviousMeasurements,
+            moneyFormatter: moneyFormatter,
+            onChanged: (result) {
+              onDraftChanged(
+                draft.copyWith(
+                  measurementsSnapshot: result.measurementsSnapshot,
+                  measurementSnapshotItems: result.measurementSnapshotItems,
+                  sourceMeasurementProfileId: result.sourceMeasurementProfileId,
+                  sourceMeasurementProfileLabel:
+                      result.sourceMeasurementProfileLabel,
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 12),
+          OrderComposerStylePanel(
+            garmentType: garmentType,
+            initialMainStyle: draft.styleName,
+            initialStyleNameInternalId: draft.styleNameInternalId,
+            initialSelection: styleSelection,
+            initialCatalogItemInternalId: draft.catalogItemInternalId,
+            initialCatalogDesignName: draft.catalogDesignName,
+            initialCatalogDesignerShopName: draft.catalogDesignerShopName,
+            initialCatalogImagePath: draft.catalogImagePath,
+            initialCatalogThumbnailPath: draft.catalogThumbnailPath,
+            referenceOrder: referenceOrder,
+            referenceItem: referenceItem,
+            onUsePreviousStyle: onUsePreviousStyle,
+            onUsePreviousDesign: onUsePreviousDesign,
+            moneyFormatter: moneyFormatter,
+            initialStyleSummary: draft.styleSummary,
+            embedded: true,
+            onChanged: (result) {
+              if (result == null) return;
+              onStyleSelectionChanged(result.selection);
+              onDraftChanged(
+                draft.copyWith(
+                  styleName: result.mainStyleName,
+                  styleNameInternalId: result.styleNameInternalId,
+                  styleSelectionJson: result.selection.toJsonString(),
+                  styleSummary: result.summary,
+                  catalogItemInternalId: result.catalogItemInternalId,
+                  catalogDesignName: result.catalogDesignName,
+                  catalogDesignerShopName: result.catalogDesignerShopName,
+                  catalogImagePath: result.catalogImagePath,
+                  catalogThumbnailPath: result.catalogThumbnailPath,
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 12),
+          OrderComposerFabricPanel(
+            l10n: l10n,
+            initialName: draft.fabricName,
+            initialColor: draft.fabricColor,
+            initialFabricId: draft.fabricId,
+            initialNamePresetId: draft.fabricNamePresetInternalId,
+            initialColorPresetId: draft.fabricColorPresetInternalId,
+            referenceOrder: referenceOrder,
+            referenceItem: referenceItem,
+            onUsePreviousFabric: onUsePreviousFabric,
+            moneyFormatter: moneyFormatter,
+            initialFabricSummary: draft.fabricName,
+            onChanged: (result) {
+              if (result == null) {
+                onDraftChanged(
+                  draft.copyWith(
+                    fabricName: '',
+                    fabricColor: '',
+                    fabricId: '',
+                  ),
+                );
+                return;
+              }
+              onDraftChanged(
+                draft.copyWith(
+                  fabricName: result.fabricName,
+                  fabricColor: result.fabricColor,
+                  fabricId: result.fabricId,
+                  fabricNamePresetInternalId: result.fabricNamePresetInternalId,
+                  fabricColorPresetInternalId: result.fabricColorPresetInternalId,
+                ),
+              );
+            },
+          ),
+          if (onUseSameFabric != null) ...[
+            const SizedBox(height: 4),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton.icon(
+                onPressed: onUseSameFabric,
+                icon: const Icon(Icons.copy_outlined, size: 18),
+                label: Text(l10n.ordersComposerUseSameFabricCta),
+              ),
             ),
           ],
-        ),
+          const SizedBox(height: 8),
+          _ReceiptPriceField(
+            l10n: l10n,
+            controller: priceController,
+          ),
+        ],
       ),
     );
   }

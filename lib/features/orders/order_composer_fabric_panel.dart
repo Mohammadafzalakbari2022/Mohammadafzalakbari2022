@@ -199,17 +199,12 @@ class _OrderComposerFabricPanelState
               onUsePrevious: widget.onUsePreviousFabric,
               money: widget.moneyFormatter!,
             ),
-          Text(
-            widget.l10n.ordersComposerFabricNameLabel,
-            style: Theme.of(context).textTheme.titleSmall,
-          ),
-          const SizedBox(height: 8),
           _presetChips(
             async: namesAsync,
             selectedId: _namePresetId,
             onSelect: _selectName,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           TextField(
             controller: _nameCtrl,
             onChanged: (_) {
@@ -227,18 +222,13 @@ class _OrderComposerFabricPanelState
               isEmpty: nameEmpty,
             ),
           ),
-          const SizedBox(height: 12),
-          Text(
-            widget.l10n.ordersComposerFabricColorLabel,
-            style: Theme.of(context).textTheme.titleSmall,
-          ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           _presetChips(
             async: colorsAsync,
             selectedId: _colorPresetId,
             onSelect: _selectColor,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           TextField(
             controller: _colorCtrl,
             onChanged: (_) {

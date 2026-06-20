@@ -11,11 +11,12 @@ import '../../data/local/style_figure_text_option_summary.dart';
 import '../settings/style/style_figure_image.dart';
 import 'order_composer_shape_config_draft.dart';
 
-/// Responsive column count for the order style shape grid.
+/// Responsive column count for the order style shape grid (~4–5 on phone).
 int orderComposerShapeGridColumns(double width) {
-  if (width >= 700) return 3;
-  if (width >= 360) return 2;
-  return 1;
+  if (width >= 720) return 5;
+  if (width >= 520) return 4;
+  if (width >= 360) return 3;
+  return 2;
 }
 
 /// One shape card in the order style sheet: large image, compact card, inline
@@ -64,18 +65,10 @@ class OrderComposerShapeSelectTile extends StatelessWidget {
     final scheme = theme.colorScheme;
     final displayName = resolveStyleFigureSummaryDisplayName(figure);
 
-    final border = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(10),
-      side: BorderSide(
-        color: selected ? scheme.primary : scheme.outlineVariant,
-        width: selected ? 2 : 1,
-      ),
-    );
-
     final imageBlock = AspectRatio(
       aspectRatio: 1,
       child: Padding(
-        padding: const EdgeInsets.all(6),
+        padding: const EdgeInsets.all(2),
         child: StyleFigureImage(
           imageRef: figure.imageRef,
           fit: BoxFit.contain,
@@ -85,13 +78,13 @@ class OrderComposerShapeSelectTile extends StatelessWidget {
     );
 
     final nameBlock = Padding(
-      padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+      padding: const EdgeInsets.fromLTRB(2, 0, 2, 4),
       child: Text(
         displayName,
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
         textAlign: TextAlign.center,
-        style: theme.textTheme.labelLarge?.copyWith(
+        style: theme.textTheme.labelSmall?.copyWith(
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -110,16 +103,16 @@ class OrderComposerShapeSelectTile extends StatelessWidget {
                 top: 0,
                 right: 0,
                 child: Material(
-                  color: Colors.black54,
+                  color: scheme.primary,
                   shape: const CircleBorder(),
                   clipBehavior: Clip.antiAlias,
                   child: InkWell(
                     onTap: onToggleSelected,
                     child: Padding(
-                      padding: const EdgeInsets.all(4),
+                      padding: const EdgeInsets.all(3),
                       child: Icon(
                         Icons.close,
-                        size: 18,
+                        size: 14,
                         color: scheme.onPrimary,
                       ),
                     ),
@@ -128,8 +121,8 @@ class OrderComposerShapeSelectTile extends StatelessWidget {
               ),
             if (!figure.isActive)
               Positioned(
-                top: 4,
-                left: 4,
+                top: 2,
+                left: 2,
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: Colors.black54,
@@ -137,13 +130,14 @@ class OrderComposerShapeSelectTile extends StatelessWidget {
                   ),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 5,
-                      vertical: 2,
+                      horizontal: 4,
+                      vertical: 1,
                     ),
                     child: Text(
                       l10n.settingsStyleInactiveLabel,
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: Colors.white,
+                        fontSize: 9,
                       ),
                     ),
                   ),
@@ -154,7 +148,7 @@ class OrderComposerShapeSelectTile extends StatelessWidget {
         nameBlock,
         if (selected)
           Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+            padding: const EdgeInsets.fromLTRB(2, 0, 2, 4),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisSize: MainAxisSize.min,
@@ -182,7 +176,7 @@ class OrderComposerShapeSelectTile extends StatelessWidget {
                         ),
                     ],
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 4),
                 ],
                 if (_activeSizeOptions.isNotEmpty) ...[
                   _OptionSection(
@@ -212,13 +206,8 @@ class OrderComposerShapeSelectTile extends StatelessWidget {
                         ),
                     ],
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 4),
                 ],
-                Text(
-                  l10n.ordersComposerShapeNoteLabel,
-                  style: theme.textTheme.labelMedium,
-                ),
-                const SizedBox(height: 4),
                 TextField(
                   controller: noteController,
                   maxLines: 2,
@@ -228,8 +217,8 @@ class OrderComposerShapeSelectTile extends StatelessWidget {
                     border: const OutlineInputBorder(),
                     isDense: true,
                     contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 8,
+                      horizontal: 8,
+                      vertical: 6,
                     ),
                     counterText: '',
                   ),
@@ -244,18 +233,18 @@ class OrderComposerShapeSelectTile extends StatelessWidget {
       ],
     );
 
-    return Material(
-      color: selected
-          ? scheme.primaryContainer.withValues(alpha: 0.22)
-          : scheme.surfaceContainerLow,
-      clipBehavior: Clip.antiAlias,
-      shape: border,
-      child: selected
-          ? cardBody
-          : InkWell(
-              onTap: onToggleSelected,
-              child: cardBody,
-            ),
+    return InkWell(
+      onTap: selected ? null : onToggleSelected,
+      borderRadius: BorderRadius.circular(6),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: selected
+              ? scheme.primaryContainer.withValues(alpha: 0.18)
+              : null,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: cardBody,
+      ),
     );
   }
 }

@@ -128,7 +128,17 @@ class OrderComposerScreen extends ConsumerStatefulWidget {
   ConsumerState<OrderComposerScreen> createState() => _OrderComposerScreenState();
 }
 
-const _kComposerSectionGap = 14.0;
+const _kComposerSectionGap = 10.0;
+
+EdgeInsets _composerScrollPadding(BuildContext context) {
+  final safe = MediaQuery.paddingOf(context);
+  return EdgeInsets.fromLTRB(
+    safe.left > 0 ? safe.left : 8,
+    8,
+    safe.right > 0 ? safe.right : 8,
+    96,
+  );
+}
 
 class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
   final _customerSearchController = TextEditingController();
@@ -170,10 +180,23 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
 
   DateTime? _deliveryDate;
 
+  final _formRevision = ValueNotifier<int>(0);
+
   Listenable get _paymentFieldsListenable => Listenable.merge([
         _paidController,
         ..._itemPriceControllers.values,
       ]);
+
+  /// Rebuilds save affordances without rebuilding the full composer body.
+  Listenable get _composerFormListenable => Listenable.merge([
+        _paymentFieldsListenable,
+        _customerSearchController,
+        _formRevision,
+      ]);
+
+  void _notifyFormRevision() {
+    _formRevision.value++;
+  }
 
   @override
   void initState() {
@@ -279,6 +302,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
   void dispose() {
     _customerSearchController.dispose();
     _paidController.dispose();
+    _formRevision.dispose();
     for (final c in _itemPriceControllers.values) {
       c.dispose();
     }
@@ -723,7 +747,12 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
               ListTile(
                 leading: const Icon(Icons.open_in_new),
                 title: Text(l10n.ordersDetailTitle),
-                onTap: () => Navigator.pop(ctx),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  if (context.mounted) {
+                    context.go('/app/orders/$orderId');
+                  }
+                },
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
@@ -901,8 +930,9 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
         message: l10n.ordersComposerSaved,
       );
       if (widget.isTabRoot) {
+        await _showPostSaveSheet(context, l10n, orderId);
+        if (!context.mounted) return;
         setState(_resetForm);
-        if (context.mounted) context.go('/app/orders');
       } else {
         context.go('/app/orders/$orderId');
       }
@@ -1017,10 +1047,9 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       message: l10n.ordersComposerSaved,
     );
     if (widget.isTabRoot) {
+      await _showPostSaveSheet(context, l10n, orderId);
+      if (!context.mounted) return;
       setState(_resetForm);
-      if (context.mounted) {
-        context.go('/app/orders');
-      }
       return;
     }
     await _showPostSaveSheet(context, l10n, orderId);
@@ -1050,32 +1079,6 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     _paidController.clear();
     _deliveryDate = null;
     _clearItemDrafts();
-  }
-
-  Future<void> _startNewOrder(BuildContext context, AppLocalizations l10n) async {
-    if (!widget.isTabRoot) {
-      _resetForm();
-      return;
-    }
-    final ok = await showPrideAlertDialog<bool>(
-      context: context,
-      icon: Icons.add_circle_outline,
-      title: l10n.ordersNewCta,
-      content: Text(l10n.ordersComposerResetBody),
-      actions: prideDialogCancelSave(
-        context: context,
-        onCancel: () => Navigator.of(context).pop(false),
-        onConfirm: () => Navigator.of(context).pop(true),
-        saveLabel: l10n.ordersNewCta,
-        confirmVariant: PrideButtonVariant.add,
-      ),
-    );
-    if (ok == true && mounted) {
-      setState(_resetForm);
-      if (context.mounted) {
-        context.go('/app/orders');
-      }
-    }
   }
 
   @override
@@ -1115,17 +1118,11 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
         ? l10n.ordersComposerDeliveryDateUnset
         : AppCalendarFormat.mediumDate(l10n, calendar, _deliveryDate!, locale);
 
-    final customerSubtitle =
-        _selectedCustomerLabel ?? l10n.ordersComposerCustomerRequired;
     final ordersForRef =
         ref.watch(ordersListStreamProvider).valueOrNull ?? const <OrderSummary>[];
     final customersForSearch =
         ref.watch(customersListStreamProvider).valueOrNull ??
             const <CustomerSummary>[];
-    final customerSearchQuery = _customerSearchController.text;
-    final customerSearchMatches = _selectedCustomerId == null
-        ? filterCustomersBySearchQuery(customersForSearch, customerSearchQuery)
-        : const <CustomerSummary>[];
     final referenceOrder = _selectedCustomerId == null
         ? null
         : resolveReferenceOrder(
@@ -1163,12 +1160,6 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
         automaticallyImplyLeading: !widget.isTabRoot,
         title: Text(l10n.ordersNewTitle),
         actions: [
-          if (widget.isTabRoot)
-            TextButton.icon(
-              onPressed: () => _startNewOrder(context, l10n),
-              icon: const Icon(Icons.add),
-              label: Text(l10n.ordersNewCta),
-            ),
           TextButton(
             onPressed: () => _confirmReset(context, l10n),
             child: Text(l10n.resetCta),
@@ -1176,244 +1167,100 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
         ],
       ),
       body: ListView(
-        padding: prideFormScrollPadding(context),
+        padding: _composerScrollPadding(context),
         children: [
-          Card(
-            clipBehavior: Clip.antiAlias,
-            child: PrideOptionalPanel(
-              isEmpty: !_hasCustomerForSave,
-              padding: EdgeInsets.zero,
-              borderRadius: BorderRadius.zero,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
-                    child: SearchBar(
-                      hintText: l10n.customersSearchHint,
-                      controller: _customerSearchController,
-                      leading: const Icon(Icons.search),
-                      trailing: [
-                        if (_customerSearchController.text.isNotEmpty)
-                          IconButton(
-                            icon: const Icon(Icons.clear),
-                            tooltip: MaterialLocalizations.of(context)
-                                .clearButtonTooltip,
-                            onPressed: () {
-                              _customerSearchController.clear();
-                              setState(() {});
-                            },
-                          ),
-                      ],
-                      onChanged: (_) => setState(() {}),
-                      onSubmitted: (_) {
-                        final q = _customerSearchController.text.trim();
-                        if (q.isEmpty) return;
-                        final match = findFirstCustomerBySearchQuery(
-                          customersForSearch,
-                          q,
-                        );
-                        if (match != null) {
-                          _applyCustomer(match);
-                        }
-                      },
-                    ),
-                  ),
-                  if (_selectedCustomerId == null &&
-                      customerSearchQuery.trim().isNotEmpty) ...[
-                    if (customerSearchMatches.isNotEmpty)
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxHeight: 220),
-                        child: ListView.separated(
-                          shrinkWrap: true,
-                          padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
-                          itemCount: customerSearchMatches.length,
-                          separatorBuilder: (context, index) =>
-                              const Divider(height: 1),
-                          itemBuilder: (context, i) {
-                            final c = customerSearchMatches[i];
-                            final idLabel = parseStoredDisplayCustomerNo(
-                                        c.displayCustomerNo) >
-                                    0
-                                ? formatDisplayCustomerNo(c.displayCustomerNo)
-                                : null;
-                            return ListTile(
-                              dense: true,
-                              leading: const Icon(Icons.person_outline),
-                              title: Text(c.name),
-                              subtitle: Text(
-                                [
-                                  if (idLabel != null) idLabel,
-                                  c.phone ?? l10n.customersPhoneMissing,
-                                ].join(' • '),
-                              ),
-                              onTap: () => _applyCustomer(c),
-                            );
-                          },
-                        ),
-                      )
-                    else
-                      ListTile(
-                        dense: true,
-                        leading: const Icon(Icons.person_add_outlined),
-                        title: Text(
-                          l10n.ordersComposerUseNewCustomer(
-                            customerSearchQuery.trim(),
-                          ),
-                        ),
-                        onTap: () => setState(() {
-                          _selectedCustomerName = customerSearchQuery.trim();
-                          _selectedCustomerLabel = customerSearchQuery.trim();
-                        }),
-                      ),
-                  ],
-                  if (_selectedCustomerId != null)
-                    ListTile(
-                      title: Text(l10n.ordersComposerCustomerTitle),
-                      subtitle: Text(customerSubtitle),
-                      isThreeLine: customerSubtitle.length > 48,
-                      leading: PrideColoredLeading(
-                        icon: Icons.person_outline,
-                        color: prideSettingsIconColor(0),
-                      ),
-                      trailing: PrideCloseIconButton(
-                        tooltip: l10n.editCta,
-                        onPressed: _clearSelectedCustomer,
-                      ),
-                    )
-                  else if (customerSearchQuery.trim().isNotEmpty &&
-                      customerSearchMatches.isEmpty)
-                    ListTile(
-                      title: Text(l10n.ordersComposerCustomerTitle),
-                      subtitle: Text(
-                        l10n.ordersComposerUseNewCustomer(
-                          customerSearchQuery.trim(),
-                        ),
-                      ),
-                      leading: PrideColoredLeading(
-                        icon: Icons.person_add_outlined,
-                        color: prideSettingsIconColor(0),
-                      ),
-                    ),
-                  if (_selectedCustomerId != null) ...[
-                  Builder(
-                    builder: (context) {
-                      final customerOrders = customerOrdersForReference(
-                        ordersForRef,
-                        _selectedCustomerId!,
-                      );
-                      if (customerOrders.length <= 1) {
-                        return const SizedBox.shrink();
-                      }
-                      return Align(
-                        alignment: AlignmentDirectional.centerStart,
-                        child: TextButton.icon(
-                          onPressed: () => showComposerReferenceOrderPicker(
-                            context,
-                            l10n,
-                            calendar,
-                            locale,
-                            customerOrders,
-                            referenceOrder?.internalId ??
-                                customerOrders.first.internalId,
-                            (id) => setState(
-                              () => _referenceOrderOverrideId = id,
-                            ),
-                            _money,
-                            referencePaidByOrderId,
-                            paymentsLedgerLoaded,
-                          ),
-                          icon: const Icon(Icons.swap_horiz, size: 18),
-                          label: Text(l10n.ordersComposerChangeReferenceOrderCta),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ],
-            ),
-            ),
+          _ComposerCustomerSearchSection(
+            l10n: l10n,
+            searchController: _customerSearchController,
+            customers: customersForSearch,
+            selectedCustomerId: _selectedCustomerId,
+            selectedCustomerLabel: _selectedCustomerLabel,
+            onCustomerSelected: _applyCustomer,
+            onClearCustomer: _clearSelectedCustomer,
+            onNewCustomerName: (name) {
+              _selectedCustomerName = name;
+              _selectedCustomerLabel = name;
+              _notifyFormRevision();
+            },
           ),
+          if (_selectedCustomerId != null) ...[
+            Builder(
+              builder: (context) {
+                final customerOrders = customerOrdersForReference(
+                  ordersForRef,
+                  _selectedCustomerId!,
+                );
+                if (customerOrders.length <= 1) {
+                  return const SizedBox.shrink();
+                }
+                return Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: TextButton.icon(
+                    onPressed: () => showComposerReferenceOrderPicker(
+                      context,
+                      l10n,
+                      calendar,
+                      locale,
+                      customerOrders,
+                      referenceOrder?.internalId ??
+                          customerOrders.first.internalId,
+                      (id) => setState(
+                        () => _referenceOrderOverrideId = id,
+                      ),
+                      _money,
+                      referencePaidByOrderId,
+                      paymentsLedgerLoaded,
+                    ),
+                    icon: const Icon(Icons.swap_horiz, size: 18),
+                    label: Text(l10n.ordersComposerChangeReferenceOrderCta),
+                  ),
+                );
+              },
+            ),
+          ],
           if (_editingOrderId != null && _editingStatus != null) ...[
             const SizedBox(height: _kComposerSectionGap),
-            Card(
-              clipBehavior: Clip.antiAlias,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      l10n.ordersAuditStatus,
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                    const SizedBox(height: 8),
-                    DropdownButtonFormField<OrderLocalStatus>(
-                      value: _editingStatus,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        isDense: true,
-                      ),
-                      items: [
-                        for (final s in OrderLocalStatus.values)
-                          DropdownMenuItem(
-                            value: s,
-                            child: Text(orderStatusLabel(s, l10n)),
-                          ),
-                      ],
-                      onChanged: (v) {
-                        if (v == null) return;
-                        setState(() => _editingStatus = v);
-                      },
-                    ),
-                  ],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: DropdownButtonFormField<OrderLocalStatus>(
+                value: _editingStatus,
+                decoration: InputDecoration(
+                  labelText: l10n.ordersAuditStatus,
+                  border: const OutlineInputBorder(),
+                  isDense: true,
                 ),
+                items: [
+                  for (final s in OrderLocalStatus.values)
+                    DropdownMenuItem(
+                      value: s,
+                      child: Text(orderStatusLabel(s, l10n)),
+                    ),
+                ],
+                onChanged: (v) {
+                  if (v == null) return;
+                  setState(() => _editingStatus = v);
+                },
               ),
             ),
           ],
           const SizedBox(height: _kComposerSectionGap),
-          Card(
-            clipBehavior: Clip.antiAlias,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                ListTile(
-                  title: Text(l10n.ordersComposerOrderItemsTitle),
-                  subtitle: Text(
-                    _draft.hasAtLeastOneItem
-                        ? l10n.ordersComposerOrderItemsSelectedCount(
-                            _draft.selectedGarmentTypes.length,
-                          )
-                        : l10n.ordersComposerNoItemsError,
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final type in GarmentType.values)
+                FilterChip(
+                  avatar: Icon(
+                    type == GarmentType.perahanTunban
+                        ? Icons.checkroom_outlined
+                        : Icons.layers_outlined,
+                    size: 18,
                   ),
+                  label: Text(composerGarmentLabel(l10n, type)),
+                  selected: _draft.items[type]!.included,
+                  onSelected: (v) => _onGarmentChipSelected(type, v),
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                  child: Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      for (final type in GarmentType.values)
-                        FilterChip(
-                          label: Text(composerGarmentLabel(l10n, type)),
-                          selected: _draft.items[type]!.included,
-                          onSelected: (v) => _onGarmentChipSelected(type, v),
-                        ),
-                    ],
-                  ),
-                ),
-                if (!_draft.hasAtLeastOneItem)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                    child: Text(
-                      l10n.ordersComposerNoItemsError,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.error,
-                          ),
-                    ),
-                  ),
-              ],
-            ),
+            ],
           ),
           for (final type in _draft.selectedGarmentTypes) ...[
             Builder(
@@ -1434,11 +1281,14 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
                   referenceOrder: referenceOrder,
                   referenceItem: refItem,
                   moneyFormatter: _money,
-                  onDraftChanged: (next) =>
-                      setState(() => _draft = _draft.updateItem(type, next)),
-                  onStyleSelectionChanged: (selection) => setState(
-                    () => _styleSelections[type] = selection,
-                  ),
+                  onDraftChanged: (next) {
+                    _draft = _draft.updateItem(type, next);
+                    _notifyFormRevision();
+                  },
+                  onStyleSelectionChanged: (selection) {
+                    _styleSelections[type] = selection;
+                    _notifyFormRevision();
+                  },
                   onUsePreviousMeasurements: referenceOrder != null
                       ? () => _applyPreviousMeasurements(
                             referenceOrder,
@@ -1465,59 +1315,32 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
             ),
           ],
           const SizedBox(height: _kComposerSectionGap),
-          Card(
-            clipBehavior: Clip.antiAlias,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    children: [
-                      PrideColoredLeading(
-                        icon: Icons.event_outlined,
-                        color: prideSettingsIconColor(4),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          l10n.ordersComposerDeliveryDateTitle,
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ),
-                      ),
-                    ],
+          PrideOptionalPanel(
+            isEmpty: _deliveryDate == null,
+            padding: EdgeInsets.zero,
+            child: OutlinedButton.icon(
+              onPressed: () async {
+                final now = DateTime.now();
+                final date = await showAppDatePicker(
+                  context: context,
+                  l10n: l10n,
+                  system: calendar,
+                  initialDate: _deliveryDate ??
+                      now.add(const Duration(days: 2)),
+                  firstDate: DateTime(now.year - 1),
+                  lastDate: DateTime(now.year + 3),
+                );
+                if (date == null || !mounted) return;
+                setState(
+                  () => _deliveryDate = DateTime(
+                    date.year,
+                    date.month,
+                    date.day,
                   ),
-                  const SizedBox(height: 8),
-                  PrideOptionalPanel(
-                    isEmpty: _deliveryDate == null,
-                    padding: EdgeInsets.zero,
-                    child: OutlinedButton.icon(
-                      onPressed: () async {
-                        final now = DateTime.now();
-                        final date = await showAppDatePicker(
-                          context: context,
-                          l10n: l10n,
-                          system: calendar,
-                          initialDate: _deliveryDate ??
-                              now.add(const Duration(days: 2)),
-                          firstDate: DateTime(now.year - 1),
-                          lastDate: DateTime(now.year + 3),
-                        );
-                        if (date == null || !mounted) return;
-                        setState(
-                          () => _deliveryDate = DateTime(
-                            date.year,
-                            date.month,
-                            date.day,
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.event_outlined),
-                      label: Text(deliveryLabel),
-                    ),
-                  ),
-                ],
-              ),
+                );
+              },
+              icon: const Icon(Icons.event_outlined),
+              label: Text(deliveryLabel),
             ),
           ),
           const SizedBox(height: _kComposerSectionGap),
@@ -1527,70 +1350,39 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
               final total = _composerTotalMinor;
               final paid = _composerPaidMinor;
               final remaining = OrderPaymentRules.remainingMinor(total, paid);
-              return Card(
-                clipBehavior: Clip.antiAlias,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Row(
-                        children: [
-                          PrideColoredLeading(
-                            icon: Icons.payments_outlined,
-                            color: Theme.of(context)
-                                .extension<PrideActionColors>()!
-                                .payment,
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              l10n.ordersComposerPaymentTitle,
-                              style: Theme.of(context).textTheme.titleSmall,
-                            ),
-                          ),
-                        ],
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (final type in _draft.selectedGarmentTypes)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Text(
+                        '${composerGarmentLabel(l10n, type)}: ${_money(l10n, _draft.items[type]!.priceAmountMinor)}',
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        l10n.ordersComposerItemBreakdownTitle,
-                        style: Theme.of(context).textTheme.labelLarge,
-                      ),
-                      const SizedBox(height: 4),
-                      for (final type in _draft.selectedGarmentTypes)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 4),
-                          child: Text(
-                            '${composerGarmentLabel(l10n, type)}: ${_money(l10n, _draft.items[type]!.priceAmountMinor)}',
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                        ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '${l10n.paymentTotal}: ${_money(l10n, total)}',
-                        style: Theme.of(context).textTheme.titleSmall,
-                      ),
-                      const SizedBox(height: 8),
-                      PrideOptionalPanel(
-                        isEmpty: paid <= 0 && total <= 0,
-                        padding: EdgeInsets.zero,
-                        child: PrideMoneyField(
-                          controller: _paidController,
-                          labelText: l10n.paymentPaid,
-                          onChanged: (_) => setState(() {}),
-                        ),
-                      ),
-                      if (total > 0 && remaining > 0)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: Text(
-                            '${l10n.ordersComposerStillOwedLabel}: ${_money(l10n, remaining)}',
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                        ),
-                    ],
+                    ),
+                  Text(
+                    '${l10n.paymentTotal}: ${_money(l10n, total)}',
+                    style: Theme.of(context).textTheme.titleSmall,
                   ),
-                ),
+                  const SizedBox(height: 8),
+                  PrideOptionalPanel(
+                    isEmpty: paid <= 0 && total <= 0,
+                    padding: EdgeInsets.zero,
+                    child: PrideMoneyField(
+                      controller: _paidController,
+                      labelText: l10n.paymentPaid,
+                    ),
+                  ),
+                  if (total > 0 && remaining > 0)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        '${l10n.ordersComposerStillOwedLabel}: ${_money(l10n, remaining)}',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ),
+                ],
               );
             },
           ),
@@ -1603,18 +1395,180 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
             ),
         ],
       ),
-      bottomNavigationBar: PrideFormBottomBar(
-        onCancel: widget.isTabRoot
-            ? null
-            : () => context.pop(),
-        cancelLabel: MaterialLocalizations.of(context).cancelButtonLabel,
-        primary: FilledButton.icon(
-          onPressed: _canSave ? () => _onSavePressed(context, l10n) : null,
-          style: prideButtonStyle(context, PrideButtonVariant.add),
-          icon: const Icon(Icons.check),
-          label: Text(l10n.ordersComposerSaveCta),
-        ),
+      bottomNavigationBar: ListenableBuilder(
+        listenable: _composerFormListenable,
+        builder: (context, _) {
+          return PrideFormBottomBar(
+            onCancel: widget.isTabRoot
+                ? null
+                : () => context.pop(),
+            cancelLabel: MaterialLocalizations.of(context).cancelButtonLabel,
+            primary: FilledButton.icon(
+              onPressed: _canSave ? () => _onSavePressed(context, l10n) : null,
+              style: prideButtonStyle(context, PrideButtonVariant.add),
+              icon: const Icon(Icons.check),
+              label: Text(l10n.ordersComposerSaveCta),
+            ),
+          );
+        },
       ),
+    );
+  }
+}
+
+/// Isolated customer search — [ValueListenableBuilder] avoids parent rebuilds
+/// that dismiss the keyboard on each keystroke.
+class _ComposerCustomerSearchSection extends StatefulWidget {
+  const _ComposerCustomerSearchSection({
+    required this.l10n,
+    required this.searchController,
+    required this.customers,
+    required this.selectedCustomerId,
+    required this.selectedCustomerLabel,
+    required this.onCustomerSelected,
+    required this.onClearCustomer,
+    required this.onNewCustomerName,
+  });
+
+  final AppLocalizations l10n;
+  final TextEditingController searchController;
+  final List<CustomerSummary> customers;
+  final String? selectedCustomerId;
+  final String? selectedCustomerLabel;
+  final ValueChanged<CustomerSummary> onCustomerSelected;
+  final VoidCallback onClearCustomer;
+  final ValueChanged<String> onNewCustomerName;
+
+  @override
+  State<_ComposerCustomerSearchSection> createState() =>
+      _ComposerCustomerSearchSectionState();
+}
+
+class _ComposerCustomerSearchSectionState
+    extends State<_ComposerCustomerSearchSection> {
+  late final FocusNode _searchFocus;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchFocus = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    _searchFocus.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.selectedCustomerId != null) {
+      final label = widget.selectedCustomerLabel ?? '';
+      return ListTile(
+        contentPadding: EdgeInsets.zero,
+        dense: true,
+        leading: const Icon(Icons.person_outline),
+        title: Text(label),
+        trailing: PrideCloseIconButton(
+          tooltip: widget.l10n.editCta,
+          onPressed: widget.onClearCustomer,
+        ),
+      );
+    }
+
+    return ValueListenableBuilder<TextEditingValue>(
+      valueListenable: widget.searchController,
+      builder: (context, value, _) {
+        final query = value.text;
+        final trimmed = query.trim();
+        final matches = trimmed.isEmpty
+            ? const <CustomerSummary>[]
+            : filterCustomersBySearchQuery(widget.customers, query);
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              focusNode: _searchFocus,
+              controller: widget.searchController,
+              decoration: InputDecoration(
+                hintText: widget.l10n.customersSearchHint,
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: query.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        tooltip: MaterialLocalizations.of(context)
+                            .clearButtonTooltip,
+                        onPressed: widget.searchController.clear,
+                      )
+                    : null,
+                border: const OutlineInputBorder(),
+                isDense: true,
+              ),
+              textInputAction: TextInputAction.search,
+              onSubmitted: (text) {
+                final q = text.trim();
+                if (q.isEmpty) return;
+                final match = findFirstCustomerBySearchQuery(
+                  widget.customers,
+                  q,
+                );
+                if (match != null) {
+                  widget.onCustomerSelected(match);
+                } else if (isValidCustomerName(q)) {
+                  widget.onNewCustomerName(q);
+                }
+              },
+            ),
+            if (trimmed.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              if (matches.isNotEmpty)
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 220),
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    physics: const ClampingScrollPhysics(),
+                    padding: EdgeInsets.zero,
+                    itemCount: matches.length,
+                    separatorBuilder: (context, index) =>
+                        const Divider(height: 1),
+                    itemBuilder: (context, i) {
+                      final c = matches[i];
+                      final idLabel =
+                          parseStoredDisplayCustomerNo(c.displayCustomerNo) > 0
+                              ? formatDisplayCustomerNo(c.displayCustomerNo)
+                              : null;
+                      return ListTile(
+                        dense: true,
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.person_outline, size: 20),
+                        title: Text(c.name),
+                        subtitle: Text(
+                          [
+                            ?idLabel,
+                            c.phone ?? widget.l10n.customersPhoneMissing,
+                          ].join(' • '),
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        onTap: () => widget.onCustomerSelected(c),
+                      );
+                    },
+                  ),
+                )
+              else
+                ListTile(
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.person_add_outlined, size: 20),
+                  title: Text(
+                    widget.l10n.ordersComposerUseNewCustomer(trimmed),
+                  ),
+                  onTap: () => widget.onNewCustomerName(trimmed),
+                ),
+            ],
+          ],
+        );
+      },
     );
   }
 }

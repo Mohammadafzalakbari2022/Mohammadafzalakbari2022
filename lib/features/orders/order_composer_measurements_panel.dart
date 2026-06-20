@@ -76,20 +76,27 @@ class _OrderComposerMeasurementsPanelState
   @override
   void didUpdateWidget(OrderComposerMeasurementsPanel oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.initialItems != widget.initialItems &&
-        widget.initialItems.isNotEmpty) {
-      for (final c in _byTypeId.values) {
-        c.dispose();
-      }
-      _byTypeId = {};
-      for (final it in widget.initialItems) {
-        final c = TextEditingController(text: it.value);
-        c.addListener(_emitChange);
-        _byTypeId[it.measurementTypeInternalId] = c;
-      }
-      _profileId = widget.initialProfileId;
-      _profileLabel = widget.initialProfileLabel;
+    // Re-seed only on external draft changes (profile load, use-previous).
+    // Parent no longer setState's on each keystroke, but guard anyway.
+    final externalReseed =
+        oldWidget.initialProfileId != widget.initialProfileId ||
+            oldWidget.initialSnapshotText != widget.initialSnapshotText;
+    if (!externalReseed) return;
+    _reseedFromInitialItems();
+  }
+
+  void _reseedFromInitialItems() {
+    for (final c in _byTypeId.values) {
+      c.dispose();
     }
+    _byTypeId = {};
+    for (final it in widget.initialItems) {
+      final c = TextEditingController(text: it.value);
+      c.addListener(_emitChange);
+      _byTypeId[it.measurementTypeInternalId] = c;
+    }
+    _profileId = widget.initialProfileId;
+    _profileLabel = widget.initialProfileLabel;
   }
 
   @override
@@ -207,10 +214,7 @@ class _OrderComposerMeasurementsPanelState
     return typesAsync.when(
       data: (types) {
         if (types.isEmpty) {
-          return Text(
-            widget.l10n.ordersComposerMeasurementsNoTypesBody,
-            style: Theme.of(context).textTheme.bodyMedium,
-          );
+          return const SizedBox.shrink();
         }
         final sorted = [...types]..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
         final hasAnyValue = sorted.any((t) {
