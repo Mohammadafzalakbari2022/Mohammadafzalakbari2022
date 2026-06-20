@@ -1,6 +1,7 @@
 /// Paths blocked when editing is disallowed (expired or offline grace, plan-06).
 /// Subscription and view routes stay reachable.
 const licenseBlockedPathsWhenEditingBlocked = <String>{
+  '/app/orders',
   '/app/orders/new',
   '/app/customers/new',
   '/app/catalog/new',

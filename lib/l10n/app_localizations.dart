@@ -3230,6 +3230,12 @@ abstract class AppLocalizations {
   /// **'Select customer (required)'**
   String get ordersComposerCustomerRequired;
 
+  /// No description provided for @ordersComposerUseNewCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Add new customer: {name}'**
+  String ordersComposerUseNewCustomer(String name);
+
   /// No description provided for @ordersComposerMeasurementsTitle.
   ///
   /// In en, this message translates to:
@@ -4624,6 +4630,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Name is too short.'**
   String get customerNameTooShort;
+
+  /// No description provided for @customerDuplicateName.
+  ///
+  /// In en, this message translates to:
+  /// **'A customer with this name already exists.'**
+  String get customerDuplicateName;
+
+  /// No description provided for @customerDuplicatePhone.
+  ///
+  /// In en, this message translates to:
+  /// **'A customer with this phone number already exists.'**
+  String get customerDuplicatePhone;
 
   /// No description provided for @customerPhoneLabel.
   ///

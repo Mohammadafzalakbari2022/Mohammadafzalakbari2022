@@ -46,6 +46,7 @@ If you want a free place for optional Web builds (mostly for UI testing):
 23. `plan-23-implementation-wave-2.md` (order internal notes + sync-queue stub bumps)
 24. `plan-24-ui-tasks-todo.md` (simple offline-first tasks / to‑do list)
 25. `plan-25-implementation-backlog.md` (remaining work: in-repo vs backend / ops)
+26. `plan-27-offline-license-performance.md` (offline license cache, developer exemption, perf)
 
 **Agent / implementation contract:** [`AGENTS.md`](AGENTS.md) — non-negotiable rules for humans and AI when writing code in this repo (stack, offline-first, guards, l10n). Use it together with the `plan-NN-*.md` contracts.
 

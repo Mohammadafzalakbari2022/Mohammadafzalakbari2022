@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pride_v3/core/widgets/pride_modal_bottom_sheet.dart';
+import 'package:pride_v3/core/widgets/pride_optional_field.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../data/local/entities/garment_type.dart';
@@ -67,7 +68,7 @@ Future<OrderComposerStyleResult?> showOrderComposerStyleSheet({
 }) {
   return showPrideModalBottomSheet<OrderComposerStyleResult>(
     context: context,
-    builder: (ctx) => _OrderComposerStyleSheet(
+    builder: (ctx) => OrderComposerStylePanel(
       garmentType: garmentType,
       initialMainStyle: initialMainStyle,
       initialStyleNameInternalId: initialStyleNameInternalId,
@@ -87,8 +88,10 @@ Future<OrderComposerStyleResult?> showOrderComposerStyleSheet({
   );
 }
 
-class _OrderComposerStyleSheet extends ConsumerStatefulWidget {
-  const _OrderComposerStyleSheet({
+/// Style + shapes panel (modal sheet or inline receipt block).
+class OrderComposerStylePanel extends ConsumerStatefulWidget {
+  const OrderComposerStylePanel({
+    super.key,
     this.garmentType,
     required this.initialMainStyle,
     this.initialStyleNameInternalId,
@@ -104,6 +107,8 @@ class _OrderComposerStyleSheet extends ConsumerStatefulWidget {
     this.onUsePreviousDesign,
     this.moneyFormatter,
     this.initialStyleSummary = '',
+    this.embedded = false,
+    this.onChanged,
   });
 
   final GarmentType? garmentType;
@@ -121,14 +126,16 @@ class _OrderComposerStyleSheet extends ConsumerStatefulWidget {
   final VoidCallback? onUsePreviousDesign;
   final String Function(AppLocalizations l10n, int minor)? moneyFormatter;
   final String initialStyleSummary;
+  final bool embedded;
+  final ValueChanged<OrderComposerStyleResult?>? onChanged;
 
   @override
-  ConsumerState<_OrderComposerStyleSheet> createState() =>
-      _OrderComposerStyleSheetState();
+  ConsumerState<OrderComposerStylePanel> createState() =>
+      _OrderComposerStylePanelState();
 }
 
-class _OrderComposerStyleSheetState
-    extends ConsumerState<_OrderComposerStyleSheet> {
+class _OrderComposerStylePanelState
+    extends ConsumerState<OrderComposerStylePanel> {
   late final TextEditingController _customStyleCtrl;
   late Set<String> _selectedFigureIds;
   late Map<String, ShapeConfigDraft> _drafts;
@@ -159,6 +166,9 @@ class _OrderComposerStyleSheetState
     _catalogImagePath = widget.initialCatalogImagePath;
     _catalogThumbnailPath = widget.initialCatalogThumbnailPath;
     _customStyleCtrl.addListener(_onCustomStyleEdited);
+    if (widget.embedded) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _emitIfEmbedded());
+    }
   }
 
   GarmentType get _garment =>
@@ -166,12 +176,19 @@ class _OrderComposerStyleSheetState
 
   void _onCustomStyleEdited() {
     final names = ref.read(styleNamesForGarmentProvider(_garment)).valueOrNull;
-    if (names == null || _selectedStyleNameId == null) return;
+    if (names == null || _selectedStyleNameId == null) {
+      _emitIfEmbedded();
+      return;
+    }
     final match = names.where((n) => n.internalId == _selectedStyleNameId);
-    if (match.isEmpty) return;
+    if (match.isEmpty) {
+      _emitIfEmbedded();
+      return;
+    }
     if (match.first.name.trim() != _customStyleCtrl.text.trim()) {
       setState(() => _selectedStyleNameId = null);
     }
+    _emitIfEmbedded();
   }
 
   @override
@@ -191,6 +208,7 @@ class _OrderComposerStyleSheetState
       _selectedStyleNameId = name.internalId;
       _customStyleCtrl.text = name.name;
     });
+    _emitIfEmbedded();
   }
 
   void _toggleFigure(String id) {
@@ -205,6 +223,7 @@ class _OrderComposerStyleSheetState
         _noteControllers[id] = TextEditingController();
       }
     });
+    _emitIfEmbedded();
   }
 
   void _syncNotesFromControllers() {
@@ -219,17 +238,12 @@ class _OrderComposerStyleSheetState
 
   void _onDraftChanged(String shapeId, ShapeConfigDraft draft) {
     setState(() => _drafts[shapeId] = draft);
+    _emitIfEmbedded();
   }
 
-  void _save() {
-    final l10n = AppLocalizations.of(context)!;
+  OrderComposerStyleResult? _buildResult({bool allowEmpty = false}) {
     final main = _mainStyleName;
-    if (main.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.ordersComposerStyleRequired)),
-      );
-      return;
-    }
+    if (main.isEmpty && !allowEmpty) return null;
 
     _syncNotesFromControllers();
 
@@ -247,26 +261,48 @@ class _OrderComposerStyleSheetState
       configs: configs,
     );
 
-    final summary = StyleOrderSelection.buildSummary(
-      mainStyleName: main,
-      selection: selection,
-      figures: figures,
-    );
+    final summary = main.isEmpty
+        ? ''
+        : StyleOrderSelection.buildSummary(
+            mainStyleName: main,
+            selection: selection,
+            figures: figures,
+          );
 
-    Navigator.pop(
-      context,
-      OrderComposerStyleResult(
-        mainStyleName: main,
-        styleNameInternalId: _selectedStyleNameId,
-        selection: selection,
-        summary: summary,
-        catalogItemInternalId: _catalogItemInternalId,
-        catalogDesignName: _catalogDesignName,
-        catalogDesignerShopName: _catalogDesignerShopName,
-        catalogImagePath: _catalogImagePath,
-        catalogThumbnailPath: _catalogThumbnailPath,
-      ),
+    return OrderComposerStyleResult(
+      mainStyleName: main,
+      styleNameInternalId: _selectedStyleNameId,
+      selection: selection,
+      summary: summary,
+      catalogItemInternalId: _catalogItemInternalId,
+      catalogDesignName: _catalogDesignName,
+      catalogDesignerShopName: _catalogDesignerShopName,
+      catalogImagePath: _catalogImagePath,
+      catalogThumbnailPath: _catalogThumbnailPath,
     );
+  }
+
+  void _emitIfEmbedded() {
+    if (!widget.embedded || widget.onChanged == null) return;
+    widget.onChanged!(_buildResult(allowEmpty: true));
+  }
+
+  void _save() {
+    final l10n = AppLocalizations.of(context)!;
+    final result = _buildResult();
+    if (result == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.ordersComposerStyleRequired)),
+      );
+      return;
+    }
+
+    if (widget.embedded) {
+      widget.onChanged?.call(result);
+      return;
+    }
+
+    Navigator.pop(context, result);
   }
 
   Future<void> _openCatalogPicker() async {
@@ -283,6 +319,7 @@ class _OrderComposerStyleSheetState
       _catalogImagePath = picked.imagePath;
       _catalogThumbnailPath = picked.thumbnailPath;
     });
+    _emitIfEmbedded();
   }
 
   void _clearCatalogDesign() {
@@ -293,17 +330,260 @@ class _OrderComposerStyleSheetState
       _catalogImagePath = null;
       _catalogThumbnailPath = null;
     });
+    _emitIfEmbedded();
+  }
+
+  List<Widget> _buildPanelChildren(AppLocalizations l10n, GarmentType garment) {
+    final namesAsync = ref.watch(styleNamesForGarmentProvider(garment));
+    final figuresAsync = ref.watch(styleFiguresForGarmentProvider(garment));
+    final partsAsync = ref.watch(stylePartsForGarmentProvider(garment));
+    final configsAsync =
+        ref.watch(styleFigureConfigsForGarmentProvider(garment));
+    final styleEmpty = _mainStyleName.isEmpty &&
+        _selectedFigureIds.isEmpty &&
+        _catalogDesignName.trim().isEmpty;
+
+    return [
+      if (widget.referenceOrder != null && widget.moneyFormatter != null)
+        ComposerSheetPreviousHeader(
+          title: widget.garmentType != null
+              ? '${composerGarmentLabel(l10n, widget.garmentType!)} · ${l10n.ordersComposerStyleSheetTitle}'
+              : l10n.ordersComposerStyleSheetTitle,
+          previousSection: ComposerSheetPreviousSection(
+            referenceOrder: widget.referenceOrder!,
+            referenceItem: widget.referenceItem,
+            kind: ComposerSheetPreviousKind.style,
+            currentTextForDiff: widget.initialStyleSummary,
+            currentIsMeaningfulForDiff:
+                widget.initialStyleSummary.trim().isNotEmpty,
+            onUsePrevious: widget.onUsePreviousStyle,
+            money: widget.moneyFormatter!,
+          ),
+        ),
+      PrideOptionalPanel(
+        isEmpty: styleEmpty,
+        padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              l10n.ordersComposerStyleMainTitle,
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            const SizedBox(height: 8),
+            namesAsync.when(
+              data: (names) {
+                final active = names.where((n) => n.isActive).toList();
+                if (active.isEmpty) return const SizedBox.shrink();
+                return Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: [
+                    for (final n in active)
+                      ChoiceChip(
+                        label: Text(n.name),
+                        selected: _selectedStyleNameId == n.internalId,
+                        onSelected: (_) => _selectStyleName(n),
+                      ),
+                  ],
+                );
+              },
+              loading: () => const LinearProgressIndicator(),
+              error: (e, _) => Text('$e'),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _customStyleCtrl,
+              decoration: prideOptionalDecoration(
+                context,
+                base: InputDecoration(
+                  labelText: l10n.ordersComposerStyleCustomLabel,
+                  hintText: l10n.ordersComposerStyleCustomHint,
+                  border: const OutlineInputBorder(),
+                ),
+                isEmpty: _mainStyleName.isEmpty,
+              ),
+            ),
+            if (garment == GarmentType.perahanTunban) ...[
+              const SizedBox(height: 16),
+              Text(
+                l10n.ordersComposerCatalogDesignTitle,
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              const SizedBox(height: 8),
+              if (_catalogDesignName.trim().isEmpty)
+                Text(
+                  l10n.ordersComposerCatalogDesignNone,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.outline,
+                      ),
+                )
+              else
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CatalogTileImage(
+                      thumbnailPath: _catalogThumbnailPath,
+                      imagePath: _catalogImagePath,
+                      dimension: 72,
+                      borderRadius: 10,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _catalogDesignName,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                          if (_catalogDesignerShopName.trim().isNotEmpty)
+                            Text(
+                              _catalogDesignerShopName,
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              if (widget.referenceOrder != null &&
+                  widget.garmentType == GarmentType.perahanTunban) ...[
+                const SizedBox(height: 8),
+                ComposerDesignPreviousReference(
+                  referenceOrder: widget.referenceOrder!,
+                  l10n: l10n,
+                  currentDesignSummary: _catalogDesignName,
+                  currentIsMeaningfulForDiff:
+                      _catalogDesignName.trim().isNotEmpty,
+                  onUsePrevious: widget.onUsePreviousDesign,
+                ),
+              ],
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children: [
+                  FilledButton.tonalIcon(
+                    onPressed: _openCatalogPicker,
+                    icon: const Icon(Icons.collections_outlined),
+                    label: Text(l10n.ordersComposerCatalogChooseCta),
+                  ),
+                  if (_catalogDesignName.trim().isNotEmpty)
+                    TextButton(
+                      onPressed: _clearCatalogDesign,
+                      child: Text(l10n.ordersComposerCatalogClearCta),
+                    ),
+                ],
+              ),
+            ],
+            const SizedBox(height: 16),
+            Text(
+              l10n.ordersComposerStyleFiguresTitle,
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            const SizedBox(height: 8),
+            figuresAsync.when(
+              data: (figures) {
+                final listFigures = figuresForOrderSelectionGrid(
+                  figures,
+                  _selectedFigureIds,
+                );
+                if (listFigures.isEmpty) {
+                  if (garment == GarmentType.waistcoat) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.ordersComposerWaistcoatStyleEmptyTitle,
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          l10n.ordersComposerWaistcoatStyleEmptySubtitle,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
+                              ),
+                        ),
+                      ],
+                    );
+                  }
+                  return Text(l10n.ordersComposerStyleNoFigures);
+                }
+                return configsAsync.when(
+                  data: (configs) {
+                    if (garment == GarmentType.waistcoat) {
+                      final parts = partsAsync.valueOrNull ?? const [];
+                      final sections = groupStyleFiguresByPart(
+                        figures: listFigures,
+                        parts: parts,
+                      );
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          for (final section in sections) ...[
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 4),
+                              child: Text(
+                                stylePartSectionLabel(section.part.name),
+                                style: Theme.of(context).textTheme.labelLarge,
+                              ),
+                            ),
+                            _ComposerFigureGrid(
+                              figures: section.figures,
+                              configs: configs,
+                              selectedFigureIds: _selectedFigureIds,
+                              drafts: _drafts,
+                              noteControllers: _noteControllers,
+                              onToggleFigure: _toggleFigure,
+                              onDraftChanged: _onDraftChanged,
+                              l10n: l10n,
+                            ),
+                            const SizedBox(height: 12),
+                          ],
+                        ],
+                      );
+                    }
+                    return _ComposerFigureGrid(
+                      figures: listFigures,
+                      configs: configs,
+                      selectedFigureIds: _selectedFigureIds,
+                      drafts: _drafts,
+                      noteControllers: _noteControllers,
+                      onToggleFigure: _toggleFigure,
+                      onDraftChanged: _onDraftChanged,
+                      l10n: l10n,
+                    );
+                  },
+                  loading: () => const LinearProgressIndicator(),
+                  error: (e, _) => Text('$e'),
+                );
+              },
+              loading: () => const LinearProgressIndicator(),
+              error: (e, _) => Text('$e'),
+            ),
+          ],
+        ),
+      ),
+    ];
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final garment = _garment;
-    final namesAsync = ref.watch(styleNamesForGarmentProvider(garment));
-    final figuresAsync = ref.watch(styleFiguresForGarmentProvider(garment));
-    final partsAsync = ref.watch(stylePartsForGarmentProvider(garment));
-    final configsAsync =
-        ref.watch(styleFigureConfigsForGarmentProvider(garment));
+
+    if (widget.embedded) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: _buildPanelChildren(l10n, garment),
+      );
+    }
 
     return DraggableScrollableSheet(
       expand: false,
@@ -342,231 +622,7 @@ class _OrderComposerStyleSheetState
                 child: ListView(
                   controller: scrollController,
                   padding: EdgeInsets.fromLTRB(12, 8, 12, 24 + keyboard),
-                  children: [
-                    if (widget.referenceOrder != null &&
-                        widget.moneyFormatter != null)
-                      ComposerSheetPreviousHeader(
-                        title: widget.garmentType != null
-                            ? '${composerGarmentLabel(l10n, widget.garmentType!)} · ${l10n.ordersComposerStyleSheetTitle}'
-                            : l10n.ordersComposerStyleSheetTitle,
-                        previousSection: ComposerSheetPreviousSection(
-                          referenceOrder: widget.referenceOrder!,
-                          referenceItem: widget.referenceItem,
-                          kind: ComposerSheetPreviousKind.style,
-                          currentTextForDiff: widget.initialStyleSummary,
-                          currentIsMeaningfulForDiff:
-                              widget.initialStyleSummary.trim().isNotEmpty,
-                          onUsePrevious: widget.onUsePreviousStyle,
-                          money: widget.moneyFormatter!,
-                        ),
-                      ),
-                    Text(
-                      l10n.ordersComposerStyleMainTitle,
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                    const SizedBox(height: 8),
-                    namesAsync.when(
-                      data: (names) {
-                        final active = names.where((n) => n.isActive).toList();
-                        if (active.isEmpty) return const SizedBox.shrink();
-                        return Wrap(
-                          spacing: 8,
-                          runSpacing: 4,
-                          children: [
-                            for (final n in active)
-                              ChoiceChip(
-                                label: Text(n.name),
-                                selected: _selectedStyleNameId == n.internalId,
-                                onSelected: (_) => _selectStyleName(n),
-                              ),
-                          ],
-                        );
-                      },
-                      loading: () => const LinearProgressIndicator(),
-                      error: (e, _) => Text('$e'),
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: _customStyleCtrl,
-                      decoration: InputDecoration(
-                        labelText: l10n.ordersComposerStyleCustomLabel,
-                        hintText: l10n.ordersComposerStyleCustomHint,
-                        border: const OutlineInputBorder(),
-                        isDense: true,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      l10n.ordersComposerCatalogDesignTitle,
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                    const SizedBox(height: 8),
-                    if (_catalogDesignName.trim().isEmpty)
-                      Text(
-                        l10n.ordersComposerCatalogDesignNone,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.outline,
-                            ),
-                      )
-                    else
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CatalogTileImage(
-                            thumbnailPath: _catalogThumbnailPath,
-                            imagePath: _catalogImagePath,
-                            dimension: 72,
-                            borderRadius: 10,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  _catalogDesignName,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleSmall
-                                      ?.copyWith(fontWeight: FontWeight.w600),
-                                ),
-                                if (_catalogDesignerShopName.trim().isNotEmpty)
-                                  Text(
-                                    _catalogDesignerShopName,
-                                    style:
-                                        Theme.of(context).textTheme.bodySmall,
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    if (widget.referenceOrder != null &&
-                        widget.garmentType == GarmentType.perahanTunban) ...[
-                      const SizedBox(height: 8),
-                      ComposerDesignPreviousReference(
-                        referenceOrder: widget.referenceOrder!,
-                        l10n: l10n,
-                        currentDesignSummary: _catalogDesignName,
-                        currentIsMeaningfulForDiff:
-                            _catalogDesignName.trim().isNotEmpty,
-                        onUsePrevious: widget.onUsePreviousDesign,
-                      ),
-                    ],
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 4,
-                      children: [
-                        FilledButton.tonalIcon(
-                          onPressed: _openCatalogPicker,
-                          icon: const Icon(Icons.collections_outlined),
-                          label: Text(l10n.ordersComposerCatalogChooseCta),
-                        ),
-                        if (_catalogDesignName.trim().isNotEmpty)
-                          TextButton(
-                            onPressed: _clearCatalogDesign,
-                            child: Text(l10n.ordersComposerCatalogClearCta),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      l10n.ordersComposerStyleFiguresTitle,
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                    const SizedBox(height: 8),
-                    figuresAsync.when(
-                      data: (figures) {
-                        final listFigures = figuresForOrderSelectionGrid(
-                          figures,
-                          _selectedFigureIds,
-                        );
-                        if (listFigures.isEmpty) {
-                          if (garment == GarmentType.waistcoat) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  l10n.ordersComposerWaistcoatStyleEmptyTitle,
-                                  style:
-                                      Theme.of(context).textTheme.titleSmall,
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  l10n.ordersComposerWaistcoatStyleEmptySubtitle,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
-                                      ?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onSurfaceVariant,
-                                      ),
-                                ),
-                              ],
-                            );
-                          }
-                          return Text(l10n.ordersComposerStyleNoFigures);
-                        }
-                        return configsAsync.when(
-                          data: (configs) {
-                            if (garment == GarmentType.waistcoat) {
-                              final parts = partsAsync.valueOrNull ?? const [];
-                              final sections = groupStyleFiguresByPart(
-                                figures: listFigures,
-                                parts: parts,
-                              );
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  for (final section in sections) ...[
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.only(bottom: 4),
-                                      child: Text(
-                                        stylePartSectionLabel(
-                                          section.part.name,
-                                        ),
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .labelLarge,
-                                      ),
-                                    ),
-                                    _ComposerFigureGrid(
-                                      figures: section.figures,
-                                      configs: configs,
-                                      selectedFigureIds: _selectedFigureIds,
-                                      drafts: _drafts,
-                                      noteControllers: _noteControllers,
-                                      onToggleFigure: _toggleFigure,
-                                      onDraftChanged: _onDraftChanged,
-                                      l10n: l10n,
-                                    ),
-                                    const SizedBox(height: 12),
-                                  ],
-                                ],
-                              );
-                            }
-                            return _ComposerFigureGrid(
-                              figures: listFigures,
-                              configs: configs,
-                              selectedFigureIds: _selectedFigureIds,
-                              drafts: _drafts,
-                              noteControllers: _noteControllers,
-                              onToggleFigure: _toggleFigure,
-                              onDraftChanged: _onDraftChanged,
-                              l10n: l10n,
-                            );
-                          },
-                          loading: () => const LinearProgressIndicator(),
-                          error: (e, _) => Text('$e'),
-                        );
-                      },
-                      loading: () => const LinearProgressIndicator(),
-                      error: (e, _) => Text('$e'),
-                    ),
-                  ],
+                  children: _buildPanelChildren(l10n, garment),
                 ),
               ),
             ],

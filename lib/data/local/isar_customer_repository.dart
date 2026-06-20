@@ -1,9 +1,13 @@
 import 'package:isar/isar.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../core/validation/afghan_phone_input.dart';
 import 'customer_display_no.dart';
 import 'customer_list_repository.dart';
+import 'customer_name_rules.dart';
+import 'customer_repository_exception.dart';
 import 'customer_summary.dart';
+import 'customer_uniqueness.dart';
 import 'dev_shop_constants.dart';
 import 'entities/customer_entity.dart';
 import 'sync_pull_payload.dart';
@@ -17,6 +21,12 @@ class IsarCustomerRepository implements CustomerListRepository {
   static String? _opt(String? v) {
     if (v == null || v.trim().isEmpty) return null;
     return v.trim();
+  }
+
+  static String? _optPhone(String? v) {
+    if (v == null || v.trim().isEmpty) return null;
+    final digits = normalizeAfghanPhoneDigits(v.trim());
+    return digits.isEmpty ? null : digits;
   }
 
   CustomerSummary _toSummary(CustomerEntity c) {
@@ -115,15 +125,30 @@ class IsarCustomerRepository implements CustomerListRepository {
     String? address,
     String? notes,
   }) async {
+    assertValidCustomerName(name);
+    final trimmedName = name.trim();
+    final phoneNorm = _optPhone(phone);
+    final peers = await _isar.customerEntitys
+        .filter()
+        .shopIdEqualTo(shopId)
+        .and()
+        .deletedAtIsNull()
+        .findAll();
+    assertCustomerUniqueInShop(
+      customers: peers.map(_toSummary),
+      shopId: shopId,
+      name: trimmedName,
+      phone: phoneNorm,
+    );
     final id = _uuid.v4();
     final now = DateTime.now();
     final nextNo = await _nextDisplayCustomerNo(shopId);
     final e = CustomerEntity()
       ..internalId = id
       ..shopId = shopId
-      ..name = name.trim()
+      ..name = trimmedName
       ..displayCustomerNo = formatStoredDisplayCustomerNo(nextNo)
-      ..phone = _opt(phone)
+      ..phone = phoneNorm
       ..address = _opt(address)
       ..notes = _opt(notes)
       ..createdAt = now;
@@ -146,11 +171,27 @@ class IsarCustomerRepository implements CustomerListRepository {
     String? address,
     String? notes,
   }) async {
+    assertValidCustomerName(name);
+    final trimmedName = name.trim();
+    final phoneNorm = _optPhone(phone);
     await _isar.writeTxn(() async {
       final existing = await _isar.customerEntitys.getByInternalId(internalId);
       if (existing == null || existing.deletedAt != null) return;
-      existing.name = name.trim();
-      existing.phone = _opt(phone);
+      final peers = await _isar.customerEntitys
+          .filter()
+          .shopIdEqualTo(existing.shopId)
+          .and()
+          .deletedAtIsNull()
+          .findAll();
+      assertCustomerUniqueInShop(
+        customers: peers.map(_toSummary),
+        shopId: existing.shopId,
+        name: trimmedName,
+        phone: phoneNorm,
+        excludeInternalId: internalId,
+      );
+      existing.name = trimmedName;
+      existing.phone = phoneNorm;
       existing.address = _opt(address);
       existing.notes = _opt(notes);
       await _isar.customerEntitys.putByInternalId(existing);
@@ -228,6 +269,25 @@ class IsarCustomerRepository implements CustomerListRepository {
       m,
       const ['display_customer_no', 'displayCustomerNo'],
     );
+    final trimmedName = name.trim();
+    final phoneNorm = _optPhone(syncPullString(m, const ['phone']));
+    final peers = await _isar.customerEntitys
+        .filter()
+        .shopIdEqualTo(shopId)
+        .and()
+        .deletedAtIsNull()
+        .findAll();
+    try {
+      assertCustomerUniqueInShop(
+        customers: peers.map(_toSummary),
+        shopId: shopId,
+        name: trimmedName,
+        phone: phoneNorm,
+        excludeInternalId: internalId,
+      );
+    } on CustomerRepositoryException {
+      return;
+    }
     await _isar.writeTxn(() async {
       final existing = await _isar.customerEntitys.getByInternalId(internalId);
       if (existing == null) {
@@ -239,9 +299,9 @@ class IsarCustomerRepository implements CustomerListRepository {
         final e = CustomerEntity()
           ..internalId = internalId
           ..shopId = shopId
-          ..name = name.trim()
+          ..name = trimmedName
           ..displayCustomerNo = displayNo
-          ..phone = _opt(syncPullString(m, const ['phone']))
+          ..phone = phoneNorm
           ..address = _opt(syncPullString(m, const ['address']))
           ..notes = _opt(syncPullString(m, const ['notes']))
           ..lastCatalogDesignName = lastCatalogDesignName
@@ -265,9 +325,9 @@ class IsarCustomerRepository implements CustomerListRepository {
                     ));
       existing
         ..shopId = shopId
-        ..name = name.trim()
+        ..name = trimmedName
         ..displayCustomerNo = resolvedDisplayNo
-        ..phone = _opt(syncPullString(m, const ['phone']))
+        ..phone = phoneNorm
         ..address = _opt(syncPullString(m, const ['address']))
         ..notes = _opt(syncPullString(m, const ['notes']))
         ..lastCatalogDesignName = lastCatalogDesignName.isNotEmpty

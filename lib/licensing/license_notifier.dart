@@ -27,15 +27,29 @@ class LicenseNotifier extends ChangeNotifier {
   }
 
   /// When true, creating/updating business data and sync must be blocked
-  /// (`plan-06`: expired, or offline past the post-check grace window).
-  bool isEditingBlocked({required bool online}) {
+  /// (`plan-06` / `plan-27`: expired, past cached expiry, or offline grace).
+  bool isEditingBlocked({
+    required bool online,
+    bool developerExempt = false,
+  }) {
+    if (developerExempt) return false;
     if (_suspectedTimeTamper) return true;
     if (isExpired) return true;
     if (online) return false;
+
+    final now = DateTime.now().toUtc();
+    final expires = _expiresAtUtc;
+
+    // Trust cached activation/trial window offline when server provided expiry.
+    if (expires != null) {
+      return now.isAfter(expires);
+    }
+
+    // No expiry on snapshot — 3-day grace after last successful server check.
     final last = _lastSuccessfulCheckAtUtc;
     if (last == null) return false;
-    final deadline = last.add(const Duration(days: 3));
-    return DateTime.now().toUtc().isAfter(deadline);
+    final graceDeadline = last.add(const Duration(days: 3));
+    return now.isAfter(graceDeadline);
   }
 
   void setStatus(LicenseStatus value) {

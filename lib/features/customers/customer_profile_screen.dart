@@ -14,6 +14,7 @@ import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../auth/auth_providers.dart';
 import '../../data/local/customer_display_no.dart';
+import '../../data/local/customer_repository_exception.dart';
 import '../../data/local/customer_summary.dart';
 import '../../data/local/order_summary.dart';
 import '../../data/local/style/order_shape_selection_formatter.dart';
@@ -132,13 +133,24 @@ class CustomerProfileScreen extends ConsumerWidget {
     addressCtrl.dispose();
 
     final repo = await ref.read(customerListRepositoryProvider.future);
-    await repo.updateCustomer(
-      internalId: customerId,
-      name: nextName,
-      phone: phoneText,
-      address: addressText,
-      notes: '',
-    );
+    try {
+      await repo.updateCustomer(
+        internalId: customerId,
+        name: nextName,
+        phone: phoneText,
+        address: addressText,
+        notes: '',
+      );
+    } on CustomerRepositoryException catch (e) {
+      if (!context.mounted) return;
+      showAppFeedback(
+        context,
+        ref,
+        kind: AppFeedbackKind.error,
+        message: customerRepositoryErrorMessage(e, l10n),
+      );
+      return;
+    }
 
     final shopId = ref.read(effectiveShopIdProvider);
     recordSyncOutboxMutation(
@@ -382,8 +394,8 @@ class CustomerProfileScreen extends ConsumerWidget {
                                   locale: locale,
                                   calendar: calendar,
                                   formatMoney: formatMoney,
-                                  onTap: () => context.push(
-                                    '/app/orders/${o.internalId}',
+                                  onTap: () => context.go(
+                                    '/app/orders?orderId=${Uri.encodeComponent(o.internalId)}',
                                   ),
                                 ),
                             ],

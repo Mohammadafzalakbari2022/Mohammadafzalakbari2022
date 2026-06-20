@@ -65,7 +65,7 @@ class _DashboardDrawerState extends ConsumerState<DashboardDrawer> {
     final q = _orderSearchController.text.trim();
     if (q.isEmpty) return;
     final encoded = Uri.encodeQueryComponent(q);
-    _closeDrawerThen(context, () => context.go('/app/orders?q=$encoded'));
+    _closeDrawerThen(context, () => context.go('/app/customers?q=$encoded'));
   }
 
   @override
@@ -193,7 +193,7 @@ class _DashboardDrawerState extends ConsumerState<DashboardDrawer> {
                       context,
                       () {
                         if (oid != null && oid.isNotEmpty) {
-                          context.push('/app/orders/$oid');
+                          context.go('/app/orders?orderId=${Uri.encodeComponent(oid)}');
                         } else {
                           context.push('/app/settings/notifications');
                         }
@@ -282,7 +282,7 @@ class _DashboardDrawerState extends ConsumerState<DashboardDrawer> {
                                     onTap: () => _closeDrawerThen(
                                       context,
                                       () => context.go(
-                                        '/app/orders?status=newOrder',
+                                        '/app/customers?status=newOrder',
                                       ),
                                     ),
                                   ),
@@ -294,7 +294,7 @@ class _DashboardDrawerState extends ConsumerState<DashboardDrawer> {
                                     onTap: () => _closeDrawerThen(
                                       context,
                                       () => context.go(
-                                        '/app/orders?status=inProgress',
+                                        '/app/customers?status=inProgress',
                                       ),
                                     ),
                                   ),
@@ -306,7 +306,7 @@ class _DashboardDrawerState extends ConsumerState<DashboardDrawer> {
                                     onTap: () => _closeDrawerThen(
                                       context,
                                       () => context.go(
-                                        '/app/orders?status=ready',
+                                        '/app/customers?status=ready',
                                       ),
                                     ),
                                   ),
@@ -412,7 +412,7 @@ class _DashboardDrawerState extends ConsumerState<DashboardDrawer> {
                                     color: actions.warning,
                                     onPressed: () => _closeDrawerThen(
                                       context,
-                                      () => context.go('/app/orders?overdue=1'),
+                                      () => context.go('/app/customers?overdue=1'),
                                     ),
                                   ),
                                   DashboardQuickLinkChip(
@@ -422,7 +422,7 @@ class _DashboardDrawerState extends ConsumerState<DashboardDrawer> {
                                     onPressed: () => _closeDrawerThen(
                                       context,
                                       () => context.go(
-                                        '/app/orders?deliveredToday=1',
+                                        '/app/customers?deliveredToday=1',
                                       ),
                                     ),
                                   ),
@@ -479,12 +479,14 @@ class _DashboardDrawerState extends ConsumerState<DashboardDrawer> {
                                 l10n: l10n,
                                 onTapOrder: (id) => _closeDrawerThen(
                                   context,
-                                  () => context.push('/app/orders/$id'),
+                                  () => context.go(
+                                    '/app/orders?orderId=${Uri.encodeComponent(id)}',
+                                  ),
                                 ),
                                 viewAllLabel: l10n.dashboardOverdueViewAll,
                                 onViewAll: () => _closeDrawerThen(
                                   context,
-                                  () => context.go('/app/orders?overdue=1'),
+                                  () => context.go('/app/customers?overdue=1'),
                                 ),
                               ),
                             ),
@@ -502,7 +504,9 @@ class _DashboardDrawerState extends ConsumerState<DashboardDrawer> {
                                 showCustomerName: true,
                                 onTapOrder: (id) => _closeDrawerThen(
                                   context,
-                                  () => context.push('/app/orders/$id'),
+                                  () => context.go(
+                                    '/app/orders?orderId=${Uri.encodeComponent(id)}',
+                                  ),
                                 ),
                               ),
                             ),

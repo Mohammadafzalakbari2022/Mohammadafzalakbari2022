@@ -137,8 +137,6 @@ class OrderItemDraft {
       fabricColor.trim().isNotEmpty ||
       fabricId.trim().isNotEmpty;
 
-  /// Required fields for save when [included].
-  bool get canSaveIncluded =>
-      !included ||
-      (hasMeasurements && hasStyle && hasRequiredPrice);
+  /// Optional save: included items may be partially filled.
+  bool get canSaveIncluded => !included;
 }

@@ -12,6 +12,7 @@ import 'package:pride_v3/core/widgets/pride_form_bottom_bar.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../auth/auth_providers.dart';
+import '../../data/local/customer_repository_exception.dart';
 import '../../data/local/customer_summary.dart';
 import '../../data/local/customer_display_no.dart';
 import '../../data/local/sync_outbox_kinds.dart';
@@ -152,6 +153,14 @@ class _NewCustomerScreenState extends ConsumerState<NewCustomerScreen> {
       } else {
         context.go('/app/customers/$id');
       }
+    } on CustomerRepositoryException catch (e) {
+      if (!context.mounted) return;
+      showAppFeedback(
+        context,
+        ref,
+        kind: AppFeedbackKind.error,
+        message: customerRepositoryErrorMessage(e, l10n),
+      );
     } finally {
       if (mounted) setState(() => _saving = false);
     }

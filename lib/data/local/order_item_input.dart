@@ -163,7 +163,7 @@ void assertAtLeastOneItem(Iterable<OrderItemCreateInput> items) {
 
 void assertItemPricesValid(Iterable<OrderItemCreateInput> items) {
   for (final item in items) {
-    if (item.priceAmountMinor <= 0) {
+    if (item.priceAmountMinor < 0) {
       throw const OrderItemRepositoryException('item_price_required');
     }
   }

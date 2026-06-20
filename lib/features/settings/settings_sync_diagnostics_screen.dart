@@ -214,11 +214,13 @@ class _SettingsSyncDiagnosticsScreenState
     final adminAsync = ref.watch(adminMeProvider);
     final adminCheck = adminAsync.valueOrNull;
     final persistedDev = ref.watch(persistedDeveloperPortalProvider);
+    final prefs = ref.watch(sharedPreferencesProvider);
     final showDeveloperDiagnostics = showDeveloperDiagnosticsInSettings(
       auth: auth,
       adminCheck: adminCheck,
       devSimulated: ref.watch(isDeveloperProvider),
       persistedDeveloperFlag: persistedDev,
+      prefs: prefs,
     );
     if (!showDeveloperDiagnostics) {
       WidgetsBinding.instance.addPostFrameCallback((_) {

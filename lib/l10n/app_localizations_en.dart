@@ -1739,6 +1739,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ordersComposerCustomerRequired => 'Select customer (required)';
 
   @override
+  String ordersComposerUseNewCustomer(String name) {
+    return 'Add new customer: $name';
+  }
+
+  @override
   String get ordersComposerMeasurementsTitle => 'Measurements';
 
   @override
@@ -2505,6 +2510,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get customerNameTooShort => 'Name is too short.';
+
+  @override
+  String get customerDuplicateName =>
+      'A customer with this name already exists.';
+
+  @override
+  String get customerDuplicatePhone =>
+      'A customer with this phone number already exists.';
 
   @override
   String get customerPhoneLabel => 'Phone (optional)';

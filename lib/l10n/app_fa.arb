@@ -878,6 +878,12 @@
   "ordersComposerUseSameFabricCta": "استفاده از همان پارچه",
   "ordersComposerCustomerTitle": "مشتری",
   "ordersComposerCustomerRequired": "مشتری را انتخاب کنید (الزامی)",
+  "ordersComposerUseNewCustomer": "مشتری جدید: {name}",
+  "@ordersComposerUseNewCustomer": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
   "ordersComposerMeasurementsTitle": "اندازه‌ها",
   "ordersComposerMeasurementsRequired": "اندازه‌ها را اضافه کنید (الزامی)",
   "ordersComposerMeasurementsSummary": "اندازه‌ها ثبت شد",
@@ -1173,6 +1179,8 @@
   "customerNameHint": "مثال: احمد کریمی",
   "customerNameRequired": "نام الزامی است.",
   "customerNameTooShort": "نام بسیار کوتاه است.",
+  "customerDuplicateName": "مشتری با این نام از قبل وجود دارد.",
+  "customerDuplicatePhone": "مشتری با این شماره تماس از قبل وجود دارد.",
   "customerPhoneLabel": "تلفن (اختیاری)",
   "customerPhoneHint": "مثال: 0700000001",
   "saved": "ذخیره شد.",

@@ -22,7 +22,7 @@ final connectivityOnlineProvider = Provider<bool>((ref) {
   return async.maybeWhen(
     data: (list) =>
         list.any((r) => r != ConnectivityResult.none),
-    orElse: () => true,
+    orElse: () => false,
   );
 });
 

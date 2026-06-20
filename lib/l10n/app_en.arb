@@ -764,6 +764,12 @@
   "ordersComposerUseSameFabricCta": "Use same fabric",
   "ordersComposerCustomerTitle": "Customer",
   "ordersComposerCustomerRequired": "Select customer (required)",
+  "ordersComposerUseNewCustomer": "Add new customer: {name}",
+  "@ordersComposerUseNewCustomer": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
   "ordersComposerMeasurementsTitle": "Measurements",
   "ordersComposerMeasurementsRequired": "Add measurements (required)",
   "ordersComposerMeasurementsSummary": "Measurements captured",
@@ -1065,6 +1071,8 @@
   "customerNameHint": "Example: Ahmad Karimi",
   "customerNameRequired": "Name is required.",
   "customerNameTooShort": "Name is too short.",
+  "customerDuplicateName": "A customer with this name already exists.",
+  "customerDuplicatePhone": "A customer with this phone number already exists.",
   "customerPhoneLabel": "Phone (optional)",
   "customerPhoneHint": "Example: 0700000001",
   "saved": "Saved.",

@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../core/defaults/afghan_market_defaults.dart';
 import 'dev_shop_constants.dart';
+import 'customer_name_rules.dart';
 import 'entities/customer_entity.dart';
 import 'entities/order_entity.dart';
 import 'entities/order_item_entity.dart';
@@ -650,6 +651,7 @@ class IsarOrderRepository implements OrderListRepository {
     final resolvedName = (customerSnapshotName?.trim().isNotEmpty ?? false)
         ? customerSnapshotName!.trim()
         : (customerRow?.name ?? '');
+    assertValidCustomerName(resolvedName);
     final resolvedPhone = customerSnapshotPhone?.trim().isNotEmpty ?? false
         ? customerSnapshotPhone!.trim()
         : (customerRow?.phone ?? '');

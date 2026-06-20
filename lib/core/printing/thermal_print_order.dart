@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/local/customer_name_rules.dart';
 import '../../data/local/order_summary.dart';
 import '../../data/local/payment_summary.dart';
 import '../../features/settings/shop_profile_provider.dart';
@@ -26,6 +27,13 @@ Future<void> printThermalOrderReceipt({
   required String deliveryDateText,
   required String statusText,
 }) async {
+  if (!isValidCustomerName(order.customerName)) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.customerNameRequired)),
+    );
+    return;
+  }
+
   if (kIsWeb) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(l10n.settingsPrinterWebUnavailable)),

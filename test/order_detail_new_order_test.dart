@@ -40,7 +40,7 @@ void main() {
           customerId: 'cust-abc',
           referenceOrderId: 'ord-detail-1',
         ),
-        '/app/orders/new?customerId=cust-abc&referenceOrderId=ord-detail-1',
+        '/app/orders?customerId=cust-abc&referenceOrderId=ord-detail-1',
       );
     });
   });
@@ -119,7 +119,7 @@ void main() {
             },
           ),
           GoRoute(
-            path: '/app/orders/new',
+            path: '/app/orders',
             builder: (context, state) {
               pushedLocation = state.uri.toString();
               return const Scaffold(body: Text('composer'));

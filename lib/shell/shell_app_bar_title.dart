@@ -28,13 +28,10 @@ String shellAppBarTitle(String path, AppLocalizations l10n) {
   if (path.startsWith('/app/settings/developer-portal')) {
     return l10n.devPortalTitle;
   }
-  if (path.startsWith('/app/orders/new')) {
-    return l10n.ordersNewTitle;
-  }
+  if (path == '/app/orders') return l10n.ordersNewTitle;
   if (path.startsWith('/app/orders/')) {
     return l10n.ordersDetailTitle;
   }
-  if (path == '/app/orders') return l10n.tabOrders;
   if (path.startsWith('/app/customers/')) return l10n.customerProfileTitle;
   if (path == '/app/customers') return l10n.tabCustomers;
   if (path == '/app/catalog') return l10n.tabCatalog;

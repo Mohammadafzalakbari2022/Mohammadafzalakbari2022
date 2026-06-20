@@ -48,6 +48,7 @@ void main() {
       final orderId = await repo.createOrder(
         shopId: kDevShopId,
         customerInternalId: 'cust-test-2',
+        customerSnapshotName: 'Test Customer',
         deliveryDate: DateTime(2026, 6, 16),
         totalAmountMinor: 900,
         measurementsSnapshot: 'Waist: 30',
@@ -63,6 +64,7 @@ void main() {
       final orderId = await repo.createOrderWithItems(
         shopId: kDevShopId,
         customerInternalId: 'cust-test-3',
+        customerSnapshotName: 'Test Customer',
         deliveryDate: DateTime(2026, 6, 17),
         items: [
           const OrderItemCreateInput(

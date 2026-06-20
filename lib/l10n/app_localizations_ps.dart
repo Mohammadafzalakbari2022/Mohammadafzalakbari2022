@@ -1724,6 +1724,11 @@ class AppLocalizationsPs extends AppLocalizations {
   String get ordersComposerCustomerRequired => 'پیرودونکی وټاکئ (اړین)';
 
   @override
+  String ordersComposerUseNewCustomer(String name) {
+    return 'نوی پیرودونکی: $name';
+  }
+
+  @override
   String get ordersComposerMeasurementsTitle => 'پیمانې';
 
   @override
@@ -2486,6 +2491,13 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get customerNameTooShort => 'نوم ډېر لنډ دی.';
+
+  @override
+  String get customerDuplicateName => 'د دې نوم سره پیرودونکی دمخه شته.';
+
+  @override
+  String get customerDuplicatePhone =>
+      'د دې تلیفون شمېرې سره پیرودونکی دمخه شته.';
 
   @override
   String get customerPhoneLabel => 'تلیفون (اختیاري)';

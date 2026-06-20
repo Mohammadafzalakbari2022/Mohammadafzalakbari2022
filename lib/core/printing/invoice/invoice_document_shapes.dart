@@ -49,16 +49,20 @@ List<InvoiceDocumentShape> invoiceDocumentShapesFromSnapshot({
     }
 
     final name = pdfSanitizeLabel(figure.figureNameSnapshot);
+    final note = pdfSanitizeLabel(figure.noteSnapshot);
+    final hasSelection = rows.isNotEmpty || note.isNotEmpty;
+    if (!hasSelection) continue;
+
     shapes.add(
       InvoiceDocumentShape(
         shapeName: name.isNotEmpty ? name : pdfSanitizeLabel(labels.shape),
         imageRef: figure.imageRefSnapshot.trim(),
         detailRows: rows,
-        note: pdfSanitizeLabel(figure.noteSnapshot),
+        note: note,
       ),
     );
   }
-  return shapes;
+  return shapes.where((s) => !s.isEmpty).toList(growable: false);
 }
 
 List<InvoiceDocumentShape> invoiceDocumentShapesFromDisplay({
@@ -70,22 +74,27 @@ List<InvoiceDocumentShape> invoiceDocumentShapesFromDisplay({
 
   for (final figure in display.figures) {
     final name = pdfSanitizeLabel(figure.shapeName);
-    if (name.isEmpty && figure.imageRef.isEmpty) continue;
+    final detail = pdfSanitizeLabel(figure.detailLabel);
+    final size = pdfSanitizeLabel(figure.sizeLabel);
+    final note = pdfSanitizeLabel(figure.note);
+    final hasSelection =
+        detail.isNotEmpty || size.isNotEmpty || note.isNotEmpty;
+    if (!hasSelection && name.isEmpty && figure.imageRef.isEmpty) continue;
 
     final rows = <InvoiceDocumentShapeDetailRow>[];
-    if (figure.detailLabel.isNotEmpty) {
+    if (detail.isNotEmpty) {
       rows.add(
         InvoiceDocumentShapeDetailRow(
           label: pdfSanitizeLabel(labels.detail),
-          value: pdfSanitizeLabel(figure.detailLabel),
+          value: detail,
         ),
       );
     }
-    if (figure.sizeLabel.isNotEmpty) {
+    if (size.isNotEmpty) {
       rows.add(
         InvoiceDocumentShapeDetailRow(
           label: pdfSanitizeLabel(labels.size),
-          value: pdfSanitizeLabel(figure.sizeLabel),
+          value: size,
         ),
       );
     }
@@ -95,11 +104,11 @@ List<InvoiceDocumentShape> invoiceDocumentShapesFromDisplay({
         shapeName: name.isNotEmpty ? name : pdfSanitizeLabel(labels.shape),
         imageRef: figure.imageRef.trim(),
         detailRows: rows,
-        note: pdfSanitizeLabel(figure.note),
+        note: note,
       ),
     );
   }
-  return shapes;
+  return shapes.where((s) => !s.isEmpty).toList(growable: false);
 }
 
 List<InvoiceDocumentShape> resolveInvoiceDocumentShapes({
@@ -123,5 +132,7 @@ List<InvoiceDocumentShape> resolveInvoiceDocumentShapes({
     styleSummary: styleSummary,
     catalogFigures: catalogFigures,
   );
-  return invoiceDocumentShapesFromDisplay(display: display, l10n: l10n);
+  return invoiceDocumentShapesFromDisplay(display: display, l10n: l10n)
+      .where((s) => !s.isEmpty)
+      .toList(growable: false);
 }

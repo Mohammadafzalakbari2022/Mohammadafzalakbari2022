@@ -47,6 +47,8 @@ final adminMeProvider = FutureProvider<AdminMeCheckResult>((ref) async {
       if (isDeveloper) {
         await AuthSessionStorage.markDeveloperPortalUnlocked(
           ref.read(sharedPreferencesProvider),
+          shopId: auth.shopId ?? '',
+          username: auth.username ?? '',
         );
       }
       return AdminMeCheckResult.ok(isDeveloper: isDeveloper);

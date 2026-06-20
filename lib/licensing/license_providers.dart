@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../auth/auth_providers.dart';
+import '../auth/developer_account.dart';
 import '../core/api/pride_api_config.dart';
 import '../l10n/app_localizations.dart';
 import '../shell/shell_sync_providers.dart';
@@ -16,6 +17,7 @@ final licenseNotifierProvider =
 final licenseEditingBlockedProvider = Provider<bool>((ref) {
   if (!PrideApiConfig.isConfigured) return false;
   if (!ref.watch(authSessionProvider).hasApiSession) return false;
+  if (ref.watch(isDeveloperAccountProvider)) return false;
   final online = ref.watch(connectivityOnlineProvider);
   return ref.watch(licenseNotifierProvider).isEditingBlocked(online: online);
 });

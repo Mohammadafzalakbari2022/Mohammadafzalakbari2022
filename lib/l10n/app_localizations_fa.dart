@@ -1728,6 +1728,11 @@ class AppLocalizationsFa extends AppLocalizations {
   String get ordersComposerCustomerRequired => 'مشتری را انتخاب کنید (الزامی)';
 
   @override
+  String ordersComposerUseNewCustomer(String name) {
+    return 'مشتری جدید: $name';
+  }
+
+  @override
   String get ordersComposerMeasurementsTitle => 'اندازه‌ها';
 
   @override
@@ -2489,6 +2494,13 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get customerNameTooShort => 'نام بسیار کوتاه است.';
+
+  @override
+  String get customerDuplicateName => 'مشتری با این نام از قبل وجود دارد.';
+
+  @override
+  String get customerDuplicatePhone =>
+      'مشتری با این شماره تماس از قبل وجود دارد.';
 
   @override
   String get customerPhoneLabel => 'تلفن (اختیاری)';

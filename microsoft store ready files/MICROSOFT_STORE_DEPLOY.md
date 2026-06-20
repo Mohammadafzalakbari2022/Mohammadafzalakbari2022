@@ -1,6 +1,6 @@
 # Microsoft Store — Khayat (Windows desktop)
 
-**Version:** `3.6.2.35313` (from `pubspec.yaml` `3.6.2+35313`)
+**Version:** `3.6.3.35314` (from `pubspec.yaml` `3.6.3+35314`)
 
 ## What you have now
 
@@ -12,7 +12,13 @@
 
 ### Install MSIX on your PC (no Microsoft Store)
 
-Error `0x800B010A` means Windows does not trust the dev signing certificate yet.
+Error **`0x800B010A`** means Windows does not trust the dev signing certificate yet.
+
+Error **`0x80073cfb`** (same identity, different contents): you rebuilt the MSIX with the **same version number** as an install already on the PC. Fix:
+
+1. **Recommended:** install the **newer** `Khayat-windows.msix` from this folder (version must be higher), or run `.\scripts\install-khayat-windows.ps1` (it removes the old package and reinstalls on this error).
+2. **Manual:** Admin PowerShell — `Get-AppxPackage pridev3.khayat | Remove-AppxPackage`, then install the MSIX again.
+3. **Force replace:** `.\scripts\install-khayat-windows.ps1 -Replace`
 
 **Option A — one script (recommended):** open **PowerShell as Administrator**, from repo root:
 

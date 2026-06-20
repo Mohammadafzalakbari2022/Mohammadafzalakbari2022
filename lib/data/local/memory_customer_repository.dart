@@ -2,9 +2,13 @@ import 'dart:async';
 
 import 'package:uuid/uuid.dart';
 
+import '../../core/validation/afghan_phone_input.dart';
 import 'customer_display_no.dart';
 import 'customer_list_repository.dart';
+import 'customer_name_rules.dart';
+import 'customer_repository_exception.dart';
 import 'customer_summary.dart';
+import 'customer_uniqueness.dart';
 import 'dev_shop_constants.dart';
 import 'seed_data.dart';
 import 'sync_pull_payload.dart';
@@ -19,6 +23,20 @@ class MemoryCustomerRepository implements CustomerListRepository {
   static String? _opt(String? v) {
     if (v == null || v.trim().isEmpty) return null;
     return v.trim();
+  }
+
+  static String? _optPhone(String? v) {
+    if (v == null || v.trim().isEmpty) return null;
+    final digits = normalizeAfghanPhoneDigits(v.trim());
+    return digits.isEmpty ? null : digits;
+  }
+
+  List<CustomerSummary> _activeCustomersForShop(String shopId) {
+    return _customers
+        .where(
+          (c) => c.shopId == shopId && !_softDeletedIds.contains(c.internalId),
+        )
+        .toList(growable: false);
   }
 
   void _backfillDisplayCustomerNos(String shopId) {
@@ -135,6 +153,15 @@ class MemoryCustomerRepository implements CustomerListRepository {
     String? notes,
   }) async {
     await seedIfEmpty();
+    assertValidCustomerName(name);
+    final trimmedName = name.trim();
+    final phoneNorm = _optPhone(phone);
+    assertCustomerUniqueInShop(
+      customers: _activeCustomersForShop(shopId),
+      shopId: shopId,
+      name: trimmedName,
+      phone: phoneNorm,
+    );
     final id = _uuid.v4();
     final createdAt = DateTime.now();
     final nextNo = _nextDisplayCustomerNo(shopId);
@@ -142,9 +169,9 @@ class MemoryCustomerRepository implements CustomerListRepository {
       CustomerSummary(
         shopId: shopId,
         internalId: id,
-        name: name.trim(),
+        name: trimmedName,
         displayCustomerNo: formatStoredDisplayCustomerNo(nextNo),
-        phone: _opt(phone),
+        phone: phoneNorm,
         address: _opt(address),
         notes: _opt(notes),
         createdAt: createdAt,
@@ -164,15 +191,25 @@ class MemoryCustomerRepository implements CustomerListRepository {
   }) async {
     await seedIfEmpty();
     if (_softDeletedIds.contains(internalId)) return;
+    assertValidCustomerName(name);
+    final trimmedName = name.trim();
+    final phoneNorm = _optPhone(phone);
     for (var i = 0; i < _customers.length; i++) {
       if (_customers[i].internalId != internalId) continue;
       final prev = _customers[i];
+      assertCustomerUniqueInShop(
+        customers: _activeCustomersForShop(prev.shopId),
+        shopId: prev.shopId,
+        name: trimmedName,
+        phone: phoneNorm,
+        excludeInternalId: internalId,
+      );
       _customers[i] = CustomerSummary(
         shopId: prev.shopId,
         internalId: internalId,
-        name: name.trim(),
+        name: trimmedName,
         displayCustomerNo: prev.displayCustomerNo,
-        phone: _opt(phone),
+        phone: phoneNorm,
         address: _opt(address),
         notes: _opt(notes),
         lastCatalogDesignName: prev.lastCatalogDesignName,
@@ -246,6 +283,19 @@ class MemoryCustomerRepository implements CustomerListRepository {
       m,
       const ['display_customer_no', 'displayCustomerNo'],
     );
+    final trimmedName = name.trim();
+    final phoneNorm = _optPhone(syncPullString(m, const ['phone']));
+    try {
+      assertCustomerUniqueInShop(
+        customers: _activeCustomersForShop(shopId),
+        shopId: shopId,
+        name: trimmedName,
+        phone: phoneNorm,
+        excludeInternalId: internalId,
+      );
+    } on CustomerRepositoryException {
+      return;
+    }
     _softDeletedIds.remove(internalId);
     for (var i = 0; i < _customers.length; i++) {
       if (_customers[i].internalId != internalId) continue;
@@ -260,9 +310,9 @@ class MemoryCustomerRepository implements CustomerListRepository {
       _customers[i] = CustomerSummary(
         shopId: shopId,
         internalId: internalId,
-        name: name.trim(),
+        name: trimmedName,
         displayCustomerNo: resolvedDisplayNo,
-        phone: _opt(syncPullString(m, const ['phone'])),
+        phone: phoneNorm,
         address: _opt(syncPullString(m, const ['address'])),
         notes: _opt(syncPullString(m, const ['notes'])),
         lastCatalogDesignName: syncPullString(
@@ -307,9 +357,9 @@ class MemoryCustomerRepository implements CustomerListRepository {
       CustomerSummary(
         shopId: shopId,
         internalId: internalId,
-        name: name.trim(),
+        name: trimmedName,
         displayCustomerNo: displayNo,
-        phone: _opt(syncPullString(m, const ['phone'])),
+        phone: phoneNorm,
         address: _opt(syncPullString(m, const ['address'])),
         notes: _opt(syncPullString(m, const ['notes'])),
         createdAt: createdAt,

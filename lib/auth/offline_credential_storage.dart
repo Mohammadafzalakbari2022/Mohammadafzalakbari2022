@@ -9,6 +9,44 @@ import 'package:shared_preferences/shared_preferences.dart';
 abstract final class OfflineCredentialStorage {
   static const _prefsKey = 'pride_offline_credentials_v1';
 
+  static Future<void> updateLicenseSnapshot(
+    SharedPreferences prefs, {
+    required String shopId,
+    required String username,
+    required String licenseStatusApi,
+    String? licenseExpiresAtIso,
+    String? licenseLastSuccessfulCheckAtIso,
+  }) async {
+    final sid = shopId.trim();
+    final user = username.trim();
+    if (sid.isEmpty || user.isEmpty) return;
+
+    final list = _readList(prefs);
+    final key = _entryKey(sid, user);
+    var changed = false;
+    for (final e in list) {
+      if (_entryKeyFromMap(e) == key) {
+        e['license_status'] = licenseStatusApi;
+        if (licenseExpiresAtIso != null && licenseExpiresAtIso.isNotEmpty) {
+          e['license_expires_at'] = licenseExpiresAtIso;
+        } else {
+          e.remove('license_expires_at');
+        }
+        if (licenseLastSuccessfulCheckAtIso != null &&
+            licenseLastSuccessfulCheckAtIso.isNotEmpty) {
+          e['license_last_check_at'] = licenseLastSuccessfulCheckAtIso;
+        } else {
+          e.remove('license_last_check_at');
+        }
+        changed = true;
+        break;
+      }
+    }
+    if (changed) {
+      await prefs.setString(_prefsKey, jsonEncode(list));
+    }
+  }
+
   /// SHA-256 hex digest — matches [ShopRegistryService] on the API.
   static String sha256PasswordHex(String password) {
     return sha256.convert(utf8.encode(password)).toString();

@@ -103,7 +103,7 @@ class _OrdersFilteredListBodyState extends ConsumerState<OrdersFilteredListBody>
   void _syncRouteQueryLink() {
     final uri = GoRouterState.of(context).uri;
     final path = uri.path;
-    if (path != '/app/orders') return;
+    if (path != '/app/customers') return;
 
     final qp = uri.queryParameters;
     final hasDeepLink = qp.containsKey('q') ||
@@ -156,7 +156,7 @@ class _OrdersFilteredListBodyState extends ConsumerState<OrdersFilteredListBody>
       child: SizedBox(
         width: double.infinity,
         child: FilledButton.icon(
-          onPressed: () => context.push('/app/orders/new'),
+          onPressed: () => context.go('/app/orders'),
           style: prideButtonStyle(context, PrideButtonVariant.add),
           icon: const Icon(Icons.add),
           label: Text(l10n.ordersNewCta),
@@ -270,7 +270,7 @@ class _OrdersFilteredListBodyState extends ConsumerState<OrdersFilteredListBody>
                         ),
                         const SizedBox(height: 16),
                         FilledButton.icon(
-                          onPressed: () => context.push('/app/orders/new'),
+                          onPressed: () => context.go('/app/orders'),
                           style: prideButtonStyle(context, PrideButtonVariant.add),
                           icon: const Icon(Icons.add),
                           label: Text(l10n.ordersNewCta),
@@ -326,7 +326,9 @@ class _OrdersFilteredListBodyState extends ConsumerState<OrdersFilteredListBody>
                             styleSummary: o.styleSummary,
                           ).compactPreview
                         : null,
-                    onTap: () => context.push('/app/orders/${o.internalId}'),
+                    onTap: () => context.go(
+                      '/app/orders?orderId=${Uri.encodeComponent(o.internalId)}',
+                    ),
                   );
                 },
               );
@@ -344,7 +346,7 @@ class _OrdersFilteredListBodyState extends ConsumerState<OrdersFilteredListBody>
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
             child: FilledButton.icon(
-              onPressed: () => context.push('/app/orders/new'),
+              onPressed: () => context.go('/app/orders'),
               style: prideButtonStyle(context, PrideButtonVariant.add),
               icon: const Icon(Icons.add),
               label: Text(l10n.ordersNewCta),

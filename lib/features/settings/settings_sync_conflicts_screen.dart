@@ -6,6 +6,7 @@ import 'package:pride_v3/l10n/app_localizations.dart';
 import '../../auth/admin_me_provider.dart';
 import '../../auth/auth_providers.dart';
 import '../../auth/developer_portal_gate.dart';
+import '../../core/persistence/shared_preferences_provider.dart';
 import '../../core/sync/sync_conflict_helpers.dart';
 import '../../core/sync/sync_conflict_recorder.dart';
 import '../../core/sync/sync_conflict_record.dart';
@@ -74,11 +75,13 @@ class SettingsSyncConflictsScreen extends ConsumerWidget {
     final adminAsync = ref.watch(adminMeProvider);
     final adminCheck = adminAsync.valueOrNull;
     final persistedDev = ref.watch(persistedDeveloperPortalProvider);
+    final prefs = ref.watch(sharedPreferencesProvider);
     final showDeveloperDiagnostics = showDeveloperDiagnosticsInSettings(
       auth: auth,
       adminCheck: adminCheck,
       devSimulated: ref.watch(isDeveloperProvider),
       persistedDeveloperFlag: persistedDev,
+      prefs: prefs,
     );
     if (!showDeveloperDiagnostics) {
       WidgetsBinding.instance.addPostFrameCallback((_) {

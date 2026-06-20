@@ -8,14 +8,13 @@ import '../auth/auth_session.dart';
 import '../auth/forgot_password_screen.dart';
 import '../auth/login_screen.dart';
 import '../features/customers/customer_profile_screen.dart';
-import '../features/customers/customers_tab_screen.dart';
+import '../features/customers/customers_orders_tab_screen.dart';
 import '../features/customers/new_customer_screen.dart';
 import '../features/catalog/catalog_item_detail_screen.dart';
 import '../features/catalog/catalog_new_design_screen.dart';
 import '../features/catalog/catalog_tab_screen.dart';
 import '../features/orders/order_composer_screen.dart';
 import '../features/orders/order_detail_screen.dart';
-import '../features/orders/orders_tab_screen.dart';
 import '../features/reports/delivered_report_screen.dart';
 import '../features/reports/monthly_income_report_screen.dart';
 import '../features/reports/open_unpaid_report_screen.dart';
@@ -134,20 +133,32 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: '/app/orders',
-                builder: (context, state) => const OrdersTabScreen(),
+                builder: (context, state) {
+                  final customerId =
+                      state.uri.queryParameters['customerId'];
+                  final referenceOrderId =
+                      state.uri.queryParameters['referenceOrderId'];
+                  final orderId = state.uri.queryParameters['orderId'];
+                  return OrderComposerScreen(
+                    isTabRoot: true,
+                    initialCustomerId: customerId,
+                    initialReferenceOrderId: referenceOrderId,
+                    initialOrderId: orderId,
+                  );
+                },
                 routes: [
                   GoRoute(
                     path: 'new',
-                    parentNavigatorKey: appRootNavigatorKey,
-                    builder: (context, state) {
-                      final customerId =
-                          state.uri.queryParameters['customerId'];
-                      final referenceOrderId =
-                          state.uri.queryParameters['referenceOrderId'];
-                      return OrderComposerScreen(
-                        initialCustomerId: customerId,
-                        initialReferenceOrderId: referenceOrderId,
-                      );
+                    redirect: (context, state) {
+                      final params = state.uri.queryParameters;
+                      if (params.isEmpty) return '/app/orders';
+                      final query = params.entries
+                          .map(
+                            (e) =>
+                                '${e.key}=${Uri.encodeComponent(e.value)}',
+                          )
+                          .join('&');
+                      return '/app/orders?$query';
                     },
                   ),
                   GoRoute(
@@ -166,7 +177,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: '/app/customers',
-                builder: (context, state) => const CustomersTabScreen(),
+                builder: (context, state) => const CustomersOrdersTabScreen(),
                 routes: [
                   GoRoute(
                     path: 'new',

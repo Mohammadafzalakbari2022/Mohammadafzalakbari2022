@@ -25,15 +25,15 @@ void main() {
 
   group('orderComposerRoute', () {
     test('returns base route without customerId', () {
-      expect(orderComposerRoute(), '/app/orders/new');
-      expect(orderComposerRoute(customerId: null), '/app/orders/new');
-      expect(orderComposerRoute(customerId: '  '), '/app/orders/new');
+      expect(orderComposerRoute(), '/app/orders');
+      expect(orderComposerRoute(customerId: null), '/app/orders');
+      expect(orderComposerRoute(customerId: '  '), '/app/orders');
     });
 
     test('includes encoded customerId query param', () {
       expect(
         orderComposerRoute(customerId: 'cust-abc'),
-        '/app/orders/new?customerId=cust-abc',
+        '/app/orders?customerId=cust-abc',
       );
     });
 
@@ -43,7 +43,7 @@ void main() {
           customerId: 'cust-abc',
           referenceOrderId: 'ord-1',
         ),
-        '/app/orders/new?customerId=cust-abc&referenceOrderId=ord-1',
+        '/app/orders?customerId=cust-abc&referenceOrderId=ord-1',
       );
     });
   });

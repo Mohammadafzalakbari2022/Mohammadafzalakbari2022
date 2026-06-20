@@ -53,21 +53,17 @@ class OrderComposerDraft {
     return false;
   }
 
+  /// Receipt composer save readiness: customer name is required (checked in UI);
+  /// delivery, measurements, style, fabric, and price are optional.
   bool canSave({
     required bool customerSelected,
-    required bool deliveryDateSet,
     required int paidMinor,
   }) {
     if (!customerSelected) return false;
-    if (!deliveryDateSet) return false;
     if (!hasAtLeastOneItem) return false;
-    for (final type in selectedGarmentTypes) {
-      if (!items[type]!.canSaveIncluded) return false;
-    }
-    final total = totalMinor();
-    if (total <= 0) return false;
     if (paidMinor < 0) return false;
-    if (paidMinor > total) return false;
+    final total = totalMinor();
+    if (total > 0 && paidMinor > total) return false;
     return true;
   }
 

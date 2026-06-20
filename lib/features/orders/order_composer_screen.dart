@@ -12,19 +12,23 @@ import 'package:pride_v3/core/feedback/app_feedback.dart';
 import 'package:pride_v3/core/widgets/pride_action_buttons.dart';
 import 'package:pride_v3/core/widgets/pride_close_button.dart';
 import 'package:pride_v3/core/widgets/pride_form_bottom_bar.dart';
-import 'package:pride_v3/core/widgets/pride_modal_bottom_sheet.dart';
+import 'package:pride_v3/core/widgets/pride_optional_field.dart';
+import 'package:pride_v3/core/widgets/pride_money_field.dart';
 import 'package:pride_v3/core/widgets/pride_alert_dialog.dart';
 import 'package:pride_v3/core/printing/thermal_print_order.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../auth/auth_providers.dart';
-import '../customers/new_customer_screen.dart';
 import '../customers/customer_search_filter.dart';
 import '../../data/local/customer_display_no.dart';
+import '../../data/local/customer_name_rules.dart';
+import '../../data/local/customer_repository_exception.dart';
 import '../../data/local/customer_summary.dart';
+import '../../data/local/customer_uniqueness.dart';
 import 'package:pride_v3/core/formatting/display_customer_no_format.dart';
 import '../../data/local/dev_shop_constants.dart';
 import '../../data/local/entities/garment_type.dart';
+import '../../data/local/entities/order_status.dart';
 import '../../data/local/order_item_draft.dart';
 import '../../data/local/order_item_snapshot_key.dart';
 import '../../data/local/order_measurement_snapshot_item_input.dart';
@@ -38,21 +42,16 @@ import '../../data/providers/local_data_providers.dart';
 import '../../licensing/license_providers.dart';
 import '../../shell/shell_sync_providers.dart';
 import '../../data/local/style/style_order_selection.dart';
-import 'order_composer_customer_picker.dart';
 import 'order_composer_draft.dart';
+import 'order_composer_receipt_garment_block.dart';
 import 'order_composer_item_card.dart';
-import 'order_composer_measurements_sheet.dart';
-import 'order_composer_progress_header.dart';
-import 'order_composer_fabric_sheet.dart';
 import 'order_composer_reference.dart';
-import 'order_composer_style_sheet.dart';
 import 'order_invoice_share.dart';
 import 'order_invoice_view.dart';
 import 'package:pride_v3/core/formatting/digit_normalizer.dart';
 
 import 'order_payment_mutations.dart';
 import 'order_payment_rules.dart';
-import 'order_payment_sheet.dart';
 import 'order_status_label.dart';
 
 /// Route to the order composer, optionally with a preselected customer and
@@ -70,11 +69,11 @@ String orderComposerRoute({
   if (refId != null && refId.isNotEmpty) {
     params['referenceOrderId'] = refId;
   }
-  if (params.isEmpty) return '/app/orders/new';
+  if (params.isEmpty) return '/app/orders';
   final query = params.entries
       .map((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
       .join('&');
-  return '/app/orders/new?$query';
+  return '/app/orders?$query';
 }
 
 /// Validates [referenceOrderId] belongs to [customerId]; otherwise returns null.
@@ -108,14 +107,22 @@ CustomerSummary? resolveComposerPrefillCustomer(
 class OrderComposerScreen extends ConsumerStatefulWidget {
   const OrderComposerScreen({
     super.key,
+    this.isTabRoot = false,
     this.initialCustomerId,
     this.initialReferenceOrderId,
+    this.initialOrderId,
   });
+
+  /// When true, composer is the Orders tab home (no back; reset after save).
+  final bool isTabRoot;
 
   final String? initialCustomerId;
 
   /// In-memory reference override only; never persisted on the new order.
   final String? initialReferenceOrderId;
+
+  /// Edit mode: load an existing order into the receipt form.
+  final String? initialOrderId;
 
   @override
   ConsumerState<OrderComposerScreen> createState() => _OrderComposerScreenState();
@@ -128,6 +135,11 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
 
   var _customerPrefillApplied = false;
   var _referencePrefillApplied = false;
+  var _orderEditPrefillApplied = false;
+
+  /// When set, save updates this order instead of creating a new one.
+  String? _editingOrderId;
+  OrderLocalStatus? _editingStatus;
 
   /// In-memory only; not saved on the new order.
   String? _referenceOrderOverrideId;
@@ -172,6 +184,95 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
         _attemptCustomerPrefill();
       });
     }
+    if (widget.initialOrderId != null &&
+        widget.initialOrderId!.trim().isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _attemptOrderEditPrefill();
+      });
+    }
+  }
+
+  void _populateFromOrder(OrderSummary order) {
+    _editingOrderId = order.internalId;
+    _editingStatus = order.status;
+    _deliveryDate = order.deliveryDate;
+    final customers =
+        ref.read(customersListStreamProvider).valueOrNull ?? const [];
+    CustomerSummary? customer;
+    for (final c in customers) {
+      if (c.internalId == order.customerInternalId) {
+        customer = c;
+        break;
+      }
+    }
+    if (customer != null) {
+      _selectedCustomerId = customer.internalId;
+      _selectedCustomerName = customer.name;
+      _selectedCustomerPhone = customer.phone;
+      _selectedCustomerLabel = _customerSummaryLabel(customer);
+      _customerSearchController.clear();
+    } else {
+      _selectedCustomerId = order.customerInternalId;
+      _selectedCustomerName = order.customerName;
+      _selectedCustomerPhone = order.customerPhone;
+      _selectedCustomerLabel = order.customerName;
+    }
+    _clearItemDrafts();
+    for (final item in order.sortedItems) {
+      final type = item.garmentType;
+      _draft = _draft.toggleGarment(type, true);
+      _styleSelections[type] =
+          StyleOrderSelection.fromJsonString(item.styleSelectionJson);
+      _itemPriceControllers[type]!.text =
+          item.priceAmountMinor > 0 ? item.priceAmountMinor.toString() : '';
+      _draft = _draft.updateItem(
+        type,
+        OrderItemDraft(
+          garmentType: type,
+          included: true,
+          priceAmountMinor: item.priceAmountMinor,
+          itemNotes: item.itemNotes,
+          measurementsSnapshot: item.measurementsSnapshot,
+          sourceMeasurementProfileId: item.sourceMeasurementProfileId,
+          sourceMeasurementProfileLabel: item.sourceMeasurementProfileLabel,
+          styleName: item.styleName,
+          styleNameInternalId: item.styleNameInternalId,
+          styleSelectionJson: item.styleSelectionJson,
+          styleSummary: item.styleSummary,
+          catalogItemInternalId: item.catalogItemInternalId,
+          catalogDesignName: item.catalogDesignNameSnapshot,
+          catalogDesignerShopName: item.catalogDesignerShopNameSnapshot,
+          catalogImagePath: item.catalogImagePathSnapshot,
+          catalogThumbnailPath: item.catalogThumbnailPathSnapshot,
+          fabricName: item.fabricNameSnapshot,
+          fabricColor: item.fabricColorSnapshot,
+          fabricId: item.fabricIdSnapshot,
+          fabricNamePresetInternalId: item.fabricNamePresetInternalId,
+          fabricColorPresetInternalId: item.fabricColorPresetInternalId,
+        ),
+      );
+      _itemCardExpanded[type] = true;
+    }
+    final paid = order.paidAmountMinor;
+    if (paid > 0) {
+      _paidController.text = paid.toString();
+    }
+  }
+
+  void _attemptOrderEditPrefill() {
+    if (_orderEditPrefillApplied || !mounted) return;
+    final orderId = widget.initialOrderId?.trim();
+    if (orderId == null || orderId.isEmpty) {
+      _orderEditPrefillApplied = true;
+      return;
+    }
+    final asyncOrders = ref.read(ordersListStreamProvider);
+    if (asyncOrders.isLoading) return;
+    final order = _orderFromStream(orderId);
+    _orderEditPrefillApplied = true;
+    if (order != null) {
+      setState(() => _populateFromOrder(order));
+    }
   }
 
   @override
@@ -201,11 +302,18 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
   int get _composerPaidMinor =>
       tryParseMoneyAmount(_paidController.text) ?? 0;
 
+  /// Customer name is required: selected customer or typed name (min 2 chars).
+  bool get _hasCustomerForSave {
+    if (_selectedCustomerId != null) {
+      return isValidCustomerName(_selectedCustomerName);
+    }
+    return isValidCustomerName(_customerSearchController.text);
+  }
+
   bool get _canSave {
     _syncItemPricesFromControllers();
     return _draft.canSave(
-      customerSelected: _selectedCustomerId != null,
-      deliveryDateSet: _deliveryDate != null,
+      customerSelected: _hasCustomerForSave,
       paidMinor: _composerPaidMinor,
     );
   }
@@ -323,182 +431,6 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     });
   }
 
-  Future<void> _openStyleSheet(
-    BuildContext context,
-    GarmentType garmentType,
-  ) async {
-    final draft = _itemDraft(garmentType);
-    final orders = ref.read(ordersListStreamProvider).valueOrNull ?? const [];
-    final referenceOrder = _selectedCustomerId == null
-        ? null
-        : resolveReferenceOrder(
-            customerOrdersForReference(orders, _selectedCustomerId!),
-            _referenceOrderOverrideId,
-          );
-    final refItem =
-        referenceOrder != null ? referenceOrderItem(referenceOrder, garmentType) : null;
-    final result = await showOrderComposerStyleSheet(
-      context: context,
-      ref: ref,
-      garmentType: garmentType,
-      initialMainStyle: draft.styleName,
-      initialStyleNameInternalId: draft.styleNameInternalId,
-      initialSelection:
-          _styleSelections[garmentType] ?? const StyleOrderSelection.empty(),
-      initialCatalogItemInternalId: draft.catalogItemInternalId,
-      initialCatalogDesignName: draft.catalogDesignName,
-      initialCatalogDesignerShopName: draft.catalogDesignerShopName,
-      initialCatalogImagePath: draft.catalogImagePath,
-      initialCatalogThumbnailPath: draft.catalogThumbnailPath,
-      referenceOrder: referenceOrder,
-      referenceItem: refItem,
-      initialStyleSummary: draft.styleSummary,
-      moneyFormatter: _money,
-      onUsePreviousStyle: referenceOrder != null
-          ? () {
-              _applyPreviousStyle(referenceOrder, garmentType);
-              if (context.mounted) Navigator.of(context).pop();
-            }
-          : null,
-      onUsePreviousDesign:
-          referenceOrder != null && garmentType == GarmentType.perahanTunban
-              ? () async {
-                  await _applyPreviousDesign(referenceOrder);
-                  if (context.mounted) Navigator.of(context).pop();
-                }
-              : null,
-    );
-    if (!mounted || result == null) return;
-    setState(() {
-      _styleSelections[garmentType] = result.selection;
-      _draft = _draft.updateItem(
-        garmentType,
-        draft.copyWith(
-          styleName: result.mainStyleName,
-          styleNameInternalId: result.styleNameInternalId,
-          styleSummary: result.summary,
-          catalogItemInternalId: result.catalogItemInternalId,
-          catalogDesignName: result.catalogDesignName,
-          catalogDesignerShopName: result.catalogDesignerShopName,
-          catalogImagePath: result.catalogImagePath,
-          catalogThumbnailPath: result.catalogThumbnailPath,
-        ),
-      );
-    });
-  }
-
-  Future<void> _openPaymentSheet(BuildContext context) async {
-    final total = _composerTotalMinor;
-    final paid = _composerPaidMinor;
-    final l10n = AppLocalizations.of(context)!;
-    final orders = ref.read(ordersListStreamProvider).valueOrNull ?? const [];
-    final referenceOrder = _selectedCustomerId == null
-        ? null
-        : resolveReferenceOrder(
-            customerOrdersForReference(orders, _selectedCustomerId!),
-            _referenceOrderOverrideId,
-          );
-    Widget? previousSection;
-    if (referenceOrder != null) {
-      previousSection = ComposerSheetPreviousHeader(
-        title: l10n.ordersComposerPreviousOrderTitle,
-        previousSection: ComposerSheetPreviousSection(
-          referenceOrder: referenceOrder,
-          kind: ComposerSheetPreviousKind.payment,
-          currentTextForDiff: _money(l10n, paid),
-          currentIsMeaningfulForDiff: paid > 0,
-          money: _money,
-        ),
-      );
-    }
-    final result = await showOrderPaymentDraftSheet(
-      context: context,
-      initialTotalMinor: total,
-      initialPaidMinor: paid,
-      itemBreakdown: paymentBreakdownFromDraft(_draft),
-      totalReadOnly: true,
-      previousOrderSection: previousSection,
-    );
-    if (!mounted || result == null) return;
-    setState(() {
-      _paidController.text = result.initialPaidMinor.toString();
-      for (final entry in result.itemPricesMinor.entries) {
-        final minor = entry.value;
-        _itemPriceControllers[entry.key]!.text =
-            minor > 0 ? minor.toString() : '';
-        _draft = _draft.updateItemPrice(entry.key, minor);
-      }
-    });
-  }
-
-  Future<void> _openFabricSheet(
-    BuildContext context,
-    GarmentType garmentType,
-  ) async {
-    final l10n = AppLocalizations.of(context)!;
-    final draft = _itemDraft(garmentType);
-    final orders = ref.read(ordersListStreamProvider).valueOrNull ?? const [];
-    final referenceOrder = _selectedCustomerId == null
-        ? null
-        : resolveReferenceOrder(
-            customerOrdersForReference(orders, _selectedCustomerId!),
-            _referenceOrderOverrideId,
-          );
-    final refItem =
-        referenceOrder != null ? referenceOrderItem(referenceOrder, garmentType) : null;
-    final fabricSummary = draft.hasFabric
-        ? l10n.ordersComposerFabricSummary(
-            draft.fabricName,
-            draft.fabricColor,
-            draft.fabricId,
-          )
-        : '';
-    final result = await showOrderComposerFabricSheet(
-      context: context,
-      initialName: draft.fabricName,
-      initialColor: draft.fabricColor,
-      initialFabricId: draft.fabricId,
-      initialNamePresetId: draft.fabricNamePresetInternalId,
-      initialColorPresetId: draft.fabricColorPresetInternalId,
-      referenceOrder: referenceOrder,
-      referenceItem: refItem,
-      initialFabricSummary: fabricSummary,
-      moneyFormatter: _money,
-      onUsePreviousFabric: referenceOrder != null
-          ? () {
-              _applyPreviousFabric(referenceOrder, garmentType);
-              if (context.mounted) Navigator.of(context).pop();
-            }
-          : null,
-    );
-    if (!mounted) return;
-    setState(() {
-      if (result == null || result.isEmpty) {
-        _draft = _draft.updateItem(
-          garmentType,
-          draft.copyWith(
-            fabricName: '',
-            fabricColor: '',
-            fabricId: '',
-            fabricNamePresetInternalId: null,
-            fabricColorPresetInternalId: null,
-          ),
-        );
-      } else {
-        _draft = _draft.updateItem(
-          garmentType,
-          draft.copyWith(
-            fabricName: result.fabricName,
-            fabricColor: result.fabricColor,
-            fabricId: result.fabricId,
-            fabricNamePresetInternalId: result.fabricNamePresetInternalId,
-            fabricColorPresetInternalId: result.fabricColorPresetInternalId,
-          ),
-        );
-      }
-    });
-  }
-
   void _copyFabricFromPerahanToWaistcoat() {
     final perahan = _itemDraft(GarmentType.perahanTunban);
     final waistcoat = _itemDraft(GarmentType.waistcoat);
@@ -516,88 +448,6 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     });
   }
 
-  Future<void> _openDeliverySheet(BuildContext context) async {
-    final l10n = AppLocalizations.of(context)!;
-    final now = DateTime.now();
-    final calendar = ref.read(dateCalendarSystemProvider);
-    final locale = Localizations.localeOf(context).toString();
-    final orders = ref.read(ordersListStreamProvider).valueOrNull ?? const [];
-    final referenceOrder = _selectedCustomerId == null
-        ? null
-        : resolveReferenceOrder(
-            customerOrdersForReference(orders, _selectedCustomerId!),
-            _referenceOrderOverrideId,
-          );
-    final deliveryLabel = _deliveryDate == null
-        ? l10n.ordersComposerDeliveryDateUnset
-        : AppCalendarFormat.mediumDate(l10n, calendar, _deliveryDate!, locale);
-
-    final picked = await showPrideModalBottomSheet<DateTime>(
-      context: context,
-      builder: (ctx) {
-        return PrideDraggableSheetScaffold(
-          header: Padding(
-            padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
-            child: Row(
-              children: [
-                IconButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  icon: const Icon(Icons.close),
-                ),
-                Expanded(
-                  child: Text(
-                    l10n.ordersComposerDeliveryDateTitle,
-                    style: Theme.of(ctx).textTheme.titleLarge,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          body: (scroll) => ListView(
-            controller: scroll,
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-            children: [
-              if (referenceOrder != null) ...[
-                ComposerSheetPreviousSection(
-                  referenceOrder: referenceOrder,
-                  kind: ComposerSheetPreviousKind.delivery,
-                  currentTextForDiff: deliveryLabel,
-                  currentIsMeaningfulForDiff: _deliveryDate != null,
-                  money: _money,
-                ),
-                const Divider(height: 24),
-              ],
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(l10n.ordersComposerDeliveryDateTitle),
-                subtitle: Text(deliveryLabel),
-                trailing: const Icon(Icons.event_outlined),
-                onTap: () async {
-                  final initial = _deliveryDate ?? now.add(const Duration(days: 2));
-                  final date = await showAppDatePicker(
-                    context: ctx,
-                    l10n: l10n,
-                    system: calendar,
-                    initialDate: initial,
-                    firstDate: DateTime(now.year - 1),
-                    lastDate: DateTime(now.year + 3),
-                  );
-                  if (date == null || !ctx.mounted) return;
-                  Navigator.pop(
-                    ctx,
-                    DateTime(date.year, date.month, date.day),
-                  );
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-    if (!mounted || picked == null) return;
-    setState(() => _deliveryDate = picked);
-  }
-
   Future<void> _confirmReset(BuildContext context, AppLocalizations l10n) async {
     final ok = await showPrideAlertDialog<bool>(
       context: context,
@@ -613,75 +463,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       ),
     );
     if (ok != true) return;
-    setState(() {
-      _referenceOrderOverrideId = null;
-      _selectedCustomerId = null;
-      _selectedCustomerLabel = null;
-      _selectedCustomerName = null;
-      _selectedCustomerPhone = null;
-      _paidController.clear();
-      _deliveryDate = null;
-      _clearItemDrafts();
-    });
-  }
-
-  void _applyNewCustomerForOrder(NewCustomerForOrderResult created) {
-    final shopId =
-        effectiveShopIdFromAuth(ref.read(authSessionProvider).shopId);
-    _applyCustomer(
-      CustomerSummary(
-        shopId: shopId,
-        internalId: created.internalId,
-        name: created.name,
-        displayCustomerNo: created.displayCustomerNo,
-        phone: created.phone,
-        createdAt: DateTime.now(),
-      ),
-    );
-  }
-
-  Future<void> _pickExistingCustomer(
-    BuildContext context,
-    AppLocalizations l10n,
-  ) async {
-    var customers = ref.read(customersListStreamProvider).valueOrNull;
-    if (customers == null) {
-      await ref.read(customersListStreamProvider.future);
-      if (!context.mounted) return;
-      customers = ref.read(customersListStreamProvider).valueOrNull;
-    }
-    final list = customers ?? const <CustomerSummary>[];
-
-    final picked = await showOrderComposerCustomerPicker(
-      context: context,
-      customers: list,
-      l10n: l10n,
-      selectedId: _selectedCustomerId,
-      initialQuery: _customerSearchController.text,
-    );
-    if (picked != null && mounted) _applyCustomer(picked);
-  }
-
-  Future<void> _openNewCustomerForm(BuildContext context) async {
-    final result = await context.push<Object?>(
-      '/app/customers/new?returnTo=orderComposer',
-    );
-    if (!mounted || result == null) return;
-    if (result is NewCustomerForOrderResult) {
-      _applyNewCustomerForOrder(result);
-      return;
-    }
-    // Legacy: id-only pop (stream lookup).
-    if (result is String) {
-      final list =
-          ref.read(customersListStreamProvider).valueOrNull ?? const [];
-      for (final c in list) {
-        if (c.internalId == result) {
-          _applyCustomer(c);
-          return;
-        }
-      }
-    }
+    setState(_resetForm);
   }
 
   Future<void> _applyPreviousMeasurements(
@@ -815,92 +597,6 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
           fabricId: '',
           fabricNamePresetInternalId: copy.fabricNamePresetInternalId,
           fabricColorPresetInternalId: copy.fabricColorPresetInternalId,
-        ),
-      );
-    });
-  }
-
-  Future<void> _openMeasurementsEditor(
-    BuildContext context,
-    AppLocalizations l10n,
-    GarmentType garmentType,
-  ) async {
-    if (_selectedCustomerId == null) {
-      await showPrideAlertDialog<void>(
-        context: context,
-        icon: Icons.person_outline,
-        iconColor: prideSettingsIconColor(0),
-        title: l10n.ordersComposerSelectCustomerFirstTitle,
-        content: Text(l10n.ordersComposerSelectCustomerFirstBody),
-        actions: [
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(MaterialLocalizations.of(context).okButtonLabel),
-          ),
-        ],
-      );
-      return;
-    }
-
-    final shopId =
-        effectiveShopIdFromAuth(ref.read(authSessionProvider).shopId);
-
-    // Wait for types to load — a null [AsyncValue] previously opened a freeform
-    // "notes" sheet on the first tap while the stream was still loading.
-    final typesState = ref.read(measurementTypesStreamProvider);
-    if (!typesState.hasValue && !typesState.hasError) {
-      await ref.read(measurementTypesStreamProvider.future);
-      if (!context.mounted) return;
-    }
-
-    final profiles = ref
-            .read(measurementProfilesForCustomerProvider(_selectedCustomerId!))
-            .valueOrNull ??
-        const <MeasurementProfileSummary>[];
-
-    if (!context.mounted) return;
-    final draft = _itemDraft(garmentType);
-    final orders = ref.read(ordersListStreamProvider).valueOrNull ?? const [];
-    final referenceOrder = _selectedCustomerId == null
-        ? null
-        : resolveReferenceOrder(
-            customerOrdersForReference(orders, _selectedCustomerId!),
-            _referenceOrderOverrideId,
-          );
-    final refItem =
-        referenceOrder != null ? referenceOrderItem(referenceOrder, garmentType) : null;
-    final r = await showOrderMeasurementsEditorSheet(
-      context: context,
-      ref: ref,
-      l10n: l10n,
-      shopId: shopId,
-      customerId: _selectedCustomerId,
-      initialSnapshotText: draft.measurementsSnapshot,
-      initialItems: List<OrderMeasurementSnapshotItemInput>.of(
-        draft.measurementSnapshotItems,
-      ),
-      initialProfileId: draft.sourceMeasurementProfileId,
-      initialProfileLabel: draft.sourceMeasurementProfileLabel,
-      profiles: profiles,
-      referenceOrder: referenceOrder,
-      referenceItem: refItem,
-      moneyFormatter: _money,
-      onUsePreviousMeasurements: referenceOrder != null
-          ? () async {
-              await _applyPreviousMeasurements(referenceOrder, garmentType);
-              if (context.mounted) Navigator.of(context).pop();
-            }
-          : null,
-    );
-    if (r == null || !mounted) return;
-    setState(() {
-      _draft = _draft.updateItem(
-        garmentType,
-        draft.copyWith(
-          measurementsSnapshot: r.measurementsSnapshot,
-          measurementSnapshotItems: r.measurementSnapshotItems,
-          sourceMeasurementProfileId: r.sourceMeasurementProfileId,
-          sourceMeasurementProfileLabel: r.sourceMeasurementProfileLabel,
         ),
       );
     });
@@ -1046,6 +742,86 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     );
   }
 
+  Future<String?> _resolveCustomerForSave(AppLocalizations l10n) async {
+    if (_selectedCustomerId != null) {
+      if (!isValidCustomerName(_selectedCustomerName)) {
+        showAppFeedback(
+          context,
+          ref,
+          kind: AppFeedbackKind.error,
+          message: l10n.customerNameRequired,
+        );
+        return null;
+      }
+      return _selectedCustomerId;
+    }
+    final typed = _customerSearchController.text.trim();
+    if (typed.isEmpty) {
+      showAppFeedback(
+        context,
+        ref,
+        kind: AppFeedbackKind.error,
+        message: l10n.customerNameRequired,
+      );
+      return null;
+    }
+    if (!isValidCustomerName(typed)) {
+      showAppFeedback(
+        context,
+        ref,
+        kind: AppFeedbackKind.error,
+        message: l10n.customerNameTooShort,
+      );
+      return null;
+    }
+    final customers =
+        ref.read(customersListStreamProvider).valueOrNull ?? const [];
+    final existing = findCustomerByExactName(customers, typed);
+    if (existing != null) {
+      _selectedCustomerId = existing.internalId;
+      _selectedCustomerName = existing.name;
+      _selectedCustomerPhone = existing.phone;
+      _selectedCustomerLabel = _customerSummaryLabel(existing);
+      return existing.internalId;
+    }
+    final shopId =
+        effectiveShopIdFromAuth(ref.read(authSessionProvider).shopId);
+    final customersRepo =
+        await ref.read(customerListRepositoryProvider.future);
+    try {
+      final id = await customersRepo.createCustomer(
+        shopId: shopId,
+        name: typed,
+        phone: _selectedCustomerPhone,
+      );
+      recordSyncOutboxMutation(
+        ref,
+        kind: SyncOutboxKinds.customerUpsert,
+        entityRef: id,
+        shopId: shopId,
+        payloadJson: jsonEncode({
+          'name': typed,
+          if (_selectedCustomerPhone != null &&
+              _selectedCustomerPhone!.trim().isNotEmpty)
+            'phone': _selectedCustomerPhone!.trim(),
+        }),
+      );
+      _selectedCustomerId = id;
+      _selectedCustomerName = typed;
+      _selectedCustomerLabel = typed;
+      return id;
+    } on CustomerRepositoryException catch (e) {
+      if (!context.mounted) return null;
+      showAppFeedback(
+        context,
+        ref,
+        kind: AppFeedbackKind.error,
+        message: customerRepositoryErrorMessage(e, l10n),
+      );
+      return null;
+    }
+  }
+
   Future<void> _save(BuildContext context, AppLocalizations l10n) async {
     final license = ref.read(licenseNotifierProvider);
     if (ref.read(licenseEditingBlockedProvider)) {
@@ -1058,11 +834,35 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       return;
     }
 
-    final customerId = _selectedCustomerId!;
+    final customerId = await _resolveCustomerForSave(l10n);
+    if (customerId == null || !context.mounted) return;
+
+    if (!_draft.hasAtLeastOneItem) {
+      showAppFeedback(
+        context,
+        ref,
+        kind: AppFeedbackKind.error,
+        message: l10n.ordersComposerNoItemsError,
+      );
+      return;
+    }
+
     _syncItemPricesFromControllers();
     final totalMinor = _draft.totalMinor();
-    final paidMinor = _composerPaidMinor;
-    final deliveryDate = _deliveryDate!;
+    var paidMinor = _composerPaidMinor;
+    if (paidMinor < 0) paidMinor = 0;
+    if (totalMinor > 0 && paidMinor > totalMinor) {
+      showAppFeedback(
+        context,
+        ref,
+        kind: AppFeedbackKind.error,
+        message: l10n.ordersComposerPaymentRequired,
+      );
+      return;
+    }
+    final now = DateTime.now();
+    final deliveryDate = _deliveryDate ??
+        DateTime(now.year, now.month, now.day);
     final createInputs = _draft.toCreateInputs(styleSelections: _styleSelections);
 
     final shopId =
@@ -1070,6 +870,44 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
 
     final ordersRepo = await ref.read(orderListRepositoryProvider.future);
     final paymentsRepo = await ref.read(paymentRepositoryProvider.future);
+
+    if (_editingOrderId != null) {
+      final orderId = _editingOrderId!;
+      for (final input in createInputs) {
+        await ordersRepo.upsertOrderItem(
+          orderInternalId: orderId,
+          input: input,
+        );
+      }
+      await ordersRepo.updateOrderDetails(
+        orderInternalId: orderId,
+        customerInternalId: customerId,
+        customerSnapshotName: _selectedCustomerName,
+        customerSnapshotPhone: _selectedCustomerPhone,
+        deliveryDate: deliveryDate,
+        totalAmountMinor: totalMinor > 0 ? totalMinor : null,
+      );
+      if (_editingStatus != null) {
+        await ordersRepo.updateOrderStatus(
+          orderInternalId: orderId,
+          newStatus: _editingStatus!,
+        );
+      }
+      if (!context.mounted) return;
+      showAppFeedback(
+        context,
+        ref,
+        kind: AppFeedbackKind.success,
+        message: l10n.ordersComposerSaved,
+      );
+      if (widget.isTabRoot) {
+        setState(_resetForm);
+        if (context.mounted) context.go('/app/orders');
+      } else {
+        context.go('/app/orders/$orderId');
+      }
+      return;
+    }
 
     final orderId = await ordersRepo.createOrderWithItems(
       shopId: shopId,
@@ -1178,6 +1016,13 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       kind: AppFeedbackKind.success,
       message: l10n.ordersComposerSaved,
     );
+    if (widget.isTabRoot) {
+      setState(_resetForm);
+      if (context.mounted) {
+        context.go('/app/orders');
+      }
+      return;
+    }
     await _showPostSaveSheet(context, l10n, orderId);
     if (context.mounted) {
       context.go('/app/orders/$orderId?fromNew=1');
@@ -1188,134 +1033,49 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     return AppNumberFormat.formatMoney(l10n, minor);
   }
 
-  Future<void> _showValidationDialog(
-    BuildContext context,
-    AppLocalizations l10n,
-  ) async {
-    final missing = <Widget>[];
-    if (_selectedCustomerId == null) {
-      missing.add(
-        PrideAlertDialogBullet(
-          icon: Icons.person_outline,
-          iconColor: prideSettingsIconColor(0),
-          label: l10n.ordersComposerCustomerRequired,
-        ),
-      );
-    }
-    if (!_draft.hasAtLeastOneItem) {
-      missing.add(
-        PrideAlertDialogBullet(
-          icon: Icons.checklist_outlined,
-          iconColor: prideSettingsIconColor(1),
-          label: l10n.ordersComposerNoItemsError,
-        ),
-      );
-    }
-    for (final type in _draft.selectedGarmentTypes) {
-      final item = _draft.items[type]!;
-      final label = composerGarmentLabel(l10n, type);
-      if (!item.hasMeasurements) {
-        missing.add(
-          PrideAlertDialogBullet(
-            icon: Icons.straighten,
-            iconColor: prideSettingsIconColor(1),
-            label: '$label: ${l10n.ordersComposerMeasurementsRequired}',
-          ),
-        );
-      }
-      if (!item.hasStyle) {
-        missing.add(
-          PrideAlertDialogBullet(
-            icon: Icons.checkroom_outlined,
-            iconColor: prideSettingsIconColor(2),
-            label: '$label: ${l10n.ordersComposerStyleRequired}',
-          ),
-        );
-      }
-      if (!item.hasRequiredPrice) {
-        missing.add(
-          PrideAlertDialogBullet(
-            icon: Icons.payments_outlined,
-            iconColor: prideSettingsIconColor(2),
-            label: '$label: ${l10n.ordersComposerItemPriceRequired}',
-          ),
-        );
-      }
-    }
-    if (_deliveryDate == null) {
-      missing.add(
-        PrideAlertDialogBullet(
-          icon: Icons.event_outlined,
-          iconColor: prideSettingsIconColor(3),
-          label: l10n.ordersComposerDeliveryDateUnset,
-        ),
-      );
-    }
-    final total = _draft.totalMinor();
-    final paid = _composerPaidMinor;
-    if (total <= 0 || !OrderPaymentRules.isValidInitialPay(total, paid)) {
-      missing.add(
-        PrideAlertDialogBullet(
-          icon: Icons.payments_outlined,
-          iconColor: Theme.of(context).extension<PrideActionColors>()!.payment,
-          label: l10n.ordersComposerPaymentRequired,
-        ),
-      );
-    }
-
-    await showPrideAlertDialog<void>(
-      context: context,
-      icon: Icons.info_outline,
-      title: l10n.ordersComposerValidationTitle,
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(l10n.ordersComposerValidationBody),
-          const SizedBox(height: 12),
-          ...missing,
-        ],
-      ),
-      actions: [
-        FilledButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(MaterialLocalizations.of(context).okButtonLabel),
-        ),
-      ],
-    );
-  }
-
   void _onSavePressed(BuildContext context, AppLocalizations l10n) {
-    if (_canSave) {
-      _save(context, l10n);
-    } else {
-      _showValidationDialog(context, l10n);
-    }
+    _save(context, l10n);
   }
 
-  Widget _composerRequiredHint(String message) {
-    final scheme = Theme.of(context).colorScheme;
-    final warning = Theme.of(context).extension<PrideActionColors>()!.warning;
+  void _resetForm({bool confirm = true}) {
+    _referenceOrderOverrideId = null;
+    _editingOrderId = null;
+    _editingStatus = null;
+    _orderEditPrefillApplied = false;
+    _selectedCustomerId = null;
+    _selectedCustomerLabel = null;
+    _selectedCustomerName = null;
+    _selectedCustomerPhone = null;
+    _customerSearchController.clear();
+    _paidController.clear();
+    _deliveryDate = null;
+    _clearItemDrafts();
+  }
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(Icons.info_outline, size: 18, color: warning),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              message,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w500,
-                  ),
-            ),
-          ),
-        ],
+  Future<void> _startNewOrder(BuildContext context, AppLocalizations l10n) async {
+    if (!widget.isTabRoot) {
+      _resetForm();
+      return;
+    }
+    final ok = await showPrideAlertDialog<bool>(
+      context: context,
+      icon: Icons.add_circle_outline,
+      title: l10n.ordersNewCta,
+      content: Text(l10n.ordersComposerResetBody),
+      actions: prideDialogCancelSave(
+        context: context,
+        onCancel: () => Navigator.of(context).pop(false),
+        onConfirm: () => Navigator.of(context).pop(true),
+        saveLabel: l10n.ordersNewCta,
+        confirmVariant: PrideButtonVariant.add,
       ),
     );
+    if (ok == true && mounted) {
+      setState(_resetForm);
+      if (context.mounted) {
+        context.go('/app/orders');
+      }
+    }
   }
 
   @override
@@ -1337,6 +1097,13 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
           next.hasValue) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _attemptReferencePrefill(_selectedCustomerId!);
+        });
+      }
+      if (!_orderEditPrefillApplied &&
+          widget.initialOrderId != null &&
+          next.hasValue) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _attemptOrderEditPrefill();
         });
       }
     });
@@ -1380,11 +1147,28 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
           )
         : const <String, int>{};
     final paymentsLedgerLoaded = asyncShopPayments.hasValue;
+    final measurementProfiles = _selectedCustomerId == null
+        ? const <MeasurementProfileSummary>[]
+        : ref
+                .watch(
+                  measurementProfilesForCustomerProvider(_selectedCustomerId!),
+                )
+                .valueOrNull ??
+            const <MeasurementProfileSummary>[];
     return Scaffold(
       appBar: AppBar(
-        leading: BackButton(onPressed: () => context.pop()),
+        leading: widget.isTabRoot
+            ? null
+            : BackButton(onPressed: () => context.pop()),
+        automaticallyImplyLeading: !widget.isTabRoot,
         title: Text(l10n.ordersNewTitle),
         actions: [
+          if (widget.isTabRoot)
+            TextButton.icon(
+              onPressed: () => _startNewOrder(context, l10n),
+              icon: const Icon(Icons.add),
+              label: Text(l10n.ordersNewCta),
+            ),
           TextButton(
             onPressed: () => _confirmReset(context, l10n),
             child: Text(l10n.resetCta),
@@ -1394,131 +1178,124 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       body: ListView(
         padding: prideFormScrollPadding(context),
         children: [
-          ListenableBuilder(
-            listenable: _paymentFieldsListenable,
-            builder: (context, _) {
-              final total = _composerTotalMinor;
-              final paid = _composerPaidMinor;
-              final paymentOk =
-                  total > 0 && OrderPaymentRules.isValidInitialPay(total, paid);
-              return OrderComposerProgressHeader(
-                l10n: l10n,
-                customerDone: _selectedCustomerId != null,
-                measurementsDone: _draft.measurementsDoneForAllIncluded(),
-                styleDone: _draft.styleDoneForAllIncluded(),
-                fabricDone: _draft.fabricDoneForAnyIncluded(),
-                deliveryDone: _deliveryDate != null,
-                paymentDone: paymentOk,
-              );
-            },
-          ),
-          const SizedBox(height: _kComposerSectionGap),
           Card(
             clipBehavior: Clip.antiAlias,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
-                  child: SearchBar(
-                    hintText: l10n.customersSearchHint,
-                    controller: _customerSearchController,
-                    leading: const Icon(Icons.search),
-                    trailing: [
-                      if (_customerSearchController.text.isNotEmpty)
-                        IconButton(
-                          icon: const Icon(Icons.clear),
-                          tooltip: MaterialLocalizations.of(context)
-                              .clearButtonTooltip,
-                          onPressed: () {
-                            _customerSearchController.clear();
-                            setState(() {});
+            child: PrideOptionalPanel(
+              isEmpty: !_hasCustomerForSave,
+              padding: EdgeInsets.zero,
+              borderRadius: BorderRadius.zero,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+                    child: SearchBar(
+                      hintText: l10n.customersSearchHint,
+                      controller: _customerSearchController,
+                      leading: const Icon(Icons.search),
+                      trailing: [
+                        if (_customerSearchController.text.isNotEmpty)
+                          IconButton(
+                            icon: const Icon(Icons.clear),
+                            tooltip: MaterialLocalizations.of(context)
+                                .clearButtonTooltip,
+                            onPressed: () {
+                              _customerSearchController.clear();
+                              setState(() {});
+                            },
+                          ),
+                      ],
+                      onChanged: (_) => setState(() {}),
+                      onSubmitted: (_) {
+                        final q = _customerSearchController.text.trim();
+                        if (q.isEmpty) return;
+                        final match = findFirstCustomerBySearchQuery(
+                          customersForSearch,
+                          q,
+                        );
+                        if (match != null) {
+                          _applyCustomer(match);
+                        }
+                      },
+                    ),
+                  ),
+                  if (_selectedCustomerId == null &&
+                      customerSearchQuery.trim().isNotEmpty) ...[
+                    if (customerSearchMatches.isNotEmpty)
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxHeight: 220),
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
+                          itemCount: customerSearchMatches.length,
+                          separatorBuilder: (context, index) =>
+                              const Divider(height: 1),
+                          itemBuilder: (context, i) {
+                            final c = customerSearchMatches[i];
+                            final idLabel = parseStoredDisplayCustomerNo(
+                                        c.displayCustomerNo) >
+                                    0
+                                ? formatDisplayCustomerNo(c.displayCustomerNo)
+                                : null;
+                            return ListTile(
+                              dense: true,
+                              leading: const Icon(Icons.person_outline),
+                              title: Text(c.name),
+                              subtitle: Text(
+                                [
+                                  if (idLabel != null) idLabel,
+                                  c.phone ?? l10n.customersPhoneMissing,
+                                ].join(' • '),
+                              ),
+                              onTap: () => _applyCustomer(c),
+                            );
                           },
                         ),
-                    ],
-                    onChanged: (_) => setState(() {}),
-                    onSubmitted: (_) {
-                      final q = _customerSearchController.text.trim();
-                      if (q.isEmpty) {
-                        _pickExistingCustomer(context, l10n);
-                        return;
-                      }
-                      final match = findFirstCustomerBySearchQuery(
-                        customersForSearch,
-                        q,
-                      );
-                      if (match != null) {
-                        _applyCustomer(match);
-                        return;
-                      }
-                      _pickExistingCustomer(context, l10n);
-                    },
-                  ),
-                ),
-                if (_selectedCustomerId == null &&
-                    customerSearchQuery.trim().isNotEmpty) ...[
-                  if (customerSearchMatches.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                      child: Text(
-                        customersForSearch.isEmpty
-                            ? l10n.customersEmptyTitle
-                            : l10n.customersFilteredEmpty,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                        textAlign: TextAlign.center,
+                      )
+                    else
+                      ListTile(
+                        dense: true,
+                        leading: const Icon(Icons.person_add_outlined),
+                        title: Text(
+                          l10n.ordersComposerUseNewCustomer(
+                            customerSearchQuery.trim(),
+                          ),
+                        ),
+                        onTap: () => setState(() {
+                          _selectedCustomerName = customerSearchQuery.trim();
+                          _selectedCustomerLabel = customerSearchQuery.trim();
+                        }),
+                      ),
+                  ],
+                  if (_selectedCustomerId != null)
+                    ListTile(
+                      title: Text(l10n.ordersComposerCustomerTitle),
+                      subtitle: Text(customerSubtitle),
+                      isThreeLine: customerSubtitle.length > 48,
+                      leading: PrideColoredLeading(
+                        icon: Icons.person_outline,
+                        color: prideSettingsIconColor(0),
+                      ),
+                      trailing: PrideCloseIconButton(
+                        tooltip: l10n.editCta,
+                        onPressed: _clearSelectedCustomer,
                       ),
                     )
-                  else
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxHeight: 220),
-                      child: ListView.separated(
-                        shrinkWrap: true,
-                        padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
-                        itemCount: customerSearchMatches.length,
-                        separatorBuilder: (context, index) =>
-                            const Divider(height: 1),
-                        itemBuilder: (context, i) {
-                          final c = customerSearchMatches[i];
-                          final idLabel =
-                              parseStoredDisplayCustomerNo(c.displayCustomerNo) >
-                                      0
-                                  ? formatDisplayCustomerNo(c.displayCustomerNo)
-                                  : null;
-                          return ListTile(
-                            dense: true,
-                            leading: const Icon(Icons.person_outline),
-                            title: Text(c.name),
-                            subtitle: Text(
-                              [
-                                if (idLabel != null) idLabel,
-                                c.phone ?? l10n.customersPhoneMissing,
-                              ].join(' • '),
-                            ),
-                            onTap: () => _applyCustomer(c),
-                          );
-                        },
+                  else if (customerSearchQuery.trim().isNotEmpty &&
+                      customerSearchMatches.isEmpty)
+                    ListTile(
+                      title: Text(l10n.ordersComposerCustomerTitle),
+                      subtitle: Text(
+                        l10n.ordersComposerUseNewCustomer(
+                          customerSearchQuery.trim(),
+                        ),
+                      ),
+                      leading: PrideColoredLeading(
+                        icon: Icons.person_add_outlined,
+                        color: prideSettingsIconColor(0),
                       ),
                     ),
-                ],
-                ListTile(
-                  title: Text(l10n.ordersComposerCustomerTitle),
-                  subtitle: Text(customerSubtitle),
-                  isThreeLine: customerSubtitle.length > 48,
-                  leading: PrideColoredLeading(
-                    icon: Icons.person_outline,
-                    color: prideSettingsIconColor(0),
-                  ),
-                  trailing: _selectedCustomerId == null
-                      ? const Icon(Icons.chevron_right)
-                      : PrideCloseIconButton(
-                          tooltip: l10n.editCta,
-                          onPressed: _clearSelectedCustomer,
-                        ),
-                  onTap: () => _openNewCustomerForm(context),
-                ),
-                if (_selectedCustomerId == null)
-                  _composerRequiredHint(l10n.ordersComposerCustomerRequired),
-                if (_selectedCustomerId != null) ...[
+                  if (_selectedCustomerId != null) ...[
                   Builder(
                     builder: (context) {
                       final customerOrders = customerOrdersForReference(
@@ -1555,7 +1332,45 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
                 ],
               ],
             ),
+            ),
           ),
+          if (_editingOrderId != null && _editingStatus != null) ...[
+            const SizedBox(height: _kComposerSectionGap),
+            Card(
+              clipBehavior: Clip.antiAlias,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      l10n.ordersAuditStatus,
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                    const SizedBox(height: 8),
+                    DropdownButtonFormField<OrderLocalStatus>(
+                      value: _editingStatus,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        isDense: true,
+                      ),
+                      items: [
+                        for (final s in OrderLocalStatus.values)
+                          DropdownMenuItem(
+                            value: s,
+                            child: Text(orderStatusLabel(s, l10n)),
+                          ),
+                      ],
+                      onChanged: (v) {
+                        if (v == null) return;
+                        setState(() => _editingStatus = v);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
           const SizedBox(height: _kComposerSectionGap),
           Card(
             clipBehavior: Clip.antiAlias,
@@ -1588,7 +1403,15 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
                   ),
                 ),
                 if (!_draft.hasAtLeastOneItem)
-                  _composerRequiredHint(l10n.ordersComposerNoItemsError),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                    child: Text(
+                      l10n.ordersComposerNoItemsError,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -1596,17 +1419,42 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
             Builder(
               builder: (context) {
                 final itemDraft = _itemDraft(type);
-                return OrderComposerItemCard(
+                final refItem = referenceOrder != null
+                    ? referenceOrderItem(referenceOrder, type)
+                    : null;
+                return OrderComposerReceiptGarmentBlock(
                   l10n: l10n,
                   garmentType: type,
                   draft: itemDraft,
-                  expanded: _itemCardExpanded[type] ?? false,
-                  onExpandedChanged: (v) =>
-                      setState(() => _itemCardExpanded[type] = v),
-                  onOpenMeasurements: () =>
-                      _openMeasurementsEditor(context, l10n, type),
-                  onOpenStyle: () => _openStyleSheet(context, type),
-                  onOpenFabric: () => _openFabricSheet(context, type),
+                  styleSelection: _styleSelections[type] ??
+                      const StyleOrderSelection.empty(),
+                  priceController: _itemPriceControllers[type]!,
+                  customerId: _selectedCustomerId,
+                  measurementProfiles: measurementProfiles,
+                  referenceOrder: referenceOrder,
+                  referenceItem: refItem,
+                  moneyFormatter: _money,
+                  onDraftChanged: (next) =>
+                      setState(() => _draft = _draft.updateItem(type, next)),
+                  onStyleSelectionChanged: (selection) => setState(
+                    () => _styleSelections[type] = selection,
+                  ),
+                  onUsePreviousMeasurements: referenceOrder != null
+                      ? () => _applyPreviousMeasurements(
+                            referenceOrder,
+                            type,
+                          )
+                      : null,
+                  onUsePreviousStyle: referenceOrder != null
+                      ? () => _applyPreviousStyle(referenceOrder, type)
+                      : null,
+                  onUsePreviousDesign: referenceOrder != null &&
+                          type == GarmentType.perahanTunban
+                      ? () => _applyPreviousDesign(referenceOrder)
+                      : null,
+                  onUsePreviousFabric: referenceOrder != null
+                      ? () => _applyPreviousFabric(referenceOrder, type)
+                      : null,
                   onUseSameFabric: type == GarmentType.waistcoat &&
                           _draft.items[GarmentType.perahanTunban]!.included &&
                           _draft.items[GarmentType.perahanTunban]!.hasFabric
@@ -1619,22 +1467,57 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
           const SizedBox(height: _kComposerSectionGap),
           Card(
             clipBehavior: Clip.antiAlias,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                ListTile(
-                  leading: PrideColoredLeading(
-                    icon: Icons.event_outlined,
-                    color: prideSettingsIconColor(4),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      PrideColoredLeading(
+                        icon: Icons.event_outlined,
+                        color: prideSettingsIconColor(4),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          l10n.ordersComposerDeliveryDateTitle,
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
+                      ),
+                    ],
                   ),
-                  title: Text(l10n.ordersComposerDeliveryDateTitle),
-                  subtitle: Text(deliveryLabel),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => _openDeliverySheet(context),
-                ),
-                if (_deliveryDate == null)
-                  _composerRequiredHint(l10n.ordersComposerDeliveryDateUnset),
-              ],
+                  const SizedBox(height: 8),
+                  PrideOptionalPanel(
+                    isEmpty: _deliveryDate == null,
+                    padding: EdgeInsets.zero,
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        final now = DateTime.now();
+                        final date = await showAppDatePicker(
+                          context: context,
+                          l10n: l10n,
+                          system: calendar,
+                          initialDate: _deliveryDate ??
+                              now.add(const Duration(days: 2)),
+                          firstDate: DateTime(now.year - 1),
+                          lastDate: DateTime(now.year + 3),
+                        );
+                        if (date == null || !mounted) return;
+                        setState(
+                          () => _deliveryDate = DateTime(
+                            date.year,
+                            date.month,
+                            date.day,
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.event_outlined),
+                      label: Text(deliveryLabel),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: _kComposerSectionGap),
@@ -1644,40 +1527,75 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
               final total = _composerTotalMinor;
               final paid = _composerPaidMinor;
               final remaining = OrderPaymentRules.remainingMinor(total, paid);
-              final paymentSubtitle = total <= 0
-                  ? l10n.ordersComposerPaymentRequired
-                  : remaining > 0
-                      ? '${_money(l10n, total)} · ${l10n.ordersComposerStillOwedLabel}: ${_money(l10n, remaining)}'
-                      : '${_money(l10n, total)} · ${l10n.paymentPaid}: ${_money(l10n, paid)}';
-              final paymentOk = total > 0 && paid >= 0 && paid <= total;
               return Card(
                 clipBehavior: Clip.antiAlias,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    ListTile(
-                      title: Text(l10n.ordersComposerPaymentTitle),
-                      subtitle: Text(paymentSubtitle),
-                      leading: PrideColoredLeading(
-                        icon: Icons.payments_outlined,
-                        color: Theme.of(context)
-                            .extension<PrideActionColors>()!
-                            .payment,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        children: [
+                          PrideColoredLeading(
+                            icon: Icons.payments_outlined,
+                            color: Theme.of(context)
+                                .extension<PrideActionColors>()!
+                                .payment,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              l10n.ordersComposerPaymentTitle,
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                          ),
+                        ],
                       ),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => _openPaymentSheet(context),
-                    ),
-                    if (!paymentOk)
-                      _composerRequiredHint(
-                        l10n.ordersComposerPaymentRequired,
+                      const SizedBox(height: 8),
+                      Text(
+                        l10n.ordersComposerItemBreakdownTitle,
+                        style: Theme.of(context).textTheme.labelLarge,
                       ),
-                  ],
+                      const SizedBox(height: 4),
+                      for (final type in _draft.selectedGarmentTypes)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 4),
+                          child: Text(
+                            '${composerGarmentLabel(l10n, type)}: ${_money(l10n, _draft.items[type]!.priceAmountMinor)}',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '${l10n.paymentTotal}: ${_money(l10n, total)}',
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
+                      const SizedBox(height: 8),
+                      PrideOptionalPanel(
+                        isEmpty: paid <= 0 && total <= 0,
+                        padding: EdgeInsets.zero,
+                        child: PrideMoneyField(
+                          controller: _paidController,
+                          labelText: l10n.paymentPaid,
+                          onChanged: (_) => setState(() {}),
+                        ),
+                      ),
+                      if (total > 0 && remaining > 0)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Text(
+                            '${l10n.ordersComposerStillOwedLabel}: ${_money(l10n, remaining)}',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               );
             },
           ),
           const SizedBox(height: _kComposerSectionGap),
-          if (_selectedCustomerId != null)
+          if (_selectedCustomerId != null && !widget.isTabRoot)
             _ComposerRecentOrdersCard(
               customerId: _selectedCustomerId!,
               l10n: l10n,
@@ -1686,10 +1604,12 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
         ],
       ),
       bottomNavigationBar: PrideFormBottomBar(
-        onCancel: () => context.pop(),
+        onCancel: widget.isTabRoot
+            ? null
+            : () => context.pop(),
         cancelLabel: MaterialLocalizations.of(context).cancelButtonLabel,
         primary: FilledButton.icon(
-          onPressed: () => _onSavePressed(context, l10n),
+          onPressed: _canSave ? () => _onSavePressed(context, l10n) : null,
           style: prideButtonStyle(context, PrideButtonVariant.add),
           icon: const Icon(Icons.check),
           label: Text(l10n.ordersComposerSaveCta),

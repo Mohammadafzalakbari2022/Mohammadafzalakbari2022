@@ -82,7 +82,7 @@ void main() {
       );
 
       expect(display.figures.single.shapeName, 'Classic Collar');
-      expect(display.detailedLines, contains('Detail: Round front'));
+      expect(display.detailedLines, contains('Detail: Round front, Double stitch'));
       expect(display.detailedLines, contains('Size: 2.5 inch'));
       expect(display.detailedLines.any((l) => l.contains('Renamed Collar')),
           isFalse);
@@ -98,7 +98,7 @@ void main() {
       );
 
       expect(display.figures.single.shapeName, 'Classic Collar');
-      expect(display.detailedLines, contains('Detail: Round front'));
+      expect(display.detailedLines, contains('Detail: Round front, Double stitch'));
       expect(display.detailedLines.any((l) => l.contains('Renamed Collar')),
           isFalse);
     });
@@ -232,7 +232,7 @@ void main() {
         styleSelectionJson: selection.toJsonString(),
         labels: labels,
       );
-      expect(display.detailedLines, contains('Detail: Round front'));
+      expect(display.detailedLines, contains('Detail: Round front, Double stitch'));
       expect(display.detailedLines, contains('Size: 2.5 inch'));
     });
 
@@ -263,7 +263,7 @@ void main() {
       );
 
       expect(display.figures.single.shapeName, 'Classic Collar');
-      expect(display.detailedLines, contains('Detail: Round front'));
+      expect(display.detailedLines, contains('Detail: Round front, Double stitch'));
     });
 
     test('remote order with invalid styleSelectionJson falls back safely', () async {

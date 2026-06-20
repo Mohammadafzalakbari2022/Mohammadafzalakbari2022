@@ -178,7 +178,7 @@ class _CustomersListBodyState extends ConsumerState<CustomersListBody> {
                               unpaidMinor: s?.unpaidMinor ?? 0,
                               formatMoney: (minor) =>
                                   _formatMoney(l10n, minor),
-                              onNewOrder: () => context.push(
+                              onNewOrder: () => context.go(
                                 orderComposerRoute(customerId: c.internalId),
                               ),
                               onTap: () {

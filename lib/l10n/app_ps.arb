@@ -878,6 +878,12 @@
   "ordersComposerUseSameFabricCta": "هماغه ټوکر وکاروئ",
   "ordersComposerCustomerTitle": "پیرودونکی",
   "ordersComposerCustomerRequired": "پیرودونکی وټاکئ (اړین)",
+  "ordersComposerUseNewCustomer": "نوی پیرودونکی: {name}",
+  "@ordersComposerUseNewCustomer": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
   "ordersComposerMeasurementsTitle": "پیمانې",
   "ordersComposerMeasurementsRequired": "پیمانې زیاتې کړئ (اړین)",
   "ordersComposerMeasurementsSummary": "پیمانې ثبت شوې",
@@ -1173,6 +1179,8 @@
   "customerNameHint": "بېلګه: احمد کریمي",
   "customerNameRequired": "نوم اړین دی.",
   "customerNameTooShort": "نوم ډېر لنډ دی.",
+  "customerDuplicateName": "د دې نوم سره پیرودونکی دمخه شته.",
+  "customerDuplicatePhone": "د دې تلیفون شمېرې سره پیرودونکی دمخه شته.",
   "customerPhoneLabel": "تلیفون (اختیاري)",
   "customerPhoneHint": "بېلګه: 0700000001",
   "saved": "ساتل شو.",

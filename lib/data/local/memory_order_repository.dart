@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:uuid/uuid.dart';
 
 import 'dev_shop_constants.dart';
+import 'customer_name_rules.dart';
 import 'entities/order_status.dart';
 import 'entities/garment_type.dart';
 import 'measurement_unit_codes.dart';
@@ -525,14 +526,18 @@ class MemoryOrderRepository implements OrderListRepository {
       );
     }
 
+    final resolvedCustomerName = customerSnapshotName?.trim().isNotEmpty ?? false
+        ? customerSnapshotName!.trim()
+        : _resolveCustomerName(customerInternalId);
+    assertValidCustomerName(resolvedCustomerName);
+
     _orders.add(
       OrderSummary(
         shopId: shopId,
         internalId: internalId,
         displayOrderNo: nextNo,
         customerInternalId: customerInternalId,
-        customerName:
-            customerSnapshotName ?? _resolveCustomerName(customerInternalId),
+        customerName: resolvedCustomerName,
         customerPhone: customerSnapshotPhone,
         measurementsSnapshot: primary.measurementsSnapshot,
         internalNotes: '',

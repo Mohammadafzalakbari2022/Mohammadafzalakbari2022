@@ -72,10 +72,19 @@ abstract final class AuthSessionStorage {
     await prefs.remove(_mockUsername);
     await prefs.remove(_mockShopId);
     await prefs.remove(pridePersistedDeveloperFlagKey);
+    await prefs.remove(pridePersistedDeveloperIdentityKey);
   }
 
-  static Future<void> markDeveloperPortalUnlocked(SharedPreferences prefs) async {
+  static Future<void> markDeveloperPortalUnlocked(
+    SharedPreferences prefs, {
+    required String shopId,
+    required String username,
+  }) async {
     await prefs.setBool(pridePersistedDeveloperFlagKey, true);
+    await prefs.setString(
+      pridePersistedDeveloperIdentityKey,
+      developerSessionIdentityKey(shopId: shopId, username: username),
+    );
   }
 
   /// Saves local-only sign-in for builds without `API_BASE_URL`.

@@ -74,27 +74,27 @@ void main() {
       final next = draft.toggleGarment(GarmentType.perahanTunban, false);
       expect(next.hasAtLeastOneItem, isTrue);
       expect(
-        next.canSave(
-          customerSelected: true,
-          deliveryDateSet: true,
-          paidMinor: 0,
-        ),
-        isFalse,
+        next.canSave(customerSelected: true, paidMinor: 0),
+        isTrue,
       );
     });
 
-    test('cannot save selected item without price', () {
+    test('can save with zero price when customer is set', () {
       var draft = OrderComposerDraft.initial();
       draft = draft.updateItem(
         GarmentType.perahanTunban,
         filledItem(GarmentType.perahanTunban, price: 0),
       );
       expect(
-        draft.canSave(
-          customerSelected: true,
-          deliveryDateSet: true,
-          paidMinor: 0,
-        ),
+        draft.canSave(customerSelected: true, paidMinor: 0),
+        isTrue,
+      );
+    });
+
+    test('cannot save without customer', () {
+      final draft = OrderComposerDraft.initial();
+      expect(
+        draft.canSave(customerSelected: false, paidMinor: 0),
         isFalse,
       );
     });
@@ -106,11 +106,7 @@ void main() {
         filledItem(GarmentType.perahanTunban, price: 100000),
       );
       expect(
-        draft.canSave(
-          customerSelected: true,
-          deliveryDateSet: true,
-          paidMinor: 200000,
-        ),
+        draft.canSave(customerSelected: true, paidMinor: 200000),
         isFalse,
       );
       expect(

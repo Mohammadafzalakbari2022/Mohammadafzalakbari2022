@@ -109,21 +109,35 @@ class SettingsTabScreen extends ConsumerWidget {
     final adminAsync = ref.watch(adminMeProvider);
     final adminCheck = adminAsync.valueOrNull;
     final persistedDev = ref.watch(persistedDeveloperPortalProvider);
+    final prefs = ref.watch(sharedPreferencesProvider);
     final showDeveloperPortalEntry = showDeveloperPortalInSettings(
       auth: auth,
       adminCheck: adminCheck,
       devSimulated: devSimulated,
       persistedDeveloperFlag: persistedDev,
+      prefs: prefs,
     );
     final showDeveloperDiagnostics = showDeveloperDiagnosticsInSettings(
       auth: auth,
       adminCheck: adminCheck,
       devSimulated: devSimulated,
       persistedDeveloperFlag: persistedDev,
+      prefs: prefs,
+    );
+    final clientDeveloperLoginMatch = PrideApiConfig.isDeveloperLogin(
+      shopId: auth.shopId,
+      username: auth.username,
     );
     final showAdminCheckFailed = apiOn &&
         auth.hasApiSession &&
         !devSimulated &&
+        !showDeveloperPortalEntry &&
+        (clientDeveloperLoginMatch ||
+            isPersistedDeveloperForSession(
+              prefs,
+              shopId: auth.shopId ?? '',
+              username: auth.username ?? '',
+            )) &&
         adminAsync.hasValue &&
         adminCheck != null &&
         adminCheck.checkFailed;
@@ -133,10 +147,7 @@ class SettingsTabScreen extends ConsumerWidget {
       devOwnerSimulated: isOwnerDev,
       devDeveloperSimulated: devSimulated,
       adminCheck: adminCheck,
-      clientDeveloperLoginMatch: PrideApiConfig.isDeveloperLogin(
-        shopId: auth.shopId,
-        username: auth.username,
-      ),
+      clientDeveloperLoginMatch: clientDeveloperLoginMatch,
     );
     final roleLabel =
         effectiveOwner ? l10n.settingsRoleOwner : l10n.settingsRoleUser;

@@ -131,7 +131,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       shopId: ok.shopId,
       username: ok.username,
     )) {
-      await AuthSessionStorage.markDeveloperPortalUnlocked(prefs);
+      await AuthSessionStorage.markDeveloperPortalUnlocked(
+        prefs,
+        shopId: ok.shopId,
+        username: ok.username,
+      );
     }
     await _seedBundledDefaultsForShop(ok.shopId);
     await bootstrapPushTokenRegistration(ref);
@@ -176,7 +180,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       shopId: cred.shopId,
       username: cred.username,
     )) {
-      await AuthSessionStorage.markDeveloperPortalUnlocked(prefs);
+      await AuthSessionStorage.markDeveloperPortalUnlocked(
+        prefs,
+        shopId: cred.shopId,
+        username: cred.username,
+      );
     }
     await _seedBundledDefaultsForShop(cred.shopId);
     ref.invalidate(adminMeProvider);
