@@ -173,6 +173,7 @@
   "licenseStatusPaid": "Paid",
   "licenseStatusExpired": "Expired",
   "ordersNewTitle": "New order",
+  "ordersEditTitle": "Edit order",
   "ordersNewCta": "New order",
   "ordersDetailTitle": "Order details",
   "orderStatusNew": "New",

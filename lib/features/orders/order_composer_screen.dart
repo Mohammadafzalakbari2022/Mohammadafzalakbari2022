@@ -61,10 +61,15 @@ import 'order_status_label.dart';
 String orderComposerRoute({
   String? customerId,
   String? referenceOrderId,
+  String? orderId,
 }) {
   final id = customerId?.trim();
   final refId = referenceOrderId?.trim();
+  final editId = orderId?.trim();
   final params = <String, String>{};
+  if (editId != null && editId.isNotEmpty) {
+    params['orderId'] = editId;
+  }
   if (id != null && id.isNotEmpty) {
     params['customerId'] = id;
   }
@@ -290,6 +295,22 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     if (order != null) {
       setState(() => _populateFromOrder(order));
     }
+  }
+
+  @override
+  void didUpdateWidget(covariant OrderComposerScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final oldEditId = oldWidget.initialOrderId?.trim();
+    final newEditId = widget.initialOrderId?.trim();
+    if (oldEditId == newEditId) return;
+    _orderEditPrefillApplied = false;
+    if (newEditId == null || newEditId.isEmpty) {
+      setState(_resetForm);
+      return;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _attemptOrderEditPrefill();
+    });
   }
 
   @override
@@ -1421,7 +1442,9 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
             ? null
             : BackButton(onPressed: () => context.pop()),
         automaticallyImplyLeading: !widget.isTabRoot,
-        title: Text(l10n.ordersNewTitle),
+        title: Text(
+          _editingOrderId != null ? l10n.ordersEditTitle : l10n.ordersNewTitle,
+        ),
         actions: [
           TextButton(
             onPressed: () => _confirmReset(context, l10n),
@@ -1716,7 +1739,9 @@ class _ComposerRecentOrdersCard extends ConsumerWidget {
                     ),
                   ),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () => context.go('/app/orders/${o.internalId}'),
+                  onTap: () => context.go(
+                    orderComposerRoute(orderId: o.internalId),
+                  ),
                 ),
                 if (o != recent.last) const Divider(height: 1),
               ],

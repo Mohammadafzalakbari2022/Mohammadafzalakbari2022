@@ -357,6 +357,9 @@ class AppLocalizationsFa extends AppLocalizations {
   String get ordersNewTitle => 'سفارش جدید';
 
   @override
+  String get ordersEditTitle => 'ویرایش سفارش';
+
+  @override
   String get ordersNewCta => 'سفارش جدید';
 
   @override

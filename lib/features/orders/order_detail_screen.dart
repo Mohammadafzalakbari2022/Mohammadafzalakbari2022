@@ -286,6 +286,14 @@ class OrderDetailScreen extends ConsumerWidget {
                 : Text(o.customerName),
             actions: [
               if (!editBlockedByLicense)
+                TextButton.icon(
+                  onPressed: () => context.go(
+                    orderComposerRoute(orderId: o.internalId),
+                  ),
+                  icon: const Icon(Icons.edit_outlined, size: 20),
+                  label: Text(l10n.editCta),
+                ),
+              if (!editBlockedByLicense)
                 PopupMenuButton<String>(
                   onSelected: (value) {
                     if (value == 'delete') {

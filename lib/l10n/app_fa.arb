@@ -280,6 +280,7 @@
   "licenseStatusPaid": "پرداخت‌شده",
   "licenseStatusExpired": "منقضی",
   "ordersNewTitle": "سفارش جدید",
+  "ordersEditTitle": "ویرایش سفارش",
   "ordersNewCta": "سفارش جدید",
   "ordersDetailTitle": "جزئیات سفارش",
   "orderStatusNew": "جدید",

@@ -395,7 +395,7 @@ class CustomerProfileScreen extends ConsumerWidget {
                                   calendar: calendar,
                                   formatMoney: formatMoney,
                                   onTap: () => context.go(
-                                    '/app/orders?orderId=${Uri.encodeComponent(o.internalId)}',
+                                    orderComposerRoute(orderId: o.internalId),
                                   ),
                                 ),
                             ],

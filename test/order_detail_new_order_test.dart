@@ -43,6 +43,13 @@ void main() {
         '/app/orders?customerId=cust-abc&referenceOrderId=ord-detail-1',
       );
     });
+
+    test('includes orderId for edit mode', () {
+      expect(
+        orderComposerRoute(orderId: 'ord-detail-1'),
+        '/app/orders?orderId=ord-detail-1',
+      );
+    });
   });
 
   group('resolveInitialReferenceOrderId', () {

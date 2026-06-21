@@ -710,6 +710,12 @@ abstract class AppLocalizations {
   /// **'New order'**
   String get ordersNewTitle;
 
+  /// No description provided for @ordersEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit order'**
+  String get ordersEditTitle;
+
   /// No description provided for @ordersNewCta.
   ///
   /// In en, this message translates to:

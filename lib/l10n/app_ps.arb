@@ -280,6 +280,7 @@
   "licenseStatusPaid": "ورکړل شوی",
   "licenseStatusExpired": "پای ته رسېدلی",
   "ordersNewTitle": "نوی امر",
+  "ordersEditTitle": "امر سمول",
   "ordersNewCta": "نوی امر",
   "ordersDetailTitle": "د امر جزئیات",
   "orderStatusNew": "نوی",

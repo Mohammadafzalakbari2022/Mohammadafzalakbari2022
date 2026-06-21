@@ -141,6 +141,9 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                       state.uri.queryParameters['referenceOrderId'];
                   final orderId = state.uri.queryParameters['orderId'];
                   return OrderComposerScreen(
+                    key: ValueKey(
+                      'composer-${orderId ?? ''}-${customerId ?? ''}-${referenceOrderId ?? ''}',
+                    ),
                     isTabRoot: true,
                     initialCustomerId: customerId,
                     initialReferenceOrderId: referenceOrderId,

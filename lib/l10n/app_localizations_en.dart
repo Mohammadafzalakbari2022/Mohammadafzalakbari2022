@@ -359,6 +359,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ordersNewTitle => 'New order';
 
   @override
+  String get ordersEditTitle => 'Edit order';
+
+  @override
   String get ordersNewCta => 'New order';
 
   @override

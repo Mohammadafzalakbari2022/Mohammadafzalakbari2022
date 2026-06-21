@@ -353,6 +353,9 @@ class AppLocalizationsPs extends AppLocalizations {
   String get ordersNewTitle => 'نوی امر';
 
   @override
+  String get ordersEditTitle => 'امر سمول';
+
+  @override
   String get ordersNewCta => 'نوی امر';
 
   @override
