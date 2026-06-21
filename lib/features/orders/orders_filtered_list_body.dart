@@ -329,6 +329,7 @@ class _OrdersFilteredListBodyState extends ConsumerState<OrdersFilteredListBody>
                     onTap: () => context.go(
                       '/app/orders?orderId=${Uri.encodeComponent(o.internalId)}',
                     ),
+                    enableStatusActions: detailed,
                   );
                 },
               );

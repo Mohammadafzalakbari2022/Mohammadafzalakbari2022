@@ -1,5 +1,4 @@
 import 'package:isar/isar.dart';
-import 'package:uuid/uuid.dart';
 
 import 'catalog/catalog_order_snapshot.dart';
 import 'entities/garment_type.dart';
@@ -76,6 +75,8 @@ OrderItemEntity buildOrderItemEntity({
     ..fabricIdSnapshot = input.fabricIdSnapshot.trim()
     ..fabricNamePresetInternalId = input.fabricNamePresetInternalId
     ..fabricColorPresetInternalId = input.fabricColorPresetInternalId
+    ..clothMetersSnapshot = input.clothMetersSnapshot.trim()
+    ..clothPriceAmountMinor = input.clothPriceAmountMinor
     ..createdAt = now
     ..updatedAt = now;
 }
@@ -249,6 +250,8 @@ Future<OrderItemEntity> upsertOrderItemInTxn({
     ..fabricIdSnapshot = input.fabricIdSnapshot.trim()
     ..fabricNamePresetInternalId = input.fabricNamePresetInternalId
     ..fabricColorPresetInternalId = input.fabricColorPresetInternalId
+    ..clothMetersSnapshot = input.clothMetersSnapshot.trim()
+    ..clothPriceAmountMinor = input.clothPriceAmountMinor
     ..sortOrder = input.sortOrder ?? input.garmentType.defaultSortOrder
     ..updatedAt = now;
   if (existing == null) {

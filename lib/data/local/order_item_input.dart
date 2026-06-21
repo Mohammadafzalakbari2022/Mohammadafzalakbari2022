@@ -40,6 +40,8 @@ class OrderItemCreateInput {
     this.fabricIdSnapshot = '',
     this.fabricNamePresetInternalId,
     this.fabricColorPresetInternalId,
+    this.clothMetersSnapshot = '',
+    this.clothPriceAmountMinor = 0,
     this.measurementSnapshotItems,
   });
 
@@ -67,6 +69,8 @@ class OrderItemCreateInput {
   final String fabricIdSnapshot;
   final String? fabricNamePresetInternalId;
   final String? fabricColorPresetInternalId;
+  final String clothMetersSnapshot;
+  final int clothPriceAmountMinor;
   final List<OrderMeasurementSnapshotItemInput>? measurementSnapshotItems;
 }
 
@@ -190,9 +194,11 @@ OrderItemCreateInput orderItemCreateInputFromSummary(
   String? fabricNameSnapshot,
   String? fabricColorSnapshot,
   String? fabricIdSnapshot,
-  String? fabricNamePresetInternalId,
-  String? fabricColorPresetInternalId,
-  List<OrderMeasurementSnapshotItemInput>? measurementSnapshotItems,
+    String? fabricNamePresetInternalId,
+    String? fabricColorPresetInternalId,
+    String? clothMetersSnapshot,
+    int? clothPriceAmountMinor,
+    List<OrderMeasurementSnapshotItemInput>? measurementSnapshotItems,
 }) {
   return OrderItemCreateInput(
     internalId: item.internalId,
@@ -228,6 +234,9 @@ OrderItemCreateInput orderItemCreateInputFromSummary(
         fabricNamePresetInternalId ?? item.fabricNamePresetInternalId,
     fabricColorPresetInternalId:
         fabricColorPresetInternalId ?? item.fabricColorPresetInternalId,
+    clothMetersSnapshot: clothMetersSnapshot ?? item.clothMetersSnapshot,
+    clothPriceAmountMinor:
+        clothPriceAmountMinor ?? item.clothPriceAmountMinor,
     measurementSnapshotItems: measurementSnapshotItems,
   );
 }

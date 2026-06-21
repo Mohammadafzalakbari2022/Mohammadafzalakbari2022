@@ -33,6 +33,7 @@ import '../features/settings/settings_measurement_types_screen.dart';
 import '../features/settings/settings_style_screen.dart';
 import '../features/settings/settings_fabric_presets_screen.dart';
 import '../features/settings/settings_fabric_screen.dart';
+import '../features/settings/settings_composer_fields_screen.dart';
 import '../features/settings/settings_style_names_screen.dart';
 import '../features/settings/settings_style_parts_screen.dart';
 import '../features/settings/settings_style_figures_screen.dart';
@@ -300,6 +301,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                     parentNavigatorKey: appRootNavigatorKey,
                     builder: (context, state) =>
                         const SettingsMeasurementTypesScreen(),
+                  ),
+                  GoRoute(
+                    path: 'orders-composer',
+                    parentNavigatorKey: appRootNavigatorKey,
+                    builder: (context, state) =>
+                        const SettingsComposerFieldsScreen(),
                   ),
                   GoRoute(
                     path: 'fabric',

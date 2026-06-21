@@ -224,6 +224,15 @@ class SettingsTabScreen extends ConsumerWidget {
             ),
             const Divider(height: 1),
             _LockedTile(
+              leading: Icons.tune_outlined,
+              iconColor: prideSettingsIconColor(2),
+              title: l10n.settingsComposerFieldsTileTitle,
+              subtitle: l10n.settingsComposerFieldsTileSubtitle,
+              enabled: true,
+              onTap: () => context.push('/app/settings/orders-composer'),
+            ),
+            const Divider(height: 1),
+            _LockedTile(
               leading: Icons.texture_outlined,
               iconColor: prideSettingsIconColor(2),
               title: l10n.settingsFabricHubTitle,

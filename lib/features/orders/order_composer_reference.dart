@@ -292,12 +292,16 @@ class ReferenceFabricCopy {
     required this.fabricColor,
     this.fabricNamePresetInternalId,
     this.fabricColorPresetInternalId,
+    this.clothMeters = '',
+    this.clothPriceAmountMinor = 0,
   });
 
   final String fabricName;
   final String fabricColor;
   final String? fabricNamePresetInternalId;
   final String? fabricColorPresetInternalId;
+  final String clothMeters;
+  final int clothPriceAmountMinor;
 }
 
 ReferenceFabricCopy? buildFabricCopy(OrderSummary order) {
@@ -309,8 +313,6 @@ ReferenceFabricCopy? buildFabricCopy(OrderSummary order) {
     fabricColorPresetInternalId: order.fabricColorPresetInternalId,
   );
 }
-
-/// Resolves one garment line from a reference order (items[] or legacy flat).
 OrderItemSummary? referenceOrderItem(
   OrderSummary order,
   GarmentType garmentType,
@@ -406,6 +408,8 @@ ReferenceFabricCopy? buildItemFabricCopy(OrderItemSummary item) {
     fabricColor: item.fabricColorSnapshot,
     fabricNamePresetInternalId: item.fabricNamePresetInternalId,
     fabricColorPresetInternalId: item.fabricColorPresetInternalId,
+    clothMeters: item.clothMetersSnapshot,
+    clothPriceAmountMinor: item.clothPriceAmountMinor,
   );
 }
 

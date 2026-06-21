@@ -64,6 +64,12 @@ class OrderItemEntity {
 
   String? fabricColorPresetInternalId;
 
+  /// Customer cloth length (free text, e.g. `3.5` meters).
+  String clothMetersSnapshot = '';
+
+  /// Cloth/material cost in minor currency units (0 = unset).
+  int clothPriceAmountMinor = 0;
+
   late DateTime createdAt;
 
   late DateTime updatedAt;

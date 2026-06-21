@@ -272,6 +272,8 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
           fabricId: item.fabricIdSnapshot,
           fabricNamePresetInternalId: item.fabricNamePresetInternalId,
           fabricColorPresetInternalId: item.fabricColorPresetInternalId,
+          clothMeters: item.clothMetersSnapshot,
+          clothPriceAmountMinor: item.clothPriceAmountMinor,
         ),
       );
       _itemCardExpanded[type] = true;
@@ -467,6 +469,8 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
           fabricId: perahan.fabricId,
           fabricNamePresetInternalId: perahan.fabricNamePresetInternalId,
           fabricColorPresetInternalId: perahan.fabricColorPresetInternalId,
+          clothMeters: perahan.clothMeters,
+          clothPriceAmountMinor: perahan.clothPriceAmountMinor,
         ),
       );
     });
@@ -621,6 +625,8 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
           fabricId: '',
           fabricNamePresetInternalId: copy.fabricNamePresetInternalId,
           fabricColorPresetInternalId: copy.fabricColorPresetInternalId,
+          clothMeters: copy.clothMeters,
+          clothPriceAmountMinor: copy.clothPriceAmountMinor,
         ),
       );
     });
@@ -1118,11 +1124,15 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
         ? l10n.ordersComposerDeliveryDateUnset
         : AppCalendarFormat.mediumDate(l10n, calendar, _deliveryDate!, locale);
 
-    final ordersForRef =
-        ref.watch(ordersListStreamProvider).valueOrNull ?? const <OrderSummary>[];
-    final customersForSearch =
-        ref.watch(customersListStreamProvider).valueOrNull ??
-            const <CustomerSummary>[];
+    // Select value only — avoids full composer rebuild on AsyncLoading transitions.
+    final ordersForRef = ref.watch(
+          ordersListStreamProvider.select((async) => async.valueOrNull),
+        ) ??
+        const <OrderSummary>[];
+    final customersForSearch = ref.watch(
+          customersListStreamProvider.select((async) => async.valueOrNull),
+        ) ??
+        const <CustomerSummary>[];
     final referenceOrder = _selectedCustomerId == null
         ? null
         : resolveReferenceOrder(
@@ -1251,9 +1261,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
               for (final type in GarmentType.values)
                 FilterChip(
                   avatar: Icon(
-                    type == GarmentType.perahanTunban
-                        ? Icons.checkroom_outlined
-                        : Icons.layers_outlined,
+                    composerGarmentIcon(type),
                     size: 18,
                   ),
                   label: Text(composerGarmentLabel(l10n, type)),
@@ -1545,7 +1553,7 @@ class _ComposerCustomerSearchSectionState
                         title: Text(c.name),
                         subtitle: Text(
                           [
-                            ?idLabel,
+                            if (idLabel != null) idLabel,
                             c.phone ?? widget.l10n.customersPhoneMissing,
                           ].join(' • '),
                           style: Theme.of(context).textTheme.bodySmall,

@@ -17,6 +17,8 @@ class OrderComposerFabricResult {
     required this.fabricId,
     this.fabricNamePresetInternalId,
     this.fabricColorPresetInternalId,
+    this.clothMeters = '',
+    this.clothPriceAmountMinor = 0,
   });
 
   final String fabricName;
@@ -24,6 +26,8 @@ class OrderComposerFabricResult {
   final String fabricId;
   final String? fabricNamePresetInternalId;
   final String? fabricColorPresetInternalId;
+  final String clothMeters;
+  final int clothPriceAmountMinor;
 
   bool get isEmpty =>
       fabricName.trim().isEmpty &&

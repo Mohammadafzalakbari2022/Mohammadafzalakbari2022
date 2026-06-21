@@ -32,6 +32,8 @@ OrderItemSummary orderItemSummaryFromEntity(OrderItemEntity e) {
     fabricIdSnapshot: e.fabricIdSnapshot,
     fabricNamePresetInternalId: e.fabricNamePresetInternalId,
     fabricColorPresetInternalId: e.fabricColorPresetInternalId,
+    clothMetersSnapshot: e.clothMetersSnapshot,
+    clothPriceAmountMinor: e.clothPriceAmountMinor,
     createdAt: e.createdAt,
     updatedAt: e.updatedAt,
   );

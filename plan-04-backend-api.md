@@ -189,7 +189,9 @@ Scaffold behavior: `changes` is always an empty array until server-side history 
       "style_name": "...",
       "style_selection_json": "...",
       "fabric_name": "...",
-      "fabric_id": "..."
+      "fabric_id": "...",
+      "cloth_meters": "3.5",
+      "cloth_price_amount_minor": 50000
     },
     {
       "internal_id": "<uuid>",
@@ -205,6 +207,7 @@ Scaffold behavior: `changes` is always an empty array until server-side history 
 - **Dual-read:** clients accept legacy flat payloads (map to one `perahan_tunban` item) or `items[]`.
 - **Transitional dual-write:** new clients may send both flat fields (from first Perahan item) and `items[]` for one release window.
 - Server stores opaque JSON in `shop_sync_mutations`; no Postgres `orders` table migration required for v1 sync-log architecture.
+- **`items[]` cloth fields (plan-29):** optional `cloth_meters` (string, e.g. `"3.5"`) and `cloth_price_amount_minor` (int) per garment line. Server ingest is tolerant — extra keys are preserved in mutation JSON; no NestJS schema change required until dedicated order-item storage lands.
 
 ### Licensing
 - `POST /license/redeem` (activation code)

@@ -1535,7 +1535,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get ordersComposerProgressStyle => 'استایل';
 
   @override
-  String get ordersComposerProgressFabric => 'پارچه';
+  String get ordersComposerProgressFabric => 'رخت';
 
   @override
   String get ordersComposerProgressDelivery => 'تحویل';
@@ -1719,7 +1719,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get ordersComposerItemBreakdownTitle => 'جزئیات قیمت اقلام';
 
   @override
-  String get ordersComposerUseSameFabricCta => 'استفاده از همان پارچه';
+  String get ordersComposerUseSameFabricCta => 'استفاده از همان رخت';
 
   @override
   String get ordersComposerCustomerTitle => 'مشتری';
@@ -1974,7 +1974,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get ordersComposerUsePreviousStyleCta => 'استفاده از استایل قبلی';
 
   @override
-  String get ordersComposerUsePreviousFabricCta => 'استفاده از پارچه قبلی';
+  String get ordersComposerUsePreviousFabricCta => 'استفاده از رخت قبلی';
 
   @override
   String get ordersComposerUsePreviousDesignCta => 'استفاده از طراحی قبلی';
@@ -2028,11 +2028,10 @@ class AppLocalizationsFa extends AppLocalizations {
   String get ordersComposerStyleTitle => 'استایل';
 
   @override
-  String get ordersComposerFabricTitle => 'پارچه مشتری';
+  String get ordersComposerFabricTitle => 'رخت مشتری';
 
   @override
-  String get ordersComposerFabricOptional =>
-      'اختیاری — پارچه‌ای که مشتری می‌آورد';
+  String get ordersComposerFabricOptional => 'اختیاری — رختِی که مشتری می‌آورد';
 
   @override
   String ordersComposerFabricSummary(String name, String color, String id) {
@@ -2045,31 +2044,40 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
-  String get ordersComposerFabricUnset => 'پارچه ثبت نشده';
+  String get ordersComposerFabricUnset => 'رخت ثبت نشده';
 
   @override
-  String get ordersComposerFabricSheetTitle => 'پارچه مشتری';
+  String get ordersComposerFabricSheetTitle => 'رخت مشتری';
 
   @override
-  String get ordersComposerFabricNameLabel => 'نام پارچه';
+  String get ordersComposerFabricNameLabel => 'نام رخت';
 
   @override
   String get ordersComposerFabricNameHint => 'انتخاب یا تایپ';
 
   @override
-  String get ordersComposerFabricColorLabel => 'رنگ پارچه';
+  String get ordersComposerFabricColorLabel => 'رنگ رخت';
 
   @override
   String get ordersComposerFabricColorHint => 'انتخاب یا تایپ';
 
   @override
-  String get ordersComposerFabricIdLabel => 'شناسه پارچه';
+  String get ordersComposerClothMetersLabel => 'متراژ رخت';
+
+  @override
+  String get ordersComposerClothMetersHint => 'مثلاً ۳.۵';
+
+  @override
+  String get ordersComposerClothPriceLabel => 'قیمت رخت';
+
+  @override
+  String get ordersComposerFabricIdLabel => 'شناسه رخت';
 
   @override
   String get ordersComposerFabricIdHint => 'با ذخیره به‌طور خودکار داده می‌شود';
 
   @override
-  String get ordersComposerFabricClearCta => 'پاک کردن پارچه';
+  String get ordersComposerFabricClearCta => 'پاک کردن رخت';
 
   @override
   String get ordersComposerStyleRequired => 'استایل را اضافه کنید (الزامی)';
@@ -2231,14 +2239,52 @@ class AppLocalizationsFa extends AppLocalizations {
   String get settingsStyleTileSubtitle => 'نام‌های استایل و شکل‌های طرح';
 
   @override
-  String get settingsFabricHubTitle => 'پارچه مشتری';
+  String get settingsComposerFieldsTileTitle => 'فیلدهای سفارش‌گیر';
+
+  @override
+  String get settingsComposerFieldsTileSubtitle =>
+      'نمایش یا پنهان‌سازی استایل، کاتالوگ و رخت در سفارش جدید';
+
+  @override
+  String get settingsComposerFieldsTitle => 'فیلدهای سفارش‌گیر';
+
+  @override
+  String get settingsComposerFieldsIntro =>
+      'بخش‌های اختیاری را برای سفارش جدید در تب سفارش‌ها انتخاب کنید. بخش‌های پنهان نمایش داده نمی‌شوند و برای ذخیره الزامی نیستند.';
+
+  @override
+  String get settingsComposerShowStyleNameTitle => 'نام استایل';
+
+  @override
+  String get settingsComposerShowStyleNameSubtitle =>
+      'نام‌های از پیش‌تعریف و متن سفارشی';
+
+  @override
+  String get settingsComposerShowCatalogTitle => 'انتخاب از کاتالوگ';
+
+  @override
+  String get settingsComposerShowCatalogSubtitle =>
+      'انتخاب طرح کاتالوگ برای پرهان/تنبان';
+
+  @override
+  String get settingsComposerShowClothBlockTitle => 'بلوک رخت';
+
+  @override
+  String get settingsComposerShowClothBlockSubtitle =>
+      'نام، رنگ، متراژ و قیمت رخت برای هر لباس';
+
+  @override
+  String get ordersListChangeStatusTooltip => 'تغییر وضعیت';
+
+  @override
+  String get settingsFabricHubTitle => 'رخت مشتری';
 
   @override
   String get settingsFabricHubSubtitle =>
-      'نام و رنگ از پیش‌تعریف برای سفارش‌ها';
+      'نام و رنگ از پیش‌تعریف رخت برای سفارش‌ها';
 
   @override
-  String get settingsFabricNamesTitle => 'نام پارچه‌ها';
+  String get settingsFabricNamesTitle => 'نام‌های رخت';
 
   @override
   String get settingsFabricNamesSubtitle => 'پنبه، پشم و انواع دیگر';
@@ -2247,7 +2293,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get settingsFabricNamesEmpty => 'هنوز نامی نیست.';
 
   @override
-  String get settingsFabricNameAddCta => 'افزودن نام پارچه';
+  String get settingsFabricNameAddCta => 'افزودن نام رخت';
 
   @override
   String get settingsFabricNameFieldLabel => 'نام';

@@ -2873,7 +2873,7 @@ abstract class AppLocalizations {
   /// No description provided for @ordersComposerProgressFabric.
   ///
   /// In en, this message translates to:
-  /// **'Fabric'**
+  /// **'Cloth'**
   String get ordersComposerProgressFabric;
 
   /// No description provided for @ordersComposerProgressDelivery.
@@ -3215,7 +3215,7 @@ abstract class AppLocalizations {
   /// No description provided for @ordersComposerUseSameFabricCta.
   ///
   /// In en, this message translates to:
-  /// **'Use same fabric'**
+  /// **'Use same cloth'**
   String get ordersComposerUseSameFabricCta;
 
   /// No description provided for @ordersComposerCustomerTitle.
@@ -3656,7 +3656,7 @@ abstract class AppLocalizations {
   /// No description provided for @ordersComposerUsePreviousFabricCta.
   ///
   /// In en, this message translates to:
-  /// **'Use previous fabric'**
+  /// **'Use previous cloth'**
   String get ordersComposerUsePreviousFabricCta;
 
   /// No description provided for @ordersComposerUsePreviousDesignCta.
@@ -3752,7 +3752,7 @@ abstract class AppLocalizations {
   /// No description provided for @ordersComposerFabricTitle.
   ///
   /// In en, this message translates to:
-  /// **'Customer fabric'**
+  /// **'Customer cloth'**
   String get ordersComposerFabricTitle;
 
   /// No description provided for @ordersComposerFabricOptional.
@@ -3776,19 +3776,19 @@ abstract class AppLocalizations {
   /// No description provided for @ordersComposerFabricUnset.
   ///
   /// In en, this message translates to:
-  /// **'No fabric recorded'**
+  /// **'No cloth recorded'**
   String get ordersComposerFabricUnset;
 
   /// No description provided for @ordersComposerFabricSheetTitle.
   ///
   /// In en, this message translates to:
-  /// **'Customer fabric'**
+  /// **'Customer cloth'**
   String get ordersComposerFabricSheetTitle;
 
   /// No description provided for @ordersComposerFabricNameLabel.
   ///
   /// In en, this message translates to:
-  /// **'Fabric name'**
+  /// **'Cloth name'**
   String get ordersComposerFabricNameLabel;
 
   /// No description provided for @ordersComposerFabricNameHint.
@@ -3800,7 +3800,7 @@ abstract class AppLocalizations {
   /// No description provided for @ordersComposerFabricColorLabel.
   ///
   /// In en, this message translates to:
-  /// **'Fabric color'**
+  /// **'Cloth color'**
   String get ordersComposerFabricColorLabel;
 
   /// No description provided for @ordersComposerFabricColorHint.
@@ -3809,10 +3809,28 @@ abstract class AppLocalizations {
   /// **'Select or type'**
   String get ordersComposerFabricColorHint;
 
+  /// No description provided for @ordersComposerClothMetersLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloth meters'**
+  String get ordersComposerClothMetersLabel;
+
+  /// No description provided for @ordersComposerClothMetersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 3.5'**
+  String get ordersComposerClothMetersHint;
+
+  /// No description provided for @ordersComposerClothPriceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloth price'**
+  String get ordersComposerClothPriceLabel;
+
   /// No description provided for @ordersComposerFabricIdLabel.
   ///
   /// In en, this message translates to:
-  /// **'Fabric ID'**
+  /// **'Cloth ID'**
   String get ordersComposerFabricIdLabel;
 
   /// No description provided for @ordersComposerFabricIdHint.
@@ -3824,7 +3842,7 @@ abstract class AppLocalizations {
   /// No description provided for @ordersComposerFabricClearCta.
   ///
   /// In en, this message translates to:
-  /// **'Clear fabric'**
+  /// **'Clear cloth'**
   String get ordersComposerFabricClearCta;
 
   /// No description provided for @ordersComposerStyleRequired.
@@ -4133,22 +4151,88 @@ abstract class AppLocalizations {
   /// **'Style names, shape options, and design figures'**
   String get settingsStyleTileSubtitle;
 
+  /// No description provided for @settingsComposerFieldsTileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders composer fields'**
+  String get settingsComposerFieldsTileTitle;
+
+  /// No description provided for @settingsComposerFieldsTileSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Show or hide style, catalog, and cloth on new orders'**
+  String get settingsComposerFieldsTileSubtitle;
+
+  /// No description provided for @settingsComposerFieldsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders composer fields'**
+  String get settingsComposerFieldsTitle;
+
+  /// No description provided for @settingsComposerFieldsIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose which optional sections appear on the Orders tab when taking a new order. Hidden sections are not shown; fields are never required to save.'**
+  String get settingsComposerFieldsIntro;
+
+  /// No description provided for @settingsComposerShowStyleNameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Style name'**
+  String get settingsComposerShowStyleNameTitle;
+
+  /// No description provided for @settingsComposerShowStyleNameSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Preset style names and custom style text'**
+  String get settingsComposerShowStyleNameSubtitle;
+
+  /// No description provided for @settingsComposerShowCatalogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from catalog'**
+  String get settingsComposerShowCatalogTitle;
+
+  /// No description provided for @settingsComposerShowCatalogSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Catalog design image picker on Perahan/Tunban'**
+  String get settingsComposerShowCatalogSubtitle;
+
+  /// No description provided for @settingsComposerShowClothBlockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloth block'**
+  String get settingsComposerShowClothBlockTitle;
+
+  /// No description provided for @settingsComposerShowClothBlockSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloth name, color, meters, and price per garment'**
+  String get settingsComposerShowClothBlockSubtitle;
+
+  /// No description provided for @ordersListChangeStatusTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Change status'**
+  String get ordersListChangeStatusTooltip;
+
   /// No description provided for @settingsFabricHubTitle.
   ///
   /// In en, this message translates to:
-  /// **'Customer fabric'**
+  /// **'Customer cloth'**
   String get settingsFabricHubTitle;
 
   /// No description provided for @settingsFabricHubSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Preset names and colors for orders'**
+  /// **'Preset cloth names and colors for orders'**
   String get settingsFabricHubSubtitle;
 
   /// No description provided for @settingsFabricNamesTitle.
   ///
   /// In en, this message translates to:
-  /// **'Fabric names'**
+  /// **'Cloth names'**
   String get settingsFabricNamesTitle;
 
   /// No description provided for @settingsFabricNamesSubtitle.
@@ -4160,13 +4244,13 @@ abstract class AppLocalizations {
   /// No description provided for @settingsFabricNamesEmpty.
   ///
   /// In en, this message translates to:
-  /// **'No fabric names yet.'**
+  /// **'No cloth names yet.'**
   String get settingsFabricNamesEmpty;
 
   /// No description provided for @settingsFabricNameAddCta.
   ///
   /// In en, this message translates to:
-  /// **'Add fabric name'**
+  /// **'Add cloth name'**
   String get settingsFabricNameAddCta;
 
   /// No description provided for @settingsFabricNameFieldLabel.
@@ -4178,13 +4262,13 @@ abstract class AppLocalizations {
   /// No description provided for @settingsFabricNameRenameTitle.
   ///
   /// In en, this message translates to:
-  /// **'Rename fabric'**
+  /// **'Rename cloth'**
   String get settingsFabricNameRenameTitle;
 
   /// No description provided for @settingsFabricNameDeleteTitle.
   ///
   /// In en, this message translates to:
-  /// **'Delete fabric name?'**
+  /// **'Delete cloth name?'**
   String get settingsFabricNameDeleteTitle;
 
   /// No description provided for @settingsFabricNameDeleteBody.
@@ -4196,7 +4280,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsFabricColorsTitle.
   ///
   /// In en, this message translates to:
-  /// **'Fabric colors'**
+  /// **'Cloth colors'**
   String get settingsFabricColorsTitle;
 
   /// No description provided for @settingsFabricColorsSubtitle.
@@ -4208,13 +4292,13 @@ abstract class AppLocalizations {
   /// No description provided for @settingsFabricColorsEmpty.
   ///
   /// In en, this message translates to:
-  /// **'No fabric colors yet.'**
+  /// **'No cloth colors yet.'**
   String get settingsFabricColorsEmpty;
 
   /// No description provided for @settingsFabricColorAddCta.
   ///
   /// In en, this message translates to:
-  /// **'Add fabric color'**
+  /// **'Add cloth color'**
   String get settingsFabricColorAddCta;
 
   /// No description provided for @settingsFabricColorFieldLabel.

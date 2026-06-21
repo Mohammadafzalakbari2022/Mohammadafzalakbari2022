@@ -1,8 +1,6 @@
 import 'entities/garment_type.dart';
 import 'entities/order_entity.dart';
 import 'order_item_input.dart';
-import 'order_item_summary.dart';
-import 'order_sync_payload.dart';
 
 OrderItemCreateInput orderItemCreateInputFromLegacyFlatOrder({
   required OrderEntity order,

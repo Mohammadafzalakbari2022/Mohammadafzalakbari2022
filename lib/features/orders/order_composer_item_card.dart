@@ -12,6 +12,13 @@ String composerGarmentLabel(AppLocalizations l10n, GarmentType type) {
   };
 }
 
+IconData composerGarmentIcon(GarmentType type) {
+  return switch (type) {
+    GarmentType.perahanTunban => Icons.checkroom_outlined,
+    GarmentType.waistcoat => Icons.layers_outlined,
+  };
+}
+
 String composerItemCompletionSummary(AppLocalizations l10n, OrderItemDraft draft) {
   final parts = <String>[];
   if (draft.hasMeasurements) {

@@ -126,6 +126,8 @@ class OrderComposerDraft {
           fabricIdSnapshot: draft.fabricId,
           fabricNamePresetInternalId: draft.fabricNamePresetInternalId,
           fabricColorPresetInternalId: draft.fabricColorPresetInternalId,
+          clothMetersSnapshot: draft.clothMeters,
+          clothPriceAmountMinor: draft.clothPriceAmountMinor,
         ),
       );
     }

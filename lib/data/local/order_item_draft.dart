@@ -25,6 +25,8 @@ class OrderItemDraft {
     this.fabricId = '',
     this.fabricNamePresetInternalId,
     this.fabricColorPresetInternalId,
+    this.clothMeters = '',
+    this.clothPriceAmountMinor = 0,
     this.measurementSnapshotItems = const [],
   });
 
@@ -49,6 +51,8 @@ class OrderItemDraft {
   final String fabricId;
   final String? fabricNamePresetInternalId;
   final String? fabricColorPresetInternalId;
+  final String clothMeters;
+  final int clothPriceAmountMinor;
   final List<OrderMeasurementSnapshotItemInput> measurementSnapshotItems;
 
   factory OrderItemDraft.empty(GarmentType type) =>
@@ -65,6 +69,8 @@ class OrderItemDraft {
       fabricName.trim().isNotEmpty ||
       fabricColor.trim().isNotEmpty ||
       fabricId.trim().isNotEmpty ||
+      clothMeters.trim().isNotEmpty ||
+      clothPriceAmountMinor > 0 ||
       itemNotes.trim().isNotEmpty ||
       priceAmountMinor > 0;
 
@@ -93,6 +99,8 @@ class OrderItemDraft {
     String? fabricId,
     String? fabricNamePresetInternalId,
     String? fabricColorPresetInternalId,
+    String? clothMeters,
+    int? clothPriceAmountMinor,
     List<OrderMeasurementSnapshotItemInput>? measurementSnapshotItems,
   }) {
     return OrderItemDraft(
@@ -123,6 +131,9 @@ class OrderItemDraft {
           fabricNamePresetInternalId ?? this.fabricNamePresetInternalId,
       fabricColorPresetInternalId:
           fabricColorPresetInternalId ?? this.fabricColorPresetInternalId,
+      clothMeters: clothMeters ?? this.clothMeters,
+      clothPriceAmountMinor:
+          clothPriceAmountMinor ?? this.clothPriceAmountMinor,
       measurementSnapshotItems:
           measurementSnapshotItems ?? this.measurementSnapshotItems,
     );
@@ -135,7 +146,9 @@ class OrderItemDraft {
   bool get hasFabric =>
       fabricName.trim().isNotEmpty ||
       fabricColor.trim().isNotEmpty ||
-      fabricId.trim().isNotEmpty;
+      fabricId.trim().isNotEmpty ||
+      clothMeters.trim().isNotEmpty ||
+      clothPriceAmountMinor > 0;
 
   /// Optional save: included items may be partially filled.
   bool get canSaveIncluded => !included;

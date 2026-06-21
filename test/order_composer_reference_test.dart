@@ -2,6 +2,8 @@ import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pride_v3/data/local/entities/order_status.dart';
+import 'package:pride_v3/data/local/entities/garment_type.dart';
+import 'package:pride_v3/data/local/order_item_summary.dart';
 import 'package:pride_v3/data/local/order_measurement_snapshot_view.dart';
 import 'package:pride_v3/data/local/order_summary.dart';
 import 'package:pride_v3/features/orders/order_composer_reference.dart';
@@ -282,6 +284,26 @@ void main() {
       );
       expect(text, contains('200000'));
       expect(text, contains('300000'));
+    });
+  });
+
+  group('buildItemFabricCopy', () {
+    test('includes cloth meters and price from item summary', () {
+      final item = OrderItemSummary(
+        internalId: 'item-1',
+        orderInternalId: 'o1',
+        garmentType: GarmentType.perahanTunban,
+        fabricNameSnapshot: 'Wool',
+        fabricColorSnapshot: 'Gray',
+        clothMetersSnapshot: '3.5',
+        clothPriceAmountMinor: 120000,
+        createdAt: DateTime(2026, 1, 1),
+        updatedAt: DateTime(2026, 1, 1),
+      );
+      final copy = buildItemFabricCopy(item);
+      expect(copy?.fabricName, 'Wool');
+      expect(copy?.clothMeters, '3.5');
+      expect(copy?.clothPriceAmountMinor, 120000);
     });
   });
 

@@ -8,6 +8,7 @@ const licenseBlockedPathsWhenEditingBlocked = <String>{
   '/app/settings/users',
   '/app/settings/backup-restore',
   '/app/settings/measurement-types',
+  '/app/settings/orders-composer',
   '/app/settings/fabric',
   '/app/settings/fabric/names',
   '/app/settings/fabric/colors',

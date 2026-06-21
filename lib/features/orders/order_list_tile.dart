@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pride_v3/app/app_theme.dart';
 import 'package:pride_v3/core/calendar/app_calendar_format.dart';
 import 'package:pride_v3/core/calendar/date_calendar_system.dart';
@@ -10,11 +11,12 @@ import 'package:pride_v3/l10n/app_localizations.dart';
 import '../../data/local/customer_display_no.dart';
 import '../../data/local/order_summary.dart';
 import 'order_garment_summary.dart';
+import 'order_list_status_actions.dart';
 import 'order_payment_rules.dart';
 import 'order_status_label.dart';
 
 /// Single order row for [OrdersFilteredListBody]: customer ID first, order ID second.
-class OrderListTile extends StatelessWidget {
+class OrderListTile extends ConsumerWidget {
   const OrderListTile({
     super.key,
     required this.order,
@@ -28,6 +30,7 @@ class OrderListTile extends StatelessWidget {
     this.remainingAmountMinor,
     this.stylePreviewLine,
     this.customerDisplayNo = '',
+    this.enableStatusActions = false,
   });
 
   final OrderSummary order;
@@ -41,9 +44,10 @@ class OrderListTile extends StatelessWidget {
   final String Function(int minor) formatMoney;
   final String? stylePreviewLine;
   final String customerDisplayNo;
+  final bool enableStatusActions;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final takenFmt = AppCalendarFormat.dateTimeMedium(
@@ -98,12 +102,30 @@ class OrderListTile extends StatelessWidget {
                 Wrap(
                   spacing: 6,
                   runSpacing: 4,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     _OrderListChip(
                       label: orderStatusLabel(order.status, l10n),
                       background: scheme.primaryContainer,
                       foreground: scheme.onPrimaryContainer,
                     ),
+                    if (enableStatusActions)
+                      IconButton(
+                        visualDensity: VisualDensity.compact,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(
+                          minWidth: 32,
+                          minHeight: 32,
+                        ),
+                        tooltip: l10n.ordersListChangeStatusTooltip,
+                        icon: const Icon(Icons.swap_horiz, size: 20),
+                        onPressed: () => changeOrderStatusFromList(
+                          context: context,
+                          ref: ref,
+                          l10n: l10n,
+                          order: order,
+                        ),
+                      ),
                     if (order.items.length > 1 ||
                         order.garmentSummaryKey.contains('+'))
                       _OrderListChip(

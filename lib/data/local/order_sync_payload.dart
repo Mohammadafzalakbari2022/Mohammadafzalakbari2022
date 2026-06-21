@@ -116,6 +116,10 @@ Map<String, dynamic> orderItemSummaryToSyncMap(OrderItemSummary item) {
         item.fabricColorPresetInternalId!.trim().isNotEmpty)
       'fabric_color_preset_internal_id':
           item.fabricColorPresetInternalId!.trim(),
+    if (item.clothMetersSnapshot.trim().isNotEmpty)
+      'cloth_meters': item.clothMetersSnapshot.trim(),
+    if (item.clothPriceAmountMinor > 0)
+      'cloth_price_amount_minor': item.clothPriceAmountMinor,
   };
 }
 
@@ -227,6 +231,16 @@ OrderItemCreateInput orderItemCreateInputFromSyncMap(
         'fabricColorPresetInternalId',
       ],
     ),
+    clothMetersSnapshot: syncPullString(
+          m,
+          const ['cloth_meters', 'clothMeters', 'clothMetersSnapshot'],
+        ) ??
+        '',
+    clothPriceAmountMinor: syncPullInt(
+          m,
+          const ['cloth_price_amount_minor', 'clothPriceAmountMinor'],
+        ) ??
+        0,
   );
 }
 
@@ -373,6 +387,10 @@ Map<String, dynamic> orderItemCreateInputToSyncMap(OrderItemCreateInput item) {
         item.fabricColorPresetInternalId!.trim().isNotEmpty)
       'fabric_color_preset_internal_id':
           item.fabricColorPresetInternalId!.trim(),
+    if (item.clothMetersSnapshot.trim().isNotEmpty)
+      'cloth_meters': item.clothMetersSnapshot.trim(),
+    if (item.clothPriceAmountMinor > 0)
+      'cloth_price_amount_minor': item.clothPriceAmountMinor,
   };
 }
 

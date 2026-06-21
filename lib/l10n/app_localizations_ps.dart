@@ -1530,7 +1530,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get ordersComposerProgressStyle => 'سټایل';
 
   @override
-  String get ordersComposerProgressFabric => 'کپړه';
+  String get ordersComposerProgressFabric => 'رخت';
 
   @override
   String get ordersComposerProgressDelivery => 'سپارل';
@@ -2021,11 +2021,10 @@ class AppLocalizationsPs extends AppLocalizations {
   String get ordersComposerStyleTitle => 'سټایل';
 
   @override
-  String get ordersComposerFabricTitle => 'د پیرودونکي کپړه';
+  String get ordersComposerFabricTitle => 'د پیرودونکي رخت';
 
   @override
-  String get ordersComposerFabricOptional =>
-      'اختیاري — کپړه چې پیرودونکی راوړي';
+  String get ordersComposerFabricOptional => 'اختیاري — رخت چې پیرودونکی راوړي';
 
   @override
   String ordersComposerFabricSummary(String name, String color, String id) {
@@ -2038,32 +2037,41 @@ class AppLocalizationsPs extends AppLocalizations {
   }
 
   @override
-  String get ordersComposerFabricUnset => 'کپړه ثبت شوې نه ده';
+  String get ordersComposerFabricUnset => 'رخت ثبت شوی نه دی';
 
   @override
-  String get ordersComposerFabricSheetTitle => 'د پیرودونکي کپړه';
+  String get ordersComposerFabricSheetTitle => 'د پیرودونکي رخت';
 
   @override
-  String get ordersComposerFabricNameLabel => 'د کپړې نوم';
+  String get ordersComposerFabricNameLabel => 'د رخت نوم';
 
   @override
   String get ordersComposerFabricNameHint => 'غوره کړئ یا ولیکئ';
 
   @override
-  String get ordersComposerFabricColorLabel => 'د کپړې رنګ';
+  String get ordersComposerFabricColorLabel => 'د رخت رنګ';
 
   @override
   String get ordersComposerFabricColorHint => 'غوره کړئ یا ولیکئ';
 
   @override
-  String get ordersComposerFabricIdLabel => 'د کپړې پېژند';
+  String get ordersComposerClothMetersLabel => 'د رخت متر';
+
+  @override
+  String get ordersComposerClothMetersHint => 'لکه ۳.۵';
+
+  @override
+  String get ordersComposerClothPriceLabel => 'د رخت بیه';
+
+  @override
+  String get ordersComposerFabricIdLabel => 'د رخت پېژند';
 
   @override
   String get ordersComposerFabricIdHint =>
       'په خوندي کولو سره په اوتومات ډول ورکړیږي';
 
   @override
-  String get ordersComposerFabricClearCta => 'کپړه پاک کړئ';
+  String get ordersComposerFabricClearCta => 'رخت پاک کړئ';
 
   @override
   String get ordersComposerStyleRequired => 'سټایل اضافه کړئ (اړین)';
@@ -2229,10 +2237,49 @@ class AppLocalizationsPs extends AppLocalizations {
   String get settingsStyleTileSubtitle => 'د سټایل نومونه او د ډیزاین شکلونه';
 
   @override
-  String get settingsFabricHubTitle => 'د پیرودونکي کپړه';
+  String get settingsComposerFieldsTileTitle => 'د امر جوړونکي برخې';
 
   @override
-  String get settingsFabricHubSubtitle => 'د امرونو لپاره نومونه او رنګونه';
+  String get settingsComposerFieldsTileSubtitle =>
+      'په نوي امر کې سټایل، کټالګ او رخت ښکاره یا پټ کړئ';
+
+  @override
+  String get settingsComposerFieldsTitle => 'د امر جوړونکي برخې';
+
+  @override
+  String get settingsComposerFieldsIntro =>
+      'په امرونو ټب کې اختیاري برخې وټاکئ. پټ برخې نه ښکاري او د خوندي کولو لپاره اړین نه دي.';
+
+  @override
+  String get settingsComposerShowStyleNameTitle => 'د سټایل نوم';
+
+  @override
+  String get settingsComposerShowStyleNameSubtitle =>
+      'مخکې ټاکل شوي سټایل نومونه او دودیز متن';
+
+  @override
+  String get settingsComposerShowCatalogTitle => 'له کټالګ څخه غوره کړئ';
+
+  @override
+  String get settingsComposerShowCatalogSubtitle =>
+      'د پرهان/تنبان لپاره د کټالګ ډیزاین';
+
+  @override
+  String get settingsComposerShowClothBlockTitle => 'د رخت برخه';
+
+  @override
+  String get settingsComposerShowClothBlockSubtitle =>
+      'د هر جامې لپاره نوم، رنګ، متر او بیه';
+
+  @override
+  String get ordersListChangeStatusTooltip => 'حالت بدل کړئ';
+
+  @override
+  String get settingsFabricHubTitle => 'د پیرودونکي رخت';
+
+  @override
+  String get settingsFabricHubSubtitle =>
+      'د امرونو لپاره د رخت نومونه او رنګونه';
 
   @override
   String get settingsFabricNamesTitle => 'د کپړو نومونه';

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pride_v3/core/widgets/pride_numeric_text_field.dart';
-import 'package:pride_v3/core/widgets/pride_optional_field.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../data/local/measurement_profile_formatting.dart';
@@ -76,8 +75,6 @@ class _OrderComposerMeasurementsPanelState
   @override
   void didUpdateWidget(OrderComposerMeasurementsPanel oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Re-seed only on external draft changes (profile load, use-previous).
-    // Parent no longer setState's on each keystroke, but guard anyway.
     final externalReseed =
         oldWidget.initialProfileId != widget.initialProfileId ||
             oldWidget.initialSnapshotText != widget.initialSnapshotText;
@@ -217,131 +214,85 @@ class _OrderComposerMeasurementsPanelState
           return const SizedBox.shrink();
         }
         final sorted = [...types]..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
-        final hasAnyValue = sorted.any((t) {
-          final c = _byTypeId[t.internalId];
-          return c != null && c.text.trim().isNotEmpty;
-        });
-        return PrideOptionalPanel(
-          isEmpty: !hasAnyValue,
-          padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (widget.referenceOrder != null && widget.moneyFormatter != null)
-                ComposerSheetPreviousSection(
-                  referenceOrder: widget.referenceOrder!,
-                  referenceItem: widget.referenceItem,
-                  kind: ComposerSheetPreviousKind.measurements,
-                  currentTextForDiff: widget.initialSnapshotText,
-                  currentIsMeaningfulForDiff:
-                      widget.initialSnapshotText.trim().isNotEmpty,
-                  onUsePrevious: widget.onUsePreviousMeasurements,
-                  money: widget.moneyFormatter!,
+        final theme = Theme.of(context);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (widget.referenceOrder != null && widget.moneyFormatter != null)
+              ComposerSheetPreviousSection(
+                referenceOrder: widget.referenceOrder!,
+                referenceItem: widget.referenceItem,
+                kind: ComposerSheetPreviousKind.measurements,
+                currentTextForDiff: widget.initialSnapshotText,
+                currentIsMeaningfulForDiff:
+                    widget.initialSnapshotText.trim().isNotEmpty,
+                onUsePrevious: widget.onUsePreviousMeasurements,
+                money: widget.moneyFormatter!,
+              ),
+            if (widget.profiles.isNotEmpty)
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: OutlinedButton.icon(
+                  onPressed: _pickProfile,
+                  icon: const Icon(Icons.folder_open_outlined, size: 18),
+                  label: Text(widget.l10n.ordersComposerLoadProfileCta),
                 ),
-              if (widget.profiles.isNotEmpty)
-                Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: OutlinedButton.icon(
-                    onPressed: _pickProfile,
-                    icon: const Icon(Icons.folder_open_outlined, size: 18),
-                    label: Text(widget.l10n.ordersComposerLoadProfileCta),
+              ),
+            if (_profileLabel.isNotEmpty)
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: InputChip(
+                  label: Text(
+                    widget.l10n.ordersComposerProfileLinked(_profileLabel),
                   ),
+                  deleteIcon: const Icon(Icons.close, size: 18),
+                  onDeleted: () {
+                    setState(() {
+                      _profileId = null;
+                      _profileLabel = '';
+                    });
+                    _emitChange();
+                  },
                 ),
-              if (_profileLabel.isNotEmpty)
-                Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: InputChip(
-                    label: Text(
-                      widget.l10n.ordersComposerProfileLinked(_profileLabel),
-                    ),
-                    deleteIcon: const Icon(Icons.close, size: 18),
-                    onDeleted: () {
-                      setState(() {
-                        _profileId = null;
-                        _profileLabel = '';
-                      });
-                      _emitChange();
-                    },
+              ),
+            const SizedBox(height: 8),
+            Table(
+              columnWidths: const {
+                0: FlexColumnWidth(2),
+                1: FixedColumnWidth(88),
+              },
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+              children: [
+                for (final t in sorted)
+                  TableRow(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8, bottom: 6),
+                        child: Text(
+                          t.name,
+                          style: theme.textTheme.bodyMedium,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: PrideNumericTextField(
+                          controller: _controllerFor(t.internalId),
+                          maxLength: 5,
+                          textAlign: TextAlign.center,
+                          dense: true,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              const SizedBox(height: 8),
-              for (final t in sorted)
-                _ReceiptMeasurementField(
-                  label: t.name,
-                  controller: _controllerFor(t.internalId),
-                ),
-            ],
-          ),
+              ],
+            ),
+          ],
         );
       },
       loading: () => const LinearProgressIndicator(),
       error: (e, _) => Text(widget.l10n.genericError),
-    );
-  }
-}
-
-class _ReceiptMeasurementField extends StatefulWidget {
-  const _ReceiptMeasurementField({
-    required this.label,
-    required this.controller,
-  });
-
-  final String label;
-  final TextEditingController controller;
-
-  @override
-  State<_ReceiptMeasurementField> createState() =>
-      _ReceiptMeasurementFieldState();
-}
-
-class _ReceiptMeasurementFieldState extends State<_ReceiptMeasurementField> {
-  @override
-  void initState() {
-    super.initState();
-    widget.controller.addListener(_onTextChanged);
-  }
-
-  @override
-  void dispose() {
-    widget.controller.removeListener(_onTextChanged);
-    super.dispose();
-  }
-
-  void _onTextChanged() => setState(() {});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isEmpty = widget.controller.text.trim().isEmpty;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            child: Text(
-              widget.label,
-              style: theme.textTheme.bodyMedium,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          const SizedBox(width: 10),
-          SizedBox(
-            width: 96,
-            child: PrideOptionalPanel(
-              isEmpty: isEmpty,
-              padding: EdgeInsets.zero,
-              child: PrideNumericTextField(
-                controller: widget.controller,
-                maxLength: 5,
-                textAlign: TextAlign.center,
-                dense: true,
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

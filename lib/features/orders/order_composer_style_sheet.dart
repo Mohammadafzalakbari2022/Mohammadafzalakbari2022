@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pride_v3/core/widgets/pride_modal_bottom_sheet.dart';
-import 'package:pride_v3/core/widgets/pride_optional_field.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../data/local/entities/garment_type.dart';
@@ -109,6 +108,8 @@ class OrderComposerStylePanel extends ConsumerStatefulWidget {
     this.initialStyleSummary = '',
     this.embedded = false,
     this.onChanged,
+    this.showStyleName = true,
+    this.showCatalogPicker = true,
   });
 
   final GarmentType? garmentType;
@@ -128,6 +129,8 @@ class OrderComposerStylePanel extends ConsumerStatefulWidget {
   final String initialStyleSummary;
   final bool embedded;
   final ValueChanged<OrderComposerStyleResult?>? onChanged;
+  final bool showStyleName;
+  final bool showCatalogPicker;
 
   @override
   ConsumerState<OrderComposerStylePanel> createState() =>
@@ -339,12 +342,11 @@ class _OrderComposerStylePanelState
     final partsAsync = ref.watch(stylePartsForGarmentProvider(garment));
     final configsAsync =
         ref.watch(styleFigureConfigsForGarmentProvider(garment));
-    final styleEmpty = _mainStyleName.isEmpty &&
-        _selectedFigureIds.isEmpty &&
-        _catalogDesignName.trim().isEmpty;
 
     return [
-      if (widget.referenceOrder != null && widget.moneyFormatter != null)
+      if (widget.referenceOrder != null &&
+          widget.moneyFormatter != null &&
+          widget.showStyleName)
         ComposerSheetPreviousHeader(
           title: widget.garmentType != null
               ? '${composerGarmentLabel(l10n, widget.garmentType!)} · ${l10n.ordersComposerStyleSheetTitle}'
@@ -360,12 +362,10 @@ class _OrderComposerStylePanelState
             money: widget.moneyFormatter!,
           ),
         ),
-      PrideOptionalPanel(
-        isEmpty: styleEmpty,
-        padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (widget.showStyleName) ...[
             namesAsync.when(
               data: (names) {
                 final active = names.where((n) => n.isActive).toList();
@@ -389,18 +389,16 @@ class _OrderComposerStylePanelState
             const SizedBox(height: 12),
             TextField(
               controller: _customStyleCtrl,
-              decoration: prideOptionalDecoration(
-                context,
-                base: InputDecoration(
-                  labelText: l10n.ordersComposerStyleCustomLabel,
-                  hintText: l10n.ordersComposerStyleCustomHint,
-                  border: const OutlineInputBorder(),
-                ),
-                isEmpty: _mainStyleName.isEmpty,
+              decoration: InputDecoration(
+                labelText: l10n.ordersComposerStyleCustomLabel,
+                hintText: l10n.ordersComposerStyleCustomHint,
+                border: const OutlineInputBorder(),
               ),
             ),
-            if (garment == GarmentType.perahanTunban) ...[
-              const SizedBox(height: 12),
+          ],
+          if (widget.showCatalogPicker &&
+              garment == GarmentType.perahanTunban) ...[
+            if (widget.showStyleName) const SizedBox(height: 12),
               if (_catalogDesignName.trim().isEmpty)
                 Text(
                   l10n.ordersComposerCatalogDesignNone,
@@ -535,8 +533,7 @@ class _OrderComposerStylePanelState
               loading: () => const LinearProgressIndicator(),
               error: (e, _) => Text('$e'),
             ),
-          ],
-        ),
+        ],
       ),
     ];
   }

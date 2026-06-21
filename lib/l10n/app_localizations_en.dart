@@ -1543,7 +1543,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ordersComposerProgressStyle => 'Style';
 
   @override
-  String get ordersComposerProgressFabric => 'Fabric';
+  String get ordersComposerProgressFabric => 'Cloth';
 
   @override
   String get ordersComposerProgressDelivery => 'Delivery';
@@ -1730,7 +1730,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ordersComposerItemBreakdownTitle => 'Item cost breakdown';
 
   @override
-  String get ordersComposerUseSameFabricCta => 'Use same fabric';
+  String get ordersComposerUseSameFabricCta => 'Use same cloth';
 
   @override
   String get ordersComposerCustomerTitle => 'Customer';
@@ -1985,7 +1985,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ordersComposerUsePreviousStyleCta => 'Use previous style';
 
   @override
-  String get ordersComposerUsePreviousFabricCta => 'Use previous fabric';
+  String get ordersComposerUsePreviousFabricCta => 'Use previous cloth';
 
   @override
   String get ordersComposerUsePreviousDesignCta => 'Use previous design';
@@ -2039,7 +2039,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ordersComposerStyleTitle => 'Style';
 
   @override
-  String get ordersComposerFabricTitle => 'Customer fabric';
+  String get ordersComposerFabricTitle => 'Customer cloth';
 
   @override
   String get ordersComposerFabricOptional =>
@@ -2056,32 +2056,41 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get ordersComposerFabricUnset => 'No fabric recorded';
+  String get ordersComposerFabricUnset => 'No cloth recorded';
 
   @override
-  String get ordersComposerFabricSheetTitle => 'Customer fabric';
+  String get ordersComposerFabricSheetTitle => 'Customer cloth';
 
   @override
-  String get ordersComposerFabricNameLabel => 'Fabric name';
+  String get ordersComposerFabricNameLabel => 'Cloth name';
 
   @override
   String get ordersComposerFabricNameHint => 'Select or type';
 
   @override
-  String get ordersComposerFabricColorLabel => 'Fabric color';
+  String get ordersComposerFabricColorLabel => 'Cloth color';
 
   @override
   String get ordersComposerFabricColorHint => 'Select or type';
 
   @override
-  String get ordersComposerFabricIdLabel => 'Fabric ID';
+  String get ordersComposerClothMetersLabel => 'Cloth meters';
+
+  @override
+  String get ordersComposerClothMetersHint => 'e.g. 3.5';
+
+  @override
+  String get ordersComposerClothPriceLabel => 'Cloth price';
+
+  @override
+  String get ordersComposerFabricIdLabel => 'Cloth ID';
 
   @override
   String get ordersComposerFabricIdHint =>
       'Assigned automatically when you save';
 
   @override
-  String get ordersComposerFabricClearCta => 'Clear fabric';
+  String get ordersComposerFabricClearCta => 'Clear cloth';
 
   @override
   String get ordersComposerStyleRequired => 'Add style (required)';
@@ -2245,48 +2254,87 @@ class AppLocalizationsEn extends AppLocalizations {
       'Style names, shape options, and design figures';
 
   @override
-  String get settingsFabricHubTitle => 'Customer fabric';
+  String get settingsComposerFieldsTileTitle => 'Orders composer fields';
 
   @override
-  String get settingsFabricHubSubtitle => 'Preset names and colors for orders';
+  String get settingsComposerFieldsTileSubtitle =>
+      'Show or hide style, catalog, and cloth on new orders';
 
   @override
-  String get settingsFabricNamesTitle => 'Fabric names';
+  String get settingsComposerFieldsTitle => 'Orders composer fields';
+
+  @override
+  String get settingsComposerFieldsIntro =>
+      'Choose which optional sections appear on the Orders tab when taking a new order. Hidden sections are not shown; fields are never required to save.';
+
+  @override
+  String get settingsComposerShowStyleNameTitle => 'Style name';
+
+  @override
+  String get settingsComposerShowStyleNameSubtitle =>
+      'Preset style names and custom style text';
+
+  @override
+  String get settingsComposerShowCatalogTitle => 'Choose from catalog';
+
+  @override
+  String get settingsComposerShowCatalogSubtitle =>
+      'Catalog design image picker on Perahan/Tunban';
+
+  @override
+  String get settingsComposerShowClothBlockTitle => 'Cloth block';
+
+  @override
+  String get settingsComposerShowClothBlockSubtitle =>
+      'Cloth name, color, meters, and price per garment';
+
+  @override
+  String get ordersListChangeStatusTooltip => 'Change status';
+
+  @override
+  String get settingsFabricHubTitle => 'Customer cloth';
+
+  @override
+  String get settingsFabricHubSubtitle =>
+      'Preset cloth names and colors for orders';
+
+  @override
+  String get settingsFabricNamesTitle => 'Cloth names';
 
   @override
   String get settingsFabricNamesSubtitle =>
       'Cotton, wool, and other cloth types';
 
   @override
-  String get settingsFabricNamesEmpty => 'No fabric names yet.';
+  String get settingsFabricNamesEmpty => 'No cloth names yet.';
 
   @override
-  String get settingsFabricNameAddCta => 'Add fabric name';
+  String get settingsFabricNameAddCta => 'Add cloth name';
 
   @override
   String get settingsFabricNameFieldLabel => 'Name';
 
   @override
-  String get settingsFabricNameRenameTitle => 'Rename fabric';
+  String get settingsFabricNameRenameTitle => 'Rename cloth';
 
   @override
-  String get settingsFabricNameDeleteTitle => 'Delete fabric name?';
+  String get settingsFabricNameDeleteTitle => 'Delete cloth name?';
 
   @override
   String get settingsFabricNameDeleteBody =>
       'This removes the name from the list. Existing orders are not changed.';
 
   @override
-  String get settingsFabricColorsTitle => 'Fabric colors';
+  String get settingsFabricColorsTitle => 'Cloth colors';
 
   @override
   String get settingsFabricColorsSubtitle => 'Navy, cream, and other colors';
 
   @override
-  String get settingsFabricColorsEmpty => 'No fabric colors yet.';
+  String get settingsFabricColorsEmpty => 'No cloth colors yet.';
 
   @override
-  String get settingsFabricColorAddCta => 'Add fabric color';
+  String get settingsFabricColorAddCta => 'Add cloth color';
 
   @override
   String get settingsFabricColorFieldLabel => 'Color';

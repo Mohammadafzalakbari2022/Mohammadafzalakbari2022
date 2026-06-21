@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pride_v3/core/fabric/generate_fabric_id.dart';
-import 'package:pride_v3/core/widgets/pride_optional_field.dart';
+import 'package:pride_v3/core/formatting/digit_normalizer.dart';
+import 'package:pride_v3/core/widgets/pride_money_field.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../data/local/fabric_preset_summary.dart';
@@ -11,7 +12,7 @@ import '../../data/providers/local_data_providers.dart';
 import 'order_composer_fabric_sheet.dart';
 import 'order_composer_reference.dart';
 
-/// Inline fabric fields for the receipt composer (no modal).
+/// Inline cloth fields for the receipt composer (no modal).
 class OrderComposerFabricPanel extends ConsumerStatefulWidget {
   const OrderComposerFabricPanel({
     super.key,
@@ -21,6 +22,8 @@ class OrderComposerFabricPanel extends ConsumerStatefulWidget {
     required this.initialFabricId,
     this.initialNamePresetId,
     this.initialColorPresetId,
+    this.initialClothMeters = '',
+    this.initialClothPriceMinor = 0,
     required this.onChanged,
     this.referenceOrder,
     this.referenceItem,
@@ -35,6 +38,8 @@ class OrderComposerFabricPanel extends ConsumerStatefulWidget {
   final String initialFabricId;
   final String? initialNamePresetId;
   final String? initialColorPresetId;
+  final String initialClothMeters;
+  final int initialClothPriceMinor;
   final ValueChanged<OrderComposerFabricResult?> onChanged;
   final OrderSummary? referenceOrder;
   final OrderItemSummary? referenceItem;
@@ -51,6 +56,8 @@ class _OrderComposerFabricPanelState
     extends ConsumerState<OrderComposerFabricPanel> {
   late final TextEditingController _nameCtrl;
   late final TextEditingController _colorCtrl;
+  late final TextEditingController _metersCtrl;
+  late final TextEditingController _priceCtrl;
   String? _namePresetId;
   String? _colorPresetId;
   String _fabricId = '';
@@ -60,11 +67,19 @@ class _OrderComposerFabricPanelState
     super.initState();
     _nameCtrl = TextEditingController(text: widget.initialName);
     _colorCtrl = TextEditingController(text: widget.initialColor);
+    _metersCtrl = TextEditingController(text: widget.initialClothMeters);
+    _priceCtrl = TextEditingController(
+      text: widget.initialClothPriceMinor > 0
+          ? widget.initialClothPriceMinor.toString()
+          : '',
+    );
     _namePresetId = widget.initialNamePresetId;
     _colorPresetId = widget.initialColorPresetId;
     _fabricId = widget.initialFabricId;
     _nameCtrl.addListener(_emitChange);
     _colorCtrl.addListener(_emitChange);
+    _metersCtrl.addListener(_emitChange);
+    _priceCtrl.addListener(_emitChange);
   }
 
   @override
@@ -73,6 +88,12 @@ class _OrderComposerFabricPanelState
       ..removeListener(_emitChange)
       ..dispose();
     _colorCtrl
+      ..removeListener(_emitChange)
+      ..dispose();
+    _metersCtrl
+      ..removeListener(_emitChange)
+      ..dispose();
+    _priceCtrl
       ..removeListener(_emitChange)
       ..dispose();
     super.dispose();
@@ -85,9 +106,16 @@ class _OrderComposerFabricPanelState
   OrderComposerFabricResult? _buildResult() {
     final name = _nameCtrl.text.trim();
     final color = _colorCtrl.text.trim();
-    if (name.isEmpty && color.isEmpty) return null;
+    final meters = _metersCtrl.text.trim();
+    final priceMinor = tryParseMoneyAmount(_priceCtrl.text) ?? 0;
+    if (name.isEmpty &&
+        color.isEmpty &&
+        meters.isEmpty &&
+        priceMinor <= 0) {
+      return null;
+    }
     var id = _fabricId.trim();
-    if (id.isEmpty) {
+    if (id.isEmpty && (name.isNotEmpty || color.isNotEmpty)) {
       id = generateFabricId();
       _fabricId = id;
     }
@@ -97,6 +125,8 @@ class _OrderComposerFabricPanelState
       fabricId: id,
       fabricNamePresetInternalId: _namePresetId,
       fabricColorPresetInternalId: _colorPresetId,
+      clothMeters: meters,
+      clothPriceAmountMinor: priceMinor,
     );
   }
 
@@ -143,6 +173,8 @@ class _OrderComposerFabricPanelState
       _fabricId = '';
       _nameCtrl.clear();
       _colorCtrl.clear();
+      _metersCtrl.clear();
+      _priceCtrl.clear();
     });
     widget.onChanged(null);
   }
@@ -178,84 +210,85 @@ class _OrderComposerFabricPanelState
   Widget build(BuildContext context) {
     final namesAsync = ref.watch(fabricNamesStreamProvider);
     final colorsAsync = ref.watch(fabricColorsStreamProvider);
-    final nameEmpty = _nameCtrl.text.trim().isEmpty;
-    final colorEmpty = _colorCtrl.text.trim().isEmpty;
-    final panelEmpty = nameEmpty && colorEmpty;
 
-    return PrideOptionalPanel(
-      isEmpty: panelEmpty,
-      padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (widget.referenceOrder != null && widget.moneyFormatter != null)
-            ComposerSheetPreviousSection(
-              referenceOrder: widget.referenceOrder!,
-              referenceItem: widget.referenceItem,
-              kind: ComposerSheetPreviousKind.fabric,
-              currentTextForDiff: widget.initialFabricSummary,
-              currentIsMeaningfulForDiff:
-                  widget.initialFabricSummary.trim().isNotEmpty,
-              onUsePrevious: widget.onUsePreviousFabric,
-              money: widget.moneyFormatter!,
-            ),
-          _presetChips(
-            async: namesAsync,
-            selectedId: _namePresetId,
-            onSelect: _selectName,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (widget.referenceOrder != null && widget.moneyFormatter != null)
+          ComposerSheetPreviousSection(
+            referenceOrder: widget.referenceOrder!,
+            referenceItem: widget.referenceItem,
+            kind: ComposerSheetPreviousKind.fabric,
+            currentTextForDiff: widget.initialFabricSummary,
+            currentIsMeaningfulForDiff:
+                widget.initialFabricSummary.trim().isNotEmpty,
+            onUsePrevious: widget.onUsePreviousFabric,
+            money: widget.moneyFormatter!,
           ),
-          const SizedBox(height: 6),
-          TextField(
-            controller: _nameCtrl,
-            onChanged: (_) {
-              _onNameEdited();
-              setState(() {});
-            },
-            decoration: prideOptionalDecoration(
-              context,
-              base: InputDecoration(
-                labelText: widget.l10n.ordersComposerFabricNameLabel,
-                hintText: widget.l10n.ordersComposerFabricNameHint,
-                border: const OutlineInputBorder(),
-                isDense: true,
-              ),
-              isEmpty: nameEmpty,
-            ),
+        _presetChips(
+          async: namesAsync,
+          selectedId: _namePresetId,
+          onSelect: _selectName,
+        ),
+        const SizedBox(height: 6),
+        TextField(
+          controller: _nameCtrl,
+          onChanged: (_) {
+            _onNameEdited();
+            setState(() {});
+          },
+          decoration: InputDecoration(
+            labelText: widget.l10n.ordersComposerFabricNameLabel,
+            hintText: widget.l10n.ordersComposerFabricNameHint,
+            border: const OutlineInputBorder(),
+            isDense: true,
           ),
-          const SizedBox(height: 10),
-          _presetChips(
-            async: colorsAsync,
-            selectedId: _colorPresetId,
-            onSelect: _selectColor,
+        ),
+        const SizedBox(height: 10),
+        _presetChips(
+          async: colorsAsync,
+          selectedId: _colorPresetId,
+          onSelect: _selectColor,
+        ),
+        const SizedBox(height: 6),
+        TextField(
+          controller: _colorCtrl,
+          onChanged: (_) {
+            _onColorEdited();
+            setState(() {});
+          },
+          decoration: InputDecoration(
+            labelText: widget.l10n.ordersComposerFabricColorLabel,
+            hintText: widget.l10n.ordersComposerFabricColorHint,
+            border: const OutlineInputBorder(),
+            isDense: true,
           ),
-          const SizedBox(height: 6),
-          TextField(
-            controller: _colorCtrl,
-            onChanged: (_) {
-              _onColorEdited();
-              setState(() {});
-            },
-            decoration: prideOptionalDecoration(
-              context,
-              base: InputDecoration(
-                labelText: widget.l10n.ordersComposerFabricColorLabel,
-                hintText: widget.l10n.ordersComposerFabricColorHint,
-                border: const OutlineInputBorder(),
-                isDense: true,
-              ),
-              isEmpty: colorEmpty,
-            ),
+        ),
+        const SizedBox(height: 10),
+        TextField(
+          controller: _metersCtrl,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: InputDecoration(
+            labelText: widget.l10n.ordersComposerClothMetersLabel,
+            hintText: widget.l10n.ordersComposerClothMetersHint,
+            border: const OutlineInputBorder(),
+            isDense: true,
           ),
-          const SizedBox(height: 8),
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: TextButton(
-              onPressed: _clear,
-              child: Text(widget.l10n.ordersComposerFabricClearCta),
-            ),
+        ),
+        const SizedBox(height: 10),
+        PrideMoneyField(
+          controller: _priceCtrl,
+          labelText: widget.l10n.ordersComposerClothPriceLabel,
+        ),
+        const SizedBox(height: 8),
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: TextButton(
+            onPressed: _clear,
+            child: Text(widget.l10n.ordersComposerFabricClearCta),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
