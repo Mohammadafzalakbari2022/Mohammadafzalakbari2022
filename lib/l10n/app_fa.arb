@@ -864,6 +864,46 @@
   "garmentPerahanTunban": "پیراهن‌تنبان",
   "garmentWaistcoat": "واسکت",
   "ordersComposerItemPriceLabel": "قیمت قلم",
+  "ordersComposerGarmentPriceLabel": "قیمت {garment}",
+  "@ordersComposerGarmentPriceLabel": {
+    "placeholders": {
+      "garment": { "type": "String" }
+    }
+  },
+  "ordersComposerClothPriceLineLabel": "رخت {garment}",
+  "@ordersComposerClothPriceLineLabel": {
+    "placeholders": {
+      "garment": { "type": "String" }
+    }
+  },
+  "reportsClothFinancingTitle": "مالی رخت",
+  "reportsClothFinancingCardSubtitle": "درآمد رخت این ماه: {amount}",
+  "@reportsClothFinancingCardSubtitle": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "reportsClothFinancingEmpty": "برای این ماه رخت ثبت نشده است.",
+  "reportsClothRevenueLabel": "درآمد رخت",
+  "reportsClothMetersLabel": "مجموع متراژ",
+  "reportsClothMetersValue": "{meters} متر",
+  "@reportsClothMetersValue": {
+    "placeholders": {
+      "meters": { "type": "String" }
+    }
+  },
+  "reportsClothOrdersWithClothLabel": "سفارش‌های دارای رخت",
+  "reportsClothPreviousRevenueLabel": "ماه قبل (درآمد رخت)",
+  "reportsClothDailyTrendLabel": "درآمد روزانه رخت",
+  "reportsClothRevenueByGarmentLabel": "درآمد بر اساس لباس",
+  "reportsClothBreakdownTitle": "تفکیک هزینه",
+  "reportsClothGarmentBreakdownSubtitle": "درآمد {revenue} · {meters}",
+  "@reportsClothGarmentBreakdownSubtitle": {
+    "placeholders": {
+      "revenue": { "type": "String" },
+      "meters": { "type": "String" }
+    }
+  },
   "ordersComposerItemPriceRequired": "قیمت قلم را وارد کنید",
   "ordersComposerItemReady": "آماده",
   "ordersComposerAddWaistcoatCta": "افزودن واسکت",

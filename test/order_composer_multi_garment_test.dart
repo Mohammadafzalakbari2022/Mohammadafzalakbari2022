@@ -31,7 +31,7 @@ void main() {
         filledItem(GarmentType.perahanTunban),
       );
       expect(draft.selectedGarmentTypes, [GarmentType.perahanTunban]);
-      expect(draft.totalMinor(), 500000);
+      expect(draft.totalMinor(clothBlockEnabled: true), 500000);
     });
 
     test('can create Waistcoat-only draft', () {
@@ -44,7 +44,7 @@ void main() {
             filledItem(GarmentType.waistcoat, price: 300000),
           );
       expect(draft.selectedGarmentTypes, [GarmentType.waistcoat]);
-      expect(draft.totalMinor(), 300000);
+      expect(draft.totalMinor(clothBlockEnabled: true), 300000);
     });
 
     test('can create both-items draft with summed total', () {
@@ -60,7 +60,7 @@ void main() {
             filledItem(GarmentType.waistcoat, price: 200000),
           );
       expect(draft.selectedGarmentTypes.length, 2);
-      expect(draft.totalMinor(), 600000);
+      expect(draft.totalMinor(clothBlockEnabled: true), 600000);
     });
 
     test('cannot deselect last garment type', () {
@@ -74,7 +74,11 @@ void main() {
       final next = draft.toggleGarment(GarmentType.perahanTunban, false);
       expect(next.hasAtLeastOneItem, isTrue);
       expect(
-        next.canSave(customerSelected: true, paidMinor: 0),
+        next.canSave(
+          customerSelected: true,
+          paidMinor: 0,
+          clothBlockEnabled: true,
+        ),
         isTrue,
       );
     });
@@ -86,7 +90,7 @@ void main() {
         filledItem(GarmentType.perahanTunban, price: 0),
       );
       expect(
-        draft.canSave(customerSelected: true, paidMinor: 0),
+        draft.canSave(customerSelected: true, paidMinor: 0, clothBlockEnabled: true),
         isTrue,
       );
     });
@@ -94,7 +98,7 @@ void main() {
     test('cannot save without customer', () {
       final draft = OrderComposerDraft.initial();
       expect(
-        draft.canSave(customerSelected: false, paidMinor: 0),
+        draft.canSave(customerSelected: false, paidMinor: 0, clothBlockEnabled: true),
         isFalse,
       );
     });
@@ -106,7 +110,7 @@ void main() {
         filledItem(GarmentType.perahanTunban, price: 100000),
       );
       expect(
-        draft.canSave(customerSelected: true, paidMinor: 200000),
+        draft.canSave(customerSelected: true, paidMinor: 200000, clothBlockEnabled: true),
         isFalse,
       );
       expect(

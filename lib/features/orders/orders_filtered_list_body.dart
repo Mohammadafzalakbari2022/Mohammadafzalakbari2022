@@ -15,7 +15,6 @@ import '../../data/local/entities/order_status.dart';
 import '../../data/local/style/order_shape_selection_formatter.dart';
 import '../../data/providers/local_data_providers.dart';
 import 'order_list_tile.dart';
-import 'order_composer_screen.dart';
 import 'order_payment_rules.dart';
 import 'orders_list_filter.dart';
 import 'orders_list_filter_provider.dart';
@@ -34,6 +33,7 @@ class OrdersFilteredListBody extends ConsumerStatefulWidget {
     this.showTopNewOrderButton = false,
     this.showBottomNewOrderButton = false,
     this.listDensity = OrdersFilteredListDensity.standard,
+    this.enableStatusActions = false,
   });
 
   /// Base branch path when clearing the customer filter chip, e.g. `/app/orders`.
@@ -42,6 +42,7 @@ class OrdersFilteredListBody extends ConsumerStatefulWidget {
   final bool showTopNewOrderButton;
   final bool showBottomNewOrderButton;
   final OrdersFilteredListDensity listDensity;
+  final bool enableStatusActions;
 
   @override
   ConsumerState<OrdersFilteredListBody> createState() =>
@@ -338,10 +339,8 @@ class _OrdersFilteredListBodyState extends ConsumerState<OrdersFilteredListBody>
                             styleSummary: o.styleSummary,
                           ).compactPreview
                         : null,
-                    onTap: () => context.go(
-                      orderComposerRoute(orderId: o.internalId),
-                    ),
-                    enableStatusActions: detailed,
+                    onTap: () => context.push('/app/orders/${o.internalId}'),
+                    enableStatusActions: widget.enableStatusActions,
                   );
                 },
               );

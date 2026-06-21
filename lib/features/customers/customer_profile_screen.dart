@@ -394,9 +394,8 @@ class CustomerProfileScreen extends ConsumerWidget {
                                   locale: locale,
                                   calendar: calendar,
                                   formatMoney: formatMoney,
-                                  onTap: () => context.go(
-                                    orderComposerRoute(orderId: o.internalId),
-                                  ),
+                                  onTap: () =>
+                                      context.push('/app/orders/${o.internalId}'),
                                 ),
                             ],
                           ),
@@ -475,6 +474,7 @@ OrderListTile _customerOrderHistoryTile({
       styleSummary: order.styleSummary,
     ).compactPreview,
     onTap: onTap,
+    enableStatusActions: true,
   );
 }
 

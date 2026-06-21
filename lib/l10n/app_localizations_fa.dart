@@ -1679,6 +1679,58 @@ class AppLocalizationsFa extends AppLocalizations {
   String get ordersComposerItemPriceLabel => 'قیمت قلم';
 
   @override
+  String ordersComposerGarmentPriceLabel(String garment) {
+    return 'قیمت $garment';
+  }
+
+  @override
+  String ordersComposerClothPriceLineLabel(String garment) {
+    return 'رخت $garment';
+  }
+
+  @override
+  String get reportsClothFinancingTitle => 'مالی رخت';
+
+  @override
+  String reportsClothFinancingCardSubtitle(String amount) {
+    return 'درآمد رخت این ماه: $amount';
+  }
+
+  @override
+  String get reportsClothFinancingEmpty => 'برای این ماه رخت ثبت نشده است.';
+
+  @override
+  String get reportsClothRevenueLabel => 'درآمد رخت';
+
+  @override
+  String get reportsClothMetersLabel => 'مجموع متراژ';
+
+  @override
+  String reportsClothMetersValue(String meters) {
+    return '$meters متر';
+  }
+
+  @override
+  String get reportsClothOrdersWithClothLabel => 'سفارش‌های دارای رخت';
+
+  @override
+  String get reportsClothPreviousRevenueLabel => 'ماه قبل (درآمد رخت)';
+
+  @override
+  String get reportsClothDailyTrendLabel => 'درآمد روزانه رخت';
+
+  @override
+  String get reportsClothRevenueByGarmentLabel => 'درآمد بر اساس لباس';
+
+  @override
+  String get reportsClothBreakdownTitle => 'تفکیک هزینه';
+
+  @override
+  String reportsClothGarmentBreakdownSubtitle(String revenue, String meters) {
+    return 'درآمد $revenue · $meters';
+  }
+
+  @override
   String get ordersComposerItemPriceRequired => 'قیمت قلم را وارد کنید';
 
   @override

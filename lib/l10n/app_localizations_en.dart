@@ -1689,6 +1689,59 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ordersComposerItemPriceLabel => 'Item price';
 
   @override
+  String ordersComposerGarmentPriceLabel(String garment) {
+    return '$garment price';
+  }
+
+  @override
+  String ordersComposerClothPriceLineLabel(String garment) {
+    return '$garment cloth';
+  }
+
+  @override
+  String get reportsClothFinancingTitle => 'Cloth financing';
+
+  @override
+  String reportsClothFinancingCardSubtitle(String amount) {
+    return 'Cloth revenue this month: $amount';
+  }
+
+  @override
+  String get reportsClothFinancingEmpty => 'No cloth recorded for this month.';
+
+  @override
+  String get reportsClothRevenueLabel => 'Cloth revenue';
+
+  @override
+  String get reportsClothMetersLabel => 'Total meters';
+
+  @override
+  String reportsClothMetersValue(String meters) {
+    return '$meters m';
+  }
+
+  @override
+  String get reportsClothOrdersWithClothLabel => 'Orders with cloth';
+
+  @override
+  String get reportsClothPreviousRevenueLabel =>
+      'Previous month (cloth revenue)';
+
+  @override
+  String get reportsClothDailyTrendLabel => 'Daily cloth revenue';
+
+  @override
+  String get reportsClothRevenueByGarmentLabel => 'Revenue by garment';
+
+  @override
+  String get reportsClothBreakdownTitle => 'Cost breakdown';
+
+  @override
+  String reportsClothGarmentBreakdownSubtitle(String revenue, String meters) {
+    return 'Revenue $revenue · $meters';
+  }
+
+  @override
   String get ordersComposerItemPriceRequired => 'Enter item price';
 
   @override

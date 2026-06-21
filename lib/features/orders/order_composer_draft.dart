@@ -24,12 +24,58 @@ class OrderComposerDraft {
 
   bool get hasAtLeastOneItem => selectedGarmentTypes.isNotEmpty;
 
-  int totalMinor() {
+  /// Cloth price counts toward total only when the cloth block is enabled and priced.
+  static bool clothCountsInPayment(
+    OrderItemDraft item, {
+    required bool clothBlockEnabled,
+  }) =>
+      clothBlockEnabled && item.clothPriceAmountMinor > 0;
+
+  static int clothPriceMinorForItem(
+    OrderItemDraft item, {
+    required bool clothBlockEnabled,
+  }) =>
+      clothCountsInPayment(item, clothBlockEnabled: clothBlockEnabled)
+          ? item.clothPriceAmountMinor
+          : 0;
+
+  int garmentPriceTotalMinor() {
     var sum = 0;
     for (final type in selectedGarmentTypes) {
       sum += items[type]!.priceAmountMinor;
     }
     return sum;
+  }
+
+  int clothPriceTotalMinor({required bool clothBlockEnabled}) {
+    if (!clothBlockEnabled) return 0;
+    var sum = 0;
+    for (final type in selectedGarmentTypes) {
+      sum += clothPriceMinorForItem(
+        items[type]!,
+        clothBlockEnabled: clothBlockEnabled,
+      );
+    }
+    return sum;
+  }
+
+  int totalMinor({required bool clothBlockEnabled}) {
+    return garmentPriceTotalMinor() +
+        clothPriceTotalMinor(clothBlockEnabled: clothBlockEnabled);
+  }
+
+  List<({GarmentType type, int amountMinor})> clothPaymentLines({
+    required bool clothBlockEnabled,
+  }) {
+    if (!clothBlockEnabled) return const [];
+    return [
+      for (final type in selectedGarmentTypes)
+        if (clothCountsInPayment(
+          items[type]!,
+          clothBlockEnabled: clothBlockEnabled,
+        ))
+          (type: type, amountMinor: items[type]!.clothPriceAmountMinor),
+    ];
   }
 
   bool measurementsDoneForAllIncluded() {
@@ -58,11 +104,12 @@ class OrderComposerDraft {
   bool canSave({
     required bool customerSelected,
     required int paidMinor,
+    required bool clothBlockEnabled,
   }) {
     if (!customerSelected) return false;
     if (!hasAtLeastOneItem) return false;
     if (paidMinor < 0) return false;
-    final total = totalMinor();
+    final total = totalMinor(clothBlockEnabled: clothBlockEnabled);
     if (total > 0 && paidMinor > total) return false;
     return true;
   }

@@ -735,6 +735,46 @@
   "garmentPerahanTunban": "Perahan/Tunban",
   "garmentWaistcoat": "Waistcoat",
   "ordersComposerItemPriceLabel": "Item price",
+  "ordersComposerGarmentPriceLabel": "{garment} price",
+  "@ordersComposerGarmentPriceLabel": {
+    "placeholders": {
+      "garment": { "type": "String" }
+    }
+  },
+  "ordersComposerClothPriceLineLabel": "{garment} cloth",
+  "@ordersComposerClothPriceLineLabel": {
+    "placeholders": {
+      "garment": { "type": "String" }
+    }
+  },
+  "reportsClothFinancingTitle": "Cloth financing",
+  "reportsClothFinancingCardSubtitle": "Cloth revenue this month: {amount}",
+  "@reportsClothFinancingCardSubtitle": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "reportsClothFinancingEmpty": "No cloth recorded for this month.",
+  "reportsClothRevenueLabel": "Cloth revenue",
+  "reportsClothMetersLabel": "Total meters",
+  "reportsClothMetersValue": "{meters} m",
+  "@reportsClothMetersValue": {
+    "placeholders": {
+      "meters": { "type": "String" }
+    }
+  },
+  "reportsClothOrdersWithClothLabel": "Orders with cloth",
+  "reportsClothPreviousRevenueLabel": "Previous month (cloth revenue)",
+  "reportsClothDailyTrendLabel": "Daily cloth revenue",
+  "reportsClothRevenueByGarmentLabel": "Revenue by garment",
+  "reportsClothBreakdownTitle": "Cost breakdown",
+  "reportsClothGarmentBreakdownSubtitle": "Revenue {revenue} · {meters}",
+  "@reportsClothGarmentBreakdownSubtitle": {
+    "placeholders": {
+      "revenue": { "type": "String" },
+      "meters": { "type": "String" }
+    }
+  },
   "ordersComposerItemPriceRequired": "Enter item price",
   "ordersComposerItemReady": "Ready",
   "ordersComposerAddWaistcoatCta": "Add waistcoat",

@@ -11,12 +11,10 @@ import 'package:pride_v3/core/calendar/date_calendar_system.dart';
 import 'package:pride_v3/app/app_theme.dart';
 import 'package:pride_v3/app/responsive_breakpoints.dart';
 import 'package:pride_v3/core/feedback/app_feedback.dart';
-import 'package:pride_v3/core/widgets/pride_action_buttons.dart';
 import 'package:pride_v3/core/widgets/pride_close_button.dart';
 import 'package:pride_v3/core/widgets/pride_form_bottom_bar.dart';
 import 'package:pride_v3/core/widgets/pride_optional_field.dart';
 import 'package:pride_v3/core/widgets/pride_money_field.dart';
-import 'package:pride_v3/core/widgets/pride_alert_dialog.dart';
 import 'package:pride_v3/core/printing/thermal_print_order.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
@@ -44,6 +42,7 @@ import '../../data/providers/local_data_providers.dart';
 import '../../licensing/license_providers.dart';
 import '../../shell/shell_sync_providers.dart';
 import '../../data/local/style/style_order_selection.dart';
+import '../settings/composer_visibility_provider.dart';
 import 'order_composer_draft.dart';
 import 'order_composer_receipt_garment_block.dart';
 import 'order_composer_item_card.dart';
@@ -141,8 +140,10 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
   final _customerSearchController = TextEditingController();
 
   var _customerPrefillApplied = false;
-  var _referencePrefillApplied = false;
   var _orderEditPrefillApplied = false;
+
+  /// Avoids re-applying the same reference order payload.
+  String? _lastPrefilledReferenceId;
 
   /// When set, save updates this order instead of creating a new one.
   String? _editingOrderId;
@@ -333,9 +334,9 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     _draft = draft;
   }
 
-  int get _composerTotalMinor {
+  int _composerTotalMinor(bool clothBlockEnabled) {
     _syncItemPricesFromControllers();
-    return _draft.totalMinor();
+    return _draft.totalMinor(clothBlockEnabled: clothBlockEnabled);
   }
 
   int get _composerPaidMinor =>
@@ -349,11 +350,12 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     return isValidCustomerName(_customerSearchController.text);
   }
 
-  bool get _canSave {
+  bool _canSave(bool clothBlockEnabled) {
     _syncItemPricesFromControllers();
     return _draft.canSave(
       customerSelected: _hasCustomerForSave,
       paidMinor: _composerPaidMinor,
+      clothBlockEnabled: clothBlockEnabled,
     );
   }
 
@@ -398,6 +400,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
   void _applyCustomer(CustomerSummary c) {
     setState(() {
       _referenceOrderOverrideId = null;
+      _lastPrefilledReferenceId = null;
       _selectedCustomerId = c.internalId;
       _selectedCustomerName = c.name;
       _selectedCustomerPhone = c.phone;
@@ -405,6 +408,146 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       _clearItemDrafts();
       _customerSearchController.clear();
     });
+    _scheduleReferencePrefill();
+  }
+
+  Future<void> _scheduleReferencePrefill() async {
+    if (_editingOrderId != null || _selectedCustomerId == null || !mounted) {
+      return;
+    }
+    final editId = widget.initialOrderId?.trim();
+    if (editId != null && editId.isNotEmpty && !_orderEditPrefillApplied) {
+      return;
+    }
+    final asyncOrders = ref.read(ordersListStreamProvider);
+    if (asyncOrders.isLoading) return;
+
+    final customerId = _selectedCustomerId!;
+    final allOrders = asyncOrders.valueOrNull ?? const [];
+    final customerOrders = customerOrdersForReference(allOrders, customerId);
+    if (customerOrders.isEmpty) return;
+
+    String? refId = _referenceOrderOverrideId?.trim();
+    if (refId == null || refId.isEmpty) {
+      final navCustomer = widget.initialCustomerId?.trim();
+      final navRef = widget.initialReferenceOrderId?.trim();
+      if (navRef != null &&
+          navRef.isNotEmpty &&
+          navCustomer != null &&
+          navCustomer == customerId) {
+        refId = resolveInitialReferenceOrderId(
+          allOrders: allOrders,
+          customerId: customerId,
+          referenceOrderId: navRef,
+        );
+      }
+      refId ??= customerOrders.first.internalId;
+    }
+
+    final refOrder = resolveReferenceOrder(customerOrders, refId);
+    if (refOrder == null) return;
+    if (_lastPrefilledReferenceId == refOrder.internalId) return;
+
+    await _prefillFromReferenceOrder(refOrder);
+  }
+
+  Future<void> _prefillFromReferenceOrder(OrderSummary refOrder) async {
+    if (_editingOrderId != null || !mounted) return;
+    if (_lastPrefilledReferenceId == refOrder.internalId) return;
+
+    var myCatalog = ref.read(myCatalogStreamProvider).valueOrNull;
+    if (myCatalog == null) {
+      await ref.read(myCatalogStreamProvider.future);
+      myCatalog = ref.read(myCatalogStreamProvider).valueOrNull ?? const [];
+    }
+    var sharedCatalog = ref.read(sharedCatalogStreamProvider).valueOrNull;
+    if (sharedCatalog == null) {
+      await ref.read(sharedCatalogStreamProvider.future);
+      sharedCatalog =
+          ref.read(sharedCatalogStreamProvider).valueOrNull ?? const [];
+    }
+    if (!mounted) return;
+
+    bool catalogExists(String? id) =>
+        catalogItemExistsInLists(id, myCatalog!, sharedCatalog!);
+
+    final prefillData = buildReferencePrefillGarmentData(
+      refOrder,
+      catalogItemExists: catalogExists,
+    );
+
+    final enrichedDrafts = <GarmentType, OrderItemDraft>{};
+    for (final type in GarmentType.values) {
+      final data = prefillData[type]!;
+      if (!data.included) continue;
+      var draft = data.draft;
+      final refItem = referenceOrderItem(refOrder, type);
+      if (refItem != null && refItem.internalId.trim().isNotEmpty) {
+        final key = OrderItemSnapshotKey(
+          orderInternalId: refOrder.internalId,
+          orderItemInternalId: refItem.internalId,
+        );
+        var snap =
+            ref.read(orderItemMeasurementSnapshotProvider(key)).valueOrNull;
+        snap ??=
+            await ref.read(orderItemMeasurementSnapshotProvider(key).future);
+        if (!mounted) return;
+        final copy = buildItemMeasurementsCopy(refItem, snap);
+        if (copy != null) {
+          draft = applyMeasurementsCopyToDraft(draft, copy);
+        }
+      } else if (type == GarmentType.perahanTunban) {
+        var snap = ref
+            .read(orderMeasurementSnapshotProvider(refOrder.internalId))
+            .valueOrNull;
+        snap ??= await ref.read(
+          orderMeasurementSnapshotProvider(refOrder.internalId).future,
+        );
+        if (!mounted) return;
+        final copy = buildMeasurementsCopy(refOrder, snap);
+        if (copy != null) {
+          draft = applyMeasurementsCopyToDraft(draft, copy);
+        }
+      }
+      enrichedDrafts[type] = draft;
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _clearItemDrafts();
+      for (final type in GarmentType.values) {
+        if (!prefillData[type]!.included && _draft.items[type]!.included) {
+          _draft = _draft.toggleGarment(type, false);
+        }
+      }
+      for (final type in GarmentType.values) {
+        if (prefillData[type]!.included && !_draft.items[type]!.included) {
+          _draft = _draft.toggleGarment(type, true);
+        }
+      }
+      for (final type in GarmentType.values) {
+        final data = prefillData[type]!;
+        if (!data.included) continue;
+        _styleSelections[type] = data.styleSelection;
+        final draft = enrichedDrafts[type] ?? data.draft;
+        _itemPriceControllers[type]!.text =
+            draft.priceAmountMinor > 0 ? draft.priceAmountMinor.toString() : '';
+        _draft = _draft.updateItem(type, draft);
+        _itemCardExpanded[type] = true;
+      }
+      _referenceOrderOverrideId = refOrder.internalId;
+      _lastPrefilledReferenceId = refOrder.internalId;
+    });
+    _notifyFormRevision();
+  }
+
+  void _onReferenceOrderSelected(String id) {
+    setState(() => _referenceOrderOverrideId = id);
+    _lastPrefilledReferenceId = null;
+    final refOrder = _orderFromStream(id);
+    if (refOrder != null) {
+      _prefillFromReferenceOrder(refOrder);
+    }
   }
 
   void _attemptCustomerPrefill() {
@@ -421,7 +564,6 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     if (match != null) {
       _customerPrefillApplied = true;
       _applyCustomer(match);
-      _attemptReferencePrefill(match.internalId);
       return;
     }
 
@@ -437,31 +579,10 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     }
   }
 
-  void _attemptReferencePrefill(String customerId) {
-    if (_referencePrefillApplied || !mounted) return;
-    final initialRef = widget.initialReferenceOrderId;
-    if (initialRef == null || initialRef.trim().isEmpty) {
-      _referencePrefillApplied = true;
-      return;
-    }
-
-    final asyncOrders = ref.read(ordersListStreamProvider);
-    if (asyncOrders.isLoading) return;
-
-    final validId = resolveInitialReferenceOrderId(
-      allOrders: asyncOrders.valueOrNull ?? const [],
-      customerId: customerId,
-      referenceOrderId: initialRef,
-    );
-    _referencePrefillApplied = true;
-    if (validId != null) {
-      setState(() => _referenceOrderOverrideId = validId);
-    }
-  }
-
   void _clearSelectedCustomer() {
     setState(() {
       _referenceOrderOverrideId = null;
+      _lastPrefilledReferenceId = null;
       _selectedCustomerId = null;
       _selectedCustomerLabel = null;
       _selectedCustomerName = null;
@@ -487,24 +608,6 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
         ),
       );
     });
-  }
-
-  Future<void> _confirmReset(BuildContext context, AppLocalizations l10n) async {
-    final ok = await showPrideAlertDialog<bool>(
-      context: context,
-      icon: Icons.restart_alt_outlined,
-      title: l10n.ordersComposerResetTitle,
-      content: Text(l10n.ordersComposerResetBody),
-      actions: prideDialogCancelSave(
-        context: context,
-        onCancel: () => Navigator.of(context).pop(false),
-        onConfirm: () => Navigator.of(context).pop(true),
-        saveLabel: l10n.resetCta,
-        confirmVariant: PrideButtonVariant.warning,
-      ),
-    );
-    if (ok != true) return;
-    setState(_resetForm);
   }
 
   Future<void> _applyPreviousMeasurements(
@@ -896,7 +999,9 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     }
 
     _syncItemPricesFromControllers();
-    final totalMinor = _draft.totalMinor();
+    final clothBlockEnabled =
+        ref.read(composerVisibilitySettingsProvider).showClothBlock;
+    final totalMinor = _draft.totalMinor(clothBlockEnabled: clothBlockEnabled);
     var paidMinor = _composerPaidMinor;
     if (paidMinor < 0) paidMinor = 0;
     if (totalMinor > 0 && paidMinor > totalMinor) {
@@ -1087,6 +1192,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
 
   void _resetForm({bool confirm = true}) {
     _referenceOrderOverrideId = null;
+    _lastPrefilledReferenceId = null;
     _editingOrderId = null;
     _editingStatus = null;
     _orderEditPrefillApplied = false;
@@ -1115,6 +1221,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     required String deliveryLabel,
     required Map<String, int> referencePaidByOrderId,
     required bool paymentsLedgerLoaded,
+    required bool clothBlockEnabled,
   }) {
     final meta = <Widget>[
       _ComposerCustomerSearchSection(
@@ -1152,9 +1259,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
                   customerOrders,
                   referenceOrder?.internalId ??
                       customerOrders.first.internalId,
-                  (id) => setState(
-                    () => _referenceOrderOverrideId = id,
-                  ),
+                  _onReferenceOrderSelected,
                   _money,
                   referencePaidByOrderId,
                   paymentsLedgerLoaded,
@@ -1224,7 +1329,6 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
               draft: itemDraft,
               styleSelection: _styleSelections[type] ??
                   const StyleOrderSelection.empty(),
-              priceController: _itemPriceControllers[type]!,
               customerId: _selectedCustomerId,
               measurementProfiles: measurementProfiles,
               referenceOrder: referenceOrder,
@@ -1298,20 +1402,39 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       ListenableBuilder(
         listenable: _paymentFieldsListenable,
         builder: (context, _) {
-          final total = _composerTotalMinor;
+          final total = _composerTotalMinor(clothBlockEnabled);
           final paid = _composerPaidMinor;
           final remaining = OrderPaymentRules.remainingMinor(total, paid);
+          final clothLines =
+              _draft.clothPaymentLines(clothBlockEnabled: clothBlockEnabled);
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              for (final type in _draft.selectedGarmentTypes)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Text(
-                    '${composerGarmentLabel(l10n, type)}: ${_money(l10n, _draft.items[type]!.priceAmountMinor)}',
-                    style: Theme.of(context).textTheme.bodyMedium,
+              for (final type in _draft.selectedGarmentTypes) ...[
+                PrideMoneyField(
+                  controller: _itemPriceControllers[type]!,
+                  labelText: l10n.ordersComposerGarmentPriceLabel(
+                    composerGarmentLabel(l10n, type),
                   ),
                 ),
+                const SizedBox(height: 8),
+              ],
+              for (final line in clothLines) ...[
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                  title: Text(
+                    l10n.ordersComposerClothPriceLineLabel(
+                      composerGarmentLabel(l10n, line.type),
+                    ),
+                  ),
+                  trailing: Text(
+                    _money(l10n, line.amountMinor),
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                ),
+              ],
+              if (clothLines.isNotEmpty) const SizedBox(height: 4),
               Text(
                 '${l10n.paymentTotal}: ${_money(l10n, total)}',
                 style: Theme.of(context).textTheme.titleSmall,
@@ -1361,13 +1484,12 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       }
     });
     ref.listen(ordersListStreamProvider, (previous, next) {
-      if (_customerPrefillApplied &&
-          !_referencePrefillApplied &&
-          widget.initialReferenceOrderId != null &&
-          _selectedCustomerId != null &&
+      if (_selectedCustomerId != null &&
+          _lastPrefilledReferenceId == null &&
+          _editingOrderId == null &&
           next.hasValue) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          _attemptReferencePrefill(_selectedCustomerId!);
+          _scheduleReferencePrefill();
         });
       }
       if (!_orderEditPrefillApplied &&
@@ -1416,6 +1538,8 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
           )
         : const <String, int>{};
     final paymentsLedgerLoaded = asyncShopPayments.hasValue;
+    final clothBlockEnabled =
+        ref.watch(composerVisibilitySettingsProvider).showClothBlock;
     final measurementProfiles = _selectedCustomerId == null
         ? const <MeasurementProfileSummary>[]
         : ref
@@ -1435,6 +1559,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       deliveryLabel: deliveryLabel,
       referencePaidByOrderId: referencePaidByOrderId,
       paymentsLedgerLoaded: paymentsLedgerLoaded,
+      clothBlockEnabled: clothBlockEnabled,
     );
     return Scaffold(
       appBar: AppBar(
@@ -1445,12 +1570,6 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
         title: Text(
           _editingOrderId != null ? l10n.ordersEditTitle : l10n.ordersNewTitle,
         ),
-        actions: [
-          TextButton(
-            onPressed: () => _confirmReset(context, l10n),
-            child: Text(l10n.resetCta),
-          ),
-        ],
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
@@ -1502,7 +1621,9 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
                 : () => context.pop(),
             cancelLabel: MaterialLocalizations.of(context).cancelButtonLabel,
             primary: FilledButton.icon(
-              onPressed: _canSave ? () => _onSavePressed(context, l10n) : null,
+              onPressed: _canSave(clothBlockEnabled)
+                  ? () => _onSavePressed(context, l10n)
+                  : null,
               style: prideButtonStyle(context, PrideButtonVariant.add),
               icon: const Icon(Icons.check),
               label: Text(l10n.ordersComposerSaveCta),
@@ -1699,8 +1820,7 @@ class _ComposerRecentOrdersCard extends ConsumerWidget {
 
     return ordersAsync.when(
       data: (orders) {
-        final recent = orders
-            .where((o) => o.customerInternalId == customerId)
+        final recent = customerOrdersForReference(orders, customerId)
             .take(10)
             .toList();
         if (recent.isEmpty) return const SizedBox.shrink();
@@ -1738,9 +1858,24 @@ class _ComposerRecentOrdersCard extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  trailing: const Icon(Icons.chevron_right),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit_outlined),
+                        tooltip: l10n.ordersDetailEditCta,
+                        onPressed: () => context.go(
+                          orderComposerRoute(orderId: o.internalId),
+                        ),
+                      ),
+                      const Icon(Icons.chevron_right),
+                    ],
+                  ),
                   onTap: () => context.go(
-                    orderComposerRoute(orderId: o.internalId),
+                    orderComposerRoute(
+                      customerId: customerId,
+                      referenceOrderId: o.internalId,
+                    ),
                   ),
                 ),
                 if (o != recent.last) const Divider(height: 1),

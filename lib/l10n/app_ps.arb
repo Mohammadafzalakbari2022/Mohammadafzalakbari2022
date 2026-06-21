@@ -864,6 +864,46 @@
   "garmentPerahanTunban": "پېراهن‌تنبان",
   "garmentWaistcoat": "واسکټ",
   "ordersComposerItemPriceLabel": "د توکي بیه",
+  "ordersComposerGarmentPriceLabel": "د {garment} بیه",
+  "@ordersComposerGarmentPriceLabel": {
+    "placeholders": {
+      "garment": { "type": "String" }
+    }
+  },
+  "ordersComposerClothPriceLineLabel": "د {garment} رخت",
+  "@ordersComposerClothPriceLineLabel": {
+    "placeholders": {
+      "garment": { "type": "String" }
+    }
+  },
+  "reportsClothFinancingTitle": "د رخت مالي",
+  "reportsClothFinancingCardSubtitle": "د دې میاشتې د رخت عاید: {amount}",
+  "@reportsClothFinancingCardSubtitle": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "reportsClothFinancingEmpty": "په دې میاشت کې رخت ثبت شوی نه دی.",
+  "reportsClothRevenueLabel": "د رخت عاید",
+  "reportsClothMetersLabel": "ټول متره",
+  "reportsClothMetersValue": "{meters} m",
+  "@reportsClothMetersValue": {
+    "placeholders": {
+      "meters": { "type": "String" }
+    }
+  },
+  "reportsClothOrdersWithClothLabel": "رخت لرونکي امرونه",
+  "reportsClothPreviousRevenueLabel": "تیره میاشت (د رخت عاید)",
+  "reportsClothDailyTrendLabel": "ورځنی د رخت عاید",
+  "reportsClothRevenueByGarmentLabel": "عاید د جامې له مخې",
+  "reportsClothBreakdownTitle": "د لګښت تفصیل",
+  "reportsClothGarmentBreakdownSubtitle": "عاید {revenue} · {meters}",
+  "@reportsClothGarmentBreakdownSubtitle": {
+    "placeholders": {
+      "revenue": { "type": "String" },
+      "meters": { "type": "String" }
+    }
+  },
   "ordersComposerItemPriceRequired": "د توکي بیه ولیکئ",
   "ordersComposerItemReady": "چمتو",
   "ordersComposerAddWaistcoatCta": "واسکټ اضافه کړئ",

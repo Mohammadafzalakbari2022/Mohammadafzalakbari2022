@@ -84,6 +84,7 @@ class _CustomersOrdersTabScreenState
                 shellPathForCustomerChipClear: '/app/customers',
                 showTopNewOrderButton: true,
                 listDensity: OrdersFilteredListDensity.detailed,
+                enableStatusActions: true,
               ),
             ],
           ),

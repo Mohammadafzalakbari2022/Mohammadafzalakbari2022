@@ -1675,6 +1675,58 @@ class AppLocalizationsPs extends AppLocalizations {
   String get ordersComposerItemPriceLabel => 'د توکي بیه';
 
   @override
+  String ordersComposerGarmentPriceLabel(String garment) {
+    return 'د $garment بیه';
+  }
+
+  @override
+  String ordersComposerClothPriceLineLabel(String garment) {
+    return 'د $garment رخت';
+  }
+
+  @override
+  String get reportsClothFinancingTitle => 'د رخت مالي';
+
+  @override
+  String reportsClothFinancingCardSubtitle(String amount) {
+    return 'د دې میاشتې د رخت عاید: $amount';
+  }
+
+  @override
+  String get reportsClothFinancingEmpty => 'په دې میاشت کې رخت ثبت شوی نه دی.';
+
+  @override
+  String get reportsClothRevenueLabel => 'د رخت عاید';
+
+  @override
+  String get reportsClothMetersLabel => 'ټول متره';
+
+  @override
+  String reportsClothMetersValue(String meters) {
+    return '$meters m';
+  }
+
+  @override
+  String get reportsClothOrdersWithClothLabel => 'رخت لرونکي امرونه';
+
+  @override
+  String get reportsClothPreviousRevenueLabel => 'تیره میاشت (د رخت عاید)';
+
+  @override
+  String get reportsClothDailyTrendLabel => 'ورځنی د رخت عاید';
+
+  @override
+  String get reportsClothRevenueByGarmentLabel => 'عاید د جامې له مخې';
+
+  @override
+  String get reportsClothBreakdownTitle => 'د لګښت تفصیل';
+
+  @override
+  String reportsClothGarmentBreakdownSubtitle(String revenue, String meters) {
+    return 'عاید $revenue · $meters';
+  }
+
+  @override
   String get ordersComposerItemPriceRequired => 'د توکي بیه ولیکئ';
 
   @override

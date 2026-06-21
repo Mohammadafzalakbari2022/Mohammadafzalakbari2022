@@ -28,21 +28,23 @@ Future<OrderLocalStatus?> showOrderListStatusPicker({
     showDragHandle: true,
     builder: (ctx) {
       return SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              title: Text(l10n.ordersDetailChangeStatus),
-              subtitle: Text(l10n.ordersDetailChangeStatusSubtitle),
-            ),
-            for (final s in OrderLocalStatus.values)
-              if (s != current)
-                ListTile(
-                  title: Text(orderStatusLabel(s, l10n)),
-                  onTap: () => Navigator.of(ctx).pop(s),
-                ),
-            const SizedBox(height: 8),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: Text(l10n.ordersDetailChangeStatus),
+                subtitle: Text(l10n.ordersDetailChangeStatusSubtitle),
+              ),
+              for (final s in OrderLocalStatus.values)
+                if (s != current)
+                  ListTile(
+                    title: Text(orderStatusLabel(s, l10n)),
+                    onTap: () => Navigator.of(ctx).pop(s),
+                  ),
+              const SizedBox(height: 8),
+            ],
+          ),
         ),
       );
     },

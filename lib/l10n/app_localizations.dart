@@ -3146,6 +3146,90 @@ abstract class AppLocalizations {
   /// **'Item price'**
   String get ordersComposerItemPriceLabel;
 
+  /// No description provided for @ordersComposerGarmentPriceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{garment} price'**
+  String ordersComposerGarmentPriceLabel(String garment);
+
+  /// No description provided for @ordersComposerClothPriceLineLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{garment} cloth'**
+  String ordersComposerClothPriceLineLabel(String garment);
+
+  /// No description provided for @reportsClothFinancingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloth financing'**
+  String get reportsClothFinancingTitle;
+
+  /// No description provided for @reportsClothFinancingCardSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloth revenue this month: {amount}'**
+  String reportsClothFinancingCardSubtitle(String amount);
+
+  /// No description provided for @reportsClothFinancingEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No cloth recorded for this month.'**
+  String get reportsClothFinancingEmpty;
+
+  /// No description provided for @reportsClothRevenueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloth revenue'**
+  String get reportsClothRevenueLabel;
+
+  /// No description provided for @reportsClothMetersLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total meters'**
+  String get reportsClothMetersLabel;
+
+  /// No description provided for @reportsClothMetersValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{meters} m'**
+  String reportsClothMetersValue(String meters);
+
+  /// No description provided for @reportsClothOrdersWithClothLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders with cloth'**
+  String get reportsClothOrdersWithClothLabel;
+
+  /// No description provided for @reportsClothPreviousRevenueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous month (cloth revenue)'**
+  String get reportsClothPreviousRevenueLabel;
+
+  /// No description provided for @reportsClothDailyTrendLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily cloth revenue'**
+  String get reportsClothDailyTrendLabel;
+
+  /// No description provided for @reportsClothRevenueByGarmentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Revenue by garment'**
+  String get reportsClothRevenueByGarmentLabel;
+
+  /// No description provided for @reportsClothBreakdownTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost breakdown'**
+  String get reportsClothBreakdownTitle;
+
+  /// No description provided for @reportsClothGarmentBreakdownSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Revenue {revenue} · {meters}'**
+  String reportsClothGarmentBreakdownSubtitle(String revenue, String meters);
+
   /// No description provided for @ordersComposerItemPriceRequired.
   ///
   /// In en, this message translates to:

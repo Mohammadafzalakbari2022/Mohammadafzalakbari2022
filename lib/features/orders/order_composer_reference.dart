@@ -10,6 +10,7 @@ import 'package:pride_v3/data/local/order_measurement_snapshot_view.dart';
 import 'package:pride_v3/core/calendar/date_calendar_system.dart';
 import 'package:pride_v3/data/local/catalog_item_summary.dart';
 import 'package:pride_v3/data/local/entities/garment_type.dart';
+import 'package:pride_v3/data/local/order_item_draft.dart';
 import 'package:pride_v3/data/local/order_item_snapshot_key.dart';
 import 'package:pride_v3/data/local/order_item_summary.dart';
 import 'package:pride_v3/data/local/order_summary.dart';
@@ -313,6 +314,120 @@ ReferenceFabricCopy? buildFabricCopy(OrderSummary order) {
     fabricColorPresetInternalId: order.fabricColorPresetInternalId,
   );
 }
+/// Garment types present on a reference order (legacy flat orders count as Perahan).
+List<GarmentType> garmentTypesOnReferenceOrder(OrderSummary order) {
+  final types = <GarmentType>[];
+  for (final type in GarmentType.values) {
+    if (referenceOrderItem(order, type) != null) {
+      types.add(type);
+    }
+  }
+  if (types.isEmpty) return const [GarmentType.perahanTunban];
+  return types;
+}
+
+/// Per-garment draft + style selection copied from a reference order item.
+class ReferencePrefillGarmentData {
+  const ReferencePrefillGarmentData({
+    required this.included,
+    required this.draft,
+    required this.styleSelection,
+  });
+
+  final bool included;
+  final OrderItemDraft draft;
+  final StyleOrderSelection styleSelection;
+}
+
+OrderItemDraft orderItemDraftFromReferenceItem(OrderItemSummary item) {
+  return OrderItemDraft(
+    garmentType: item.garmentType,
+    included: true,
+    priceAmountMinor: item.priceAmountMinor,
+    itemNotes: item.itemNotes,
+    measurementsSnapshot: item.measurementsSnapshot,
+    sourceMeasurementProfileId: item.sourceMeasurementProfileId,
+    sourceMeasurementProfileLabel: item.sourceMeasurementProfileLabel,
+    styleName: item.styleName,
+    styleNameInternalId: item.styleNameInternalId,
+    styleSelectionJson: item.styleSelectionJson,
+    styleSummary: item.styleSummary,
+    catalogItemInternalId: item.catalogItemInternalId,
+    catalogDesignName: item.catalogDesignNameSnapshot,
+    catalogDesignerShopName: item.catalogDesignerShopNameSnapshot,
+    catalogImagePath: item.catalogImagePathSnapshot,
+    catalogThumbnailPath: item.catalogThumbnailPathSnapshot,
+    fabricName: item.fabricNameSnapshot,
+    fabricColor: item.fabricColorSnapshot,
+    fabricId: item.fabricIdSnapshot,
+    fabricNamePresetInternalId: item.fabricNamePresetInternalId,
+    fabricColorPresetInternalId: item.fabricColorPresetInternalId,
+    clothMeters: item.clothMetersSnapshot,
+    clothPriceAmountMinor: item.clothPriceAmountMinor,
+  );
+}
+
+OrderItemDraft applyDesignCopyToDraft(
+  OrderItemDraft draft,
+  ReferenceDesignCopy copy,
+) {
+  return draft.copyWith(
+    catalogItemInternalId: copy.catalogItemInternalId,
+    catalogDesignName: copy.catalogDesignName,
+    catalogDesignerShopName: copy.catalogDesignerShopName,
+    catalogImagePath: copy.catalogImagePath,
+    catalogThumbnailPath: copy.catalogThumbnailPath,
+  );
+}
+
+OrderItemDraft applyMeasurementsCopyToDraft(
+  OrderItemDraft draft,
+  ReferenceMeasurementsCopy copy,
+) {
+  return draft.copyWith(
+    measurementsSnapshot: copy.snapshotText,
+    measurementSnapshotItems:
+        List<OrderMeasurementSnapshotItemInput>.of(copy.items),
+    sourceMeasurementProfileId: null,
+    sourceMeasurementProfileLabel: '',
+  );
+}
+
+/// Builds sync prefill payloads per garment (catalog id resolved via [catalogItemExists]).
+Map<GarmentType, ReferencePrefillGarmentData> buildReferencePrefillGarmentData(
+  OrderSummary ref, {
+  required bool Function(String? catalogItemInternalId) catalogItemExists,
+}) {
+  final result = <GarmentType, ReferencePrefillGarmentData>{};
+  for (final type in GarmentType.values) {
+    final refItem = referenceOrderItem(ref, type);
+    if (refItem == null) {
+      result[type] = ReferencePrefillGarmentData(
+        included: false,
+        draft: OrderItemDraft.empty(type),
+        styleSelection: const StyleOrderSelection.empty(),
+      );
+      continue;
+    }
+    var draft = orderItemDraftFromReferenceItem(refItem);
+    if (type == GarmentType.perahanTunban) {
+      final exists = catalogItemExists(refItem.catalogItemInternalId);
+      final designCopy = buildItemDesignCopy(refItem, catalogItemExists: exists) ??
+          buildItemDesignCopy(refItem, catalogItemExists: false);
+      if (designCopy != null) {
+        draft = applyDesignCopyToDraft(draft, designCopy);
+      }
+    }
+    result[type] = ReferencePrefillGarmentData(
+      included: true,
+      draft: draft,
+      styleSelection:
+          StyleOrderSelection.fromJsonString(refItem.styleSelectionJson),
+    );
+  }
+  return result;
+}
+
 OrderItemSummary? referenceOrderItem(
   OrderSummary order,
   GarmentType garmentType,

@@ -12,6 +12,7 @@ import '../../data/providers/local_data_providers.dart';
 import '../orders/order_status_label.dart';
 import 'report_money_format.dart';
 import 'report_calculations.dart';
+import 'report_cloth_calculations.dart';
 import 'reports_open_orders.dart';
 
 String? _ordersStatusSummaryLine(
@@ -62,6 +63,11 @@ class ReportsTabScreen extends ConsumerWidget {
             final now = DateTime.now();
             final monthIncome = ReportCalculations.monthPaymentIncome(
               payments: payments,
+              now: now,
+              calendar: calendar,
+            );
+            final monthClothRevenue = ReportClothCalculations.monthRevenue(
+              orders: orders,
               now: now,
               calendar: calendar,
             );
@@ -128,6 +134,15 @@ class ReportsTabScreen extends ConsumerWidget {
                   title: l10n.reportsDeliveredCardTitle,
                   subtitle: l10n.reportsDeliveredCardSubtitle,
                   onTap: () => context.push('/app/reports/delivered'),
+                ),
+                PrideNavCardTile(
+                  icon: Icons.checkroom_outlined,
+                  colorIndex: 7,
+                  title: l10n.reportsClothFinancingTitle,
+                  subtitle: l10n.reportsClothFinancingCardSubtitle(
+                    reportFormatMoney(l10n, monthClothRevenue),
+                  ),
+                  onTap: () => context.push('/app/reports/cloth-financing'),
                 ),
                 PrideNavCardTile(
                   icon: Icons.receipt_long_outlined,

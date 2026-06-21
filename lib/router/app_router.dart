@@ -15,6 +15,7 @@ import '../features/catalog/catalog_new_design_screen.dart';
 import '../features/catalog/catalog_tab_screen.dart';
 import '../features/orders/order_composer_screen.dart';
 import '../features/orders/order_detail_screen.dart';
+import '../features/reports/cloth_financing_report_screen.dart';
 import '../features/reports/delivered_report_screen.dart';
 import '../features/reports/monthly_income_report_screen.dart';
 import '../features/reports/open_unpaid_report_screen.dart';
@@ -271,6 +272,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                     parentNavigatorKey: appRootNavigatorKey,
                     builder: (context, state) =>
                         const PaymentsLedgerReportScreen(),
+                  ),
+                  GoRoute(
+                    path: 'cloth-financing',
+                    parentNavigatorKey: appRootNavigatorKey,
+                    builder: (context, state) =>
+                        const ClothFinancingReportScreen(),
                   ),
                   GoRoute(
                     path: 'shop-finance',

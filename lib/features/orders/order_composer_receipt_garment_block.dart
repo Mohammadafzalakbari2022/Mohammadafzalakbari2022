@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pride_v3/core/widgets/pride_money_field.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../auth/auth_providers.dart';
@@ -17,7 +16,7 @@ import 'order_composer_item_card.dart';
 import 'order_composer_measurements_panel.dart';
 import 'order_composer_style_sheet.dart';
 
-/// Always-expanded per-garment receipt block (measurements, style, cloth, price).
+/// Always-expanded per-garment receipt block (measurements, style, cloth).
 class OrderComposerReceiptGarmentBlock extends ConsumerWidget {
   const OrderComposerReceiptGarmentBlock({
     super.key,
@@ -25,7 +24,6 @@ class OrderComposerReceiptGarmentBlock extends ConsumerWidget {
     required this.garmentType,
     required this.draft,
     required this.styleSelection,
-    required this.priceController,
     required this.onDraftChanged,
     required this.onStyleSelectionChanged,
     this.referenceOrder,
@@ -44,7 +42,6 @@ class OrderComposerReceiptGarmentBlock extends ConsumerWidget {
   final GarmentType garmentType;
   final OrderItemDraft draft;
   final StyleOrderSelection styleSelection;
-  final TextEditingController priceController;
   final ValueChanged<OrderItemDraft> onDraftChanged;
   final ValueChanged<StyleOrderSelection> onStyleSelectionChanged;
   final OrderSummary? referenceOrder;
@@ -233,36 +230,8 @@ class OrderComposerReceiptGarmentBlock extends ConsumerWidget {
               ),
             ],
           ],
-          const SizedBox(height: 8),
-          _ReceiptPriceField(
-            l10n: l10n,
-            controller: priceController,
-          ),
         ],
       ),
-    );
-  }
-}
-
-class _ReceiptPriceField extends StatefulWidget {
-  const _ReceiptPriceField({
-    required this.l10n,
-    required this.controller,
-  });
-
-  final AppLocalizations l10n;
-  final TextEditingController controller;
-
-  @override
-  State<_ReceiptPriceField> createState() => _ReceiptPriceFieldState();
-}
-
-class _ReceiptPriceFieldState extends State<_ReceiptPriceField> {
-  @override
-  Widget build(BuildContext context) {
-    return PrideMoneyField(
-      controller: widget.controller,
-      labelText: widget.l10n.ordersComposerItemPriceLabel,
     );
   }
 }

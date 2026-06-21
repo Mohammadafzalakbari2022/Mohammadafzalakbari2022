@@ -214,7 +214,6 @@ class _OrderComposerMeasurementsPanelState
           return const SizedBox.shrink();
         }
         final sorted = [...types]..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
-        final theme = Theme.of(context);
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -256,43 +255,96 @@ class _OrderComposerMeasurementsPanelState
                 ),
               ),
             const SizedBox(height: 8),
-            Table(
-              columnWidths: const {
-                0: FlexColumnWidth(2),
-                1: FixedColumnWidth(88),
-              },
-              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-              children: [
-                for (final t in sorted)
-                  TableRow(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8, bottom: 6),
-                        child: Text(
-                          t.name,
-                          style: theme.textTheme.bodyMedium,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 6),
-                        child: PrideNumericTextField(
-                          controller: _controllerFor(t.internalId),
-                          maxLength: 5,
-                          textAlign: TextAlign.center,
-                          dense: true,
-                        ),
-                      ),
-                    ],
-                  ),
-              ],
+            _TwoColumnMeasurementsGrid(
+              types: sorted,
+              controllerFor: _controllerFor,
             ),
           ],
         );
       },
       loading: () => const LinearProgressIndicator(),
       error: (e, _) => Text(widget.l10n.genericError),
+    );
+  }
+}
+
+class _TwoColumnMeasurementsGrid extends StatelessWidget {
+  const _TwoColumnMeasurementsGrid({
+    required this.types,
+    required this.controllerFor,
+  });
+
+  final List<MeasurementTypeSummary> types;
+  final TextEditingController Function(String typeId) controllerFor;
+
+  @override
+  Widget build(BuildContext context) {
+    if (types.isEmpty) return const SizedBox.shrink();
+    final splitAt = (types.length / 2).ceil().clamp(1, types.length);
+    final left = types.sublist(0, splitAt);
+    final right = types.sublist(splitAt);
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: _MeasurementFieldColumn(
+            types: left,
+            controllerFor: controllerFor,
+          ),
+        ),
+        if (right.isNotEmpty) ...[
+          const SizedBox(width: 12),
+          Expanded(
+            child: _MeasurementFieldColumn(
+              types: right,
+              controllerFor: controllerFor,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _MeasurementFieldColumn extends StatelessWidget {
+  const _MeasurementFieldColumn({
+    required this.types,
+    required this.controllerFor,
+  });
+
+  final List<MeasurementTypeSummary> types;
+  final TextEditingController Function(String typeId) controllerFor;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final t in types)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  t.name,
+                  style: theme.textTheme.bodySmall,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                PrideNumericTextField(
+                  controller: controllerFor(t.internalId),
+                  maxLength: 5,
+                  textAlign: TextAlign.center,
+                  dense: true,
+                ),
+              ],
+            ),
+          ),
+      ],
     );
   }
 }

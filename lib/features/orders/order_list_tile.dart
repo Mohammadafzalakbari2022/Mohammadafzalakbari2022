@@ -78,13 +78,17 @@ class OrderListTile extends ConsumerWidget {
           side: BorderSide(color: scheme.outlineVariant),
         ),
         clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(12, 10, 12, 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: InkWell(
+                onTap: onTap,
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(12, 10, 4, 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
                 if (showCustomerId) ...[
                   Align(
                     alignment: AlignmentDirectional.centerStart,
@@ -109,23 +113,6 @@ class OrderListTile extends ConsumerWidget {
                       background: scheme.primaryContainer,
                       foreground: scheme.onPrimaryContainer,
                     ),
-                    if (enableStatusActions)
-                      IconButton(
-                        visualDensity: VisualDensity.compact,
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(
-                          minWidth: 32,
-                          minHeight: 32,
-                        ),
-                        tooltip: l10n.ordersListChangeStatusTooltip,
-                        icon: const Icon(Icons.swap_horiz, size: 20),
-                        onPressed: () => changeOrderStatusFromList(
-                          context: context,
-                          ref: ref,
-                          l10n: l10n,
-                          order: order,
-                        ),
-                      ),
                     if (order.items.length > 1 ||
                         order.garmentSummaryKey.contains('+'))
                       _OrderListChip(
@@ -225,9 +212,32 @@ class OrderListTile extends ConsumerWidget {
                     ),
                   ),
                 ],
-              ],
+                    ],
+                  ),
+                ),
+              ),
             ),
-          ),
+            if (enableStatusActions)
+              Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(0, 4, 4, 4),
+                child: IconButton(
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(
+                    minWidth: 40,
+                    minHeight: 40,
+                  ),
+                  tooltip: l10n.ordersListChangeStatusTooltip,
+                  icon: const Icon(Icons.swap_horiz, size: 22),
+                  onPressed: () => changeOrderStatusFromList(
+                    context: context,
+                    ref: ref,
+                    l10n: l10n,
+                    order: order,
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );
