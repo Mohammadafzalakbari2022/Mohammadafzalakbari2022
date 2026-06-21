@@ -7,7 +7,9 @@ import 'package:pride_v3/core/formatting/app_number_format.dart';
 import 'package:pride_v3/core/calendar/app_calendar_format.dart';
 import 'package:pride_v3/core/calendar/app_date_picker.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
+import 'package:pride_v3/core/calendar/date_calendar_system.dart';
 import 'package:pride_v3/app/app_theme.dart';
+import 'package:pride_v3/app/responsive_breakpoints.dart';
 import 'package:pride_v3/core/feedback/app_feedback.dart';
 import 'package:pride_v3/core/widgets/pride_action_buttons.dart';
 import 'package:pride_v3/core/widgets/pride_close_button.dart';
@@ -129,16 +131,6 @@ class OrderComposerScreen extends ConsumerStatefulWidget {
 }
 
 const _kComposerSectionGap = 10.0;
-
-EdgeInsets _composerScrollPadding(BuildContext context) {
-  final safe = MediaQuery.paddingOf(context);
-  return EdgeInsets.fromLTRB(
-    safe.left > 0 ? safe.left : 8,
-    8,
-    safe.right > 0 ? safe.right : 8,
-    96,
-  );
-}
 
 class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
   final _customerSearchController = TextEditingController();
@@ -1087,6 +1079,255 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     _clearItemDrafts();
   }
 
+  ({
+    List<Widget> meta,
+    List<Widget> garments,
+    List<Widget> footer,
+  }) _composerLayoutSections({
+    required AppLocalizations l10n,
+    required String locale,
+    required DateCalendarSystem calendar,
+    required List<OrderSummary> ordersForRef,
+    required List<CustomerSummary> customersForSearch,
+    required OrderSummary? referenceOrder,
+    required List<MeasurementProfileSummary> measurementProfiles,
+    required String deliveryLabel,
+    required Map<String, int> referencePaidByOrderId,
+    required bool paymentsLedgerLoaded,
+  }) {
+    final meta = <Widget>[
+      _ComposerCustomerSearchSection(
+        l10n: l10n,
+        searchController: _customerSearchController,
+        customers: customersForSearch,
+        selectedCustomerId: _selectedCustomerId,
+        selectedCustomerLabel: _selectedCustomerLabel,
+        onCustomerSelected: _applyCustomer,
+        onClearCustomer: _clearSelectedCustomer,
+        onNewCustomerName: (name) {
+          _selectedCustomerName = name;
+          _selectedCustomerLabel = name;
+          _notifyFormRevision();
+        },
+      ),
+      if (_selectedCustomerId != null) ...[
+        Builder(
+          builder: (context) {
+            final customerOrders = customerOrdersForReference(
+              ordersForRef,
+              _selectedCustomerId!,
+            );
+            if (customerOrders.length <= 1) {
+              return const SizedBox.shrink();
+            }
+            return Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton.icon(
+                onPressed: () => showComposerReferenceOrderPicker(
+                  context,
+                  l10n,
+                  calendar,
+                  locale,
+                  customerOrders,
+                  referenceOrder?.internalId ??
+                      customerOrders.first.internalId,
+                  (id) => setState(
+                    () => _referenceOrderOverrideId = id,
+                  ),
+                  _money,
+                  referencePaidByOrderId,
+                  paymentsLedgerLoaded,
+                ),
+                icon: const Icon(Icons.swap_horiz, size: 18),
+                label: Text(l10n.ordersComposerChangeReferenceOrderCta),
+              ),
+            );
+          },
+        ),
+      ],
+      if (_editingOrderId != null && _editingStatus != null) ...[
+        const SizedBox(height: _kComposerSectionGap),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: DropdownButtonFormField<OrderLocalStatus>(
+            value: _editingStatus,
+            decoration: InputDecoration(
+              labelText: l10n.ordersAuditStatus,
+              border: const OutlineInputBorder(),
+              isDense: true,
+            ),
+            items: [
+              for (final s in OrderLocalStatus.values)
+                DropdownMenuItem(
+                  value: s,
+                  child: Text(orderStatusLabel(s, l10n)),
+                ),
+            ],
+            onChanged: (v) {
+              if (v == null) return;
+              setState(() => _editingStatus = v);
+            },
+          ),
+        ),
+      ],
+      const SizedBox(height: _kComposerSectionGap),
+      Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          for (final type in GarmentType.values)
+            FilterChip(
+              avatar: Icon(
+                composerGarmentIcon(type),
+                size: 18,
+              ),
+              label: Text(composerGarmentLabel(l10n, type)),
+              selected: _draft.items[type]!.included,
+              onSelected: (v) => _onGarmentChipSelected(type, v),
+            ),
+        ],
+      ),
+    ];
+
+    final garments = <Widget>[
+      for (final type in _draft.selectedGarmentTypes)
+        Builder(
+          builder: (context) {
+            final itemDraft = _itemDraft(type);
+            final refItem = referenceOrder != null
+                ? referenceOrderItem(referenceOrder, type)
+                : null;
+            return OrderComposerReceiptGarmentBlock(
+              l10n: l10n,
+              garmentType: type,
+              draft: itemDraft,
+              styleSelection: _styleSelections[type] ??
+                  const StyleOrderSelection.empty(),
+              priceController: _itemPriceControllers[type]!,
+              customerId: _selectedCustomerId,
+              measurementProfiles: measurementProfiles,
+              referenceOrder: referenceOrder,
+              referenceItem: refItem,
+              moneyFormatter: _money,
+              onDraftChanged: (next) {
+                _draft = _draft.updateItem(type, next);
+                _notifyFormRevision();
+              },
+              onStyleSelectionChanged: (selection) {
+                _styleSelections[type] = selection;
+                _notifyFormRevision();
+              },
+              onUsePreviousMeasurements: referenceOrder != null
+                  ? () => _applyPreviousMeasurements(
+                        referenceOrder,
+                        type,
+                      )
+                  : null,
+              onUsePreviousStyle: referenceOrder != null
+                  ? () => _applyPreviousStyle(referenceOrder, type)
+                  : null,
+              onUsePreviousDesign: referenceOrder != null &&
+                      type == GarmentType.perahanTunban
+                  ? () => _applyPreviousDesign(referenceOrder)
+                  : null,
+              onUsePreviousFabric: referenceOrder != null
+                  ? () => _applyPreviousFabric(referenceOrder, type)
+                  : null,
+              onUseSameFabric: type == GarmentType.waistcoat &&
+                      _draft.items[GarmentType.perahanTunban]!.included &&
+                      _draft.items[GarmentType.perahanTunban]!.hasFabric
+                  ? _copyFabricFromPerahanToWaistcoat
+                  : null,
+            );
+          },
+        ),
+    ];
+
+    final footer = <Widget>[
+      const SizedBox(height: _kComposerSectionGap),
+      PrideOptionalPanel(
+        isEmpty: _deliveryDate == null,
+        padding: EdgeInsets.zero,
+        child: OutlinedButton.icon(
+          onPressed: () async {
+            final now = DateTime.now();
+            final date = await showAppDatePicker(
+              context: context,
+              l10n: l10n,
+              system: calendar,
+              initialDate: _deliveryDate ??
+                  now.add(const Duration(days: 2)),
+              firstDate: DateTime(now.year - 1),
+              lastDate: DateTime(now.year + 3),
+            );
+            if (date == null || !mounted) return;
+            setState(
+              () => _deliveryDate = DateTime(
+                date.year,
+                date.month,
+                date.day,
+              ),
+            );
+          },
+          icon: const Icon(Icons.event_outlined),
+          label: Text(deliveryLabel),
+        ),
+      ),
+      const SizedBox(height: _kComposerSectionGap),
+      ListenableBuilder(
+        listenable: _paymentFieldsListenable,
+        builder: (context, _) {
+          final total = _composerTotalMinor;
+          final paid = _composerPaidMinor;
+          final remaining = OrderPaymentRules.remainingMinor(total, paid);
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final type in _draft.selectedGarmentTypes)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Text(
+                    '${composerGarmentLabel(l10n, type)}: ${_money(l10n, _draft.items[type]!.priceAmountMinor)}',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ),
+              Text(
+                '${l10n.paymentTotal}: ${_money(l10n, total)}',
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              const SizedBox(height: 8),
+              PrideOptionalPanel(
+                isEmpty: paid <= 0 && total <= 0,
+                padding: EdgeInsets.zero,
+                child: PrideMoneyField(
+                  controller: _paidController,
+                  labelText: l10n.paymentPaid,
+                ),
+              ),
+              if (total > 0 && remaining > 0)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(
+                    '${l10n.ordersComposerStillOwedLabel}: ${_money(l10n, remaining)}',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ),
+            ],
+          );
+        },
+      ),
+      const SizedBox(height: _kComposerSectionGap),
+      if (_selectedCustomerId != null && !widget.isTabRoot)
+        _ComposerRecentOrdersCard(
+          customerId: _selectedCustomerId!,
+          l10n: l10n,
+          money: _money,
+        ),
+    ];
+
+    return (meta: meta, garments: garments, footer: footer);
+  }
+
   @override
   Widget build(BuildContext context) {
     ref.listen(customersListStreamProvider, (previous, next) {
@@ -1162,6 +1403,18 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
                 )
                 .valueOrNull ??
             const <MeasurementProfileSummary>[];
+    final sections = _composerLayoutSections(
+      l10n: l10n,
+      locale: locale,
+      calendar: calendar,
+      ordersForRef: ordersForRef,
+      customersForSearch: customersForSearch,
+      referenceOrder: referenceOrder,
+      measurementProfiles: measurementProfiles,
+      deliveryLabel: deliveryLabel,
+      referencePaidByOrderId: referencePaidByOrderId,
+      paymentsLedgerLoaded: paymentsLedgerLoaded,
+    );
     return Scaffold(
       appBar: AppBar(
         leading: widget.isTabRoot
@@ -1176,232 +1429,46 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
           ),
         ],
       ),
-      body: ListView(
-        padding: _composerScrollPadding(context),
-        children: [
-          _ComposerCustomerSearchSection(
-            l10n: l10n,
-            searchController: _customerSearchController,
-            customers: customersForSearch,
-            selectedCustomerId: _selectedCustomerId,
-            selectedCustomerLabel: _selectedCustomerLabel,
-            onCustomerSelected: _applyCustomer,
-            onClearCustomer: _clearSelectedCustomer,
-            onNewCustomerName: (name) {
-              _selectedCustomerName = name;
-              _selectedCustomerLabel = name;
-              _notifyFormRevision();
-            },
-          ),
-          if (_selectedCustomerId != null) ...[
-            Builder(
-              builder: (context) {
-                final customerOrders = customerOrdersForReference(
-                  ordersForRef,
-                  _selectedCustomerId!,
-                );
-                if (customerOrders.length <= 1) {
-                  return const SizedBox.shrink();
-                }
-                return Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: TextButton.icon(
-                    onPressed: () => showComposerReferenceOrderPicker(
-                      context,
-                      l10n,
-                      calendar,
-                      locale,
-                      customerOrders,
-                      referenceOrder?.internalId ??
-                          customerOrders.first.internalId,
-                      (id) => setState(
-                        () => _referenceOrderOverrideId = id,
-                      ),
-                      _money,
-                      referencePaidByOrderId,
-                      paymentsLedgerLoaded,
-                    ),
-                    icon: const Icon(Icons.swap_horiz, size: 18),
-                    label: Text(l10n.ordersComposerChangeReferenceOrderCta),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final padding = prideComposerScrollPadding(context);
+          if (!prideIsTabletOrWider(constraints.maxWidth)) {
+            return ListView(
+              padding: padding,
+              children: [
+                ...sections.meta,
+                ...sections.garments,
+                ...sections.footer,
+              ],
+            );
+          }
+          return SingleChildScrollView(
+            padding: padding,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      ...sections.meta,
+                      ...sections.footer,
+                    ],
                   ),
-                );
-              },
-            ),
-          ],
-          if (_editingOrderId != null && _editingStatus != null) ...[
-            const SizedBox(height: _kComposerSectionGap),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: DropdownButtonFormField<OrderLocalStatus>(
-                value: _editingStatus,
-                decoration: InputDecoration(
-                  labelText: l10n.ordersAuditStatus,
-                  border: const OutlineInputBorder(),
-                  isDense: true,
                 ),
-                items: [
-                  for (final s in OrderLocalStatus.values)
-                    DropdownMenuItem(
-                      value: s,
-                      child: Text(orderStatusLabel(s, l10n)),
-                    ),
-                ],
-                onChanged: (v) {
-                  if (v == null) return;
-                  setState(() => _editingStatus = v);
-                },
-              ),
-            ),
-          ],
-          const SizedBox(height: _kComposerSectionGap),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final type in GarmentType.values)
-                FilterChip(
-                  avatar: Icon(
-                    composerGarmentIcon(type),
-                    size: 18,
+                const SizedBox(width: 16),
+                Expanded(
+                  flex: 3,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: sections.garments,
                   ),
-                  label: Text(composerGarmentLabel(l10n, type)),
-                  selected: _draft.items[type]!.included,
-                  onSelected: (v) => _onGarmentChipSelected(type, v),
                 ),
-            ],
-          ),
-          for (final type in _draft.selectedGarmentTypes) ...[
-            Builder(
-              builder: (context) {
-                final itemDraft = _itemDraft(type);
-                final refItem = referenceOrder != null
-                    ? referenceOrderItem(referenceOrder, type)
-                    : null;
-                return OrderComposerReceiptGarmentBlock(
-                  l10n: l10n,
-                  garmentType: type,
-                  draft: itemDraft,
-                  styleSelection: _styleSelections[type] ??
-                      const StyleOrderSelection.empty(),
-                  priceController: _itemPriceControllers[type]!,
-                  customerId: _selectedCustomerId,
-                  measurementProfiles: measurementProfiles,
-                  referenceOrder: referenceOrder,
-                  referenceItem: refItem,
-                  moneyFormatter: _money,
-                  onDraftChanged: (next) {
-                    _draft = _draft.updateItem(type, next);
-                    _notifyFormRevision();
-                  },
-                  onStyleSelectionChanged: (selection) {
-                    _styleSelections[type] = selection;
-                    _notifyFormRevision();
-                  },
-                  onUsePreviousMeasurements: referenceOrder != null
-                      ? () => _applyPreviousMeasurements(
-                            referenceOrder,
-                            type,
-                          )
-                      : null,
-                  onUsePreviousStyle: referenceOrder != null
-                      ? () => _applyPreviousStyle(referenceOrder, type)
-                      : null,
-                  onUsePreviousDesign: referenceOrder != null &&
-                          type == GarmentType.perahanTunban
-                      ? () => _applyPreviousDesign(referenceOrder)
-                      : null,
-                  onUsePreviousFabric: referenceOrder != null
-                      ? () => _applyPreviousFabric(referenceOrder, type)
-                      : null,
-                  onUseSameFabric: type == GarmentType.waistcoat &&
-                          _draft.items[GarmentType.perahanTunban]!.included &&
-                          _draft.items[GarmentType.perahanTunban]!.hasFabric
-                      ? _copyFabricFromPerahanToWaistcoat
-                      : null,
-                );
-              },
+              ],
             ),
-          ],
-          const SizedBox(height: _kComposerSectionGap),
-          PrideOptionalPanel(
-            isEmpty: _deliveryDate == null,
-            padding: EdgeInsets.zero,
-            child: OutlinedButton.icon(
-              onPressed: () async {
-                final now = DateTime.now();
-                final date = await showAppDatePicker(
-                  context: context,
-                  l10n: l10n,
-                  system: calendar,
-                  initialDate: _deliveryDate ??
-                      now.add(const Duration(days: 2)),
-                  firstDate: DateTime(now.year - 1),
-                  lastDate: DateTime(now.year + 3),
-                );
-                if (date == null || !mounted) return;
-                setState(
-                  () => _deliveryDate = DateTime(
-                    date.year,
-                    date.month,
-                    date.day,
-                  ),
-                );
-              },
-              icon: const Icon(Icons.event_outlined),
-              label: Text(deliveryLabel),
-            ),
-          ),
-          const SizedBox(height: _kComposerSectionGap),
-          ListenableBuilder(
-            listenable: _paymentFieldsListenable,
-            builder: (context, _) {
-              final total = _composerTotalMinor;
-              final paid = _composerPaidMinor;
-              final remaining = OrderPaymentRules.remainingMinor(total, paid);
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  for (final type in _draft.selectedGarmentTypes)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 4),
-                      child: Text(
-                        '${composerGarmentLabel(l10n, type)}: ${_money(l10n, _draft.items[type]!.priceAmountMinor)}',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ),
-                  Text(
-                    '${l10n.paymentTotal}: ${_money(l10n, total)}',
-                    style: Theme.of(context).textTheme.titleSmall,
-                  ),
-                  const SizedBox(height: 8),
-                  PrideOptionalPanel(
-                    isEmpty: paid <= 0 && total <= 0,
-                    padding: EdgeInsets.zero,
-                    child: PrideMoneyField(
-                      controller: _paidController,
-                      labelText: l10n.paymentPaid,
-                    ),
-                  ),
-                  if (total > 0 && remaining > 0)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: Text(
-                        '${l10n.ordersComposerStillOwedLabel}: ${_money(l10n, remaining)}',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ),
-                ],
-              );
-            },
-          ),
-          const SizedBox(height: _kComposerSectionGap),
-          if (_selectedCustomerId != null && !widget.isTabRoot)
-            _ComposerRecentOrdersCard(
-              customerId: _selectedCustomerId!,
-              l10n: l10n,
-              money: _money,
-            ),
-        ],
+          );
+        },
       ),
       bottomNavigationBar: ListenableBuilder(
         listenable: _composerFormListenable,

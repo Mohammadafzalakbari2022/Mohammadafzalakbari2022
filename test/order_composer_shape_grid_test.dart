@@ -17,9 +17,13 @@ void main() {
       expect(orderComposerShapeGridColumns(600), 4);
     });
 
-    test('uses five columns on tablet width', () {
-      expect(orderComposerShapeGridColumns(720), 5);
-      expect(orderComposerShapeGridColumns(900), 5);
+    test('uses six columns on tablet width', () {
+      expect(orderComposerShapeGridColumns(720), 6);
+      expect(orderComposerShapeGridColumns(899), 6);
+    });
+
+    test('uses seven columns on wide tablet / desktop', () {
+      expect(orderComposerShapeGridColumns(900), 7);
     });
   });
 }

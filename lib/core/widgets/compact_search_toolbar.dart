@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pride_v3/app/responsive_breakpoints.dart';
 
 /// Icon-first search row: tap search to expand a [SearchBar]; optional filter action.
 class CompactSearchToolbar extends StatefulWidget {
@@ -55,8 +56,10 @@ class _CompactSearchToolbarState extends State<CompactSearchToolbar> {
     final hasQuery = widget.searchController.text.isNotEmpty;
     final searchActive = _searchExpanded || hasQuery;
 
+    final horizontal =
+        prideContentHorizontalPadding(MediaQuery.sizeOf(context).width);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+      padding: EdgeInsets.fromLTRB(horizontal, 8, horizontal, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

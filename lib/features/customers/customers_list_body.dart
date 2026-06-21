@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pride_v3/core/formatting/app_number_format.dart';
 import 'package:pride_v3/app/app_theme.dart';
+import 'package:pride_v3/app/responsive_breakpoints.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
 import 'package:pride_v3/core/widgets/compact_search_toolbar.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
@@ -71,7 +72,7 @@ class _CustomersListBodyState extends ConsumerState<CustomersListBody> {
 
   Widget _primaryAddCustomerButton(AppLocalizations l10n) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+      padding: prideListScreenPadding(context),
       child: SizedBox(
         width: double.infinity,
         child: FilledButton.icon(

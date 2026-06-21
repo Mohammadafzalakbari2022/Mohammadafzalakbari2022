@@ -11,9 +11,10 @@ import '../../data/local/style_figure_text_option_summary.dart';
 import '../settings/style/style_figure_image.dart';
 import 'order_composer_shape_config_draft.dart';
 
-/// Responsive column count for the order style shape grid (~4–5 on phone).
+/// Responsive column count for the order style shape grid (~4–7 by width).
 int orderComposerShapeGridColumns(double width) {
-  if (width >= 720) return 5;
+  if (width >= 900) return 7;
+  if (width >= 720) return 6;
   if (width >= 520) return 4;
   if (width >= 360) return 3;
   return 2;

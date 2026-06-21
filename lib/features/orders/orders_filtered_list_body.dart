@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pride_v3/app/app_theme.dart';
+import 'package:pride_v3/app/responsive_breakpoints.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pride_v3/core/formatting/app_number_format.dart';
@@ -152,7 +153,7 @@ class _OrdersFilteredListBodyState extends ConsumerState<OrdersFilteredListBody>
 
   Widget _primaryNewOrderButtons(AppLocalizations l10n) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+      padding: prideListScreenPadding(context),
       child: SizedBox(
         width: double.infinity,
         child: FilledButton.icon(
@@ -201,7 +202,12 @@ class _OrdersFilteredListBodyState extends ConsumerState<OrdersFilteredListBody>
         if (widget.showTopNewOrderButton) _primaryNewOrderButtons(l10n),
         if (kIsWeb)
           Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+            padding: EdgeInsets.fromLTRB(
+              prideContentHorizontalPadding(MediaQuery.sizeOf(context).width),
+              8,
+              prideContentHorizontalPadding(MediaQuery.sizeOf(context).width),
+              0,
+            ),
             child: Card(
               color: Theme.of(context).colorScheme.secondaryContainer,
               child: Padding(
@@ -229,7 +235,12 @@ class _OrdersFilteredListBodyState extends ConsumerState<OrdersFilteredListBody>
         if (filter.customerInternalId != null &&
             filter.customerInternalId!.isNotEmpty)
           Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 12, 4),
+            padding: EdgeInsets.fromLTRB(
+              prideContentHorizontalPadding(MediaQuery.sizeOf(context).width),
+              0,
+              prideContentHorizontalPadding(MediaQuery.sizeOf(context).width),
+              4,
+            ),
             child: Align(
               alignment: Alignment.centerLeft,
               child: InputChip(
@@ -345,7 +356,7 @@ class _OrdersFilteredListBodyState extends ConsumerState<OrdersFilteredListBody>
         ),
         if (widget.showBottomNewOrderButton)
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            padding: prideListScreenPadding(context).copyWith(top: 8, bottom: 16),
             child: FilledButton.icon(
               onPressed: () => context.go('/app/orders'),
               style: prideButtonStyle(context, PrideButtonVariant.add),
