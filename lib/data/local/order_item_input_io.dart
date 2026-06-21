@@ -4,8 +4,11 @@ import 'entities/order_item_entity.dart';
 import 'order_item_input.dart';
 import 'order_item_summary.dart';
 
+int orderItemPaymentMinorFromEntity(OrderItemEntity item) =>
+    item.priceAmountMinor + item.clothPriceAmountMinor;
+
 int sumOrderItemPrices(Iterable<OrderItemEntity> items) =>
-    items.fold<int>(0, (sum, item) => sum + item.priceAmountMinor);
+    items.fold<int>(0, (sum, item) => sum + orderItemPaymentMinorFromEntity(item));
 
 OrderItemSummary orderItemSummaryFromEntity(OrderItemEntity e) {
   return OrderItemSummary(

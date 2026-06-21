@@ -21,6 +21,24 @@ import '../orders/order_composer_customer_picker.dart';
 import '../../licensing/license_providers.dart';
 import '../../shell/shell_sync_providers.dart';
 
+String newCustomerRoute({
+  String? returnTo,
+  String? name,
+}) {
+  final params = <String, String>{};
+  final target = returnTo?.trim();
+  final initialName = name?.trim();
+  if (target != null && target.isNotEmpty) params['returnTo'] = target;
+  if (initialName != null && initialName.isNotEmpty) {
+    params['name'] = initialName;
+  }
+  if (params.isEmpty) return '/app/customers/new';
+  final query = params.entries
+      .map((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
+      .join('&');
+  return '/app/customers/new?$query';
+}
+
 /// Popped back to [OrderComposerScreen] after save when `returnTo=orderComposer`.
 class NewCustomerForOrderResult {
   const NewCustomerForOrderResult({
@@ -49,6 +67,18 @@ class _NewCustomerScreenState extends ConsumerState<NewCustomerScreen> {
   final _phone = TextEditingController();
   final _address = TextEditingController();
   bool _saving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _name.text.trim().isNotEmpty) return;
+      final initialName =
+          GoRouterState.of(context).uri.queryParameters['name']?.trim();
+      if (initialName == null || initialName.isEmpty) return;
+      _name.text = initialName;
+    });
+  }
 
   @override
   void dispose() {

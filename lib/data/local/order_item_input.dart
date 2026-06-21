@@ -74,8 +74,12 @@ class OrderItemCreateInput {
   final List<OrderMeasurementSnapshotItemInput>? measurementSnapshotItems;
 }
 
+/// Garment tailoring price plus optional cloth charge (order payment total).
+int orderItemPaymentMinor(OrderItemSummary item) =>
+    item.priceAmountMinor + item.clothPriceAmountMinor;
+
 int sumOrderItemPriceSummaries(Iterable<OrderItemSummary> items) =>
-    items.fold<int>(0, (sum, item) => sum + item.priceAmountMinor);
+    items.fold<int>(0, (sum, item) => sum + orderItemPaymentMinor(item));
 
 OrderItemSummary? primaryPerahanItemSummary(List<OrderItemSummary> items) {
   for (final item in OrderItemSummary.sorted(items)) {

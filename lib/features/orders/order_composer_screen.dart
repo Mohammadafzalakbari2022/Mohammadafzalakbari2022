@@ -30,7 +30,9 @@ import '../../data/local/dev_shop_constants.dart';
 import '../../data/local/entities/garment_type.dart';
 import '../../data/local/entities/order_status.dart';
 import '../../data/local/order_item_draft.dart';
+import '../../data/local/order_item_input.dart';
 import '../../data/local/order_item_snapshot_key.dart';
+import '../../data/local/order_item_summary.dart';
 import '../../data/local/order_measurement_snapshot_item_input.dart';
 import '../../data/local/order_measurement_snapshot_view.dart';
 import '../../data/local/order_sync_payload.dart';
@@ -42,6 +44,7 @@ import '../../data/providers/local_data_providers.dart';
 import '../../licensing/license_providers.dart';
 import '../../shell/shell_sync_providers.dart';
 import '../../data/local/style/style_order_selection.dart';
+import '../customers/new_customer_screen.dart';
 import '../settings/composer_visibility_provider.dart';
 import 'order_composer_draft.dart';
 import 'order_composer_receipt_garment_block.dart';
@@ -108,6 +111,72 @@ CustomerSummary? resolveComposerPrefillCustomer(
     if (c.internalId == id) return c;
   }
   return null;
+}
+
+List<OrderItemSummary> orderItemsForComposerEdit(OrderSummary order) {
+  final items = order.sortedItems;
+  if (items.isNotEmpty) return items;
+  final legacy = order.legacyPerahanTunbanItemView();
+  return legacy == null ? const <OrderItemSummary>[] : [legacy];
+}
+
+OrderItemCreateInput mergeComposerEditInput(
+  OrderItemCreateInput draft,
+  OrderItemSummary? existing,
+) {
+  final price = draft.priceAmountMinor > 0
+      ? draft.priceAmountMinor
+      : (existing?.priceAmountMinor ?? 0);
+  if (existing != null) {
+    return orderItemCreateInputFromSummary(
+      existing,
+      priceAmountMinor: price,
+      measurementsSnapshot: draft.measurementsSnapshot,
+      sourceMeasurementProfileId: draft.sourceMeasurementProfileId,
+      sourceMeasurementProfileLabel: draft.sourceMeasurementProfileLabel,
+      styleName: draft.styleName,
+      styleNameInternalId: draft.styleNameInternalId,
+      styleSelectionJson: draft.styleSelectionJson,
+      styleSummary: draft.styleSummary,
+      catalogItemInternalId: draft.catalogItemInternalId,
+      catalogDesignNameSnapshot: draft.catalogDesignNameSnapshot,
+      catalogDesignerShopNameSnapshot: draft.catalogDesignerShopNameSnapshot,
+      fabricNameSnapshot: draft.fabricNameSnapshot,
+      fabricColorSnapshot: draft.fabricColorSnapshot,
+      fabricIdSnapshot: draft.fabricIdSnapshot,
+      fabricNamePresetInternalId: draft.fabricNamePresetInternalId,
+      fabricColorPresetInternalId: draft.fabricColorPresetInternalId,
+      clothMetersSnapshot: draft.clothMetersSnapshot,
+      clothPriceAmountMinor: draft.clothPriceAmountMinor,
+      measurementSnapshotItems: draft.measurementSnapshotItems,
+    );
+  }
+  return OrderItemCreateInput(
+    garmentType: draft.garmentType,
+    priceAmountMinor: price,
+    sortOrder: draft.sortOrder,
+    itemNotes: draft.itemNotes,
+    measurementsSnapshot: draft.measurementsSnapshot,
+    sourceMeasurementProfileId: draft.sourceMeasurementProfileId,
+    sourceMeasurementProfileLabel: draft.sourceMeasurementProfileLabel,
+    styleName: draft.styleName,
+    styleNameInternalId: draft.styleNameInternalId,
+    styleSelectionJson: draft.styleSelectionJson,
+    styleSummary: draft.styleSummary,
+    catalogItemInternalId: draft.catalogItemInternalId,
+    catalogDesignNameSnapshot: draft.catalogDesignNameSnapshot,
+    catalogDesignerShopNameSnapshot: draft.catalogDesignerShopNameSnapshot,
+    catalogSourceImagePath: draft.catalogSourceImagePath,
+    catalogSourceThumbnailPath: draft.catalogSourceThumbnailPath,
+    fabricNameSnapshot: draft.fabricNameSnapshot,
+    fabricColorSnapshot: draft.fabricColorSnapshot,
+    fabricIdSnapshot: draft.fabricIdSnapshot,
+    fabricNamePresetInternalId: draft.fabricNamePresetInternalId,
+    fabricColorPresetInternalId: draft.fabricColorPresetInternalId,
+    clothMetersSnapshot: draft.clothMetersSnapshot,
+    clothPriceAmountMinor: draft.clothPriceAmountMinor,
+    measurementSnapshotItems: draft.measurementSnapshotItems,
+  );
 }
 
 class OrderComposerScreen extends ConsumerStatefulWidget {
@@ -239,7 +308,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       _selectedCustomerLabel = order.customerName;
     }
     _clearItemDrafts();
-    for (final item in order.sortedItems) {
+    for (final item in orderItemsForComposerEdit(order)) {
       final type = item.garmentType;
       _draft = _draft.toggleGarment(type, true);
       _styleSelections[type] =
@@ -279,6 +348,8 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     final paid = order.paidAmountMinor;
     if (paid > 0) {
       _paidController.text = paid.toString();
+    } else {
+      _paidController.clear();
     }
   }
 
@@ -405,6 +476,46 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       _selectedCustomerName = c.name;
       _selectedCustomerPhone = c.phone;
       _selectedCustomerLabel = _customerSummaryLabel(c);
+      _clearItemDrafts();
+      _customerSearchController.clear();
+    });
+    _scheduleReferencePrefill();
+  }
+
+  String _newCustomerResultLabel(NewCustomerForOrderResult c) {
+    final parts = <String>[c.name];
+    if (parseStoredDisplayCustomerNo(c.displayCustomerNo) > 0) {
+      parts.add(formatDisplayCustomerNo(c.displayCustomerNo));
+    }
+    final phone = c.phone?.trim();
+    if (phone != null && phone.isNotEmpty) {
+      parts.add(phone);
+    }
+    return parts.join(' • ');
+  }
+
+  Future<void> _openNewCustomerForOrder(String name) async {
+    final trimmed = name.trim();
+    if (!isValidCustomerName(trimmed)) {
+      showAppFeedback(
+        context,
+        ref,
+        kind: AppFeedbackKind.error,
+        message: AppLocalizations.of(context)!.customerNameTooShort,
+      );
+      return;
+    }
+    final result = await context.push<NewCustomerForOrderResult>(
+      newCustomerRoute(returnTo: 'orderComposer', name: trimmed),
+    );
+    if (!mounted || result == null) return;
+    setState(() {
+      _referenceOrderOverrideId = null;
+      _lastPrefilledReferenceId = null;
+      _selectedCustomerId = result.internalId;
+      _selectedCustomerName = result.name;
+      _selectedCustomerPhone = result.phone;
+      _selectedCustomerLabel = _newCustomerResultLabel(result);
       _clearItemDrafts();
       _customerSearchController.clear();
     });
@@ -1026,25 +1137,65 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
 
     if (_editingOrderId != null) {
       final orderId = _editingOrderId!;
-      for (final input in createInputs) {
-        await ordersRepo.upsertOrderItem(
+      try {
+        final currentOrder = _orderFromStream(orderId);
+        final existingItems = currentOrder == null
+            ? const <OrderItemSummary>[]
+            : orderItemsForComposerEdit(currentOrder);
+        final existingByType = {
+          for (final item in existingItems) item.garmentType: item,
+        };
+        for (final input in createInputs) {
+          final existing = existingByType[input.garmentType];
+          final merged = mergeComposerEditInput(input, existing);
+          if (merged.priceAmountMinor <= 0) {
+            if (!context.mounted) return;
+            showAppFeedback(
+              context,
+              ref,
+              kind: AppFeedbackKind.error,
+              message: l10n.ordersComposerItemPriceRequired,
+            );
+            return;
+          }
+          await ordersRepo.upsertOrderItem(
+            orderInternalId: orderId,
+            input: merged,
+          );
+        }
+        final selectedTypes =
+            createInputs.map((input) => input.garmentType).toSet();
+        for (final item in existingItems) {
+          if (!selectedTypes.contains(item.garmentType)) {
+            await ordersRepo.removeOrderItem(
+              orderInternalId: orderId,
+              garmentType: item.garmentType,
+            );
+          }
+        }
+        await ordersRepo.updateOrderDetails(
           orderInternalId: orderId,
-          input: input,
+          customerInternalId: customerId,
+          customerSnapshotName: _selectedCustomerName,
+          customerSnapshotPhone: _selectedCustomerPhone,
+          deliveryDate: deliveryDate,
+          totalAmountMinor: totalMinor > 0 ? totalMinor : null,
         );
-      }
-      await ordersRepo.updateOrderDetails(
-        orderInternalId: orderId,
-        customerInternalId: customerId,
-        customerSnapshotName: _selectedCustomerName,
-        customerSnapshotPhone: _selectedCustomerPhone,
-        deliveryDate: deliveryDate,
-        totalAmountMinor: totalMinor > 0 ? totalMinor : null,
-      );
-      if (_editingStatus != null) {
-        await ordersRepo.updateOrderStatus(
-          orderInternalId: orderId,
-          newStatus: _editingStatus!,
+        if (_editingStatus != null) {
+          await ordersRepo.updateOrderStatus(
+            orderInternalId: orderId,
+            newStatus: _editingStatus!,
+          );
+        }
+      } on OrderItemRepositoryException catch (e) {
+        if (!context.mounted) return;
+        showAppFeedback(
+          context,
+          ref,
+          kind: AppFeedbackKind.error,
+          message: _orderItemRepositoryErrorMessage(l10n, e),
         );
+        return;
       }
       if (!context.mounted) return;
       showAppFeedback(
@@ -1186,6 +1337,18 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     return AppNumberFormat.formatMoney(l10n, minor);
   }
 
+  String _orderItemRepositoryErrorMessage(
+    AppLocalizations l10n,
+    OrderItemRepositoryException error,
+  ) {
+    return switch (error.code) {
+      'item_price_required' => l10n.ordersComposerItemPriceRequired,
+      'order_total_below_paid' => l10n.ordersPaymentTotalBelowPaid,
+      'cannot_remove_last_item' => l10n.ordersComposerNoItemsError,
+      _ => l10n.genericError,
+    };
+  }
+
   void _onSavePressed(BuildContext context, AppLocalizations l10n) {
     _save(context, l10n);
   }
@@ -1232,11 +1395,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
         selectedCustomerLabel: _selectedCustomerLabel,
         onCustomerSelected: _applyCustomer,
         onClearCustomer: _clearSelectedCustomer,
-        onNewCustomerName: (name) {
-          _selectedCustomerName = name;
-          _selectedCustomerLabel = name;
-          _notifyFormRevision();
-        },
+        onNewCustomerName: _openNewCustomerForOrder,
       ),
       if (_selectedCustomerId != null) ...[
         Builder(
@@ -1244,7 +1403,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
             final customerOrders = customerOrdersForReference(
               ordersForRef,
               _selectedCustomerId!,
-            );
+            ).where((o) => o.internalId != _editingOrderId).toList();
             if (customerOrders.length <= 1) {
               return const SizedBox.shrink();
             }
@@ -1303,10 +1462,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
         children: [
           for (final type in GarmentType.values)
             FilterChip(
-              avatar: Icon(
-                composerGarmentIcon(type),
-                size: 18,
-              ),
+              avatar: ComposerGarmentIcon(type: type, size: 18),
               label: Text(composerGarmentLabel(l10n, type)),
               selected: _draft.items[type]!.included,
               onSelected: (v) => _onGarmentChipSelected(type, v),
@@ -1517,10 +1673,15 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
           customersListStreamProvider.select((async) => async.valueOrNull),
         ) ??
         const <CustomerSummary>[];
-    final referenceOrder = _selectedCustomerId == null
+    final referenceOrdersForCustomer = _selectedCustomerId == null
+        ? const <OrderSummary>[]
+        : customerOrdersForReference(ordersForRef, _selectedCustomerId!)
+            .where((o) => o.internalId != _editingOrderId)
+            .toList();
+    final referenceOrder = referenceOrdersForCustomer.isEmpty
         ? null
         : resolveReferenceOrder(
-            customerOrdersForReference(ordersForRef, _selectedCustomerId!),
+            referenceOrdersForCustomer,
             _referenceOrderOverrideId,
           );
     final shopId = ref.watch(effectiveShopIdProvider);
@@ -1703,6 +1864,12 @@ class _ComposerCustomerSearchSectionState
         final matches = trimmed.isEmpty
             ? const <CustomerSummary>[]
             : filterCustomersBySearchQuery(widget.customers, query);
+        final hasExactMatch = trimmed.isNotEmpty &&
+            matches.any(
+              (c) => c.name.trim().toLowerCase() == trimmed.toLowerCase(),
+            );
+        final showAddNew =
+            trimmed.isNotEmpty && !hasExactMatch && isValidCustomerName(trimmed);
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1773,8 +1940,8 @@ class _ComposerCustomerSearchSectionState
                       );
                     },
                   ),
-                )
-              else
+                ),
+              if (showAddNew)
                 ListTile(
                   dense: true,
                   contentPadding: EdgeInsets.zero,

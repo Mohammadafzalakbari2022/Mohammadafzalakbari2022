@@ -5,6 +5,8 @@ import 'package:pride_v3/data/local/order_item_summary.dart';
 import 'package:pride_v3/data/local/order_summary.dart';
 import 'package:pride_v3/features/orders/order_composer_draft.dart';
 import 'package:pride_v3/features/orders/order_composer_reference.dart';
+import 'package:pride_v3/data/local/order_item_input.dart';
+import 'package:pride_v3/features/orders/order_composer_screen.dart';
 
 void main() {
   OrderSummary referenceOrder({
@@ -164,6 +166,47 @@ void main() {
             ),
           );
       expect(draft.totalMinor(clothBlockEnabled: true), 575000);
+    });
+  });
+
+  group('orderItemsForComposerEdit', () {
+    test('falls back to legacy flat Perahan item', () {
+      final legacy = OrderSummary(
+        shopId: 'shop-1',
+        internalId: 'ord-legacy',
+        displayOrderNo: '00000011',
+        customerInternalId: 'cust-1',
+        customerName: 'Ahmad',
+        measurementsSnapshot: 'Chest 100',
+        status: OrderLocalStatus.inProgress,
+        deliveryDate: DateTime(2026, 6, 15),
+        createdAt: DateTime(2026, 6, 1),
+        updatedAt: DateTime(2026, 6, 1),
+        totalAmountMinor: 800000,
+        paidAmountMinor: 0,
+      );
+
+      final items = orderItemsForComposerEdit(legacy);
+
+      expect(items, hasLength(1));
+      expect(items.single.garmentType, GarmentType.perahanTunban);
+      expect(items.single.measurementsSnapshot, 'Chest 100');
+    });
+  });
+
+  group('orderItemPaymentMinor', () {
+    test('sums garment and cloth for repository totals', () {
+      final item = OrderItemSummary(
+        internalId: 'item-1',
+        orderInternalId: 'ord-1',
+        garmentType: GarmentType.perahanTunban,
+        priceAmountMinor: 400000,
+        clothPriceAmountMinor: 100000,
+        createdAt: DateTime(2026, 6, 1),
+        updatedAt: DateTime(2026, 6, 1),
+      );
+      expect(orderItemPaymentMinor(item), 500000);
+      expect(sumOrderItemPriceSummaries([item]), 500000);
     });
   });
 }
