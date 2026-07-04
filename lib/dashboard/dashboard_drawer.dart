@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pride_v3/app/app_theme.dart';
+import 'package:pride_v3/app/responsive_breakpoints.dart';
 import 'package:pride_v3/core/calendar/app_calendar_format.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
 import 'package:pride_v3/core/formatting/display_order_no_format.dart';
@@ -75,7 +76,10 @@ class _DashboardDrawerState extends ConsumerState<DashboardDrawer> {
     final calendar = ref.watch(dateCalendarSystemProvider);
     final scheme = Theme.of(context).colorScheme;
     final actions = Theme.of(context).extension<PrideActionColors>()!;
-    final width = MediaQuery.sizeOf(context).width * 0.92;
+    final rawWidth = MediaQuery.sizeOf(context).width * 0.92;
+    final width = prideIsDesktopPlatform()
+        ? rawWidth.clamp(360.0, 480.0)
+        : rawWidth;
     final license = ref.watch(licenseNotifierProvider);
     final editingBlocked = ref.watch(licenseEditingBlockedProvider);
     final shopId = ref.watch(effectiveShopIdProvider);

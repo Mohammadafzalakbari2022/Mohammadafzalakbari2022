@@ -1,0 +1,7 @@
+android/.cxx/
+.gradle/
+build/
+.dart_tool/
+.packages
+example/
+java/

@@ -80,6 +80,9 @@ dependency_overrides:
   image: 4.3.0
   isar_flutter_libs:
     path: third_party/isar_flutter_libs
+  # Local jni fork removes Windows/linux native plugin builds (no JNI on desktop).
+  jni:
+    path: third_party/jni
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

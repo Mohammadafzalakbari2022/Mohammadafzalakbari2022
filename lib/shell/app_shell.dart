@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -168,6 +169,8 @@ class _AppShellState extends ConsumerState<AppShell> {
 
         MediaQuery.sizeOf(context).width >= kPrideWideDesktopMinWidth;
 
+    final isDesktop = prideIsDesktopPlatform();
+
 
 
     final openDrawer = !canPop && primaryTab
@@ -192,13 +195,85 @@ class _AppShellState extends ConsumerState<AppShell> {
 
 
 
-    return Scaffold(
+    final navRail = NavigationRail(
+
+      extended: railExtended,
+
+      selectedIndex: widget.navigationShell.currentIndex,
+
+      onDestinationSelected: _onShellTabSelected,
+
+      labelType: NavigationRailLabelType.all,
+
+      minExtendedWidth: isDesktop ? 200 : 256,
+
+      leading: isDesktop ? Padding(
+
+        padding: const EdgeInsets.only(top: 12, bottom: 4),
+
+        child: Center(
+
+          child: Tooltip(
+
+            message: l10n.dashboardOpenMenuTooltip,
+
+            child: MouseRegion(
+
+              cursor: SystemMouseCursors.click,
+
+              child: IconButton(
+
+                icon: Icon(Icons.space_dashboard_outlined,
+
+                    color: Theme.of(context).colorScheme.primary),
+
+                onPressed: openDrawer ?? () {},
+
+              ),
+
+            ),
+
+          ),
+
+        ),
+
+      ) : null,
+
+      trailing: isDesktop ? const SizedBox(height: 16) : null,
+
+      destinations: shellNavigationRailDestinations(l10n),
+
+    );
+
+
+
+    final shellBody = useRail
+
+        ? Row(
+
+            children: [
+
+              navRail,
+
+              const VerticalDivider(width: 1),
+
+              Expanded(child: widget.navigationShell),
+
+            ],
+
+          )
+
+        : widget.navigationShell;
+
+
+
+    final scaffold = Scaffold(
 
       key: _scaffoldKey,
 
       drawer: const DashboardDrawer(),
 
-      drawerEdgeDragWidth: 56,
+      drawerEdgeDragWidth: isDesktop ? 0 : 56,
 
       appBar: AppBar(
 
@@ -266,35 +341,7 @@ class _AppShellState extends ConsumerState<AppShell> {
 
       ),
 
-      body: useRail
-
-          ? Row(
-
-              children: [
-
-                NavigationRail(
-
-                  extended: railExtended,
-
-                  selectedIndex: widget.navigationShell.currentIndex,
-
-                  onDestinationSelected: _onShellTabSelected,
-
-                  labelType: NavigationRailLabelType.all,
-
-                  destinations: shellNavigationRailDestinations(l10n),
-
-                ),
-
-                const VerticalDivider(width: 1),
-
-                Expanded(child: widget.navigationShell),
-
-              ],
-
-            )
-
-          : widget.navigationShell,
+      body: shellBody,
 
       bottomNavigationBar: useRail
 
@@ -311,6 +358,52 @@ class _AppShellState extends ConsumerState<AppShell> {
             ),
 
     );
+
+
+
+    if (isDesktop) {
+
+      return CallbackShortcuts(
+
+        bindings: {
+
+          const SingleActivator(LogicalKeyboardKey.digit1):
+
+              () => _onShellTabSelected(0),
+
+          const SingleActivator(LogicalKeyboardKey.digit2):
+
+              () => _onShellTabSelected(1),
+
+          const SingleActivator(LogicalKeyboardKey.digit3):
+
+              () => _onShellTabSelected(2),
+
+          const SingleActivator(LogicalKeyboardKey.digit4):
+
+              () => _onShellTabSelected(3),
+
+          const SingleActivator(LogicalKeyboardKey.digit5):
+
+              () => _onShellTabSelected(4),
+
+        },
+
+        child: Focus(
+
+          autofocus: true,
+
+          child: scaffold,
+
+        ),
+
+      );
+
+    }
+
+
+
+    return scaffold;
 
   }
 

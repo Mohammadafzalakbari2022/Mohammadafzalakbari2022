@@ -613,12 +613,11 @@ packages:
     source: hosted
     version: "3.1.0+1"
   jni:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: jni
-      sha256: cfd663ec90d87ec6abd338da7e21189e503bf6753a0027c1862796f5826adba6
-      url: "https://pub.dev"
-    source: hosted
+      path: "third_party/jni"
+      relative: true
+    source: path
     version: "0.14.1"
   js:
     dependency: transitive

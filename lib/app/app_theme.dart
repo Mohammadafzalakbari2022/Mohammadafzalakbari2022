@@ -802,6 +802,30 @@ ThemeData _buildTheme(
       }),
     ),
 
+    navigationRailTheme: NavigationRailThemeData(
+      backgroundColor: scheme.surface,
+      indicatorColor: scheme.primaryContainer,
+      indicatorShape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      labelType: NavigationRailLabelType.all,
+      minWidth: 72,
+      groupAlignment: 0.0,
+      useIndicator: true,
+      selectedLabelTextStyle: TextStyle(
+        fontWeight: FontWeight.w700,
+        color: scheme.onPrimaryContainer,
+        fontSize: 12,
+      ),
+      unselectedLabelTextStyle: TextStyle(
+        fontWeight: FontWeight.w500,
+        color: scheme.onSurfaceVariant,
+        fontSize: 11,
+      ),
+      selectedIconTheme: IconThemeData(color: scheme.primary, size: 24),
+      unselectedIconTheme: IconThemeData(color: scheme.onSurfaceVariant, size: 22),
+    ),
+
     floatingActionButtonTheme: FloatingActionButtonThemeData(
       backgroundColor: actions.add,
 

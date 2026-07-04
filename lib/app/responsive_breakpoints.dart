@@ -1,6 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+/// True when the host platform is a desktop OS (Windows, macOS, or Linux).
+bool prideIsDesktopPlatform() {
+  if (kIsWeb) return false;
+  return defaultTargetPlatform == TargetPlatform.windows ||
+      defaultTargetPlatform == TargetPlatform.macOS ||
+      defaultTargetPlatform == TargetPlatform.linux;
+}
+
 /// Phone layout: width strictly below [kPrideTabletMinWidth].
 const kPrideTabletMinWidth = 600.0;
 
