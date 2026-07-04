@@ -22,13 +22,12 @@ class CatalogPublicItemDto {
   final String? notes;
 
   static CatalogPublicItemDto fromJson(Map<String, dynamic> m) {
-    final sharedRaw = m['shared_at'] ?? m['sharedAt'];
+    final sharedRaw = m['shared_at'];
     return CatalogPublicItemDto(
-      internalId: '${m['internal_id'] ?? m['internalId'] ?? ''}',
-      shopId: '${m['shop_id'] ?? m['shopId'] ?? ''}',
-      designName: '${m['design_name'] ?? m['designName'] ?? ''}',
-      designerShopName:
-          '${m['designer_shop_name'] ?? m['designerShopName'] ?? ''}',
+      internalId: '${m['internal_id'] ?? ''}',
+      shopId: '${m['shop_id'] ?? ''}',
+      designName: '${m['design_name'] ?? ''}',
+      designerShopName: '${m['designer_shop_name'] ?? ''}',
       notes: m['notes'] as String?,
       sharedAt: DateTime.tryParse('$sharedRaw') ?? DateTime.now(),
     );

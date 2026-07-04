@@ -24,12 +24,7 @@ export class AppSeedService implements OnModuleInit {
   async run(): Promise<void> {
     const nodeEnv = process.env.NODE_ENV ?? 'development';
     const raw = process.env.PRIDE_AUTH_SEED?.trim();
-    const effective =
-      raw && raw.length > 0
-        ? raw
-        : nodeEnv !== 'production'
-          ? 'dev|owner|changeme'
-          : '';
+    const effective = raw && raw.length > 0 ? raw : '';
     if (!effective) {
       this.log.log('PRIDE_AUTH_SEED unset in production — skipping auth shop seed');
     } else {

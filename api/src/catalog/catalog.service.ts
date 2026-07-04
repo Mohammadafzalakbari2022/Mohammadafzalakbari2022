@@ -101,10 +101,8 @@ export class CatalogService {
       return { ok: true };
     }
 
-    const designName = String(m.design_name ?? m.designName ?? '').trim();
-    const designerShopName = String(
-      m.designer_shop_name ?? m.designerShopName ?? '',
-    ).trim();
+    const designName = String(m.design_name ?? '').trim();
+    const designerShopName = String(m.designer_shop_name ?? '').trim();
     const notesRaw = m.notes;
     const notes =
       notesRaw == null || notesRaw === ''

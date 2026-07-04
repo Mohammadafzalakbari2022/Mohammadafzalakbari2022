@@ -134,6 +134,7 @@ export class ShopRegistryService {
     if (!name) throw new BadRequestException('shop_name is required');
     if (!ou) throw new BadRequestException('owner_username is required');
     if (!ownerPassword) throw new BadRequestException('owner_password is required');
+    if (ownerPassword.trim().length < 6) throw new BadRequestException('owner_password must be at least 6 characters');
     const { whatsapp, email, address } = parseRegistrationContact(contact);
 
     const shopId = randomUUID();
@@ -199,6 +200,7 @@ export class ShopRegistryService {
     const un = username.trim();
     if (!un) throw new BadRequestException('username is required');
     if (!plainPassword) throw new BadRequestException('password is required');
+    if (plainPassword.trim().length < 6) throw new BadRequestException('password must be at least 6 characters');
     const existing = await this.prisma.shopUser.findFirst({
       where: { shopId, username: un, deletedAt: null },
     });
@@ -260,6 +262,9 @@ export class ShopRegistryService {
       where: { id: userId, shopId, deletedAt: null },
     });
     if (!row) throw new NotFoundException('user not found');
+    if (!plainPassword || plainPassword.trim().length < 6) {
+      throw new BadRequestException('password must be at least 6 characters');
+    }
     await this.prisma.shopUser.update({
       where: { id: userId },
       data: { passwordHash: sha256Hex(plainPassword) },

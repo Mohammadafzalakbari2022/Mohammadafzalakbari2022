@@ -629,24 +629,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ],
                   ),
                 ],
-                if (kDebugMode) ...[
-                  const SizedBox(height: 16),
-                  OutlinedButton(
-                    onPressed: () async {
-                      final prefs = ref.read(sharedPreferencesProvider);
-                      final sid = ref.read(authSessionProvider).shopId?.trim();
-                      await AuthSessionStorage.clear(prefs);
-                      if (sid != null && sid.isNotEmpty) {
-                        await SyncCursorStorage.clearForShop(prefs, sid);
-                      }
-                      await SyncDiagnosticsStorage.clear(prefs);
-                      ref.read(lastSuccessfulSyncAtProvider.notifier).state =
-                          null;
-                      ref.read(authSessionProvider).setAuthenticated(true);
-                    },
-                    child: Text(l10n.loginDevContinue),
-                  ),
-                ],
                 const SizedBox(height: 24),
               ],
             ),

@@ -49,8 +49,8 @@ export class AuthService {
         'current_password and new_password are required',
       );
     }
-    if (next.length < 4) {
-      throw new BadRequestException('new_password is too short');
+    if (next.length < 6) {
+      throw new BadRequestException('new_password must be at least 6 characters');
     }
     const ok = await this.shopRegistry.verifyUserPassword(
       shopId,

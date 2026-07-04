@@ -507,6 +507,83 @@ Future<({bool ok, Map<String, dynamic>? created, String? error})>
   }
 }
 
+/// `GET /admin/payment-claims/:id` (developer-only).
+Future<({bool ok, Map<String, dynamic>? claim, String? error})>
+    getPrideApiAdminPaymentClaim({
+  required String accessToken,
+  required String claimId,
+  Duration timeout = const Duration(seconds: 20),
+}) async {
+  final base = PrideApiConfig.normalizedBase;
+  if (base == null) {
+    return (ok: false, claim: null, error: 'API_BASE_URL not set');
+  }
+  try {
+    final response = await http
+        .get(
+          Uri.parse('$base/admin/payment-claims/$claimId'),
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+        )
+        .timeout(timeout);
+    if (response.statusCode == 200) {
+      final decoded = jsonDecode(response.body);
+      if (decoded is Map<String, dynamic>) {
+        return (ok: true, claim: decoded, error: null);
+      }
+    }
+    return (
+      ok: false,
+      claim: null,
+      error: _extractErr(response.body) ?? 'HTTP ${response.statusCode}',
+    );
+  } on Exception catch (e) {
+    return (ok: false, claim: null, error: e.toString());
+  }
+}
+
+/// `POST /admin/report` — developer-only JSON echo for tooling.
+Future<({bool ok, Map<String, dynamic>? echo, String? error})>
+    postPrideApiAdminReport({
+  required String accessToken,
+  required Map<String, dynamic> payload,
+  Duration timeout = const Duration(seconds: 20),
+}) async {
+  final base = PrideApiConfig.normalizedBase;
+  if (base == null) {
+    return (ok: false, echo: null, error: 'API_BASE_URL not set');
+  }
+  try {
+    final response = await http
+        .post(
+          Uri.parse('$base/admin/report'),
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+          body: jsonEncode(payload),
+        )
+        .timeout(timeout);
+    if (response.statusCode == 200) {
+      final decoded = jsonDecode(response.body);
+      if (decoded is Map<String, dynamic>) {
+        final echo = decoded['echo'] as Map<String, dynamic>?;
+        return (ok: true, echo: echo, error: null);
+      }
+    }
+    return (
+      ok: false,
+      echo: null,
+      error: _extractErr(response.body) ?? 'HTTP ${response.statusCode}',
+    );
+  } on Exception catch (e) {
+    return (ok: false, echo: null, error: e.toString());
+  }
+}
+
 Future<({bool ok, String? error})> postPrideApiAdminRevokeActivationCode({
   required String accessToken,
   required String codeId,
@@ -645,7 +722,8 @@ Future<({bool ok, int? maxUsers, String? error})> postPrideApiAdminSetShopMaxUse
   }
 }
 
-Future<({bool ok, String? error})> postPrideApiAdminExtendShopLicense({
+Future<({bool ok, String? expiresAt, String? error})>
+    postPrideApiAdminExtendShopLicense({
   required String accessToken,
   required String shopId,
   required int addDays,
@@ -653,7 +731,7 @@ Future<({bool ok, String? error})> postPrideApiAdminExtendShopLicense({
 }) async {
   final base = PrideApiConfig.normalizedBase;
   if (base == null) {
-    return (ok: false, error: 'API_BASE_URL not set');
+    return (ok: false, expiresAt: null, error: 'API_BASE_URL not set');
   }
   try {
     final response = await http
@@ -668,14 +746,20 @@ Future<({bool ok, String? error})> postPrideApiAdminExtendShopLicense({
         )
         .timeout(timeout);
     if (response.statusCode == 200) {
-      return (ok: true, error: null);
+      final decoded = jsonDecode(response.body);
+      if (decoded is Map<String, dynamic>) {
+        final expiresAt = decoded['expires_at'] as String?;
+        return (ok: true, expiresAt: expiresAt, error: null);
+      }
+      return (ok: true, expiresAt: null, error: null);
     }
     return (
       ok: false,
+      expiresAt: null,
       error: _extractErr(response.body) ?? 'HTTP ${response.statusCode}',
     );
   } on Exception catch (e) {
-    return (ok: false, error: e.toString());
+    return (ok: false, expiresAt: null, error: e.toString());
   }
 }
 
@@ -741,8 +825,8 @@ Future<({
       );
     }
     final reason = decoded['reason'] is String ? decoded['reason'] as String : '';
-    final sc = decoded['successCount'];
-    final fc = decoded['failureCount'];
+    final sc = decoded['success_count'] ?? decoded['successCount'];
+    final fc = decoded['failure_count'] ?? decoded['failureCount'];
     final apiOk = decoded['ok'] == true;
     return (
       ok: apiOk,

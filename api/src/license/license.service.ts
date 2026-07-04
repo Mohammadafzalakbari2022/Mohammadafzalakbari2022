@@ -70,7 +70,7 @@ export class LicenseService {
       throw new BadRequestException('activation code is required');
     }
 
-    const legacyRaw = process.env.PRIDE_LEGACY_REDEEM_CODES ?? 'pilot-2026';
+    const legacyRaw = process.env.PRIDE_LEGACY_REDEEM_CODES;
     const legacy = new Set(
       legacyRaw
         .split(',')

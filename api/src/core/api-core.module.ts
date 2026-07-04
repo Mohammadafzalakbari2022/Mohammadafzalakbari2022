@@ -3,8 +3,10 @@ import { JwtModule } from '@nestjs/jwt';
 
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
-const jwtSecret =
-  process.env.JWT_SECRET ?? 'pride-dev-jwt-secret-min-32-characters-change-me';
+const jwtSecret = process.env.JWT_SECRET;
+if (!jwtSecret) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
 
 @Global()
 @Module({

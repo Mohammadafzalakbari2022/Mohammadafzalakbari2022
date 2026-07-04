@@ -438,12 +438,15 @@ export class AdminController {
       !Array.isArray(body.data)
         ? (body.data as Record<string, unknown>)
         : undefined;
-    const result = await this.pushDispatch.sendToShop(shopId, title, text, data);
+    const result = await this.pushDispatch.sendToShopApi(shopId, title, text, data);
     await this.admin.appendAudit(req.user.sub, 'push.shop', {
       shop_id: shopId,
       title,
       body_len: text.length,
-      ...result,
+      ok: result.ok,
+      reason: result.reason,
+      success_count: result.success_count,
+      failure_count: result.failure_count,
     });
     return { schema_version: 1, ...result };
   }

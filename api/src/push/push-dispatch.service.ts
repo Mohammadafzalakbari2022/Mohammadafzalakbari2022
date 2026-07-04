@@ -54,4 +54,24 @@ export class PushDispatchService {
     );
     return { ok: true, reason: 'sent', successCount, failureCount };
   }
+
+  /** Snake_case version for API responses. */
+  async sendToShopApi(
+    shopId: string,
+    title: string,
+    body: string,
+    data?: Record<string, unknown>,
+  ): Promise<{
+    ok: boolean;
+    reason: 'sent' | 'no_tokens' | 'fcm_not_configured';
+    success_count: number;
+    failure_count: number;
+  }> {
+    const result = await this.sendToShop(shopId, title, body, data);
+    return {
+      ...result,
+      success_count: result.successCount,
+      failure_count: result.failureCount,
+    };
+  }
 }

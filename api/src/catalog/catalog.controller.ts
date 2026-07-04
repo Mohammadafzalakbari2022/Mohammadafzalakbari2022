@@ -43,7 +43,7 @@ export class CatalogController {
       return { ok: false, message: 'body must be an object' };
     }
     const m = body as Record<string, unknown>;
-    const raw = m.sharing_enabled ?? m.sharingEnabled;
+    const raw = m.sharing_enabled;
     if (typeof raw !== 'boolean') {
       return { ok: false, message: 'sharing_enabled must be a boolean' };
     }
