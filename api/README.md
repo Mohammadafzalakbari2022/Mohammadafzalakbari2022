@@ -26,7 +26,14 @@
 
 **Afghan Pride (`pride-api`)** — NestJS service for [`plan-04-backend-api.md`](../plan-04-backend-api.md).
 
-**Database:** PostgreSQL via **Prisma** (`prisma/schema.prisma`). Set `DATABASE_URL` in **`api/.env`** (see [`.env.example`](.env.example); never commit `.env`). **Migrations:** from repo root run `npm run db:migrate` (runs Prisma inside `api/` so the schema is found), or `cd api && npx prisma migrate deploy`. Local DB: `docker compose up -d` from repo root, then point `DATABASE_URL` at `postgresql://pride:pride@127.0.0.1:5433/pride_api` (see `docker-compose.yml`). Deploy: same migration command against your hosted `DATABASE_URL` (e.g. Render `preDeployCommand` in [`render.yaml`](../render.yaml)).
+**Database:** PostgreSQL via **Prisma** (`prisma/schema.prisma`). Set `DATABASE_URL` and
+`DIRECT_DATABASE_URL` in **`api/.env`** (see [`.env.example`](.env.example); never commit `.env`).
+For hosted Supabase: `DATABASE_URL` = pooler port **6543** (runtime); `DIRECT_DATABASE_URL` =
+pooler port **5432** (migrations). **Migrations:** from repo root run `npm run db:migrate`
+(runs Prisma inside `api/`), or `cd api && npx prisma migrate deploy`. Local DB:
+`docker compose up -d` from repo root, then set both URLs to
+`postgresql://pride:pride@127.0.0.1:5433/pride_api`. Deploy: Vercel runs `npm run build:vercel`
+(see [`DEPLOY.md`](DEPLOY.md)); Render uses `preDeployCommand` in [`render.yaml`](../render.yaml).
 
 **Endpoints (scaffold):**
 

@@ -12,10 +12,14 @@ import { PrismaModule } from './prisma/prisma.module';
 import { CatalogModule } from './catalog/catalog.module';
 import { P2pModule } from './p2p/p2p.module';
 import { PushModule } from './push/push.module';
+import { CronModule } from './cron/cron.module';
+
+/** In-process @Cron only when not on Vercel serverless (use Vercel Cron Jobs in prod). */
+const scheduleImports = process.env.VERCEL ? [] : [ScheduleModule.forRoot()];
 
 @Module({
   imports: [
-    ScheduleModule.forRoot(),
+    ...scheduleImports,
     PrismaModule,
     ApiCoreModule,
     LicenseModule,
@@ -26,6 +30,7 @@ import { PushModule } from './push/push.module';
     CatalogModule,
     P2pModule,
     PushModule,
+    CronModule,
   ],
   controllers: [AppController],
   providers: [AppService],

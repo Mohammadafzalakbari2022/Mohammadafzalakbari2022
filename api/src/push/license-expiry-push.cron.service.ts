@@ -27,7 +27,13 @@ export class LicenseExpiryPushCronService {
 
   /** 09:00 UTC daily — license dates are day-granularity; avoids noisy hourly runs. */
   @Cron('0 9 * * *')
-  async remindExpiringLicenses(): Promise<void> {
+  async remindExpiringLicenses(): Promise<number> {
+    return this.runReminders();
+  }
+
+  /** Shared by in-process cron (local) and Vercel Cron HTTP route. */
+  async runReminders(): Promise<number> {
+    let reminded = 0;
     const now = new Date();
     const dayUtc = utcDayString(now);
     const horizon = new Date(now.getTime() + REMINDER_DAYS * 86_400_000);
@@ -73,9 +79,11 @@ export class LicenseExpiryPushCronService {
         await this.prisma.licenseExpiryPushDay.create({
           data: { shopId: row.shopId, dayUtc },
         });
+        reminded += 1;
       } catch (e) {
         this.logger.warn(`license expiry dedup insert failed for ${row.shopId}: ${e}`);
       }
     }
+    return reminded;
   }
 }

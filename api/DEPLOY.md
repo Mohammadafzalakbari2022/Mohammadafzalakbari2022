@@ -20,6 +20,9 @@ Delete `api/node_modules` completely, then run `npm install` again (sometimes ca
 
 ## Render (free tier, cold starts OK — plan-07)
 
+> **Primary deploy target:** [Vercel](#vercel-recommended) (zero-config NestJS, Fluid compute).
+> Render remains documented below as a fallback.
+
 Root [`render.yaml`](../render.yaml) targets **Supabase (or any external Postgres)**:
 there is **no** Render-managed database in the blueprint. You paste **`DATABASE_URL`**
 in the dashboard when prompted (`sync: false`). **`JWT_SECRET`** is auto-generated unless
@@ -28,12 +31,15 @@ you replace it manually.
 ### Option A — Blueprint + Supabase Postgres (recommended)
 
 1. **Supabase:** create a project → **Project Settings → Database**. Copy the **URI**
-   (prefer **Direct connection** for this API so migrations and runtime use the same URL;
-   ensure **`?sslmode=require`** if required by your region/host).
+   (current project ref: `uplksiwbfmktlssnnxcs`, region `aws-1-ap-southeast-1`).
+   - **Runtime (Render / API):** pooler port **6543** with `?pgbouncer=true&sslmode=require`
+   - **Migrations (local `prisma migrate deploy`):** pooler port **5432** with `?sslmode=require`
+   URL-encode special characters in the password (e.g. `@` → `%40`).
 2. **Git:** push this repo to GitHub (or your Git provider Render supports).
 3. **Render:** **New** → **Blueprint** → select the repo (`render.yaml` at repo root).
 4. When Render asks for **synchronized environment variables**, set **`DATABASE_URL`**
-   to the Supabase URI. Leave **`JWT_SECRET`** as generated, or set your own long secret.
+   (pooler port **6543**) and **`DIRECT_DATABASE_URL`** (pooler port **5432** for migrations).
+   Leave **`JWT_SECRET`** as generated, or set your own long secret.
 5. **Build** runs `npm install --include=dev && npm run build` (`prisma generate` + Nest compile). On Render, `NODE_ENV=production` during build would otherwise **omit devDependencies**, so `nest` is missing — **`--include=dev`** fixes `sh: nest: not found`.
    **`preDeployCommand`** runs `npx prisma migrate deploy` against that URL before the
    new release goes live (creates `shops`, `shop_users`, etc.).
@@ -102,6 +108,120 @@ flutter run \
 
 `PORT` is set automatically by Render; the app reads `process.env.PORT`.
 
+## Vercel (recommended)
+
+Vercel detects NestJS from `src/main.ts` with **zero configuration** (single Fluid compute
+function). Flutter Web stays on **Cloudflare Pages**; only this API deploys to Vercel.
+
+### One-time: Vercel project settings
+
+1. **Import repo:** [vercel.com/new](https://vercel.com/new) → your GitHub repo.
+2. **Root Directory:** `api` (not repo root).
+3. **Framework Preset:** NestJS (auto-detected).
+4. **Build Command:** leave default or set `npm run build:vercel` (same as [`vercel.json`](vercel.json)).
+5. **Output Directory:** leave empty (Vercel serves the NestJS function; no static output).
+6. **Install Command:** `npm install` (default).
+
+Or link from CLI (from repo root):
+
+```bash
+cd api
+npm i -g vercel   # CLI >= 48.4.0
+vercel link       # create/link project; set root = api when prompted
+vercel env pull   # optional: pull env vars to .env.local for `vercel dev`
+vercel            # preview deploy
+vercel --prod     # production
+```
+
+### Environment variables (Vercel Dashboard → Project → Settings → Environment Variables)
+
+Set for **Production** (and Preview if you want staging previews):
+
+| Variable | Purpose |
+|----------|---------|
+| `NODE_ENV` | `production` |
+| `DATABASE_URL` | Supabase **transaction pooler** — port **6543**, `?pgbouncer=true&sslmode=require` |
+| `DIRECT_DATABASE_URL` | Supabase **session pooler** — port **5432**, `?sslmode=require` (Prisma migrations at build) |
+| `JWT_SECRET` | Long random secret for JWT signing |
+| `PRIDE_AUTH_SEED` | First shop owner, e.g. `dev\|owner\|changeme` |
+| `PRIDE_OPERATOR_SEED` | Optional operator user, e.g. `dev\|Akbari\|YOUR_PASSWORD` |
+| `PRIDE_DEVELOPER_USERS` | Developer portal logins, e.g. `dev\|Akbari` |
+| `CRON_SECRET` | Random string; Vercel Cron sends `Authorization: Bearer …` to `/api/cron/license-expiry` |
+| `FIREBASE_SERVICE_ACCOUNT_JSON` | Optional — FCM push (one-line JSON) |
+
+**Do not commit secrets.** Paste values in the Vercel dashboard only.
+
+URL-encode special characters in database passwords (e.g. `@` → `%40`).
+
+Example Supabase URLs (replace password; project ref `uplksiwbfmktlssnnxcs`):
+
+```text
+DATABASE_URL=postgresql://postgres.uplksiwbfmktlssnnxcs:YOUR_PASSWORD@aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true&sslmode=require
+DIRECT_DATABASE_URL=postgresql://postgres.uplksiwbfmktlssnnxcs:YOUR_PASSWORD@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres?sslmode=require
+```
+
+### Build and migrations
+
+[`vercel.json`](vercel.json) runs `npm run build:vercel`:
+
+1. `prisma generate`
+2. `prisma migrate deploy` (uses `DIRECT_DATABASE_URL` via [`prisma/schema.prisma`](prisma/schema.prisma))
+3. `nest build`
+
+If migrations fail at build, confirm `DIRECT_DATABASE_URL` uses port **5432** (not 6543).
+
+### Health check after deploy
+
+Replace `YOUR_VERCEL_URL` with the deployment URL (e.g. `https://pride-api.vercel.app`):
+
+```bash
+curl -s https://YOUR_VERCEL_URL/health
+# → {"status":"ok","service":"pride-api"}
+```
+
+### Cron jobs (license expiry push)
+
+On Vercel, in-process `@nestjs/schedule` cron does **not** run between requests.
+[`vercel.json`](vercel.json) registers a **Vercel Cron** at `09:00 UTC` → `GET /api/cron/license-expiry`.
+Set `CRON_SECRET` in the dashboard; the handler rejects requests without the matching Bearer token.
+
+Local dev (`nest start:dev`) still uses in-process cron when `VERCEL` is unset.
+
+### Flutter client after first Vercel deploy
+
+Update `config/dart_defines_prod.json` **`API_BASE_URL`** to your Vercel production URL
+(no trailing slash). Until then the repo still points at Render:
+
+```json
+"API_BASE_URL": "https://mohammadafzalakbari2022.onrender.com"
+```
+
+Then rebuild/release the app:
+
+```text
+flutter run \
+  --dart-define-from-file=config/dart_defines_base.json \
+  --dart-define-from-file=config/dart_defines_prod.json
+```
+
+**Settings → Sync & diagnostics → Test connection** should hit `GET {API_BASE_URL}/health`.
+
+### Local dev with Vercel runtime
+
+From `api/`:
+
+```bash
+vercel dev
+```
+
+Uses the same serverless entry as production (requires Vercel CLI >= 48.4.0).
+
+### Git auto-deploy
+
+Connect the repo in Vercel; pushes to `main` that touch `api/**` trigger production deploys.
+Optional: disable or keep [`.github/workflows/deploy_api.yml`](../.github/workflows/deploy_api.yml)
+(Render hook) if you fully move off Render.
+
 ## Hesab Pay billing (Developer Portal + subscription screen)
 
 After deploy, confirm billing routes exist (401 without JWT is OK; **404 means an old API build**):
@@ -132,7 +252,7 @@ Or in GitHub Desktop: push any commit under `api/`, or use **Repository** → **
 
 ## Launch checklist (plan-07 / plan-21)
 
-- **API:** set `DATABASE_URL`, `JWT_SECRET`, optional `PRIDE_DEVELOPER_IDS` (comma-separated `shop_users.id`, same as JWT `sub`, for developer-only admin routes), optional `PRIDE_LEGACY_REDEEM_CODES`, optional `CATALOG_SHARING_DEFAULT` (`false` turns off default catalog sharing in `GET /catalog/public`).
+- **API:** set `DATABASE_URL`, `DIRECT_DATABASE_URL` (hosted Supabase), `JWT_SECRET`, optional `PRIDE_DEVELOPER_IDS` (comma-separated `shop_users.id`, same as JWT `sub`, for developer-only admin routes), optional `PRIDE_LEGACY_REDEEM_CODES`, optional `CATALOG_SHARING_DEFAULT` (`false` turns off default catalog sharing in `GET /catalog/public`). On Vercel also set `CRON_SECRET` for license-expiry cron.
 - **Flutter:** pass `--dart-define=API_BASE_URL=…` for release builds; confirm **Settings → Sync & diagnostics → Test connection** and a **sign-in** round-trip against production.
 - **Web / PWA:** smoke-test installability, offline shell, and same API base URL as mobile.
 - **Stores:** signing keys, listing text, privacy policy URL, and support contact before submission.

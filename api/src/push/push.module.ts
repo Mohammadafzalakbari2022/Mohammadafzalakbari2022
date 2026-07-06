@@ -8,6 +8,6 @@ import { PushDispatchService } from './push-dispatch.service';
 @Module({
   imports: [LicenseModule],
   providers: [FcmPushService, PushDispatchService, LicenseExpiryPushCronService],
-  exports: [PushDispatchService, FcmPushService],
+  exports: [PushDispatchService, FcmPushService, LicenseExpiryPushCronService],
 })
 export class PushModule {}

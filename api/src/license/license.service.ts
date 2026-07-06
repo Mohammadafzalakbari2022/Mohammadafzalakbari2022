@@ -72,7 +72,7 @@ export class LicenseService {
 
     const legacyRaw = process.env.PRIDE_LEGACY_REDEEM_CODES;
     const legacy = new Set(
-      legacyRaw
+      (legacyRaw ?? '')
         .split(',')
         .map((s) => s.trim())
         .filter((s) => s.length > 0),
