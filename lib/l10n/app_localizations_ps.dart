@@ -4669,4 +4669,7 @@ class AppLocalizationsPs extends AppLocalizations {
   @override
   String get settingsDiagnosticsErrorLogSubtitle =>
       'وروستي تېروتنې د ملاتړ لپاره کاپي یا شریک کړئ';
+
+  @override
+  String get errorWidgetBuildFailedTitle => 'پاڼه پورته نه شوه';
 }

@@ -8468,6 +8468,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Copy or share recent app errors for support'**
   String get settingsDiagnosticsErrorLogSubtitle;
+
+  /// No description provided for @errorWidgetBuildFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A screen failed to load'**
+  String get errorWidgetBuildFailedTitle;
 }
 
 class _AppLocalizationsDelegate

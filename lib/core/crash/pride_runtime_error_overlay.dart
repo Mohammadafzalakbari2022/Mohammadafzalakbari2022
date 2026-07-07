@@ -11,6 +11,7 @@ import 'pride_error_log_sheet.dart';
 /// Full-screen fallback when a widget fails to build (release builds).
 Widget prideBuildFatalErrorWidget(FlutterErrorDetails details) {
   final text = details.exceptionAsString();
+  final l10n = lookupAppLocalizations(const Locale('fa'));
   unawaited(PrideErrorCollector.record(
     details.exception,
     stack: details.stack,
@@ -31,10 +32,10 @@ Widget prideBuildFatalErrorWidget(FlutterErrorDetails details) {
               size: 40,
             ),
             const SizedBox(height: 12),
-            const Text(
-              'Widget build failed',
+            Text(
+              l10n.errorWidgetBuildFailedTitle,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Color(0xFFE8EDF4),
                 fontSize: 18,
                 fontWeight: FontWeight.w600,

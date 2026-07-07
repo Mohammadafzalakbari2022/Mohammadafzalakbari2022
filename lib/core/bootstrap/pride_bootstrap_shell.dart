@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:share_plus/share_plus.dart';
 
 import 'package:pride_v3/core/branding/app_branding.dart';
+import 'package:pride_v3/core/crash/pride_error_collector.dart';
+import 'package:pride_v3/core/crash/pride_error_log_sheet.dart';
 import 'package:pride_v3/core/crash/pride_runtime_error_overlay.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
@@ -126,6 +130,43 @@ class PrideBootstrapErrorView extends StatelessWidget {
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
                 textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      final text = PrideErrorCollector.formatFullReport().isNotEmpty
+                          ? PrideErrorCollector.formatFullReport()
+                          : error.toString();
+                      await Clipboard.setData(ClipboardData(text: text));
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(l10n.errorLogCopied)),
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.copy_outlined, size: 18),
+                    label: Text(l10n.errorLogCopy),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      final text = PrideErrorCollector.formatFullReport().isNotEmpty
+                          ? PrideErrorCollector.formatFullReport()
+                          : error.toString();
+                      Share.share(text);
+                    },
+                    icon: const Icon(Icons.share_outlined, size: 18),
+                    label: Text(l10n.errorLogShare),
+                  ),
+                  TextButton(
+                    onPressed: () => showPrideErrorLogSheet(context),
+                    child: Text(l10n.errorLogViewAll),
+                  ),
+                ],
               ),
               const Spacer(),
               FilledButton(

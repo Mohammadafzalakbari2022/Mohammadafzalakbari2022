@@ -1,3 +1,4 @@
+import 'pride_storage_warmup.dart';
 import '../../core/persistence/shared_preferences_bootstrap.dart';
 import '../../core/crash/pride_error_collector.dart';
 import '../../auth/auth_providers.dart';
@@ -18,6 +19,7 @@ import 'pride_startup_payload.dart';
 Future<PrideStartupPayload> loadPrideStartupPayload() async {
   final prefs = await obtainSharedPreferences();
   await PrideErrorCollector.attachPreferences(prefs);
+  await warmPrideLocalStoragePaths();
   await ensureGuideFirstLaunchRecorded(prefs);
   await ensureDefaultLocalePrefs(prefs);
   final initialLocale = localeFromPrefs(prefs);

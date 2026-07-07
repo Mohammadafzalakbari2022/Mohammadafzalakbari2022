@@ -4,6 +4,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../auth/auth_providers.dart';
+import '../core/persistence/shared_preferences_bootstrap.dart';
 import '../core/sync/sync_coordinator.dart';
 import '../data/local/dev_shop_constants.dart';
 import '../data/providers/local_data_providers.dart';
@@ -11,6 +12,7 @@ import '../data/providers/local_data_providers.dart';
 /// Live connectivity (plan-09). Emits after initial check, then on changes.
 final connectivityListProvider =
     StreamProvider<List<ConnectivityResult>>((ref) async* {
+  await waitForPlatformChannelsReady();
   final c = Connectivity();
   yield await c.checkConnectivity();
   yield* c.onConnectivityChanged;

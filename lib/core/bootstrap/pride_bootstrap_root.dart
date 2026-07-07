@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/afghan_pride_app.dart';
+import '../crash/pride_error_collector.dart';
 import 'pride_bootstrap_shell.dart';
 import 'pride_startup_loader.dart';
 import 'pride_startup_payload.dart';
@@ -48,9 +49,16 @@ class _PrideBootstrapRootState extends State<PrideBootstrapRoot> {
       future: _startupFuture,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
+          final error = snapshot.error!;
+          unawaited(PrideErrorCollector.record(
+            error,
+            stack: snapshot.stackTrace,
+            source: 'bootstrap',
+            fatal: true,
+          ));
           return PrideBootstrapMaterialHost(
             child: PrideBootstrapErrorView(
-              error: snapshot.error!,
+              error: error,
               onRetry: _retryStartup,
             ),
           );

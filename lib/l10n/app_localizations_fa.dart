@@ -4674,4 +4674,7 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get settingsDiagnosticsErrorLogSubtitle =>
       'خطاهای اخیر را برای پشتیبانی کپی یا اشتراک کنید';
+
+  @override
+  String get errorWidgetBuildFailedTitle => 'بارگذاری صفحه ناموفق بود';
 }

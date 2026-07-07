@@ -4709,4 +4709,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsDiagnosticsErrorLogSubtitle =>
       'Copy or share recent app errors for support';
+
+  @override
+  String get errorWidgetBuildFailedTitle => 'A screen failed to load';
 }

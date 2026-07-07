@@ -2130,5 +2130,6 @@
   "errorLogCopied": "Error log copied to clipboard.",
   "errorLogEmpty": "No errors recorded yet.",
   "settingsDiagnosticsErrorLogTile": "View error log",
-  "settingsDiagnosticsErrorLogSubtitle": "Copy or share recent app errors for support"
+  "settingsDiagnosticsErrorLogSubtitle": "Copy or share recent app errors for support",
+  "errorWidgetBuildFailedTitle": "A screen failed to load"
 }

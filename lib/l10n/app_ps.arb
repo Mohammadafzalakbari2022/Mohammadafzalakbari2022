@@ -2069,5 +2069,6 @@
   "errorLogCopied": "د تېروتنو راپور کلپ بورډ ته کاپي شو.",
   "errorLogEmpty": "تر اوسه هیڅ تېروتنه ثبت نشوې.",
   "settingsDiagnosticsErrorLogTile": "د تېروتنو راپور وګورئ",
-  "settingsDiagnosticsErrorLogSubtitle": "وروستي تېروتنې د ملاتړ لپاره کاپي یا شریک کړئ"
+  "settingsDiagnosticsErrorLogSubtitle": "وروستي تېروتنې د ملاتړ لپاره کاپي یا شریک کړئ",
+  "errorWidgetBuildFailedTitle": "پاڼه پورته نه شوه"
 }
