@@ -2058,5 +2058,16 @@
   "pushTokenAutoRegistered": "د دې وسیلې لپاره فوري خبرتیا ثبت شوه.",
   "startupFailedTitle": "اپ پیل نشو",
   "startupFailedHint": "بیا هڅه وکړئ. که دوام ولرې، اپ بیا نصب کړئ یا له ملاتړ سره اړیکه ونیسئ.",
-  "startupRetry": "بیا هڅه"
+  "startupRetry": "بیا هڅه",
+  "errorLogTitle": "د تېروتنو راپور",
+  "errorLogCopy": "کاپي",
+  "errorLogShare": "شریکول",
+  "errorLogDismiss": "بندول",
+  "errorLogClose": "بندول",
+  "errorLogClearAll": "راپور پاک کړئ",
+  "errorLogViewAll": "ټول وګورئ",
+  "errorLogCopied": "د تېروتنو راپور کلپ بورډ ته کاپي شو.",
+  "errorLogEmpty": "تر اوسه هیڅ تېروتنه ثبت نشوې.",
+  "settingsDiagnosticsErrorLogTile": "د تېروتنو راپور وګورئ",
+  "settingsDiagnosticsErrorLogSubtitle": "وروستي تېروتنې د ملاتړ لپاره کاپي یا شریک کړئ"
 }

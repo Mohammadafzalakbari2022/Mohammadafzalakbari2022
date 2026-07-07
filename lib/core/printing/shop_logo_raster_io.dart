@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:image/image.dart' as img;
-import 'package:path_provider/path_provider.dart';
+import 'package:pride_v3/core/persistence/pride_path_provider_io.dart';
 
 import '../defaults/effective_shop_profile.dart';
 
@@ -55,7 +55,7 @@ Future<img.Image?> loadShopLogoRasterIfPresent({
   final path = relativePath?.trim();
   if (path == null || path.isEmpty) return null;
   try {
-    final dir = await getApplicationDocumentsDirectory();
+    final dir = await prideApplicationDocumentsDirectory();
     final segments = path.split('/');
     final file = File(
       '${dir.path}${Platform.pathSeparator}${segments.join(Platform.pathSeparator)}',
@@ -75,7 +75,7 @@ Future<img.Image?> loadShopBannerRasterIfPresent({
   final path = relativePath?.trim();
   if (path == null || path.isEmpty) return null;
   try {
-    final dir = await getApplicationDocumentsDirectory();
+    final dir = await prideApplicationDocumentsDirectory();
     final segments = path.split('/');
     final file = File(
       '${dir.path}${Platform.pathSeparator}${segments.join(Platform.pathSeparator)}',

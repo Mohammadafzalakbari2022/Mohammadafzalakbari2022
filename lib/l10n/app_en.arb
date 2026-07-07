@@ -2119,5 +2119,16 @@
   "pushTokenAutoRegistered": "Push notifications registered for this device.",
   "startupFailedTitle": "Could not start the app",
   "startupFailedHint": "Try again. If this keeps happening, reinstall the app or contact support.",
-  "startupRetry": "Try again"
+  "startupRetry": "Try again",
+  "errorLogTitle": "Error log",
+  "errorLogCopy": "Copy",
+  "errorLogShare": "Share",
+  "errorLogDismiss": "Dismiss",
+  "errorLogClose": "Close",
+  "errorLogClearAll": "Clear log",
+  "errorLogViewAll": "View all",
+  "errorLogCopied": "Error log copied to clipboard.",
+  "errorLogEmpty": "No errors recorded yet.",
+  "settingsDiagnosticsErrorLogTile": "View error log",
+  "settingsDiagnosticsErrorLogSubtitle": "Copy or share recent app errors for support"
 }

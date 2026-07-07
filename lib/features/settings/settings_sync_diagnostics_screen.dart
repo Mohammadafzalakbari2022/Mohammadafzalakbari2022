@@ -10,6 +10,7 @@ import 'package:pride_v3/core/api/pride_api_devices.dart';
 import 'package:pride_v3/core/calendar/app_calendar_format.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
 import 'package:pride_v3/core/crash/pride_error_collector.dart';
+import 'package:pride_v3/core/crash/pride_error_log_sheet.dart';
 import 'package:pride_v3/core/diagnostics/diagnostics_export_payload.dart';
 import 'package:pride_v3/core/diagnostics/diagnostics_share.dart';
 import 'package:pride_v3/core/persistence/shared_preferences_provider.dart';
@@ -491,6 +492,16 @@ class _SettingsSyncDiagnosticsScreenState
               leading: const Icon(Icons.outbox_outlined),
               title: Text(l10n.settingsSyncOutboxPlaceholderTitle),
               subtitle: Text(l10n.settingsSyncOutboxPlaceholderSubtitle),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.bug_report_outlined),
+              title: Text(l10n.settingsDiagnosticsErrorLogTile),
+              subtitle: Text(l10n.settingsDiagnosticsErrorLogSubtitle),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => showPrideErrorLogSheet(context),
             ),
           ),
           const SizedBox(height: 16),

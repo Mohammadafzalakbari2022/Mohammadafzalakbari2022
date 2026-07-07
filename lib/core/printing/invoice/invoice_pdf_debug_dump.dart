@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:pride_v3/core/persistence/pride_path_provider_io.dart';
 
 import '../../../data/local/order_measurement_snapshot_view.dart';
 import '../../../data/local/order_style_snapshot_view.dart';
@@ -80,7 +80,7 @@ InvoicePdfDebugPayload buildInvoicePdfDebugPayload({
 Future<String?> writeInvoicePdfDebugDump(InvoicePdfDebugPayload payload) async {
   if (!kDebugMode || kIsWeb) return null;
   try {
-    final dir = await getTemporaryDirectory();
+    final dir = await prideTemporaryDirectory();
     final id = payload.order['internal_id'] ?? 'order';
     final path = '${dir.path}/invoice_pdf_debug_$id.json';
     final encoder = const JsonEncoder.withIndent('  ');

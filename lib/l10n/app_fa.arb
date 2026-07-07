@@ -2058,5 +2058,16 @@
   "pushTokenAutoRegistered": "اعلان فوری برای این دستگاه ثبت شد.",
   "startupFailedTitle": "برنامه راه‌اندازی نشد",
   "startupFailedHint": "دوباره تلاش کنید. اگر ادامه داشت، برنامه را دوباره نصب کنید یا با پشتیبانی تماس بگیرید.",
-  "startupRetry": "تلاش دوباره"
+  "startupRetry": "تلاش دوباره",
+  "errorLogTitle": "گزارش خطا",
+  "errorLogCopy": "کپی",
+  "errorLogShare": "اشتراک",
+  "errorLogDismiss": "بستن",
+  "errorLogClose": "بستن",
+  "errorLogClearAll": "پاک کردن گزارش",
+  "errorLogViewAll": "مشاهده همه",
+  "errorLogCopied": "گزارش خطا در کلیپ‌بورد کپی شد.",
+  "errorLogEmpty": "هنوز خطایی ثبت نشده است.",
+  "settingsDiagnosticsErrorLogTile": "مشاهده گزارش خطا",
+  "settingsDiagnosticsErrorLogSubtitle": "خطاهای اخیر را برای پشتیبانی کپی یا اشتراک کنید"
 }

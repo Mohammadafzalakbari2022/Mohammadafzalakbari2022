@@ -14,5 +14,7 @@ void main() {
     expect(snap, isNotEmpty);
     expect(snap.last['message'], contains('test failure'));
     expect(PrideErrorCollector.formatEntry(snap.last), contains('StateError'));
+    expect(PrideErrorCollector.formatFullReport(), contains('StateError'));
+    expect(PrideErrorCollector.entryKey(snap.last), isNotEmpty);
   });
 }

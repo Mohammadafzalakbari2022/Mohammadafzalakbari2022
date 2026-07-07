@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:image/image.dart' as img;
-import 'package:path_provider/path_provider.dart';
+import 'package:pride_v3/core/persistence/pride_path_provider_io.dart';
 
 import '../../data/local/style/style_figure_image_ref.dart';
 
@@ -19,7 +19,7 @@ Future<img.Image?> loadStyleFigureRaster({
     } else {
       final rel = StyleFigureImageRef.fileRelativePathFromRef(imageRef);
       if (rel == null) return null;
-      final dir = await getApplicationDocumentsDirectory();
+      final dir = await prideApplicationDocumentsDirectory();
       final segments = rel.split('/');
       final file = File(
         '${dir.path}${Platform.pathSeparator}${segments.join(Platform.pathSeparator)}',

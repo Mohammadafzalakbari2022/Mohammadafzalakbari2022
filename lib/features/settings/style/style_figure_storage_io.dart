@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:pride_v3/core/persistence/pride_path_provider_io.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../data/local/style/style_figure_image_ref.dart';
@@ -29,7 +29,7 @@ Future<String?> pickStyleFigureRelativePath({
           interpolation: img.Interpolation.linear,
         )
       : decoded;
-  final dir = await getApplicationDocumentsDirectory();
+  final dir = await prideApplicationDocumentsDirectory();
   final figuresDir = Directory(
     '${dir.path}${Platform.pathSeparator}style_figures',
   );

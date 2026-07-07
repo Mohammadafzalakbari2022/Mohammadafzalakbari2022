@@ -121,11 +121,36 @@ abstract final class PrideErrorCollector {
     final type = entry['type'] ?? 'Error';
     final message = entry['message'] ?? '';
     final source = entry['source'] ?? '';
+    final atUtc = entry['atUtc'];
+    final context = entry['context'];
     final stack = entry['stack'];
-    final buf = StringBuffer('$type ($source): $message');
+    final buf = StringBuffer();
+    if (atUtc is String && atUtc.isNotEmpty) {
+      buf.writeln('[$atUtc]');
+    }
+    buf.write('$type ($source): $message');
+    if (context is String && context.isNotEmpty) {
+      buf.writeln();
+      buf.write('context: $context');
+    }
     if (stack is String && stack.isNotEmpty) {
       buf.writeln();
       buf.write(stack);
+    }
+    return buf.toString();
+  }
+
+  /// Stable key for dismissing a single overlay entry.
+  static String entryKey(Map<String, dynamic> entry) =>
+      '${entry['atUtc']}|${entry['type']}|${entry['message']}';
+
+  /// Full text report for clipboard / share (newest last).
+  static String formatFullReport() {
+    if (_buffer.isEmpty) return '';
+    final buf = StringBuffer();
+    for (var i = 0; i < _buffer.length; i++) {
+      if (i > 0) buf.writeln('\n---\n');
+      buf.write(formatEntry(_buffer[i]));
     }
     return buf.toString();
   }

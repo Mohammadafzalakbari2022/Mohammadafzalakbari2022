@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:path_provider/path_provider.dart';
+import 'package:pride_v3/core/persistence/pride_path_provider_io.dart';
 
 import 'shop_profile.dart';
 
 Future<File> _file() async {
-  final dir = await getApplicationDocumentsDirectory();
+  final dir = await prideApplicationDocumentsDirectory();
   return File('${dir.path}${Platform.pathSeparator}shop_profile.json');
 }
 

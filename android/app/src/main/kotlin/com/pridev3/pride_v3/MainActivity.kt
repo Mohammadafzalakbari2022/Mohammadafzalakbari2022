@@ -10,6 +10,7 @@ import androidx.core.content.FileProvider
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
+import io.flutter.plugins.pathprovider.PathProviderPlugin
 import io.flutter.plugins.sharedpreferences.SharedPreferencesPlugin
 import android.content.SharedPreferences
 import java.io.ByteArrayInputStream
@@ -22,13 +23,26 @@ class MainActivity : FlutterActivity() {
     private var toneGenerator: ToneGenerator? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
-        // Register shared_preferences before other plugins — release builds can
-        // otherwise miss the legacy Pigeon handler (flutter/flutter#153075).
+        // Register pigeon plugins before super — release builds can miss handlers.
         if (!flutterEngine.plugins.has(SharedPreferencesPlugin::class.java)) {
             flutterEngine.plugins.add(SharedPreferencesPlugin())
         }
+        if (!flutterEngine.plugins.has(PathProviderPlugin::class.java)) {
+            flutterEngine.plugins.add(PathProviderPlugin())
+        }
         super.configureFlutterEngine(flutterEngine)
         val messenger = flutterEngine.dartExecutor.binaryMessenger
+
+        MethodChannel(messenger, "com.pridev3.pride_v3/native_paths")
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "getApplicationDocumentsPath" ->
+                        result.success(applicationContext.filesDir.absolutePath)
+                    "getTemporaryPath" ->
+                        result.success(applicationContext.cacheDir.absolutePath)
+                    else -> result.notImplemented()
+                }
+            }
 
         MethodChannel(messenger, "com.pridev3.pride_v3/native_prefs")
             .setMethodCallHandler { call, result ->

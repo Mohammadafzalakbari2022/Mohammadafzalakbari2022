@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:pride_v3/core/persistence/pride_path_provider_io.dart';
 
 import '../../../data/local/style/style_figure_image_ref.dart';
 
@@ -46,7 +46,7 @@ Widget buildStyleFigureImage({
 }
 
 Future<File?> _fileForRelative(String rel) async {
-  final dir = await getApplicationDocumentsDirectory();
+  final dir = await prideApplicationDocumentsDirectory();
   final path = rel.replaceAll('/', Platform.pathSeparator);
   return File('${dir.path}${Platform.pathSeparator}$path');
 }

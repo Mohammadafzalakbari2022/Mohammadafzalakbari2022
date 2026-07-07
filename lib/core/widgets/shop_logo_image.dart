@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:pride_v3/core/persistence/pride_path_provider_io.dart';
 import 'package:pride_v3/core/defaults/effective_shop_profile.dart';
 
 /// How the logo is framed in the UI.
@@ -112,7 +112,7 @@ class ShopLogoImage extends StatelessWidget {
 
   static Future<File?> _resolveLogoFile(String relativePath) async {
     try {
-      final dir = await getApplicationDocumentsDirectory();
+      final dir = await prideApplicationDocumentsDirectory();
       final segments = relativePath.split('/');
       final file = File(
         '${dir.path}${Platform.pathSeparator}${segments.join(Platform.pathSeparator)}',

@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:pride_v3/core/persistence/pride_path_provider_io.dart';
 
 /// Picks and saves a wide shop banner (~3:1) under app documents.
 Future<String?> pickShopBannerRelativePath() async {
@@ -36,7 +36,7 @@ Future<String?> pickShopBannerRelativePath() async {
     );
   }
 
-  final dir = await getApplicationDocumentsDirectory();
+  final dir = await prideApplicationDocumentsDirectory();
   final brandingDir = Directory(
     '${dir.path}${Platform.pathSeparator}branding',
   );
@@ -51,7 +51,7 @@ Future<String?> pickShopBannerRelativePath() async {
 }
 
 Future<void> deleteShopBannerFile() async {
-  final dir = await getApplicationDocumentsDirectory();
+  final dir = await prideApplicationDocumentsDirectory();
   final f = File(
     '${dir.path}${Platform.pathSeparator}branding${Platform.pathSeparator}shop_banner.png',
   );

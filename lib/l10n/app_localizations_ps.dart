@@ -4635,4 +4635,38 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get startupRetry => 'بیا هڅه';
+
+  @override
+  String get errorLogTitle => 'د تېروتنو راپور';
+
+  @override
+  String get errorLogCopy => 'کاپي';
+
+  @override
+  String get errorLogShare => 'شریکول';
+
+  @override
+  String get errorLogDismiss => 'بندول';
+
+  @override
+  String get errorLogClose => 'بندول';
+
+  @override
+  String get errorLogClearAll => 'راپور پاک کړئ';
+
+  @override
+  String get errorLogViewAll => 'ټول وګورئ';
+
+  @override
+  String get errorLogCopied => 'د تېروتنو راپور کلپ بورډ ته کاپي شو.';
+
+  @override
+  String get errorLogEmpty => 'تر اوسه هیڅ تېروتنه ثبت نشوې.';
+
+  @override
+  String get settingsDiagnosticsErrorLogTile => 'د تېروتنو راپور وګورئ';
+
+  @override
+  String get settingsDiagnosticsErrorLogSubtitle =>
+      'وروستي تېروتنې د ملاتړ لپاره کاپي یا شریک کړئ';
 }

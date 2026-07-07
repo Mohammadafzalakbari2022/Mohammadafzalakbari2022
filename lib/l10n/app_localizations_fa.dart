@@ -4640,4 +4640,38 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get startupRetry => 'تلاش دوباره';
+
+  @override
+  String get errorLogTitle => 'گزارش خطا';
+
+  @override
+  String get errorLogCopy => 'کپی';
+
+  @override
+  String get errorLogShare => 'اشتراک';
+
+  @override
+  String get errorLogDismiss => 'بستن';
+
+  @override
+  String get errorLogClose => 'بستن';
+
+  @override
+  String get errorLogClearAll => 'پاک کردن گزارش';
+
+  @override
+  String get errorLogViewAll => 'مشاهده همه';
+
+  @override
+  String get errorLogCopied => 'گزارش خطا در کلیپ‌بورد کپی شد.';
+
+  @override
+  String get errorLogEmpty => 'هنوز خطایی ثبت نشده است.';
+
+  @override
+  String get settingsDiagnosticsErrorLogTile => 'مشاهده گزارش خطا';
+
+  @override
+  String get settingsDiagnosticsErrorLogSubtitle =>
+      'خطاهای اخیر را برای پشتیبانی کپی یا اشتراک کنید';
 }

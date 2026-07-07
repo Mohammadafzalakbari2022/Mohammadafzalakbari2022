@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:pride_v3/core/persistence/pride_path_provider_io.dart';
 
 Future<String?> pickShopLogoRelativePath() async {
   final picker = ImagePicker();
@@ -24,7 +24,7 @@ Future<String?> pickShopLogoRelativePath() async {
           interpolation: img.Interpolation.linear,
         )
       : decoded;
-  final dir = await getApplicationDocumentsDirectory();
+  final dir = await prideApplicationDocumentsDirectory();
   final brandingDir = Directory(
     '${dir.path}${Platform.pathSeparator}branding',
   );
@@ -39,7 +39,7 @@ Future<String?> pickShopLogoRelativePath() async {
 }
 
 Future<void> deleteShopLogoFile() async {
-  final dir = await getApplicationDocumentsDirectory();
+  final dir = await prideApplicationDocumentsDirectory();
   final f = File(
     '${dir.path}${Platform.pathSeparator}branding${Platform.pathSeparator}shop_logo.png',
   );

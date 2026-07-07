@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:pride_v3/core/persistence/pride_path_provider_io.dart';
 import 'package:pride_v3/core/feedback/app_feedback.dart';
 import 'package:pride_v3/core/formatting/display_order_no_format.dart';
 import 'package:pride_v3/core/printing/invoice/order_invoice_loader.dart';
@@ -90,7 +90,7 @@ Future<void> shareOrderInvoice({
 
     var path = '';
     if (!kIsWeb) {
-      final dir = await getTemporaryDirectory();
+      final dir = await prideTemporaryDirectory();
       path = '${dir.path}/$filename';
       await File(path).writeAsBytes(pdfBytes, flush: true);
     }

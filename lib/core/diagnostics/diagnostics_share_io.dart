@@ -1,10 +1,10 @@
 import 'dart:io';
 
-import 'package:path_provider/path_provider.dart';
+import 'package:pride_v3/core/persistence/pride_path_provider_io.dart';
 import 'package:share_plus/share_plus.dart';
 
 Future<void> shareDiagnosticsBundle(String json, String filename) async {
-  final dir = await getTemporaryDirectory();
+  final dir = await prideTemporaryDirectory();
   final path = '${dir.path}/$filename';
   final file = File(path);
   await file.writeAsString(json, flush: true);

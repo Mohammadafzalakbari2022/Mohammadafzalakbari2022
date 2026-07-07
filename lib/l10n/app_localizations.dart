@@ -8402,6 +8402,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Try again'**
   String get startupRetry;
+
+  /// No description provided for @errorLogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Error log'**
+  String get errorLogTitle;
+
+  /// No description provided for @errorLogCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get errorLogCopy;
+
+  /// No description provided for @errorLogShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get errorLogShare;
+
+  /// No description provided for @errorLogDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get errorLogDismiss;
+
+  /// No description provided for @errorLogClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get errorLogClose;
+
+  /// No description provided for @errorLogClearAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear log'**
+  String get errorLogClearAll;
+
+  /// No description provided for @errorLogViewAll.
+  ///
+  /// In en, this message translates to:
+  /// **'View all'**
+  String get errorLogViewAll;
+
+  /// No description provided for @errorLogCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Error log copied to clipboard.'**
+  String get errorLogCopied;
+
+  /// No description provided for @errorLogEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No errors recorded yet.'**
+  String get errorLogEmpty;
+
+  /// No description provided for @settingsDiagnosticsErrorLogTile.
+  ///
+  /// In en, this message translates to:
+  /// **'View error log'**
+  String get settingsDiagnosticsErrorLogTile;
+
+  /// No description provided for @settingsDiagnosticsErrorLogSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy or share recent app errors for support'**
+  String get settingsDiagnosticsErrorLogSubtitle;
 }
 
 class _AppLocalizationsDelegate

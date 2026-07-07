@@ -4675,4 +4675,38 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get startupRetry => 'Try again';
+
+  @override
+  String get errorLogTitle => 'Error log';
+
+  @override
+  String get errorLogCopy => 'Copy';
+
+  @override
+  String get errorLogShare => 'Share';
+
+  @override
+  String get errorLogDismiss => 'Dismiss';
+
+  @override
+  String get errorLogClose => 'Close';
+
+  @override
+  String get errorLogClearAll => 'Clear log';
+
+  @override
+  String get errorLogViewAll => 'View all';
+
+  @override
+  String get errorLogCopied => 'Error log copied to clipboard.';
+
+  @override
+  String get errorLogEmpty => 'No errors recorded yet.';
+
+  @override
+  String get settingsDiagnosticsErrorLogTile => 'View error log';
+
+  @override
+  String get settingsDiagnosticsErrorLogSubtitle =>
+      'Copy or share recent app errors for support';
 }

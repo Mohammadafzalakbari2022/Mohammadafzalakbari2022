@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:pride_v3/core/persistence/pride_path_provider_io.dart';
 
 /// Clears non-essential on-device caches (temp PDFs, image memory cache).
 abstract final class AppCacheManager {
@@ -20,7 +20,7 @@ abstract final class AppCacheManager {
   }) async {
     if (kIsWeb) return;
     try {
-      final dir = await getTemporaryDirectory();
+      final dir = await prideTemporaryDirectory();
       final cutoff = DateTime.now().subtract(maxAge);
       await for (final entity in dir.list()) {
         if (entity is! File) continue;
@@ -38,7 +38,7 @@ abstract final class AppCacheManager {
 
   static Future<void> _clearTempInvoicePdfs() async {
     try {
-      final dir = await getTemporaryDirectory();
+      final dir = await prideTemporaryDirectory();
       await for (final entity in dir.list()) {
         if (entity is! File) continue;
         final name = entity.path.split(Platform.pathSeparator).last;

@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:path_provider/path_provider.dart';
+import 'package:pride_v3/core/persistence/pride_path_provider_io.dart';
 import 'package:uuid/uuid.dart';
 
 import 'catalog_stored_image_paths.dart';
@@ -10,7 +10,7 @@ import 'catalog_thumbnail_io.dart';
 final _uuid = const Uuid();
 
 Future<CatalogStoredImagePaths> storeCatalogImage(Uint8List bytes) async {
-  final dir = await getApplicationDocumentsDirectory();
+  final dir = await prideApplicationDocumentsDirectory();
   final folder = Directory('${dir.path}${Platform.pathSeparator}catalog');
   if (!await folder.exists()) {
     await folder.create(recursive: true);

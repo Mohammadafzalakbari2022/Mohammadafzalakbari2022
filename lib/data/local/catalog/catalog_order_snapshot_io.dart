@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:pride_v3/core/persistence/pride_path_provider_io.dart';
 
 import 'catalog_image_ref.dart';
 import '../../../features/catalog/catalog_stored_image_paths.dart';
@@ -16,7 +16,7 @@ Future<CatalogStoredImagePaths?> copyCatalogPathsToOrderSnapshot({
   final srcImage = imagePath?.trim();
   if (srcImage == null || srcImage.isEmpty) return null;
 
-  final dir = await getApplicationDocumentsDirectory();
+  final dir = await prideApplicationDocumentsDirectory();
   final folder = Directory(
     '${dir.path}${Platform.pathSeparator}catalog${Platform.pathSeparator}order_snapshots',
   );

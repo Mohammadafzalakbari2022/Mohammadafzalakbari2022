@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:isar/isar.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:pride_v3/core/persistence/pride_path_provider_io.dart';
 
 import '../local/entities/catalog_item_entity.dart';
 import '../local/entities/app_notification_entity.dart';
@@ -738,7 +738,7 @@ abstract final class IsarBackupV1 {
     String kind,
     String base64Data,
   ) async {
-    final dir = await getApplicationDocumentsDirectory();
+    final dir = await prideApplicationDocumentsDirectory();
     final folder = Directory('${dir.path}${Platform.pathSeparator}catalog');
     if (!await folder.exists()) {
       await folder.create(recursive: true);

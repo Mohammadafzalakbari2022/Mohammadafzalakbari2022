@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:pride_v3/core/crash/pride_error_collector.dart';
+import 'package:pride_v3/core/persistence/pride_path_provider_io.dart';
 
 import '../../auth/auth_providers.dart';
 import '../local/dev_shop_constants.dart';
@@ -78,8 +79,9 @@ import '../local/sync_outbox_repository.dart';
 
 /// Open Isar (Android, iOS, desktop). Not used on Web — see [local_data_providers_web.dart].
 final isarProvider = FutureProvider<Isar>((ref) async {
-  final dir = await getApplicationDocumentsDirectory();
-  final isar = await Isar.open(
+  try {
+    final dir = await prideApplicationDocumentsDirectory();
+    final isar = await Isar.open(
     [
       CustomerEntitySchema,
       OrderEntitySchema,
@@ -110,10 +112,19 @@ final isarProvider = FutureProvider<Isar>((ref) async {
     directory: dir.path,
   );
   await IsarOrderMigrationV4.runIfNeeded(isar: isar);
-  ref.onDispose(() {
-    isar.close();
-  });
-  return isar;
+    ref.onDispose(() {
+      isar.close();
+    });
+    return isar;
+  } catch (error, stack) {
+    await PrideErrorCollector.record(
+      error,
+      stack: stack,
+      source: 'isar',
+      context: 'Isar.open',
+    );
+    rethrow;
+  }
 });
 
 final orderListRepositoryProvider =
