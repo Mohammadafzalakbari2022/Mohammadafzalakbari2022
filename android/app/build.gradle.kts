@@ -56,6 +56,12 @@ android {
                 // Local QA only — create android/key.properties for Play Store uploads.
                 signingConfigs.getByName("debug")
             }
+            isMinifyEnabled = false
+            isShrinkResources = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
         }
     }
 }

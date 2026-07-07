@@ -4625,4 +4625,14 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get pushTokenAutoRegistered => 'د دې وسیلې لپاره فوري خبرتیا ثبت شوه.';
+
+  @override
+  String get startupFailedTitle => 'اپ پیل نشو';
+
+  @override
+  String get startupFailedHint =>
+      'بیا هڅه وکړئ. که دوام ولرې، اپ بیا نصب کړئ یا له ملاتړ سره اړیکه ونیسئ.';
+
+  @override
+  String get startupRetry => 'بیا هڅه';
 }

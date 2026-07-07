@@ -2055,5 +2055,8 @@
   "catalogP2pWebNotSupported": "دانلود کاتالوگ در وب موجود نیست. از اپ اندروید استفاده کنید.",
   "settingsSyncConflictsTile": "تعارض همگام‌سازی",
   "settingsSyncConflictsTileSubtitle": "بررسی و حل تعارض سفارش",
-  "pushTokenAutoRegistered": "اعلان فوری برای این دستگاه ثبت شد."
+  "pushTokenAutoRegistered": "اعلان فوری برای این دستگاه ثبت شد.",
+  "startupFailedTitle": "برنامه راه‌اندازی نشد",
+  "startupFailedHint": "دوباره تلاش کنید. اگر ادامه داشت، برنامه را دوباره نصب کنید یا با پشتیبانی تماس بگیرید.",
+  "startupRetry": "تلاش دوباره"
 }

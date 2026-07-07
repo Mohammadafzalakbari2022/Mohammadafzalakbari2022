@@ -2,11 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Ring buffer of recent errors for support exports and next-release triage.
+/// Ring buffer of recent errors for support exports and on-device diagnostics.
 ///
 /// Always active (local). When [PRIDE_SENTRY_DSN] is set, also forwards to Sentry.
 abstract final class PrideErrorCollector {
@@ -16,13 +17,16 @@ abstract final class PrideErrorCollector {
   static SharedPreferences? _prefs;
   static final List<Map<String, dynamic>> _buffer = [];
   static var _installed = false;
+  static var _earlyHooksInstalled = false;
 
-  /// Call once after [SharedPreferences] is available (see [main.dart]).
-  static Future<void> install(SharedPreferences prefs) async {
-    if (_installed) return;
-    _installed = true;
-    _prefs = prefs;
-    await _loadFromDisk();
+  /// Fires whenever a new error is recorded (UI overlay listens).
+  static final ValueNotifier<Map<String, dynamic>?> latestError =
+      ValueNotifier<Map<String, dynamic>?>(null);
+
+  /// Installs framework hooks immediately — safe before [runApp].
+  static void installEarlyHooks() {
+    if (_earlyHooksInstalled) return;
+    _earlyHooksInstalled = true;
 
     final prevFlutter = FlutterError.onError;
     FlutterError.onError = (details) {
@@ -36,9 +40,27 @@ abstract final class PrideErrorCollector {
         error,
         stack: stack,
         source: 'platform',
+        fatal: true,
       ));
       return prevPlatform?.call(error, stack) ?? false;
     };
+  }
+
+  /// Attaches SharedPreferences persistence (call after first frame if needed).
+  static Future<void> attachPreferences(SharedPreferences prefs) async {
+    if (_installed) {
+      _prefs = prefs;
+      return;
+    }
+    _installed = true;
+    _prefs = prefs;
+    await _loadFromDisk();
+  }
+
+  /// Call once after [SharedPreferences] is available.
+  static Future<void> install(SharedPreferences prefs) async {
+    installEarlyHooks();
+    await attachPreferences(prefs);
   }
 
   static Future<void> record(
@@ -62,6 +84,7 @@ abstract final class PrideErrorCollector {
     while (_buffer.length > _maxEntries) {
       _buffer.removeAt(0);
     }
+    latestError.value = entry;
     await _persist();
 
     const dsn = String.fromEnvironment('PRIDE_SENTRY_DSN', defaultValue: '');
@@ -91,8 +114,25 @@ abstract final class PrideErrorCollector {
   static List<Map<String, dynamic>> snapshot() =>
       List<Map<String, dynamic>>.unmodifiable(_buffer);
 
+  static Map<String, dynamic>? get lastEntry =>
+      _buffer.isEmpty ? null : _buffer.last;
+
+  static String formatEntry(Map<String, dynamic> entry) {
+    final type = entry['type'] ?? 'Error';
+    final message = entry['message'] ?? '';
+    final source = entry['source'] ?? '';
+    final stack = entry['stack'];
+    final buf = StringBuffer('$type ($source): $message');
+    if (stack is String && stack.isNotEmpty) {
+      buf.writeln();
+      buf.write(stack);
+    }
+    return buf.toString();
+  }
+
   static Future<void> clear() async {
     _buffer.clear();
+    latestError.value = null;
     await _prefs?.remove(_prefsKey);
   }
 
@@ -112,6 +152,9 @@ abstract final class PrideErrorCollector {
       while (_buffer.length > _maxEntries) {
         _buffer.removeAt(0);
       }
+      if (_buffer.isNotEmpty) {
+        latestError.value = _buffer.last;
+      }
     } on Object {
       await _prefs?.remove(_prefsKey);
     }
@@ -126,4 +169,9 @@ abstract final class PrideErrorCollector {
       // Ignore quota / serialization failures.
     }
   }
+}
+
+/// Ensures a visible frame is scheduled right after [runApp].
+void schedulePrideWarmUpFrame() {
+  SchedulerBinding.instance.scheduleWarmUpFrame();
 }

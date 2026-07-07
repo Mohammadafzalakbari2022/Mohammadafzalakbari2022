@@ -8384,6 +8384,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Push notifications registered for this device.'**
   String get pushTokenAutoRegistered;
+
+  /// No description provided for @startupFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not start the app'**
+  String get startupFailedTitle;
+
+  /// No description provided for @startupFailedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again. If this keeps happening, reinstall the app or contact support.'**
+  String get startupFailedHint;
+
+  /// No description provided for @startupRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get startupRetry;
 }
 
 class _AppLocalizationsDelegate

@@ -2116,5 +2116,8 @@
   "catalogP2pWebNotSupported": "Catalog download is not available on web. Use the Android app.",
   "settingsSyncConflictsTile": "Sync conflicts",
   "settingsSyncConflictsTileSubtitle": "Review and resolve order conflicts",
-  "pushTokenAutoRegistered": "Push notifications registered for this device."
+  "pushTokenAutoRegistered": "Push notifications registered for this device.",
+  "startupFailedTitle": "Could not start the app",
+  "startupFailedHint": "Try again. If this keeps happening, reinstall the app or contact support.",
+  "startupRetry": "Try again"
 }

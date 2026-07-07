@@ -4630,4 +4630,14 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get pushTokenAutoRegistered => 'اعلان فوری برای این دستگاه ثبت شد.';
+
+  @override
+  String get startupFailedTitle => 'برنامه راه‌اندازی نشد';
+
+  @override
+  String get startupFailedHint =>
+      'دوباره تلاش کنید. اگر ادامه داشت، برنامه را دوباره نصب کنید یا با پشتیبانی تماس بگیرید.';
+
+  @override
+  String get startupRetry => 'تلاش دوباره';
 }

@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ic_launcher_background">#7E0094</color>
+    <!-- Matches Flutter dark scaffold; avoids pure-black native splash on cold start. -->
+    <color name="pride_splash_background">#FFFFFF</color>
+    <color name="pride_window_background">#FFFFFF</color>
 </resources>

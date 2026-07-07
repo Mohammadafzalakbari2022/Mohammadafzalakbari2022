@@ -4665,4 +4665,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get pushTokenAutoRegistered =>
       'Push notifications registered for this device.';
+
+  @override
+  String get startupFailedTitle => 'Could not start the app';
+
+  @override
+  String get startupFailedHint =>
+      'Try again. If this keeps happening, reinstall the app or contact support.';
+
+  @override
+  String get startupRetry => 'Try again';
 }

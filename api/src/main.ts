@@ -10,4 +10,8 @@ async function bootstrap() {
   const port = Number(process.env.PORT) || 3000;
   await app.listen(port, '0.0.0.0');
 }
-bootstrap();
+
+bootstrap().catch((error) => {
+  console.error('NestJS bootstrap failed:', error);
+  throw error;
+});

@@ -2055,5 +2055,8 @@
   "catalogP2pWebNotSupported": "په ویب کې کتلاګ ډاونلوډ نشته. د اندروید اپ وکاروئ.",
   "settingsSyncConflictsTile": "د همغږي شخړې",
   "settingsSyncConflictsTileSubtitle": "د امر شخړې وګورئ او حل کړئ",
-  "pushTokenAutoRegistered": "د دې وسیلې لپاره فوري خبرتیا ثبت شوه."
+  "pushTokenAutoRegistered": "د دې وسیلې لپاره فوري خبرتیا ثبت شوه.",
+  "startupFailedTitle": "اپ پیل نشو",
+  "startupFailedHint": "بیا هڅه وکړئ. که دوام ولرې، اپ بیا نصب کړئ یا له ملاتړ سره اړیکه ونیسئ.",
+  "startupRetry": "بیا هڅه"
 }

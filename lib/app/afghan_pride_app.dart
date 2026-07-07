@@ -12,6 +12,9 @@ import 'package:pride_v3/core/sync/auto_sync_host.dart';
 
 import 'package:pride_v3/licensing/license_status_refresh_host.dart';
 
+import 'package:pride_v3/core/bootstrap/pride_bootstrap_shell.dart';
+import 'package:pride_v3/core/crash/pride_runtime_error_overlay.dart';
+
 
 
 import '../features/catalog/catalog_p2p_serve_host.dart';
@@ -50,82 +53,54 @@ class AfghanPrideApp extends ConsumerWidget {
     final fontFamily = fontFamilyFromPreset(fontFamilyPreset);
 
     return LicenseStatusRefreshHost(
+        child: CatalogP2pServeHost(
+          child: AutoSyncHost(
+            child: MaterialApp.router(
+              routerConfig: router,
+              builder: (context, child) {
+                final mq = MediaQuery.of(context);
+                final userScale = fontScaleFromPreset(fontSizePreset);
+                final effectiveScale = prideEffectiveTextScale(
+                  userScale: userScale,
+                  width: mq.size.width,
+                );
 
-      child: CatalogP2pServeHost(
-
-        child: AutoSyncHost(
-
-          child: MaterialApp.router(
-
-            routerConfig: router,
-
-            builder: (context, child) {
-              final mq = MediaQuery.of(context);
-              final userScale = fontScaleFromPreset(fontSizePreset);
-              final effectiveScale = prideEffectiveTextScale(
-                userScale: userScale,
-                width: mq.size.width,
-              );
-
-              return MediaQuery(
-                data: mq.copyWith(
-                  textScaler: TextScaler.linear(effectiveScale),
-                ),
-                child: child ?? const SizedBox.shrink(),
-              );
-            },
-
-            onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
-
-            localizationsDelegates: [
-
-              AppLocalizations.delegate,
-
-              GlobalMaterialLocalizations.delegate,
-
-              GlobalWidgetsLocalizations.delegate,
-
-              GlobalCupertinoLocalizations.delegate,
-
-            ],
-
-            supportedLocales: AppLocalizations.supportedLocales,
-
-            localeListResolutionCallback: (deviceLocales, supported) {
-
-              if (deviceLocales != null) {
-
-                for (final device in deviceLocales) {
-
-                  for (final s in supported) {
-
-                    if (s.languageCode == device.languageCode) return s;
-
+                return PrideRuntimeErrorOverlay(
+                  child: MediaQuery(
+                    data: mq.copyWith(
+                      textScaler: TextScaler.linear(effectiveScale),
+                    ),
+                    child: child ?? const PrideRouterPlaceholder(),
+                  ),
+                );
+              },
+              onGenerateTitle: (context) =>
+                  AppLocalizations.of(context)!.appTitle,
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: AppLocalizations.supportedLocales,
+              localeListResolutionCallback: (deviceLocales, supported) {
+                if (deviceLocales != null) {
+                  for (final device in deviceLocales) {
+                    for (final s in supported) {
+                      if (s.languageCode == device.languageCode) return s;
+                    }
                   }
-
                 }
-
-              }
-
-              return const Locale('fa');
-
-            },
-
-            locale: localeOverride,
-
-            theme: buildPrideLightTheme(fontFamily: fontFamily),
-
-            darkTheme: buildPrideDarkTheme(fontFamily: fontFamily),
-
-            themeMode: themeMode,
-
+                return const Locale('fa');
+              },
+              locale: localeOverride,
+              theme: buildPrideLightTheme(fontFamily: fontFamily),
+              darkTheme: buildPrideDarkTheme(fontFamily: fontFamily),
+              themeMode: themeMode,
+            ),
           ),
-
         ),
-
-      ),
-
-    );
+      );
 
   }
 
