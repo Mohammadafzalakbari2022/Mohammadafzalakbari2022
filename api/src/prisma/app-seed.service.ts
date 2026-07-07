@@ -18,10 +18,17 @@ export class AppSeedService implements OnModuleInit {
   constructor(private readonly prisma: PrismaService) {}
 
   async onModuleInit(): Promise<void> {
+    if (process.env.VERCEL) {
+      void this.run().catch((error) => {
+        this.log.error(`Auth seed failed on Vercel cold start: ${String(error)}`);
+      });
+      return;
+    }
     await this.run();
   }
 
   async run(): Promise<void> {
+    await this.prisma.ensureConnected();
     const nodeEnv = process.env.NODE_ENV ?? 'development';
     const raw = process.env.PRIDE_AUTH_SEED?.trim();
     const effective = raw && raw.length > 0 ? raw : '';

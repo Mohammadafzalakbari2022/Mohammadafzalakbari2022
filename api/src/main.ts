@@ -3,6 +3,12 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
+  console.log('Pride API bootstrap', {
+    node: process.version,
+    vercel: Boolean(process.env.VERCEL),
+    hasJwtSecret: Boolean(process.env.JWT_SECRET),
+    hasDatabaseUrl: Boolean(process.env.DATABASE_URL),
+  });
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   // Billing settings image is base64 in JSON (up to ~1.4 MB for a 1 MB image).
   app.useBodyParser('json', { limit: '2mb' });

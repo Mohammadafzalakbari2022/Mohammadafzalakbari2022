@@ -1,5 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import * as admin from 'firebase-admin';
+
+type FirebaseAdminModule = typeof import('firebase-admin');
+type FirebaseServiceAccount = import('firebase-admin').ServiceAccount;
 
 /**
  * Firebase Cloud Messaging via service account JSON (`plan-22`).
@@ -11,9 +13,10 @@ import * as admin from 'firebase-admin';
 export class FcmPushService implements OnModuleInit {
   private readonly log = new Logger(FcmPushService.name);
 
+  private admin: FirebaseAdminModule | null = null;
   private ready = false;
 
-  onModuleInit(): void {
+  async onModuleInit(): Promise<void> {
     const raw = process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.trim();
     if (!raw) {
       this.log.log(
@@ -22,10 +25,12 @@ export class FcmPushService implements OnModuleInit {
       return;
     }
     try {
-      const cred = JSON.parse(raw) as admin.ServiceAccount;
+      const admin = await import('firebase-admin');
+      const cred = JSON.parse(raw) as FirebaseServiceAccount;
       if (!admin.apps.length) {
         admin.initializeApp({ credential: admin.credential.cert(cred) });
       }
+      this.admin = admin;
       this.ready = true;
       this.log.log('FCM: Firebase Admin initialised.');
     } catch (e) {
@@ -43,10 +48,10 @@ export class FcmPushService implements OnModuleInit {
     body: string,
     data?: Record<string, string>,
   ): Promise<{ successCount: number; failureCount: number }> {
-    if (!this.ready || tokens.length === 0) {
+    if (!this.ready || !this.admin || tokens.length === 0) {
       return { successCount: 0, failureCount: 0 };
     }
-    const messaging = admin.messaging();
+    const messaging = this.admin.messaging();
     let successCount = 0;
     let failureCount = 0;
     for (let i = 0; i < tokens.length; i += 500) {
