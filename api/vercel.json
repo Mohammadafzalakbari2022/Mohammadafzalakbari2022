@@ -3,12 +3,6 @@
   "framework": "nestjs",
   "buildCommand": "npm run build",
   "installCommand": "npm install",
-  "outputFileTracingIncludes": {
-    "/**": [
-      "node_modules/.prisma/client/**",
-      "node_modules/@prisma/engines/**"
-    ]
-  },
   "crons": [
     {
       "path": "/api/cron/license-expiry",
