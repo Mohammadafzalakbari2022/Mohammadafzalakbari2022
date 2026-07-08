@@ -62,7 +62,6 @@ class _OrderDetailCustomerEditSheetState
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _name;
   late final TextEditingController _phone;
-  late final TextEditingController _search;
   String? _customerId;
 
   @override
@@ -71,14 +70,12 @@ class _OrderDetailCustomerEditSheetState
     _customerId = widget.order.customerInternalId;
     _name = TextEditingController(text: widget.order.customerName);
     _phone = TextEditingController(text: widget.order.customerPhone ?? '');
-    _search = TextEditingController();
   }
 
   @override
   void dispose() {
     _name.dispose();
     _phone.dispose();
-    _search.dispose();
     super.dispose();
   }
 
@@ -128,18 +125,6 @@ class _OrderDetailCustomerEditSheetState
     }
   }
 
-  void _tryMatchFromSearch(String q) {
-    final lower = q.trim().toLowerCase();
-    if (lower.isEmpty) return;
-    for (final c in widget.customers) {
-      final phone = (c.phone ?? '').toLowerCase();
-      if (c.name.toLowerCase().contains(lower) || phone.contains(lower)) {
-        _applyCustomer(c);
-        return;
-      }
-    }
-  }
-
   void _save() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     final id = _customerId;
@@ -181,34 +166,17 @@ class _OrderDetailCustomerEditSheetState
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 12),
-                TextField(
-                  controller: _search,
-                  decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.search),
-                    hintText: l10n.customersSearchHint,
-                    border: const OutlineInputBorder(),
-                    isDense: true,
-                  ),
-                  onChanged: (_) => setState(() {}),
-                  onSubmitted: _tryMatchFromSearch,
-                ),
-                const SizedBox(height: 8),
                 Row(
                   children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: _pickFromList,
-                        icon: const Icon(Icons.people_outline),
-                        label: Text(l10n.ordersDetailCustomerPickFromList),
-                      ),
+                    IconButton(
+                      tooltip: l10n.customersSearchHint,
+                      onPressed: _pickFromList,
+                      icon: const Icon(Icons.search),
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: _openNewCustomer,
-                        icon: const Icon(Icons.person_add_outlined),
-                        label: Text(l10n.customersAddCta),
-                      ),
+                    IconButton(
+                      tooltip: l10n.customersAddCta,
+                      onPressed: _openNewCustomer,
+                      icon: const Icon(Icons.person_add_outlined),
                     ),
                   ],
                 ),

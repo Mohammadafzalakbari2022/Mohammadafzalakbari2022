@@ -140,6 +140,7 @@ class OrderComposerDraft {
 
   List<OrderItemCreateInput> toCreateInputs({
     required Map<GarmentType, StyleOrderSelection> styleSelections,
+    bool includeClothFields = true,
   }) {
     final inputs = <OrderItemCreateInput>[];
     for (final type in selectedGarmentTypes) {
@@ -168,13 +169,18 @@ class OrderComposerDraft {
           catalogDesignerShopNameSnapshot: draft.catalogDesignerShopName,
           catalogSourceImagePath: draft.catalogImagePath,
           catalogSourceThumbnailPath: draft.catalogThumbnailPath,
-          fabricNameSnapshot: draft.fabricName,
-          fabricColorSnapshot: draft.fabricColor,
-          fabricIdSnapshot: draft.fabricId,
-          fabricNamePresetInternalId: draft.fabricNamePresetInternalId,
-          fabricColorPresetInternalId: draft.fabricColorPresetInternalId,
-          clothMetersSnapshot: draft.clothMeters,
-          clothPriceAmountMinor: draft.clothPriceAmountMinor,
+          fabricNameSnapshot:
+              includeClothFields ? draft.fabricName : '',
+          fabricColorSnapshot:
+              includeClothFields ? draft.fabricColor : '',
+          fabricIdSnapshot: includeClothFields ? draft.fabricId : '',
+          fabricNamePresetInternalId:
+              includeClothFields ? draft.fabricNamePresetInternalId : null,
+          fabricColorPresetInternalId:
+              includeClothFields ? draft.fabricColorPresetInternalId : null,
+          clothMetersSnapshot: includeClothFields ? draft.clothMeters : '',
+          clothPriceAmountMinor:
+              includeClothFields ? draft.clothPriceAmountMinor : 0,
         ),
       );
     }

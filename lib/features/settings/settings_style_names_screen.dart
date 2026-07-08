@@ -13,6 +13,7 @@ import '../../licensing/license_providers.dart';
 import 'style/settings_style_garment_provider.dart';
 import 'style/settings_style_garment_selector.dart';
 import 'style/style_sync_helpers.dart';
+import 'style/style_catalog_refresh.dart';
 
 Future<void> _showNameDialog({
   required BuildContext context,
@@ -91,6 +92,7 @@ class SettingsStyleNamesScreen extends ConsumerWidget {
                       garmentTypeIndex: garment.code,
                       isActive: true,
                     );
+                    refreshStyleCatalogProviders(ref, garment);
                   },
                 );
               },
@@ -135,6 +137,7 @@ class _NamesList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final garment = ref.watch(settingsStyleGarmentProvider);
     if (names.isEmpty) {
       return Center(child: Text(emptyMessage));
     }
@@ -182,6 +185,7 @@ class _NamesList extends ConsumerWidget {
                                 sortOrder: n.sortOrder,
                                 isActive: n.isActive,
                               );
+                              refreshStyleCatalogProviders(ref, garment);
                             },
                           );
                         },
@@ -209,6 +213,7 @@ class _NamesList extends ConsumerWidget {
                             styleCatalogRepositoryProvider.future,
                           );
                           await repo.softDeleteStyleName(n.internalId);
+                          refreshStyleCatalogProviders(ref, garment);
                         },
                       ),
                       Switch(
@@ -230,6 +235,7 @@ class _NamesList extends ConsumerWidget {
                             sortOrder: n.sortOrder,
                             isActive: v,
                           );
+                          refreshStyleCatalogProviders(ref, garment);
                         },
                       ),
                     ],

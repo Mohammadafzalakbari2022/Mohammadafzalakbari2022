@@ -2327,6 +2327,34 @@ class AppLocalizationsPs extends AppLocalizations {
       'د هر جامې لپاره نوم، رنګ، متر او بیه';
 
   @override
+  String get settingsComposerShowMeasurementsTitle => 'اندازې';
+
+  @override
+  String get settingsComposerShowMeasurementsSubtitle =>
+      'د اندازو برخې او د پیرودونکي خوندي پروفایلونه';
+
+  @override
+  String get settingsComposerShowStyleShapesTitle => 'د سټایل شکلونه';
+
+  @override
+  String get settingsComposerShowStyleShapesSubtitle =>
+      'د شکلونو شبکه او د هر جامې اختیارونه';
+
+  @override
+  String get ordersComposerSaveZeroTotalTitle => 'په صفر بیه خوندي شي؟';
+
+  @override
+  String get ordersComposerSaveZeroTotalBody =>
+      'دا امر بیه او تادیه نه لري. تاسو لا هم خوندي کولی شئ.';
+
+  @override
+  String get ordersComposerSaveZeroTotalConfirm => 'بیا هم خوندي کړه';
+
+  @override
+  String get ordersComposerItemOptionalEmpty =>
+      'اختیاري — یوازې هغه څه ډک کړئ چې اړتیا لرئ';
+
+  @override
   String get ordersListChangeStatusTooltip => 'حالت بدل کړئ';
 
   @override

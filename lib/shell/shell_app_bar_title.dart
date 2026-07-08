@@ -1,6 +1,20 @@
 import 'package:pride_v3/l10n/app_localizations.dart';
 
+/// Bottom-nav tab label for exact primary tab paths (matches [shellNavTabItems]).
+String? shellPrimaryTabTitle(String path, AppLocalizations l10n) {
+  return switch (path) {
+    '/app/orders' => l10n.tabOrders,
+    '/app/customers' => l10n.tabCustomers,
+    '/app/catalog' => l10n.tabCatalog,
+    '/app/reports' => l10n.tabReports,
+    '/app/settings' => l10n.tabSettings,
+    _ => null,
+  };
+}
+
 String shellAppBarTitle(String path, AppLocalizations l10n) {
+  final primaryTab = shellPrimaryTabTitle(path, l10n);
+  if (primaryTab != null) return primaryTab;
   if (path.startsWith('/app/settings/subscription')) {
     return l10n.subscriptionTitle;
   }
@@ -28,16 +42,12 @@ String shellAppBarTitle(String path, AppLocalizations l10n) {
   if (path.startsWith('/app/settings/developer-portal')) {
     return l10n.devPortalTitle;
   }
-  if (path == '/app/orders') return l10n.ordersNewTitle;
   if (path.startsWith('/app/orders/')) {
     return l10n.ordersDetailTitle;
   }
   if (path.startsWith('/app/customers/')) return l10n.customerProfileTitle;
-  if (path == '/app/customers') return l10n.tabCustomers;
-  if (path == '/app/catalog') return l10n.tabCatalog;
   if (path.startsWith('/app/catalog/new')) return l10n.catalogAddDesignCta;
   if (path.startsWith('/app/catalog/')) return l10n.catalogDetailTitle;
-  if (path == '/app/reports') return l10n.tabReports;
   if (path.startsWith('/app/reports/unpaid')) return l10n.reportsUnpaidCardTitle;
   if (path.startsWith('/app/reports/monthly-income')) {
     return l10n.reportsMonthlyIncomeTitle;

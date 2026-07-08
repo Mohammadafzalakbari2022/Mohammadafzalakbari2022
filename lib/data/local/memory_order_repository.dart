@@ -465,8 +465,7 @@ class MemoryOrderRepository implements OrderListRepository {
     final nextNo = _nextOrderNo();
     final internalId = _uuid.v4();
     final now = DateTime.now();
-    final totalAmountMinor =
-        items.fold<int>(0, (sum, item) => sum + item.priceAmountMinor);
+    final totalAmountMinor = sumCreateInputTotalMinor(items);
     final primary = items.firstWhere(
       (i) => i.garmentType == GarmentType.perahanTunban,
       orElse: () => items.first,
@@ -608,7 +607,7 @@ class MemoryOrderRepository implements OrderListRepository {
     required String orderInternalId,
     required OrderItemCreateInput input,
   }) async {
-    if (input.priceAmountMinor <= 0) {
+    if (input.priceAmountMinor < 0 || input.clothPriceAmountMinor < 0) {
       throw const OrderItemRepositoryException('item_price_required');
     }
     final idx = _indexOfOrder(orderInternalId);
@@ -656,7 +655,7 @@ class MemoryOrderRepository implements OrderListRepository {
       items.add(summary);
     }
     final total = sumOrderItemPriceSummaries(items);
-    if (total <= 0 || total < order.paidAmountMinor) {
+    if (total < order.paidAmountMinor) {
       throw const OrderItemRepositoryException('order_total_below_paid');
     }
     final primary = primaryPerahanItemSummary(items);

@@ -6,6 +6,7 @@ import '../../licensing/license_providers.dart';
 import '../../shell/shell_sync_providers.dart';
 import '../persistence/shared_preferences_provider.dart';
 import '../persistence/sync_diagnostics_storage.dart';
+import '../../features/settings/style/style_catalog_refresh.dart';
 import 'sync_coordinator.dart';
 import 'manual_sync_runner.dart';
 import 'sync_conflict_recorder.dart';
@@ -97,6 +98,9 @@ Future<ManualSyncUiOutcome> runManualSyncFromRef(WidgetRef ref) async {
           final at = DateTime.now();
           ref.read(lastSuccessfulSyncAtProvider.notifier).state = at;
           await SyncDiagnosticsStorage.recordSuccessfulSync(prefs, at);
+          if (remoteChangeCount > 0) {
+            refreshAllGarmentStyleCatalogProviders(ref);
+          }
           return ManualSyncUiSuccess(
             pushedMutationCount: pushedMutationCount,
             remoteChangeCount: remoteChangeCount,

@@ -2329,6 +2329,34 @@ class AppLocalizationsFa extends AppLocalizations {
       'نام، رنگ، متراژ و قیمت رخت برای هر لباس';
 
   @override
+  String get settingsComposerShowMeasurementsTitle => 'اندازه‌گیری';
+
+  @override
+  String get settingsComposerShowMeasurementsSubtitle =>
+      'فیلدهای اندازه و پروفایل‌های ذخیره‌شده مشتری';
+
+  @override
+  String get settingsComposerShowStyleShapesTitle => 'شکل‌های استایل';
+
+  @override
+  String get settingsComposerShowStyleShapesSubtitle =>
+      'شبکه شکل‌ها و گزینه‌های هر لباس';
+
+  @override
+  String get ordersComposerSaveZeroTotalTitle => 'با مبلغ صفر ذخیره شود؟';
+
+  @override
+  String get ordersComposerSaveZeroTotalBody =>
+      'این سفارش قیمت و پرداختی ندارد. می‌توانید همچنان ذخیره کنید.';
+
+  @override
+  String get ordersComposerSaveZeroTotalConfirm => 'باز هم ذخیره کن';
+
+  @override
+  String get ordersComposerItemOptionalEmpty =>
+      'اختیاری — فقط آنچه لازم است پر کنید';
+
+  @override
   String get ordersListChangeStatusTooltip => 'تغییر وضعیت';
 
   @override

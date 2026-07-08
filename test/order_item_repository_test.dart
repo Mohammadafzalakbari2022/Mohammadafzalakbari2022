@@ -86,6 +86,38 @@ void main() {
       expect(order.totalAmountMinor, 2000);
     });
 
+    test('create order total includes cloth price', () async {
+      final orderId = await repo.createOrderWithItems(
+        shopId: kDevShopId,
+        customerInternalId: 'cust-cloth',
+        customerSnapshotName: 'Cloth Customer',
+        deliveryDate: DateTime(2026, 6, 19),
+        items: const [
+          OrderItemCreateInput(
+            garmentType: GarmentType.perahanTunban,
+            priceAmountMinor: 1000,
+            clothPriceAmountMinor: 300,
+          ),
+        ],
+      );
+      final orders = await repo.watchOrders(kDevShopId).first;
+      final order = orders.firstWhere((o) => o.internalId == orderId);
+      expect(order.totalAmountMinor, 1300);
+    });
+
+    test('upsert allows zero garment price', () async {
+      final orderId = await createBaseOrder(total: 500);
+      await repo.upsertOrderItem(
+        orderInternalId: orderId,
+        input: const OrderItemCreateInput(
+          garmentType: GarmentType.perahanTunban,
+          priceAmountMinor: 0,
+        ),
+      );
+      final items = await repo.watchOrderItems(orderId).first;
+      expect(items.single.priceAmountMinor, 0);
+    });
+
     test('duplicate garment type is rejected', () async {
       await expectLater(
         repo.createOrderWithItems(

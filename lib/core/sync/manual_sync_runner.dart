@@ -76,6 +76,7 @@ Future<ManualSyncOutcome> runManualSyncWithOutbox({
   var remoteChangeCount = 0;
   var cursor = SyncCursorStorage.read(prefs, syncShopId);
 
+  pullPages:
   for (var page = 0; page < _kMaxPullPages; page++) {
     final pull = await getPrideApiSyncPull(
       accessToken: accessToken,
@@ -92,8 +93,8 @@ Future<ManualSyncOutcome> runManualSyncWithOutbox({
         await applier.applyChanges(changes);
         await SyncCursorStorage.write(prefs, syncShopId, nextCursor);
         cursor = nextCursor;
-        if (changes.isEmpty) break;
-        if (changes.length < 500) break;
+        if (changes.isEmpty) break pullPages;
+        if (changes.length < 500) break pullPages;
     }
   }
 

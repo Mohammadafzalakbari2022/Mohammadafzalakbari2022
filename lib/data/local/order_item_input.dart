@@ -174,8 +174,19 @@ void assertItemPricesValid(Iterable<OrderItemCreateInput> items) {
     if (item.priceAmountMinor < 0) {
       throw const OrderItemRepositoryException('item_price_required');
     }
+    if (item.clothPriceAmountMinor < 0) {
+      throw const OrderItemRepositoryException('item_price_required');
+    }
   }
 }
+
+/// Garment + cloth line total for order create (matches [sumOrderItemPrices]).
+int sumCreateInputTotalMinor(Iterable<OrderItemCreateInput> items) =>
+    items.fold<int>(
+      0,
+      (sum, item) =>
+          sum + item.priceAmountMinor + item.clothPriceAmountMinor,
+    );
 
 /// Rebuilds upsert input from a persisted item row (for detail edits).
 OrderItemCreateInput orderItemCreateInputFromSummary(

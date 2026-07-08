@@ -61,9 +61,9 @@ class OrderComposerReceiptGarmentBlock extends ConsumerWidget {
     final shopId = effectiveShopIdFromAuth(ref.watch(authSessionProvider).shopId);
     final theme = Theme.of(context);
     final visibility = ref.watch(composerVisibilitySettingsProvider);
-    final showStyleSection =
-        visibility.showStyleName || visibility.showCatalogPicker;
+    final showStyleSection = visibility.showAnyStyleSection;
     final showCloth = visibility.showClothBlock;
+    final showMeasurements = visibility.showMeasurementsBlock;
 
     return Padding(
       padding: const EdgeInsets.only(top: 10, bottom: 4),
@@ -77,33 +77,35 @@ class OrderComposerReceiptGarmentBlock extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 8),
-          OrderComposerMeasurementsPanel(
-            l10n: l10n,
-            shopId: shopId,
-            customerId: customerId,
-            initialSnapshotText: draft.measurementsSnapshot,
-            initialItems: draft.measurementSnapshotItems,
-            initialProfileId: draft.sourceMeasurementProfileId,
-            initialProfileLabel: draft.sourceMeasurementProfileLabel,
-            profiles: measurementProfiles,
-            referenceOrder: referenceOrder,
-            referenceItem: referenceItem,
-            onUsePreviousMeasurements: onUsePreviousMeasurements,
-            moneyFormatter: moneyFormatter,
-            onChanged: (result) {
-              onDraftChanged(
-                draft.copyWith(
-                  measurementsSnapshot: result.measurementsSnapshot,
-                  measurementSnapshotItems: result.measurementSnapshotItems,
-                  sourceMeasurementProfileId: result.sourceMeasurementProfileId,
-                  sourceMeasurementProfileLabel:
-                      result.sourceMeasurementProfileLabel,
-                ),
-              );
-            },
-          ),
+          if (showMeasurements)
+            OrderComposerMeasurementsPanel(
+              l10n: l10n,
+              shopId: shopId,
+              customerId: customerId,
+              initialSnapshotText: draft.measurementsSnapshot,
+              initialItems: draft.measurementSnapshotItems,
+              initialProfileId: draft.sourceMeasurementProfileId,
+              initialProfileLabel: draft.sourceMeasurementProfileLabel,
+              profiles: measurementProfiles,
+              referenceOrder: referenceOrder,
+              referenceItem: referenceItem,
+              onUsePreviousMeasurements: onUsePreviousMeasurements,
+              moneyFormatter: moneyFormatter,
+              onChanged: (result) {
+                onDraftChanged(
+                  draft.copyWith(
+                    measurementsSnapshot: result.measurementsSnapshot,
+                    measurementSnapshotItems: result.measurementSnapshotItems,
+                    sourceMeasurementProfileId:
+                        result.sourceMeasurementProfileId,
+                    sourceMeasurementProfileLabel:
+                        result.sourceMeasurementProfileLabel,
+                  ),
+                );
+              },
+            ),
           if (showStyleSection) ...[
-            const SizedBox(height: 12),
+            if (showMeasurements) const SizedBox(height: 12),
             OrderComposerStylePanel(
               garmentType: garmentType,
               initialMainStyle: draft.styleName,
@@ -127,6 +129,7 @@ class OrderComposerReceiptGarmentBlock extends ConsumerWidget {
               embedded: true,
               showStyleName: visibility.showStyleName,
               showCatalogPicker: visibility.showCatalogPicker,
+              showStyleShapes: visibility.showStyleShapes,
               onChanged: (result) {
                 if (result == null) return;
                 onStyleSelectionChanged(result.selection);
@@ -145,39 +148,9 @@ class OrderComposerReceiptGarmentBlock extends ConsumerWidget {
                 );
               },
             ),
-          ] else ...[
-            const SizedBox(height: 12),
-            OrderComposerStylePanel(
-              garmentType: garmentType,
-              initialMainStyle: draft.styleName,
-              initialStyleNameInternalId: draft.styleNameInternalId,
-              initialSelection: styleSelection,
-              initialCatalogItemInternalId: draft.catalogItemInternalId,
-              initialCatalogDesignName: draft.catalogDesignName,
-              initialCatalogDesignerShopName: draft.catalogDesignerShopName,
-              initialCatalogImagePath: draft.catalogImagePath,
-              initialCatalogThumbnailPath: draft.catalogThumbnailPath,
-              referenceOrder: referenceOrder,
-              referenceItem: referenceItem,
-              moneyFormatter: moneyFormatter,
-              initialStyleSummary: draft.styleSummary,
-              embedded: true,
-              showStyleName: false,
-              showCatalogPicker: false,
-              onChanged: (result) {
-                if (result == null) return;
-                onStyleSelectionChanged(result.selection);
-                onDraftChanged(
-                  draft.copyWith(
-                    styleSelectionJson: result.selection.toJsonString(),
-                    styleSummary: result.summary,
-                  ),
-                );
-              },
-            ),
           ],
           if (showCloth) ...[
-            const SizedBox(height: 12),
+            if (showMeasurements || showStyleSection) const SizedBox(height: 12),
             OrderComposerFabricPanel(
               l10n: l10n,
               initialName: draft.fabricName,

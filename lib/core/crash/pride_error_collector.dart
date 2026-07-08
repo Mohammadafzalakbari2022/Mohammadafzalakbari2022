@@ -167,13 +167,15 @@ abstract final class PrideErrorCollector {
     try {
       final decoded = jsonDecode(raw);
       if (decoded is! List) return;
+      final fromDisk = decoded
+          .whereType<Map>()
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList(growable: false);
+      final earlyBoot = List<Map<String, dynamic>>.from(_buffer);
       _buffer
         ..clear()
-        ..addAll(
-          decoded
-              .whereType<Map>()
-              .map((e) => Map<String, dynamic>.from(e)),
-        );
+        ..addAll(fromDisk)
+        ..addAll(earlyBoot);
       while (_buffer.length > _maxEntries) {
         _buffer.removeAt(0);
       }

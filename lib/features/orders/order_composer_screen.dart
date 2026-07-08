@@ -19,12 +19,9 @@ import 'package:pride_v3/core/printing/thermal_print_order.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../auth/auth_providers.dart';
-import '../customers/customer_search_filter.dart';
 import '../../data/local/customer_display_no.dart';
 import '../../data/local/customer_name_rules.dart';
-import '../../data/local/customer_repository_exception.dart';
 import '../../data/local/customer_summary.dart';
-import '../../data/local/customer_uniqueness.dart';
 import 'package:pride_v3/core/formatting/display_customer_no_format.dart';
 import '../../data/local/dev_shop_constants.dart';
 import '../../data/local/entities/garment_type.dart';
@@ -45,6 +42,7 @@ import '../../licensing/license_providers.dart';
 import '../../shell/shell_sync_providers.dart';
 import '../../data/local/style/style_order_selection.dart';
 import '../customers/new_customer_screen.dart';
+import 'order_composer_customer_picker.dart';
 import '../settings/composer_visibility_provider.dart';
 import 'order_composer_draft.dart';
 import 'order_composer_receipt_garment_block.dart';
@@ -206,8 +204,6 @@ class OrderComposerScreen extends ConsumerStatefulWidget {
 const _kComposerSectionGap = 10.0;
 
 class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
-  final _customerSearchController = TextEditingController();
-
   var _customerPrefillApplied = false;
   var _orderEditPrefillApplied = false;
 
@@ -257,7 +253,6 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
   /// Rebuilds save affordances without rebuilding the full composer body.
   Listenable get _composerFormListenable => Listenable.merge([
         _paymentFieldsListenable,
-        _customerSearchController,
         _formRevision,
       ]);
 
@@ -300,7 +295,6 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       _selectedCustomerName = customer.name;
       _selectedCustomerPhone = customer.phone;
       _selectedCustomerLabel = _customerSummaryLabel(customer);
-      _customerSearchController.clear();
     } else {
       _selectedCustomerId = order.customerInternalId;
       _selectedCustomerName = order.customerName;
@@ -387,7 +381,6 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
 
   @override
   void dispose() {
-    _customerSearchController.dispose();
     _paidController.dispose();
     _formRevision.dispose();
     for (final c in _itemPriceControllers.values) {
@@ -413,13 +406,9 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
   int get _composerPaidMinor =>
       tryParseMoneyAmount(_paidController.text) ?? 0;
 
-  /// Customer name is required: selected customer or typed name (min 2 chars).
-  bool get _hasCustomerForSave {
-    if (_selectedCustomerId != null) {
-      return isValidCustomerName(_selectedCustomerName);
-    }
-    return isValidCustomerName(_customerSearchController.text);
-  }
+  /// Customer must be explicitly selected before save.
+  bool get _hasCustomerForSave =>
+      _selectedCustomerId != null && isValidCustomerName(_selectedCustomerName);
 
   bool _canSave(bool clothBlockEnabled) {
     _syncItemPricesFromControllers();
@@ -477,8 +466,8 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       _selectedCustomerPhone = c.phone;
       _selectedCustomerLabel = _customerSummaryLabel(c);
       _clearItemDrafts();
-      _customerSearchController.clear();
     });
+    _notifyFormRevision();
     _scheduleReferencePrefill();
   }
 
@@ -494,9 +483,24 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     return parts.join(' • ');
   }
 
-  Future<void> _openNewCustomerForOrder(String name) async {
-    final trimmed = name.trim();
-    if (!isValidCustomerName(trimmed)) {
+  Future<void> _pickCustomerFromList(
+    List<CustomerSummary> customers,
+    AppLocalizations l10n,
+  ) async {
+    final picked = await showOrderComposerCustomerPicker(
+      context: context,
+      customers: customers,
+      l10n: l10n,
+      selectedId: _selectedCustomerId,
+    );
+    if (picked != null) _applyCustomer(picked);
+  }
+
+  Future<void> _openNewCustomerForOrder({String? name}) async {
+    final trimmed = name?.trim();
+    if (trimmed != null &&
+        trimmed.isNotEmpty &&
+        !isValidCustomerName(trimmed)) {
       showAppFeedback(
         context,
         ref,
@@ -506,7 +510,10 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       return;
     }
     final result = await context.push<NewCustomerForOrderResult>(
-      newCustomerRoute(returnTo: 'orderComposer', name: trimmed),
+      newCustomerRoute(
+        returnTo: 'orderComposer',
+        name: trimmed != null && trimmed.isNotEmpty ? trimmed : null,
+      ),
     );
     if (!mounted || result == null) return;
     setState(() {
@@ -517,8 +524,8 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       _selectedCustomerPhone = result.phone;
       _selectedCustomerLabel = _newCustomerResultLabel(result);
       _clearItemDrafts();
-      _customerSearchController.clear();
     });
+    _notifyFormRevision();
     _scheduleReferencePrefill();
   }
 
@@ -700,6 +707,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       _selectedCustomerPhone = null;
       _clearItemDrafts();
     });
+    _notifyFormRevision();
   }
 
   void _copyFabricFromPerahanToWaistcoat() {
@@ -1005,83 +1013,17 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
   }
 
   Future<String?> _resolveCustomerForSave(AppLocalizations l10n) async {
-    if (_selectedCustomerId != null) {
-      if (!isValidCustomerName(_selectedCustomerName)) {
-        showAppFeedback(
-          context,
-          ref,
-          kind: AppFeedbackKind.error,
-          message: l10n.customerNameRequired,
-        );
-        return null;
-      }
-      return _selectedCustomerId;
-    }
-    final typed = _customerSearchController.text.trim();
-    if (typed.isEmpty) {
+    if (_selectedCustomerId == null ||
+        !isValidCustomerName(_selectedCustomerName)) {
       showAppFeedback(
         context,
         ref,
         kind: AppFeedbackKind.error,
-        message: l10n.customerNameRequired,
+        message: l10n.ordersComposerSelectCustomerFirstBody,
       );
       return null;
     }
-    if (!isValidCustomerName(typed)) {
-      showAppFeedback(
-        context,
-        ref,
-        kind: AppFeedbackKind.error,
-        message: l10n.customerNameTooShort,
-      );
-      return null;
-    }
-    final customers =
-        ref.read(customersListStreamProvider).valueOrNull ?? const [];
-    final existing = findCustomerByExactName(customers, typed);
-    if (existing != null) {
-      _selectedCustomerId = existing.internalId;
-      _selectedCustomerName = existing.name;
-      _selectedCustomerPhone = existing.phone;
-      _selectedCustomerLabel = _customerSummaryLabel(existing);
-      return existing.internalId;
-    }
-    final shopId =
-        effectiveShopIdFromAuth(ref.read(authSessionProvider).shopId);
-    final customersRepo =
-        await ref.read(customerListRepositoryProvider.future);
-    try {
-      final id = await customersRepo.createCustomer(
-        shopId: shopId,
-        name: typed,
-        phone: _selectedCustomerPhone,
-      );
-      recordSyncOutboxMutation(
-        ref,
-        kind: SyncOutboxKinds.customerUpsert,
-        entityRef: id,
-        shopId: shopId,
-        payloadJson: jsonEncode({
-          'name': typed,
-          if (_selectedCustomerPhone != null &&
-              _selectedCustomerPhone!.trim().isNotEmpty)
-            'phone': _selectedCustomerPhone!.trim(),
-        }),
-      );
-      _selectedCustomerId = id;
-      _selectedCustomerName = typed;
-      _selectedCustomerLabel = typed;
-      return id;
-    } on CustomerRepositoryException catch (e) {
-      if (!context.mounted) return null;
-      showAppFeedback(
-        context,
-        ref,
-        kind: AppFeedbackKind.error,
-        message: customerRepositoryErrorMessage(e, l10n),
-      );
-      return null;
-    }
+    return _selectedCustomerId;
   }
 
   Future<void> _save(BuildContext context, AppLocalizations l10n) async {
@@ -1124,10 +1066,33 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       );
       return;
     }
+    if (totalMinor == 0 && paidMinor == 0) {
+      final proceed = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(l10n.ordersComposerSaveZeroTotalTitle),
+          content: Text(l10n.ordersComposerSaveZeroTotalBody),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(l10n.ordersComposerPaymentCancelCta),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text(l10n.ordersComposerSaveZeroTotalConfirm),
+            ),
+          ],
+        ),
+      );
+      if (proceed != true || !context.mounted) return;
+    }
     final now = DateTime.now();
     final deliveryDate = _deliveryDate ??
         DateTime(now.year, now.month, now.day);
-    final createInputs = _draft.toCreateInputs(styleSelections: _styleSelections);
+    final createInputs = _draft.toCreateInputs(
+      styleSelections: _styleSelections,
+      includeClothFields: clothBlockEnabled,
+    );
 
     final shopId =
         effectiveShopIdFromAuth(ref.read(authSessionProvider).shopId);
@@ -1148,16 +1113,6 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
         for (final input in createInputs) {
           final existing = existingByType[input.garmentType];
           final merged = mergeComposerEditInput(input, existing);
-          if (merged.priceAmountMinor <= 0) {
-            if (!context.mounted) return;
-            showAppFeedback(
-              context,
-              ref,
-              kind: AppFeedbackKind.error,
-              message: l10n.ordersComposerItemPriceRequired,
-            );
-            return;
-          }
           await ordersRepo.upsertOrderItem(
             orderInternalId: orderId,
             input: merged,
@@ -1363,7 +1318,6 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     _selectedCustomerLabel = null;
     _selectedCustomerName = null;
     _selectedCustomerPhone = null;
-    _customerSearchController.clear();
     _paidController.clear();
     _deliveryDate = null;
     _clearItemDrafts();
@@ -1389,13 +1343,12 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     final meta = <Widget>[
       _ComposerCustomerSearchSection(
         l10n: l10n,
-        searchController: _customerSearchController,
-        customers: customersForSearch,
         selectedCustomerId: _selectedCustomerId,
         selectedCustomerLabel: _selectedCustomerLabel,
-        onCustomerSelected: _applyCustomer,
         onClearCustomer: _clearSelectedCustomer,
-        onNewCustomerName: _openNewCustomerForOrder,
+        onSearchCustomer: () =>
+            _pickCustomerFromList(customersForSearch, l10n),
+        onAddCustomer: () => _openNewCustomerForOrder(),
       ),
       if (_selectedCustomerId != null) ...[
         Builder(
@@ -1796,165 +1749,62 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
   }
 }
 
-/// Isolated customer search — [ValueListenableBuilder] avoids parent rebuilds
-/// that dismiss the keyboard on each keystroke.
-class _ComposerCustomerSearchSection extends StatefulWidget {
+/// Customer pick/create: search icon opens picker sheet; add icon opens new customer.
+class _ComposerCustomerSearchSection extends StatelessWidget {
   const _ComposerCustomerSearchSection({
     required this.l10n,
-    required this.searchController,
-    required this.customers,
     required this.selectedCustomerId,
     required this.selectedCustomerLabel,
-    required this.onCustomerSelected,
     required this.onClearCustomer,
-    required this.onNewCustomerName,
+    required this.onSearchCustomer,
+    required this.onAddCustomer,
   });
 
   final AppLocalizations l10n;
-  final TextEditingController searchController;
-  final List<CustomerSummary> customers;
   final String? selectedCustomerId;
   final String? selectedCustomerLabel;
-  final ValueChanged<CustomerSummary> onCustomerSelected;
   final VoidCallback onClearCustomer;
-  final ValueChanged<String> onNewCustomerName;
-
-  @override
-  State<_ComposerCustomerSearchSection> createState() =>
-      _ComposerCustomerSearchSectionState();
-}
-
-class _ComposerCustomerSearchSectionState
-    extends State<_ComposerCustomerSearchSection> {
-  late final FocusNode _searchFocus;
-
-  @override
-  void initState() {
-    super.initState();
-    _searchFocus = FocusNode();
-  }
-
-  @override
-  void dispose() {
-    _searchFocus.dispose();
-    super.dispose();
-  }
+  final VoidCallback onSearchCustomer;
+  final VoidCallback onAddCustomer;
 
   @override
   Widget build(BuildContext context) {
-    if (widget.selectedCustomerId != null) {
-      final label = widget.selectedCustomerLabel ?? '';
+    if (selectedCustomerId != null) {
+      final label = selectedCustomerLabel ?? '';
       return ListTile(
         contentPadding: EdgeInsets.zero,
         dense: true,
         leading: const Icon(Icons.person_outline),
         title: Text(label),
         trailing: PrideCloseIconButton(
-          tooltip: widget.l10n.editCta,
-          onPressed: widget.onClearCustomer,
+          tooltip: l10n.editCta,
+          onPressed: onClearCustomer,
         ),
       );
     }
 
-    return ValueListenableBuilder<TextEditingValue>(
-      valueListenable: widget.searchController,
-      builder: (context, value, _) {
-        final query = value.text;
-        final trimmed = query.trim();
-        final matches = trimmed.isEmpty
-            ? const <CustomerSummary>[]
-            : filterCustomersBySearchQuery(widget.customers, query);
-        final hasExactMatch = trimmed.isNotEmpty &&
-            matches.any(
-              (c) => c.name.trim().toLowerCase() == trimmed.toLowerCase(),
-            );
-        final showAddNew =
-            trimmed.isNotEmpty && !hasExactMatch && isValidCustomerName(trimmed);
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(
-              focusNode: _searchFocus,
-              controller: widget.searchController,
-              decoration: InputDecoration(
-                hintText: widget.l10n.customersSearchHint,
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: query.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        tooltip: MaterialLocalizations.of(context)
-                            .clearButtonTooltip,
-                        onPressed: widget.searchController.clear,
-                      )
-                    : null,
-                border: const OutlineInputBorder(),
-                isDense: true,
-              ),
-              textInputAction: TextInputAction.search,
-              onSubmitted: (text) {
-                final q = text.trim();
-                if (q.isEmpty) return;
-                final match = findFirstCustomerBySearchQuery(
-                  widget.customers,
-                  q,
-                );
-                if (match != null) {
-                  widget.onCustomerSelected(match);
-                } else if (isValidCustomerName(q)) {
-                  widget.onNewCustomerName(q);
-                }
-              },
-            ),
-            if (trimmed.isNotEmpty) ...[
-              const SizedBox(height: 4),
-              if (matches.isNotEmpty)
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxHeight: 220),
-                  child: ListView.separated(
-                    shrinkWrap: true,
-                    physics: const ClampingScrollPhysics(),
-                    padding: EdgeInsets.zero,
-                    itemCount: matches.length,
-                    separatorBuilder: (context, index) =>
-                        const Divider(height: 1),
-                    itemBuilder: (context, i) {
-                      final c = matches[i];
-                      final idLabel =
-                          parseStoredDisplayCustomerNo(c.displayCustomerNo) > 0
-                              ? formatDisplayCustomerNo(c.displayCustomerNo)
-                              : null;
-                      return ListTile(
-                        dense: true,
-                        contentPadding: EdgeInsets.zero,
-                        leading: const Icon(Icons.person_outline, size: 20),
-                        title: Text(c.name),
-                        subtitle: Text(
-                          [
-                            if (idLabel != null) idLabel,
-                            c.phone ?? widget.l10n.customersPhoneMissing,
-                          ].join(' • '),
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                        onTap: () => widget.onCustomerSelected(c),
-                      );
-                    },
-                  ),
+    final scheme = Theme.of(context).colorScheme;
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            l10n.ordersComposerCustomerRequired,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: scheme.onSurfaceVariant,
                 ),
-              if (showAddNew)
-                ListTile(
-                  dense: true,
-                  contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.person_add_outlined, size: 20),
-                  title: Text(
-                    widget.l10n.ordersComposerUseNewCustomer(trimmed),
-                  ),
-                  onTap: () => widget.onNewCustomerName(trimmed),
-                ),
-            ],
-          ],
-        );
-      },
+          ),
+        ),
+        IconButton(
+          tooltip: l10n.customersSearchHint,
+          onPressed: onSearchCustomer,
+          icon: const Icon(Icons.search),
+        ),
+        IconButton(
+          tooltip: l10n.customersAddCta,
+          onPressed: onAddCustomer,
+          icon: const Icon(Icons.person_add_outlined),
+        ),
+      ],
     );
   }
 }

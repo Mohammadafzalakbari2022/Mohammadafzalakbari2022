@@ -12,14 +12,14 @@ String composerGarmentLabel(AppLocalizations l10n, GarmentType type) {
   };
 }
 
-IconData composerGarmentIcon(GarmentType type) {
+String composerGarmentAssetPath(GarmentType type) {
   return switch (type) {
-    GarmentType.perahanTunban => Icons.checkroom_outlined,
-    GarmentType.waistcoat => Icons.layers_outlined,
+    GarmentType.perahanTunban => 'assets/garments/perahan_tunban.png',
+    GarmentType.waistcoat => 'assets/garments/waistcoat.png',
   };
 }
 
-/// Distinct garment glyphs: long Perahan/Tunban robe vs sleeveless waistcoat.
+/// Perahan/Tunban shirt and waistcoat icons from bundled assets.
 class ComposerGarmentIcon extends StatelessWidget {
   const ComposerGarmentIcon({
     super.key,
@@ -38,98 +38,31 @@ class ComposerGarmentIcon extends StatelessWidget {
         color ?? IconTheme.of(context).color ?? Theme.of(context).colorScheme.onSurfaceVariant;
     return SizedBox.square(
       dimension: size,
-      child: CustomPaint(
-        painter: _ComposerGarmentIconPainter(type: type, color: iconColor),
+      child: ColorFiltered(
+        colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+        child: Image.asset(
+          composerGarmentAssetPath(type),
+          fit: BoxFit.contain,
+          filterQuality: FilterQuality.medium,
+        ),
       ),
     );
   }
-}
-
-class _ComposerGarmentIconPainter extends CustomPainter {
-  const _ComposerGarmentIconPainter({required this.type, required this.color});
-
-  final GarmentType type;
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final stroke = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = size.shortestSide * 0.09
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-    final fill = Paint()
-      ..color = color.withValues(alpha: 0.12)
-      ..style = PaintingStyle.fill;
-
-    if (type == GarmentType.perahanTunban) {
-      _paintPerahan(canvas, size, stroke, fill);
-    } else {
-      _paintWaistcoat(canvas, size, stroke, fill);
-    }
-  }
-
-  void _paintPerahan(Canvas canvas, Size size, Paint stroke, Paint fill) {
-    final w = size.width;
-    final h = size.height;
-    final body = Path()
-      ..moveTo(w * 0.35, h * 0.12)
-      ..lineTo(w * 0.65, h * 0.12)
-      ..lineTo(w * 0.72, h * 0.28)
-      ..lineTo(w * 0.68, h * 0.92)
-      ..lineTo(w * 0.32, h * 0.92)
-      ..lineTo(w * 0.28, h * 0.28)
-      ..close();
-    canvas.drawPath(body, fill);
-    canvas.drawPath(body, stroke);
-    canvas.drawLine(Offset(w * 0.5, h * 0.12), Offset(w * 0.5, h * 0.92), stroke);
-    canvas.drawLine(Offset(w * 0.18, h * 0.32), Offset(w * 0.35, h * 0.22), stroke);
-    canvas.drawLine(Offset(w * 0.82, h * 0.32), Offset(w * 0.65, h * 0.22), stroke);
-  }
-
-  void _paintWaistcoat(Canvas canvas, Size size, Paint stroke, Paint fill) {
-    final w = size.width;
-    final h = size.height;
-    final vest = Path()
-      ..moveTo(w * 0.22, h * 0.18)
-      ..lineTo(w * 0.38, h * 0.30)
-      ..lineTo(w * 0.5, h * 0.24)
-      ..lineTo(w * 0.62, h * 0.30)
-      ..lineTo(w * 0.78, h * 0.18)
-      ..lineTo(w * 0.74, h * 0.88)
-      ..lineTo(w * 0.26, h * 0.88)
-      ..close();
-    canvas.drawPath(vest, fill);
-    canvas.drawPath(vest, stroke);
-    canvas.drawLine(Offset(w * 0.5, h * 0.24), Offset(w * 0.5, h * 0.88), stroke);
-    for (var i = 0; i < 3; i++) {
-      final y = h * (0.42 + i * 0.14);
-      canvas.drawLine(Offset(w * 0.5, y), Offset(w * 0.5, y + h * 0.06), stroke);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _ComposerGarmentIconPainter oldDelegate) =>
-      oldDelegate.type != type || oldDelegate.color != color;
 }
 
 String composerItemCompletionSummary(AppLocalizations l10n, OrderItemDraft draft) {
   final parts = <String>[];
   if (draft.hasMeasurements) {
     parts.add(l10n.ordersComposerMeasurementsSummary);
-  } else {
-    parts.add(l10n.ordersComposerMeasurementsRequired);
   }
   if (draft.hasStyle) {
     parts.add(l10n.ordersComposerProgressStyle);
-  } else {
-    parts.add(l10n.ordersComposerStyleRequired);
   }
-  if (draft.hasRequiredPrice) {
+  if (draft.priceAmountMinor > 0) {
     parts.add(l10n.ordersComposerItemReady);
-  } else {
-    parts.add(l10n.ordersComposerItemPriceRequired);
+  }
+  if (parts.isEmpty) {
+    return l10n.ordersComposerItemOptionalEmpty;
   }
   return parts.join(' · ');
 }

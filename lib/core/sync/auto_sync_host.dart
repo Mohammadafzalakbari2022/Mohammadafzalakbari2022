@@ -11,7 +11,7 @@ import '../crash/pride_error_collector.dart';
 import '../../shell/shell_sync_providers.dart';
 import 'manual_sync_controller.dart';
 
-/// Background sync on app open, resume, connectivity restore, and every 15 min
+/// Background sync on app open, resume, connectivity restore, and every 5 min
 /// while foreground (`plan-03`). Silent — no snackbars.
 class AutoSyncHost extends ConsumerStatefulWidget {
   const AutoSyncHost({required this.child, super.key});

@@ -1,4 +1,4 @@
-# Run flutter with stacked --dart-define-from-file (plan-20). No .env files.
+﻿# Run flutter with stacked --dart-define-from-file (plan-20). No .env files.
 # Optional third layer: config/dart_defines_secrets.json (gitignored; copy from
 # dart_defines_secrets.json.example for PRIDE_SENTRY_DSN and PRIDE_OWNER_PASSWORD_SHA256).
 # Usage:
@@ -42,8 +42,27 @@ foreach ($f in $files) {
     }
 }
 
+# Merge stacked define files (same order as --dart-define-from-file) for build-time hooks.
+$mergedDefines = @{}
+foreach ($f in $files) {
+    $layer = Get-Content -Raw -Path $f | ConvertFrom-Json
+    foreach ($prop in $layer.PSObject.Properties) {
+        $mergedDefines[$prop.Name] = [string]$prop.Value
+    }
+}
+
 $defineArgs = foreach ($f in $files) {
     "--dart-define-from-file=$f"
+}
+
+# Windows: sentry_flutter always builds sentry-native; crashpad/breakpad need extra git
+# fetches at configure time. When PRIDE_SENTRY_DSN is empty (default), skip native crash
+# backend so release builds work offline (plan-20: no DSN => no Sentry init).
+$isWindowsBuild = ($flutterArgs -join " ") -match '(?i)(^|\s)windows(\s|$)'
+$sentryDsn = if ($mergedDefines.ContainsKey("PRIDE_SENTRY_DSN")) { $mergedDefines["PRIDE_SENTRY_DSN"].Trim() } else { "" }
+if ($isWindowsBuild -and [string]::IsNullOrWhiteSpace($sentryDsn)) {
+    $env:SENTRY_NATIVE_BACKEND = "none"
+    Write-Host "PRIDE_SENTRY_DSN is empty: SENTRY_NATIVE_BACKEND=none for Windows native build."
 }
 
 Push-Location $root

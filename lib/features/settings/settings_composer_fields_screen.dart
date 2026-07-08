@@ -36,6 +36,17 @@ class SettingsComposerFieldsScreen extends ConsumerWidget {
           ),
           SwitchListTile(
             secondary: PrideColoredLeading(
+              icon: Icons.straighten_outlined,
+              color: prideSettingsIconColor(1),
+            ),
+            title: Text(l10n.settingsComposerShowMeasurementsTitle),
+            subtitle: Text(l10n.settingsComposerShowMeasurementsSubtitle),
+            value: visibility.showMeasurementsBlock,
+            onChanged: notifier.setMeasurementsBlockVisible,
+          ),
+          const Divider(height: 1),
+          SwitchListTile(
+            secondary: PrideColoredLeading(
               icon: Icons.style_outlined,
               color: prideSettingsIconColor(2),
             ),
@@ -54,6 +65,17 @@ class SettingsComposerFieldsScreen extends ConsumerWidget {
             subtitle: Text(l10n.settingsComposerShowCatalogSubtitle),
             value: visibility.showCatalogPicker,
             onChanged: notifier.setCatalogPickerVisible,
+          ),
+          const Divider(height: 1),
+          SwitchListTile(
+            secondary: PrideColoredLeading(
+              icon: Icons.category_outlined,
+              color: prideSettingsIconColor(3),
+            ),
+            title: Text(l10n.settingsComposerShowStyleShapesTitle),
+            subtitle: Text(l10n.settingsComposerShowStyleShapesSubtitle),
+            value: visibility.showStyleShapes,
+            onChanged: notifier.setStyleShapesVisible,
           ),
           const Divider(height: 1),
           SwitchListTile(

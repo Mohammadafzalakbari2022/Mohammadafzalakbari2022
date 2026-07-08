@@ -8,6 +8,7 @@ import 'package:pride_v3/core/widgets/pride_carved_section.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import '../../auth/auth_providers.dart';
+import '../../data/local/entities/garment_type.dart';
 import '../../data/local/measurement_unit_codes.dart';
 import '../../data/local/style/style_figure_display_name.dart';
 import '../../data/local/style/style_figure_image_ref.dart';
@@ -18,6 +19,7 @@ import '../../data/local/style_figure_text_option_summary.dart';
 import '../../data/providers/local_data_providers.dart';
 import '../../licensing/license_providers.dart';
 import 'style/style_figure_image.dart';
+import 'style/style_catalog_refresh.dart';
 import 'style/style_sync_helpers.dart';
 import 'style/style_figure_settings_validation.dart';
 
@@ -161,6 +163,13 @@ class _SettingsStyleFigureDetailScreenState
     _nameCtrl.text = figure.name;
   }
 
+  void _refreshComposerStyleCatalog(StyleFigureSummary figure) {
+    refreshStyleCatalogProviders(
+      ref,
+      garmentTypeFromCode(figure.garmentTypeIndex),
+    );
+  }
+
   Future<void> _saveFigureMeta(StyleFigureSummary figure) async {
     final l10n = AppLocalizations.of(context)!;
     if (ref.read(licenseEditingBlockedProvider)) {
@@ -188,6 +197,7 @@ class _SettingsStyleFigureDetailScreenState
         sortOrder: figure.sortOrder,
         isActive: figure.isActive,
       );
+      _refreshComposerStyleCatalog(figure);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.settingsStyleFigureSaved)),
@@ -226,6 +236,7 @@ class _SettingsStyleFigureDetailScreenState
       sortOrder: figure.sortOrder,
       isActive: isActive,
     );
+    _refreshComposerStyleCatalog(figure);
   }
 
   @override
@@ -358,10 +369,10 @@ class _SettingsStyleFigureDetailScreenState
                     options: options,
                     canEdit: canEdit,
                     l10n: l10n,
-                    onEdit: (o) => _editTextOption(context, o),
-                    onDelete: (o) => _deleteTextOption(context, o),
+                    onEdit: (o) => _editTextOption(context, o, f),
+                    onDelete: (o) => _deleteTextOption(context, o, f),
                     onToggleActive: (o, active) =>
-                        _toggleTextOptionActive(o, active),
+                        _toggleTextOptionActive(o, active, f),
                   ),
                   loading: () => const LinearProgressIndicator(),
                   error: (e, _) => Text('$e'),
@@ -381,10 +392,10 @@ class _SettingsStyleFigureDetailScreenState
                     options: options,
                     canEdit: canEdit,
                     l10n: l10n,
-                    onEdit: (o) => _editSizeOption(context, o),
-                    onDelete: (o) => _deleteSizeOption(context, o),
+                    onEdit: (o) => _editSizeOption(context, o, f),
+                    onDelete: (o) => _deleteSizeOption(context, o, f),
                     onToggleActive: (o, active) =>
-                        _toggleSizeOptionActive(o, active),
+                        _toggleSizeOptionActive(o, active, f),
                   ),
                   loading: () => const LinearProgressIndicator(),
                   error: (e, _) => Text('$e'),
@@ -464,6 +475,7 @@ class _SettingsStyleFigureDetailScreenState
           sortOrder: sortOrder,
           isActive: isActive,
         );
+        _refreshComposerStyleCatalog(figure);
       },
     );
   }
@@ -471,6 +483,7 @@ class _SettingsStyleFigureDetailScreenState
   Future<void> _editTextOption(
     BuildContext context,
     StyleFigureTextOptionSummary option,
+    StyleFigureSummary figure,
   ) async {
     final l10n = AppLocalizations.of(context)!;
     await showStyleFigureTextOptionDialog(
@@ -497,6 +510,7 @@ class _SettingsStyleFigureDetailScreenState
           sortOrder: option.sortOrder,
           isActive: isActive,
         );
+        _refreshComposerStyleCatalog(figure);
       },
     );
   }
@@ -504,6 +518,7 @@ class _SettingsStyleFigureDetailScreenState
   Future<void> _deleteTextOption(
     BuildContext context,
     StyleFigureTextOptionSummary option,
+    StyleFigureSummary figure,
   ) async {
     final l10n = AppLocalizations.of(context)!;
     final ok = await showDialog<bool>(
@@ -523,11 +538,13 @@ class _SettingsStyleFigureDetailScreenState
     final repo = await ref.read(styleCatalogRepositoryProvider.future);
     await repo.softDeleteStyleFigureTextOption(option.internalId);
     enqueueStyleFigureTextOptionDelete(ref, internalId: option.internalId);
+    _refreshComposerStyleCatalog(figure);
   }
 
   Future<void> _toggleTextOptionActive(
     StyleFigureTextOptionSummary option,
     bool isActive,
+    StyleFigureSummary figure,
   ) async {
     final repo = await ref.read(styleCatalogRepositoryProvider.future);
     await repo.updateStyleFigureTextOption(
@@ -544,6 +561,7 @@ class _SettingsStyleFigureDetailScreenState
       sortOrder: option.sortOrder,
       isActive: isActive,
     );
+    _refreshComposerStyleCatalog(figure);
   }
 
   Future<void> _addSizeOption(
@@ -597,6 +615,7 @@ class _SettingsStyleFigureDetailScreenState
           sortOrder: sortOrder,
           isActive: isActive,
         );
+        _refreshComposerStyleCatalog(figure);
       },
     );
   }
@@ -604,6 +623,7 @@ class _SettingsStyleFigureDetailScreenState
   Future<void> _editSizeOption(
     BuildContext context,
     StyleFigureSizeOptionSummary option,
+    StyleFigureSummary figure,
   ) async {
     final l10n = AppLocalizations.of(context)!;
     await showStyleFigureSizeOptionDialog(
@@ -634,6 +654,7 @@ class _SettingsStyleFigureDetailScreenState
           sortOrder: option.sortOrder,
           isActive: isActive,
         );
+        _refreshComposerStyleCatalog(figure);
       },
     );
   }
@@ -641,6 +662,7 @@ class _SettingsStyleFigureDetailScreenState
   Future<void> _deleteSizeOption(
     BuildContext context,
     StyleFigureSizeOptionSummary option,
+    StyleFigureSummary figure,
   ) async {
     final l10n = AppLocalizations.of(context)!;
     final ok = await showDialog<bool>(
@@ -660,11 +682,13 @@ class _SettingsStyleFigureDetailScreenState
     final repo = await ref.read(styleCatalogRepositoryProvider.future);
     await repo.softDeleteStyleFigureSizeOption(option.internalId);
     enqueueStyleFigureSizeOptionDelete(ref, internalId: option.internalId);
+    _refreshComposerStyleCatalog(figure);
   }
 
   Future<void> _toggleSizeOptionActive(
     StyleFigureSizeOptionSummary option,
     bool isActive,
+    StyleFigureSummary figure,
   ) async {
     final repo = await ref.read(styleCatalogRepositoryProvider.future);
     await repo.updateStyleFigureSizeOption(
@@ -684,6 +708,7 @@ class _SettingsStyleFigureDetailScreenState
       sortOrder: option.sortOrder,
       isActive: isActive,
     );
+    _refreshComposerStyleCatalog(figure);
   }
 
 }

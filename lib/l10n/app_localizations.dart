@@ -4301,6 +4301,54 @@ abstract class AppLocalizations {
   /// **'Cloth name, color, meters, and price per garment'**
   String get settingsComposerShowClothBlockSubtitle;
 
+  /// No description provided for @settingsComposerShowMeasurementsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Measurements'**
+  String get settingsComposerShowMeasurementsTitle;
+
+  /// No description provided for @settingsComposerShowMeasurementsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Measurement fields and saved customer profiles'**
+  String get settingsComposerShowMeasurementsSubtitle;
+
+  /// No description provided for @settingsComposerShowStyleShapesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Style shapes'**
+  String get settingsComposerShowStyleShapesTitle;
+
+  /// No description provided for @settingsComposerShowStyleShapesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shape grid and figure options per garment'**
+  String get settingsComposerShowStyleShapesSubtitle;
+
+  /// No description provided for @ordersComposerSaveZeroTotalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save with zero amount?'**
+  String get ordersComposerSaveZeroTotalTitle;
+
+  /// No description provided for @ordersComposerSaveZeroTotalBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This order has no price and no payment recorded. You can still save it.'**
+  String get ordersComposerSaveZeroTotalBody;
+
+  /// No description provided for @ordersComposerSaveZeroTotalConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Save anyway'**
+  String get ordersComposerSaveZeroTotalConfirm;
+
+  /// No description provided for @ordersComposerItemOptionalEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional — fill only what you need'**
+  String get ordersComposerItemOptionalEmpty;
+
   /// No description provided for @ordersListChangeStatusTooltip.
   ///
   /// In en, this message translates to:

@@ -4,7 +4,6 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:pride_v3/auth/auth_providers.dart';
 import 'package:pride_v3/core/api/pride_api_config.dart';
 import 'package:pride_v3/core/api/pride_api_support.dart';
-import 'package:pride_v3/core/crash/pride_error_log_sheet.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -130,14 +129,6 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
                   leading: const Icon(Icons.info_outline),
                   title: Text(l10n.settingsBuildTitle),
                   subtitle: Text(info?.packageName ?? l10n.loading),
-                ),
-                const Divider(height: 1),
-                ListTile(
-                  leading: const Icon(Icons.bug_report_outlined),
-                  title: Text(l10n.settingsDiagnosticsErrorLogTile),
-                  subtitle: Text(l10n.settingsDiagnosticsErrorLogSubtitle),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => showPrideErrorLogSheet(context),
                 ),
               ],
             ),

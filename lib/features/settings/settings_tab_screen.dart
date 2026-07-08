@@ -15,6 +15,7 @@ import '../../auth/sign_out.dart';
 import '../../licensing/license_notifier.dart';
 import '../../licensing/license_providers.dart';
 import '../catalog/catalog_sharing_provider.dart';
+import 'settings_error_log_tile.dart';
 import 'settings_owner_access.dart';
 import 'settings_providers.dart';
 import 'shop_profile_provider.dart';
@@ -390,6 +391,13 @@ class SettingsTabScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
         ],
+        _SettingsSection(
+          title: l10n.errorLogTitle,
+          children: const [
+            SettingsErrorLogTile(),
+          ],
+        ),
+        const SizedBox(height: 16),
         _SettingsSection(
           title: l10n.settingsSectionAbout,
           children: [

@@ -19,6 +19,7 @@ import 'style/settings_style_garment_selector.dart';
 import 'style/style_figure_image.dart';
 import 'style/style_figure_pick_image.dart';
 import 'style/style_sync_helpers.dart';
+import 'style/style_catalog_refresh.dart';
 
 class SettingsStyleFiguresScreen extends ConsumerWidget {
   const SettingsStyleFiguresScreen({super.key});
@@ -68,6 +69,7 @@ class SettingsStyleFiguresScreen extends ConsumerWidget {
       garmentTypeIndex: garment.code,
       isActive: true,
     );
+    refreshStyleCatalogProviders(ref, garment);
   }
 
   int _crossAxisCount(double width) {
@@ -258,6 +260,8 @@ class _FigureTile extends ConsumerWidget {
     enqueueStyleFigureDelete(ref, internalId: figure.internalId);
     final repo = await ref.read(styleCatalogRepositoryProvider.future);
     await repo.softDeleteStyleFigure(figure.internalId);
+    final garment = ref.read(settingsStyleGarmentProvider);
+    refreshStyleCatalogProviders(ref, garment);
   }
 
   @override

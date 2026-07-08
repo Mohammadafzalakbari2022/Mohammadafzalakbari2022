@@ -8,6 +8,7 @@ import '../../data/backup/backup_platform.dart';
 import '../../data/providers/local_data_providers.dart';
 import '../../security/owner_password_verify_result.dart';
 import '../../security/verify_owner_password.dart';
+import 'style/style_catalog_refresh.dart';
 import 'settings_owner_password_dialog.dart';
 
 void _invalidateAfterBackupRestore(WidgetRef ref) {
@@ -20,6 +21,11 @@ void _invalidateAfterBackupRestore(WidgetRef ref) {
   ref.invalidate(measurementProfileRepositoryProvider);
   ref.invalidate(measurementTypesStreamProvider);
   ref.invalidate(measurementTypesAdminStreamProvider);
+  ref.invalidate(styleCatalogRepositoryProvider);
+  ref.invalidate(fabricPresetRepositoryProvider);
+  ref.invalidate(shopFinanceRepositoryProvider);
+  ref.invalidate(taskRepositoryProvider);
+  refreshAllGarmentStyleCatalogProviders(ref);
 }
 
 String _restoreSummaryLines(AppLocalizations l10n, BackupMergeResult r) {

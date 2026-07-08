@@ -13,6 +13,12 @@ class ComposerVisibilityNotifier extends Notifier<ComposerVisibilitySettings> {
     return readComposerVisibilitySettings(prefs, shopId);
   }
 
+  Future<void> setMeasurementsBlockVisible(bool value) async {
+    final next = state.copyWith(showMeasurementsBlock: value);
+    state = next;
+    await _persist(next);
+  }
+
   Future<void> setStyleNameVisible(bool value) async {
     final next = state.copyWith(showStyleName: value);
     state = next;
@@ -21,6 +27,12 @@ class ComposerVisibilityNotifier extends Notifier<ComposerVisibilitySettings> {
 
   Future<void> setCatalogPickerVisible(bool value) async {
     final next = state.copyWith(showCatalogPicker: value);
+    state = next;
+    await _persist(next);
+  }
+
+  Future<void> setStyleShapesVisible(bool value) async {
+    final next = state.copyWith(showStyleShapes: value);
     state = next;
     await _persist(next);
   }

@@ -13,6 +13,7 @@ import '../../licensing/license_providers.dart';
 import 'style/settings_style_garment_provider.dart';
 import 'style/settings_style_garment_selector.dart';
 import 'style/style_sync_helpers.dart';
+import 'style/style_catalog_refresh.dart';
 
 Future<void> _showPartNameDialog({
   required BuildContext context,
@@ -91,6 +92,7 @@ class SettingsStylePartsScreen extends ConsumerWidget {
                       garmentTypeIndex: garment.code,
                       isActive: true,
                     );
+                    refreshStyleCatalogProviders(ref, garment);
                   },
                 );
               },
@@ -155,6 +157,7 @@ class SettingsStylePartsScreen extends ConsumerWidget {
                                       sortOrder: p.sortOrder,
                                       isActive: p.isActive,
                                     );
+                                    refreshStyleCatalogProviders(ref, garment);
                                   },
                                 );
                               },
@@ -189,6 +192,7 @@ class SettingsStylePartsScreen extends ConsumerWidget {
                                   styleCatalogRepositoryProvider.future,
                                 );
                                 await repo.softDeleteStylePart(p.internalId);
+                                refreshStyleCatalogProviders(ref, garment);
                               },
                             ),
                             Switch(
@@ -210,6 +214,7 @@ class SettingsStylePartsScreen extends ConsumerWidget {
                                   sortOrder: p.sortOrder,
                                   isActive: v,
                                 );
+                                refreshStyleCatalogProviders(ref, garment);
                               },
                             ),
                           ],

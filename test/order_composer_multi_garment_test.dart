@@ -177,6 +177,40 @@ void main() {
       );
     });
 
+    test('toCreateInputs strips cloth fields when includeClothFields is false', () {
+      var draft = OrderComposerDraft.initial();
+      draft = draft.updateItem(
+        GarmentType.perahanTunban,
+        filledItem(GarmentType.perahanTunban, price: 100000).copyWith(
+          fabricName: 'Wool',
+          fabricColor: 'Navy',
+          fabricId: 'fab-1',
+          fabricNamePresetInternalId: 'preset-name',
+          fabricColorPresetInternalId: 'preset-color',
+          clothMeters: '2.5',
+          clothPriceAmountMinor: 50000,
+        ),
+      );
+
+      final inputs = draft.toCreateInputs(
+        styleSelections: {
+          GarmentType.perahanTunban: const StyleOrderSelection.empty(),
+        },
+        includeClothFields: false,
+      );
+
+      expect(inputs.length, 1);
+      final item = inputs.single;
+      expect(item.fabricNameSnapshot, isEmpty);
+      expect(item.fabricColorSnapshot, isEmpty);
+      expect(item.fabricIdSnapshot, isEmpty);
+      expect(item.fabricNamePresetInternalId, isNull);
+      expect(item.fabricColorPresetInternalId, isNull);
+      expect(item.clothMetersSnapshot, isEmpty);
+      expect(item.clothPriceAmountMinor, 0);
+      expect(item.priceAmountMinor, 100000);
+    });
+
     test('showPerahanPreviousReference follows Perahan selection', () {
       var draft = OrderComposerDraft.initial();
       expect(draft.showPerahanPreviousReference, isTrue);

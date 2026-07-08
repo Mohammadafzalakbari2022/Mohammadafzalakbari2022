@@ -110,6 +110,7 @@ class OrderComposerStylePanel extends ConsumerStatefulWidget {
     this.onChanged,
     this.showStyleName = true,
     this.showCatalogPicker = true,
+    this.showStyleShapes = true,
   });
 
   final GarmentType? garmentType;
@@ -131,6 +132,7 @@ class OrderComposerStylePanel extends ConsumerStatefulWidget {
   final ValueChanged<OrderComposerStyleResult?>? onChanged;
   final bool showStyleName;
   final bool showCatalogPicker;
+  final bool showStyleShapes;
 
   @override
   ConsumerState<OrderComposerStylePanel> createState() =>
@@ -468,8 +470,12 @@ class _OrderComposerStylePanelState
                 ],
               ),
             ],
-            const SizedBox(height: 12),
-            figuresAsync.when(
+            if (widget.showStyleShapes) ...[
+              if (widget.showStyleName ||
+                  (widget.showCatalogPicker &&
+                      garment == GarmentType.perahanTunban))
+                const SizedBox(height: 12),
+              figuresAsync.when(
               data: (figures) {
                 final listFigures = figuresForOrderSelectionGrid(
                   figures,
@@ -533,6 +539,7 @@ class _OrderComposerStylePanelState
               loading: () => const LinearProgressIndicator(),
               error: (e, _) => Text('$e'),
             ),
+            ],
         ],
       ),
     ];

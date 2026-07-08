@@ -394,7 +394,7 @@ class IsarOrderRepository implements OrderListRepository {
     final items = await loadActiveOrderItems(isar, order.internalId);
     if (items.isEmpty) return;
     final sum = sumOrderItemPrices(items);
-    if (sum <= 0 || sum < paidMinor) {
+    if (sum < paidMinor) {
       throw const OrderItemRepositoryException('order_total_below_paid');
     }
     order.totalAmountMinor = sum;
@@ -631,10 +631,7 @@ class IsarOrderRepository implements OrderListRepository {
 
     final now = DateTime.now();
     final internalId = _uuid.v4();
-    final totalAmountMinor = items.fold<int>(
-      0,
-      (sum, item) => sum + item.priceAmountMinor,
-    );
+    final totalAmountMinor = sumCreateInputTotalMinor(items);
 
     final count = await _isar.orderEntitys
         .filter()
@@ -713,7 +710,7 @@ class IsarOrderRepository implements OrderListRepository {
     required String orderInternalId,
     required OrderItemCreateInput input,
   }) async {
-    if (input.priceAmountMinor <= 0) {
+    if (input.priceAmountMinor < 0 || input.clothPriceAmountMinor < 0) {
       throw const OrderItemRepositoryException('item_price_required');
     }
     final order = await _isar.orderEntitys.getByInternalId(orderInternalId);

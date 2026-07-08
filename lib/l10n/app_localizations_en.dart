@@ -2345,6 +2345,34 @@ class AppLocalizationsEn extends AppLocalizations {
       'Cloth name, color, meters, and price per garment';
 
   @override
+  String get settingsComposerShowMeasurementsTitle => 'Measurements';
+
+  @override
+  String get settingsComposerShowMeasurementsSubtitle =>
+      'Measurement fields and saved customer profiles';
+
+  @override
+  String get settingsComposerShowStyleShapesTitle => 'Style shapes';
+
+  @override
+  String get settingsComposerShowStyleShapesSubtitle =>
+      'Shape grid and figure options per garment';
+
+  @override
+  String get ordersComposerSaveZeroTotalTitle => 'Save with zero amount?';
+
+  @override
+  String get ordersComposerSaveZeroTotalBody =>
+      'This order has no price and no payment recorded. You can still save it.';
+
+  @override
+  String get ordersComposerSaveZeroTotalConfirm => 'Save anyway';
+
+  @override
+  String get ordersComposerItemOptionalEmpty =>
+      'Optional — fill only what you need';
+
+  @override
   String get ordersListChangeStatusTooltip => 'Change status';
 
   @override
