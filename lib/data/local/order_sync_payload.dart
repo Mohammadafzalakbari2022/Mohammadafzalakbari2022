@@ -120,6 +120,13 @@ Map<String, dynamic> orderItemSummaryToSyncMap(OrderItemSummary item) {
       'cloth_meters': item.clothMetersSnapshot.trim(),
     if (item.clothPriceAmountMinor > 0)
       'cloth_price_amount_minor': item.clothPriceAmountMinor,
+    if (item.clothSourceIndex != 0)
+      'cloth_source_index': item.clothSourceIndex,
+    if (item.clothStockSkuInternalId != null &&
+        item.clothStockSkuInternalId!.trim().isNotEmpty)
+      'cloth_stock_sku_internal_id': item.clothStockSkuInternalId!.trim(),
+    if (item.clothSaleCostAmountMinor > 0)
+      'cloth_sale_cost_amount_minor': item.clothSaleCostAmountMinor,
   };
 }
 
@@ -239,6 +246,26 @@ OrderItemCreateInput orderItemCreateInputFromSyncMap(
     clothPriceAmountMinor: syncPullInt(
           m,
           const ['cloth_price_amount_minor', 'clothPriceAmountMinor'],
+        ) ??
+        0,
+    clothSourceIndex: syncPullInt(
+          m,
+          const ['cloth_source_index', 'clothSourceIndex'],
+        ) ??
+        0,
+    clothStockSkuInternalId: syncPullString(
+      m,
+      const [
+        'cloth_stock_sku_internal_id',
+        'clothStockSkuInternalId',
+      ],
+    ),
+    clothSaleCostAmountMinor: syncPullInt(
+          m,
+          const [
+            'cloth_sale_cost_amount_minor',
+            'clothSaleCostAmountMinor',
+          ],
         ) ??
         0,
   );
@@ -391,6 +418,13 @@ Map<String, dynamic> orderItemCreateInputToSyncMap(OrderItemCreateInput item) {
       'cloth_meters': item.clothMetersSnapshot.trim(),
     if (item.clothPriceAmountMinor > 0)
       'cloth_price_amount_minor': item.clothPriceAmountMinor,
+    if (item.clothSourceIndex != 0)
+      'cloth_source_index': item.clothSourceIndex,
+    if (item.clothStockSkuInternalId != null &&
+        item.clothStockSkuInternalId!.trim().isNotEmpty)
+      'cloth_stock_sku_internal_id': item.clothStockSkuInternalId!.trim(),
+    if (item.clothSaleCostAmountMinor > 0)
+      'cloth_sale_cost_amount_minor': item.clothSaleCostAmountMinor,
   };
 }
 

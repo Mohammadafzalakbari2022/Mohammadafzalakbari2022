@@ -9,6 +9,7 @@ import '../../data/local/payment_repository.dart';
 import '../../data/local/sync_outbox_repository.dart';
 import '../../data/local/task_repository.dart';
 import '../../data/local/shop_finance_repository.dart';
+import '../../data/local/cloth_stock_repository.dart';
 import '../../data/local/fabric_preset_repository.dart';
 import '../../data/local/style_catalog_repository.dart';
 import '../api/pride_api_sync.dart';
@@ -56,6 +57,7 @@ Future<ManualSyncOutcome> runManualSyncWithOutbox({
   required StyleCatalogRepository styleCatalog,
   required FabricPresetRepository fabricPresets,
   required ShopFinanceRepository shopFinance,
+  required ClothStockRepository clothStock,
   SyncConflictRecorder? conflictRecorder,
 }) async {
   final applier = SyncInboundApplier(
@@ -69,6 +71,7 @@ Future<ManualSyncOutcome> runManualSyncWithOutbox({
     styleCatalog: styleCatalog,
     fabricPresets: fabricPresets,
     shopFinance: shopFinance,
+    clothStock: clothStock,
     shopId: syncShopId,
     conflictRecorder: conflictRecorder,
   );

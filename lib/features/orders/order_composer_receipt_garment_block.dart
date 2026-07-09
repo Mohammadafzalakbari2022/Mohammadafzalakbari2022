@@ -160,6 +160,9 @@ class OrderComposerReceiptGarmentBlock extends ConsumerWidget {
               initialColorPresetId: draft.fabricColorPresetInternalId,
               initialClothMeters: draft.clothMeters,
               initialClothPriceMinor: draft.clothPriceAmountMinor,
+              initialClothSourceIndex: draft.clothSourceIndex,
+              initialClothStockSkuInternalId: draft.clothStockSkuInternalId,
+              initialClothSaleCostMinor: draft.clothSaleCostAmountMinor,
               referenceOrder: referenceOrder,
               referenceItem: referenceItem,
               onUsePreviousFabric: onUsePreviousFabric,
@@ -174,6 +177,9 @@ class OrderComposerReceiptGarmentBlock extends ConsumerWidget {
                       fabricId: '',
                       clothMeters: '',
                       clothPriceAmountMinor: 0,
+                      clothSourceIndex: 0,
+                      clothStockSkuInternalId: null,
+                      clothSaleCostAmountMinor: 0,
                     ),
                   );
                   return;
@@ -187,6 +193,9 @@ class OrderComposerReceiptGarmentBlock extends ConsumerWidget {
                     fabricColorPresetInternalId: result.fabricColorPresetInternalId,
                     clothMeters: result.clothMeters,
                     clothPriceAmountMinor: result.clothPriceAmountMinor,
+                    clothSourceIndex: result.clothSourceIndex,
+                    clothStockSkuInternalId: result.clothStockSkuInternalId,
+                    clothSaleCostAmountMinor: result.clothSaleCostAmountMinor,
                   ),
                 );
               },

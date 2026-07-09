@@ -12,6 +12,12 @@ import '../local/entities/measurement_profile_item_entity.dart';
 import '../local/entities/measurement_type_entity.dart';
 import '../local/entities/order_entity.dart';
 import '../local/entities/order_item_entity.dart';
+import '../local/entities/cloth_stock_sku_entity.dart';
+import '../local/entities/cloth_stock_movement_entity.dart';
+import '../local/entities/cloth_supplier_entity.dart';
+import '../local/entities/cloth_purchase_entity.dart';
+import '../local/entities/cloth_purchase_line_entity.dart';
+import '../local/entities/cloth_purchase_payment_entity.dart';
 import '../local/entities/order_measurement_snapshot_entity.dart';
 import '../local/entities/order_measurement_snapshot_item_entity.dart';
 import '../local/entities/payment_entity.dart';
@@ -21,7 +27,7 @@ import 'backup_merge_result.dart';
 /// JSON backup (plan-15). Exports as [currentExportVersion]; imports v1 and v2.
 abstract final class IsarBackupV1 {
   static const schemaKey = 'afghan_pride_backup';
-  static const currentExportVersion = 4;
+  static const currentExportVersion = 5;
   static const minImportVersion = 1;
 
   static int _versionFromRoot(Map<String, dynamic> root) {
@@ -85,6 +91,30 @@ abstract final class IsarBackupV1 {
         .filter()
         .shopIdEqualTo(shopId)
         .findAll();
+    final clothSkus = await isar.clothStockSkuEntitys
+        .filter()
+        .shopIdEqualTo(shopId)
+        .findAll();
+    final clothSuppliers = await isar.clothSupplierEntitys
+        .filter()
+        .shopIdEqualTo(shopId)
+        .findAll();
+    final clothPurchases = await isar.clothPurchaseEntitys
+        .filter()
+        .shopIdEqualTo(shopId)
+        .findAll();
+    final clothPurchaseLines = await isar.clothPurchaseLineEntitys
+        .filter()
+        .shopIdEqualTo(shopId)
+        .findAll();
+    final clothPurchasePayments = await isar.clothPurchasePaymentEntitys
+        .filter()
+        .shopIdEqualTo(shopId)
+        .findAll();
+    final clothMovements = await isar.clothStockMovementEntitys
+        .filter()
+        .shopIdEqualTo(shopId)
+        .findAll();
 
     final catalogAssets = <String, String>{};
     for (final c in catalogItems) {
@@ -132,6 +162,18 @@ abstract final class IsarBackupV1 {
         for (final c in catalogItems) _catalogItemToMap(c),
       ],
       'catalogAssets': catalogAssets,
+      'clothStockSkus': [for (final s in clothSkus) _clothSkuToMap(s)],
+      'clothSuppliers': [for (final s in clothSuppliers) _clothSupplierToMap(s)],
+      'clothPurchases': [for (final p in clothPurchases) _clothPurchaseToMap(p)],
+      'clothPurchaseLines': [
+        for (final l in clothPurchaseLines) _clothPurchaseLineToMap(l),
+      ],
+      'clothPurchasePayments': [
+        for (final p in clothPurchasePayments) _clothPurchasePaymentToMap(p),
+      ],
+      'clothStockMovements': [
+        for (final m in clothMovements) _clothMovementToMap(m),
+      ],
     };
   }
 
@@ -316,6 +358,37 @@ abstract final class IsarBackupV1 {
           );
         }
         await isar.catalogItemEntitys.putByInternalId(e);
+      }
+
+      for (final raw in _asMapList(root['clothStockSkus'])) {
+        final e = _clothSkuFromMap(raw);
+        if (shopId.isNotEmpty && e.shopId != shopId) continue;
+        await isar.clothStockSkuEntitys.putByInternalId(e);
+      }
+      for (final raw in _asMapList(root['clothSuppliers'])) {
+        final e = _clothSupplierFromMap(raw);
+        if (shopId.isNotEmpty && e.shopId != shopId) continue;
+        await isar.clothSupplierEntitys.putByInternalId(e);
+      }
+      for (final raw in _asMapList(root['clothPurchases'])) {
+        final e = _clothPurchaseFromMap(raw);
+        if (shopId.isNotEmpty && e.shopId != shopId) continue;
+        await isar.clothPurchaseEntitys.putByInternalId(e);
+      }
+      for (final raw in _asMapList(root['clothPurchaseLines'])) {
+        final e = _clothPurchaseLineFromMap(raw);
+        if (shopId.isNotEmpty && e.shopId != shopId) continue;
+        await isar.clothPurchaseLineEntitys.putByInternalId(e);
+      }
+      for (final raw in _asMapList(root['clothPurchasePayments'])) {
+        final e = _clothPurchasePaymentFromMap(raw);
+        if (shopId.isNotEmpty && e.shopId != shopId) continue;
+        await isar.clothPurchasePaymentEntitys.putByInternalId(e);
+      }
+      for (final raw in _asMapList(root['clothStockMovements'])) {
+        final e = _clothMovementFromMap(raw);
+        if (shopId.isNotEmpty && e.shopId != shopId) continue;
+        await isar.clothStockMovementEntitys.putByInternalId(e);
       }
     });
 
@@ -503,6 +576,11 @@ abstract final class IsarBackupV1 {
         'fabricIdSnapshot': i.fabricIdSnapshot,
         'fabricNamePresetInternalId': i.fabricNamePresetInternalId,
         'fabricColorPresetInternalId': i.fabricColorPresetInternalId,
+        'clothMetersSnapshot': i.clothMetersSnapshot,
+        'clothPriceAmountMinor': i.clothPriceAmountMinor,
+        'clothSourceIndex': i.clothSourceIndex,
+        'clothStockSkuInternalId': i.clothStockSkuInternalId,
+        'clothSaleCostAmountMinor': i.clothSaleCostAmountMinor,
         'createdAt': i.createdAt.toUtc().toIso8601String(),
         'updatedAt': i.updatedAt.toUtc().toIso8601String(),
         'deletedAt': i.deletedAt?.toUtc().toIso8601String(),
@@ -540,6 +618,13 @@ abstract final class IsarBackupV1 {
       ..fabricNamePresetInternalId = m['fabricNamePresetInternalId'] as String?
       ..fabricColorPresetInternalId =
           m['fabricColorPresetInternalId'] as String?
+      ..clothMetersSnapshot = m['clothMetersSnapshot'] as String? ?? ''
+      ..clothPriceAmountMinor =
+          (m['clothPriceAmountMinor'] as num?)?.toInt() ?? 0
+      ..clothSourceIndex = (m['clothSourceIndex'] as num?)?.toInt() ?? 0
+      ..clothStockSkuInternalId = m['clothStockSkuInternalId'] as String?
+      ..clothSaleCostAmountMinor =
+          (m['clothSaleCostAmountMinor'] as num?)?.toInt() ?? 0
       ..createdAt = DateTime.parse(m['createdAt']! as String).toLocal()
       ..updatedAt = DateTime.parse(m['updatedAt']! as String).toLocal();
     final del = m['deletedAt'] as String?;
@@ -748,5 +833,168 @@ abstract final class IsarBackupV1 {
         '${folder.path}${Platform.pathSeparator}backup_${internalId}_$kind.$ext';
     await File(path).writeAsBytes(base64Decode(base64Data), flush: true);
     return path;
+  }
+
+  static Map<String, dynamic> _clothSkuToMap(ClothStockSkuEntity e) => {
+        'internalId': e.internalId,
+        'shopId': e.shopId,
+        'skuCode': e.skuCode,
+        'name': e.name,
+        'color': e.color,
+        'fabricNamePresetInternalId': e.fabricNamePresetInternalId,
+        'fabricColorPresetInternalId': e.fabricColorPresetInternalId,
+        'qtyOnHandMilli': e.qtyOnHandMilli,
+        'createdAt': e.createdAt.toUtc().toIso8601String(),
+        'updatedAt': e.updatedAt.toUtc().toIso8601String(),
+        'deletedAt': e.deletedAt?.toUtc().toIso8601String(),
+      };
+
+  static ClothStockSkuEntity _clothSkuFromMap(Map<String, dynamic> m) {
+    final e = ClothStockSkuEntity()
+      ..internalId = m['internalId']! as String
+      ..shopId = m['shopId']! as String
+      ..skuCode = m['skuCode'] as String? ?? ''
+      ..name = m['name']! as String
+      ..color = m['color'] as String? ?? ''
+      ..fabricNamePresetInternalId = m['fabricNamePresetInternalId'] as String?
+      ..fabricColorPresetInternalId = m['fabricColorPresetInternalId'] as String?
+      ..qtyOnHandMilli = (m['qtyOnHandMilli'] as num?)?.toInt() ?? 0
+      ..createdAt = DateTime.parse(m['createdAt']! as String).toLocal()
+      ..updatedAt = DateTime.parse(m['updatedAt']! as String).toLocal();
+    final del = m['deletedAt'] as String?;
+    e.deletedAt = del == null ? null : DateTime.parse(del).toLocal();
+    return e;
+  }
+
+  static Map<String, dynamic> _clothSupplierToMap(ClothSupplierEntity e) => {
+        'internalId': e.internalId,
+        'shopId': e.shopId,
+        'name': e.name,
+        'phone': e.phone,
+        'notes': e.notes,
+        'createdAt': e.createdAt.toUtc().toIso8601String(),
+        'updatedAt': e.updatedAt.toUtc().toIso8601String(),
+        'deletedAt': e.deletedAt?.toUtc().toIso8601String(),
+      };
+
+  static ClothSupplierEntity _clothSupplierFromMap(Map<String, dynamic> m) {
+    final e = ClothSupplierEntity()
+      ..internalId = m['internalId']! as String
+      ..shopId = m['shopId']! as String
+      ..name = m['name']! as String
+      ..phone = m['phone'] as String? ?? ''
+      ..notes = m['notes'] as String? ?? ''
+      ..createdAt = DateTime.parse(m['createdAt']! as String).toLocal()
+      ..updatedAt = DateTime.parse(m['updatedAt']! as String).toLocal();
+    final del = m['deletedAt'] as String?;
+    e.deletedAt = del == null ? null : DateTime.parse(del).toLocal();
+    return e;
+  }
+
+  static Map<String, dynamic> _clothPurchaseToMap(ClothPurchaseEntity e) => {
+        'internalId': e.internalId,
+        'shopId': e.shopId,
+        'supplierInternalId': e.supplierInternalId,
+        'purchaseDate': e.purchaseDate.toUtc().toIso8601String(),
+        'totalAmountMinor': e.totalAmountMinor,
+        'note': e.note,
+        'createdAt': e.createdAt.toUtc().toIso8601String(),
+        'updatedAt': e.updatedAt.toUtc().toIso8601String(),
+        'deletedAt': e.deletedAt?.toUtc().toIso8601String(),
+      };
+
+  static ClothPurchaseEntity _clothPurchaseFromMap(Map<String, dynamic> m) {
+    final e = ClothPurchaseEntity()
+      ..internalId = m['internalId']! as String
+      ..shopId = m['shopId']! as String
+      ..supplierInternalId = m['supplierInternalId']! as String
+      ..purchaseDate = DateTime.parse(m['purchaseDate']! as String).toLocal()
+      ..totalAmountMinor = (m['totalAmountMinor'] as num).toInt()
+      ..note = m['note'] as String? ?? ''
+      ..createdAt = DateTime.parse(m['createdAt']! as String).toLocal()
+      ..updatedAt = DateTime.parse(m['updatedAt']! as String).toLocal();
+    final del = m['deletedAt'] as String?;
+    e.deletedAt = del == null ? null : DateTime.parse(del).toLocal();
+    return e;
+  }
+
+  static Map<String, dynamic> _clothPurchaseLineToMap(ClothPurchaseLineEntity e) =>
+      {
+        'internalId': e.internalId,
+        'shopId': e.shopId,
+        'purchaseInternalId': e.purchaseInternalId,
+        'skuInternalId': e.skuInternalId,
+        'qtyMilli': e.qtyMilli,
+        'unitCostAmountMinor': e.unitCostAmountMinor,
+        'lineTotalMinor': e.lineTotalMinor,
+        'createdAt': e.createdAt.toUtc().toIso8601String(),
+      };
+
+  static ClothPurchaseLineEntity _clothPurchaseLineFromMap(
+    Map<String, dynamic> m,
+  ) {
+    return ClothPurchaseLineEntity()
+      ..internalId = m['internalId']! as String
+      ..shopId = m['shopId']! as String
+      ..purchaseInternalId = m['purchaseInternalId']! as String
+      ..skuInternalId = m['skuInternalId']! as String
+      ..qtyMilli = (m['qtyMilli'] as num).toInt()
+      ..unitCostAmountMinor = (m['unitCostAmountMinor'] as num).toInt()
+      ..lineTotalMinor = (m['lineTotalMinor'] as num).toInt()
+      ..createdAt = DateTime.parse(m['createdAt']! as String).toLocal();
+  }
+
+  static Map<String, dynamic> _clothPurchasePaymentToMap(
+    ClothPurchasePaymentEntity e,
+  ) =>
+      {
+        'internalId': e.internalId,
+        'shopId': e.shopId,
+        'purchaseInternalId': e.purchaseInternalId,
+        'amountMinor': e.amountMinor,
+        'paidAt': e.paidAt.toUtc().toIso8601String(),
+        'note': e.note,
+        'createdAt': e.createdAt.toUtc().toIso8601String(),
+      };
+
+  static ClothPurchasePaymentEntity _clothPurchasePaymentFromMap(
+    Map<String, dynamic> m,
+  ) {
+    return ClothPurchasePaymentEntity()
+      ..internalId = m['internalId']! as String
+      ..shopId = m['shopId']! as String
+      ..purchaseInternalId = m['purchaseInternalId']! as String
+      ..amountMinor = (m['amountMinor'] as num).toInt()
+      ..paidAt = DateTime.parse(m['paidAt']! as String).toLocal()
+      ..note = m['note'] as String? ?? ''
+      ..createdAt = DateTime.parse(m['createdAt']! as String).toLocal();
+  }
+
+  static Map<String, dynamic> _clothMovementToMap(ClothStockMovementEntity e) =>
+      {
+        'internalId': e.internalId,
+        'shopId': e.shopId,
+        'skuInternalId': e.skuInternalId,
+        'movementTypeIndex': e.movementTypeIndex,
+        'qtyMilliDelta': e.qtyMilliDelta,
+        'orderItemInternalId': e.orderItemInternalId,
+        'purchaseLineInternalId': e.purchaseLineInternalId,
+        'note': e.note,
+        'createdAt': e.createdAt.toUtc().toIso8601String(),
+      };
+
+  static ClothStockMovementEntity _clothMovementFromMap(
+    Map<String, dynamic> m,
+  ) {
+    return ClothStockMovementEntity()
+      ..internalId = m['internalId']! as String
+      ..shopId = m['shopId']! as String
+      ..skuInternalId = m['skuInternalId']! as String
+      ..movementTypeIndex = (m['movementTypeIndex'] as num).toInt()
+      ..qtyMilliDelta = (m['qtyMilliDelta'] as num).toInt()
+      ..orderItemInternalId = m['orderItemInternalId'] as String?
+      ..purchaseLineInternalId = m['purchaseLineInternalId'] as String?
+      ..note = m['note'] as String? ?? ''
+      ..createdAt = DateTime.parse(m['createdAt']! as String).toLocal();
   }
 }

@@ -7,6 +7,7 @@ import '../../data/local/customer_list_repository.dart';
 import '../../data/local/measurement_profile_repository.dart';
 import '../../data/local/order_list_repository.dart';
 import '../../data/local/payment_repository.dart';
+import '../../data/local/cloth_stock_repository.dart';
 import '../../data/local/shop_finance_repository.dart';
 import '../../data/local/task_repository.dart';
 import 'sync_conflict_recorder.dart';
@@ -24,6 +25,7 @@ class SyncInboundApplier {
     required this.styleCatalog,
     required this.fabricPresets,
     required this.shopFinance,
+    required this.clothStock,
     required this.shopId,
     this.conflictRecorder,
   });
@@ -38,6 +40,7 @@ class SyncInboundApplier {
   final StyleCatalogRepository styleCatalog;
   final FabricPresetRepository fabricPresets;
   final ShopFinanceRepository shopFinance;
+  final ClothStockRepository clothStock;
   final String shopId;
   final SyncConflictRecorder? conflictRecorder;
 
@@ -197,6 +200,46 @@ class SyncInboundApplier {
         applied++;
       } else if (et == 'shop_expense') {
         await shopFinance.mergeRemoteExpense(
+          shopId: shopId,
+          internalId: id,
+          operation: op,
+          data: raw['data'],
+        );
+        applied++;
+      } else if (et == 'cloth_sku') {
+        await clothStock.mergeRemoteSku(
+          shopId: shopId,
+          internalId: id,
+          operation: op,
+          data: raw['data'],
+        );
+        applied++;
+      } else if (et == 'cloth_supplier') {
+        await clothStock.mergeRemoteSupplier(
+          shopId: shopId,
+          internalId: id,
+          operation: op,
+          data: raw['data'],
+        );
+        applied++;
+      } else if (et == 'cloth_purchase') {
+        await clothStock.mergeRemotePurchase(
+          shopId: shopId,
+          internalId: id,
+          operation: op,
+          data: raw['data'],
+        );
+        applied++;
+      } else if (et == 'cloth_purchase_payment') {
+        await clothStock.mergeRemotePurchasePayment(
+          shopId: shopId,
+          internalId: id,
+          operation: op,
+          data: raw['data'],
+        );
+        applied++;
+      } else if (et == 'cloth_stock_movement') {
+        await clothStock.mergeRemoteMovement(
           shopId: shopId,
           internalId: id,
           operation: op,

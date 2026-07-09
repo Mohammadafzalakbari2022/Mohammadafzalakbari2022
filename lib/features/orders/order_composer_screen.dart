@@ -44,6 +44,7 @@ import '../../data/local/style/style_order_selection.dart';
 import '../customers/new_customer_screen.dart';
 import 'order_composer_customer_picker.dart';
 import '../settings/composer_visibility_provider.dart';
+import '../settings/cloth/cloth_sync_helpers.dart';
 import 'order_composer_draft.dart';
 import 'order_composer_receipt_garment_block.dart';
 import 'order_composer_item_card.dart';
@@ -122,13 +123,10 @@ OrderItemCreateInput mergeComposerEditInput(
   OrderItemCreateInput draft,
   OrderItemSummary? existing,
 ) {
-  final price = draft.priceAmountMinor > 0
-      ? draft.priceAmountMinor
-      : (existing?.priceAmountMinor ?? 0);
   if (existing != null) {
     return orderItemCreateInputFromSummary(
       existing,
-      priceAmountMinor: price,
+      priceAmountMinor: draft.priceAmountMinor,
       measurementsSnapshot: draft.measurementsSnapshot,
       sourceMeasurementProfileId: draft.sourceMeasurementProfileId,
       sourceMeasurementProfileLabel: draft.sourceMeasurementProfileLabel,
@@ -146,12 +144,15 @@ OrderItemCreateInput mergeComposerEditInput(
       fabricColorPresetInternalId: draft.fabricColorPresetInternalId,
       clothMetersSnapshot: draft.clothMetersSnapshot,
       clothPriceAmountMinor: draft.clothPriceAmountMinor,
+      clothSourceIndex: draft.clothSourceIndex,
+      clothStockSkuInternalId: draft.clothStockSkuInternalId,
+      clothSaleCostAmountMinor: draft.clothSaleCostAmountMinor,
       measurementSnapshotItems: draft.measurementSnapshotItems,
     );
   }
   return OrderItemCreateInput(
     garmentType: draft.garmentType,
-    priceAmountMinor: price,
+    priceAmountMinor: draft.priceAmountMinor,
     sortOrder: draft.sortOrder,
     itemNotes: draft.itemNotes,
     measurementsSnapshot: draft.measurementsSnapshot,
@@ -173,8 +174,51 @@ OrderItemCreateInput mergeComposerEditInput(
     fabricColorPresetInternalId: draft.fabricColorPresetInternalId,
     clothMetersSnapshot: draft.clothMetersSnapshot,
     clothPriceAmountMinor: draft.clothPriceAmountMinor,
+    clothSourceIndex: draft.clothSourceIndex,
+    clothStockSkuInternalId: draft.clothStockSkuInternalId,
+    clothSaleCostAmountMinor: draft.clothSaleCostAmountMinor,
     measurementSnapshotItems: draft.measurementSnapshotItems,
   );
+}
+
+Future<void> reconcileComposerClothStock({
+  required WidgetRef ref,
+  required String shopId,
+  required String orderInternalId,
+  required List<OrderItemCreateInput> inputs,
+  required List<OrderItemSummary> previousItems,
+}) async {
+  final stockService = await ref.read(clothStockServiceProvider.future);
+  final ordersRepo = await ref.read(orderListRepositoryProvider.future);
+  final savedItems = await ordersRepo.watchOrderItems(orderInternalId).first;
+  final previousByType = {for (final i in previousItems) i.garmentType: i};
+  for (final input in inputs) {
+    OrderItemSummary? saved;
+    for (final item in savedItems) {
+      if (item.garmentType == input.garmentType) {
+        saved = item;
+        break;
+      }
+    }
+    if (saved == null) continue;
+    final movements = await stockService.reconcileOrderItemStock(
+      shopId: shopId,
+      savedItem: saved,
+      previousItem: previousByType[input.garmentType],
+    );
+    for (final m in movements) {
+      enqueueClothMovementAppend(
+        ref,
+        internalId: m.internalId,
+        skuInternalId: m.skuInternalId,
+        movementTypeIndex: m.movementType.code,
+        qtyMilliDelta: m.qtyMilliDelta,
+        orderItemInternalId: m.orderItemInternalId,
+        purchaseLineInternalId: m.purchaseLineInternalId,
+        note: m.note,
+      );
+    }
+  }
 }
 
 class OrderComposerScreen extends ConsumerStatefulWidget {
@@ -335,6 +379,9 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
           fabricColorPresetInternalId: item.fabricColorPresetInternalId,
           clothMeters: item.clothMetersSnapshot,
           clothPriceAmountMinor: item.clothPriceAmountMinor,
+          clothSourceIndex: item.clothSourceIndex,
+          clothStockSkuInternalId: item.clothStockSkuInternalId,
+          clothSaleCostAmountMinor: item.clothSaleCostAmountMinor,
         ),
       );
       _itemCardExpanded[type] = true;
@@ -1057,7 +1104,16 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     final totalMinor = _draft.totalMinor(clothBlockEnabled: clothBlockEnabled);
     var paidMinor = _composerPaidMinor;
     if (paidMinor < 0) paidMinor = 0;
-    if (totalMinor > 0 && paidMinor > totalMinor) {
+    if (totalMinor <= 0) {
+      showAppFeedback(
+        context,
+        ref,
+        kind: AppFeedbackKind.error,
+        message: l10n.ordersComposerItemPriceRequired,
+      );
+      return;
+    }
+    if (paidMinor > totalMinor) {
       showAppFeedback(
         context,
         ref,
@@ -1065,26 +1121,6 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
         message: l10n.ordersComposerPaymentRequired,
       );
       return;
-    }
-    if (totalMinor == 0 && paidMinor == 0) {
-      final proceed = await showDialog<bool>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text(l10n.ordersComposerSaveZeroTotalTitle),
-          content: Text(l10n.ordersComposerSaveZeroTotalBody),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(false),
-              child: Text(l10n.ordersComposerPaymentCancelCta),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.of(ctx).pop(true),
-              child: Text(l10n.ordersComposerSaveZeroTotalConfirm),
-            ),
-          ],
-        ),
-      );
-      if (proceed != true || !context.mounted) return;
     }
     final now = DateTime.now();
     final deliveryDate = _deliveryDate ??
@@ -1142,6 +1178,13 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
             newStatus: _editingStatus!,
           );
         }
+        await reconcileComposerClothStock(
+          ref: ref,
+          shopId: shopId,
+          orderInternalId: orderId,
+          inputs: createInputs,
+          previousItems: existingItems,
+        );
       } on OrderItemRepositoryException catch (e) {
         if (!context.mounted) return;
         showAppFeedback(
@@ -1176,6 +1219,14 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       items: createInputs,
       customerSnapshotName: _selectedCustomerName,
       customerSnapshotPhone: _selectedCustomerPhone,
+    );
+
+    await reconcileComposerClothStock(
+      ref: ref,
+      shopId: shopId,
+      orderInternalId: orderId,
+      inputs: createInputs,
+      previousItems: const [],
     );
 
     final catalogItem = _draft.primaryCatalogItem();

@@ -521,6 +521,9 @@ class MemoryOrderRepository implements OrderListRepository {
           fabricColorPresetInternalId: input.fabricColorPresetInternalId,
           clothMetersSnapshot: input.clothMetersSnapshot,
           clothPriceAmountMinor: input.clothPriceAmountMinor,
+          clothSourceIndex: input.clothSourceIndex,
+          clothStockSkuInternalId: input.clothStockSkuInternalId,
+          clothSaleCostAmountMinor: input.clothSaleCostAmountMinor,
           createdAt: now,
           updatedAt: now,
         ),
@@ -607,7 +610,7 @@ class MemoryOrderRepository implements OrderListRepository {
     required String orderInternalId,
     required OrderItemCreateInput input,
   }) async {
-    if (input.priceAmountMinor < 0 || input.clothPriceAmountMinor < 0) {
+    if (input.priceAmountMinor <= 0 || input.clothPriceAmountMinor < 0) {
       throw const OrderItemRepositoryException('item_price_required');
     }
     final idx = _indexOfOrder(orderInternalId);
@@ -646,6 +649,9 @@ class MemoryOrderRepository implements OrderListRepository {
       fabricColorPresetInternalId: input.fabricColorPresetInternalId,
       clothMetersSnapshot: input.clothMetersSnapshot,
       clothPriceAmountMinor: input.clothPriceAmountMinor,
+      clothSourceIndex: input.clothSourceIndex,
+      clothStockSkuInternalId: input.clothStockSkuInternalId,
+      clothSaleCostAmountMinor: input.clothSaleCostAmountMinor,
       createdAt: existingIndex >= 0 ? items[existingIndex].createdAt : now,
       updatedAt: now,
     );
@@ -1261,6 +1267,9 @@ class MemoryOrderRepository implements OrderListRepository {
             fabricColorPresetInternalId: input.fabricColorPresetInternalId,
             clothMetersSnapshot: input.clothMetersSnapshot,
             clothPriceAmountMinor: input.clothPriceAmountMinor,
+            clothSourceIndex: input.clothSourceIndex,
+            clothStockSkuInternalId: input.clothStockSkuInternalId,
+            clothSaleCostAmountMinor: input.clothSaleCostAmountMinor,
             createdAt: createdAt,
             updatedAt: updatedAt,
           ),

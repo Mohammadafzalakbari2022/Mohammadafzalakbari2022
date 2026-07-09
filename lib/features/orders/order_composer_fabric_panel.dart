@@ -4,11 +4,16 @@ import 'package:pride_v3/core/fabric/generate_fabric_id.dart';
 import 'package:pride_v3/core/formatting/digit_normalizer.dart';
 import 'package:pride_v3/core/widgets/pride_money_field.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
+import 'package:uuid/uuid.dart';
 
+import '../../auth/auth_providers.dart';
+import '../../data/local/dev_shop_constants.dart';
+import '../../data/local/cloth_stock_models.dart';
 import '../../data/local/fabric_preset_summary.dart';
 import '../../data/local/order_item_summary.dart';
 import '../../data/local/order_summary.dart';
 import '../../data/providers/local_data_providers.dart';
+import '../settings/cloth/cloth_sync_helpers.dart';
 import 'order_composer_fabric_sheet.dart';
 import 'order_composer_reference.dart';
 
@@ -24,6 +29,9 @@ class OrderComposerFabricPanel extends ConsumerStatefulWidget {
     this.initialColorPresetId,
     this.initialClothMeters = '',
     this.initialClothPriceMinor = 0,
+    this.initialClothSourceIndex = 0,
+    this.initialClothStockSkuInternalId,
+    this.initialClothSaleCostMinor = 0,
     required this.onChanged,
     this.referenceOrder,
     this.referenceItem,
@@ -40,6 +48,9 @@ class OrderComposerFabricPanel extends ConsumerStatefulWidget {
   final String? initialColorPresetId;
   final String initialClothMeters;
   final int initialClothPriceMinor;
+  final int initialClothSourceIndex;
+  final String? initialClothStockSkuInternalId;
+  final int initialClothSaleCostMinor;
   final ValueChanged<OrderComposerFabricResult?> onChanged;
   final OrderSummary? referenceOrder;
   final OrderItemSummary? referenceItem;
@@ -58,9 +69,15 @@ class _OrderComposerFabricPanelState
   late final TextEditingController _colorCtrl;
   late final TextEditingController _metersCtrl;
   late final TextEditingController _priceCtrl;
+  late final TextEditingController _cogsCtrl;
   String? _namePresetId;
   String? _colorPresetId;
   String _fabricId = '';
+  int _clothSourceIndex = 0;
+  String? _selectedSkuId;
+  bool _shortStock = false;
+
+  bool get _isShopStock => _clothSourceIndex == 1;
 
   @override
   void initState() {
@@ -73,33 +90,53 @@ class _OrderComposerFabricPanelState
           ? widget.initialClothPriceMinor.toString()
           : '',
     );
+    _cogsCtrl = TextEditingController(
+      text: widget.initialClothSaleCostMinor > 0
+          ? widget.initialClothSaleCostMinor.toString()
+          : '',
+    );
     _namePresetId = widget.initialNamePresetId;
     _colorPresetId = widget.initialColorPresetId;
     _fabricId = widget.initialFabricId;
-    _nameCtrl.addListener(_emitChange);
-    _colorCtrl.addListener(_emitChange);
-    _metersCtrl.addListener(_emitChange);
-    _priceCtrl.addListener(_emitChange);
+    _clothSourceIndex = widget.initialClothSourceIndex;
+    _selectedSkuId = widget.initialClothStockSkuInternalId;
+    for (final c in [_nameCtrl, _colorCtrl, _metersCtrl, _priceCtrl, _cogsCtrl]) {
+      c.addListener(_emitChange);
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkShortStock());
   }
 
   @override
   void dispose() {
-    _nameCtrl
-      ..removeListener(_emitChange)
-      ..dispose();
-    _colorCtrl
-      ..removeListener(_emitChange)
-      ..dispose();
-    _metersCtrl
-      ..removeListener(_emitChange)
-      ..dispose();
-    _priceCtrl
-      ..removeListener(_emitChange)
-      ..dispose();
+    for (final c in [_nameCtrl, _colorCtrl, _metersCtrl, _priceCtrl, _cogsCtrl]) {
+      c.removeListener(_emitChange);
+      c.dispose();
+    }
     super.dispose();
   }
 
+  Future<void> _checkShortStock() async {
+    if (!_isShopStock || _selectedSkuId == null) {
+      if (_shortStock) setState(() => _shortStock = false);
+      return;
+    }
+    final qtyMilli = parseMetersToMilli(_metersCtrl.text);
+    if (qtyMilli <= 0) {
+      if (_shortStock) setState(() => _shortStock = false);
+      return;
+    }
+    final service = await ref.read(clothStockServiceProvider.future);
+    final short = await service.wouldBeShortStock(
+      skuInternalId: _selectedSkuId!,
+      qtyMilli: qtyMilli,
+    );
+    if (mounted && short != _shortStock) {
+      setState(() => _shortStock = short);
+    }
+  }
+
   void _emitChange() {
+    _checkShortStock();
     widget.onChanged(_buildResult());
   }
 
@@ -108,10 +145,12 @@ class _OrderComposerFabricPanelState
     final color = _colorCtrl.text.trim();
     final meters = _metersCtrl.text.trim();
     final priceMinor = tryParseMoneyAmount(_priceCtrl.text) ?? 0;
+    final cogsMinor = tryParseMoneyAmount(_cogsCtrl.text) ?? 0;
     if (name.isEmpty &&
         color.isEmpty &&
         meters.isEmpty &&
-        priceMinor <= 0) {
+        priceMinor <= 0 &&
+        !_isShopStock) {
       return null;
     }
     var id = _fabricId.trim();
@@ -127,6 +166,9 @@ class _OrderComposerFabricPanelState
       fabricColorPresetInternalId: _colorPresetId,
       clothMeters: meters,
       clothPriceAmountMinor: priceMinor,
+      clothSourceIndex: _clothSourceIndex,
+      clothStockSkuInternalId: _isShopStock ? _selectedSkuId : null,
+      clothSaleCostAmountMinor: _isShopStock ? cogsMinor : 0,
     );
   }
 
@@ -166,15 +208,115 @@ class _OrderComposerFabricPanelState
     _emitChange();
   }
 
+  void _setSource(int index) {
+    setState(() {
+      _clothSourceIndex = index;
+      if (!_isShopStock) {
+        _selectedSkuId = null;
+        _cogsCtrl.clear();
+      }
+    });
+    _emitChange();
+  }
+
+  void _selectSku(ClothStockSkuSummary sku) {
+    setState(() {
+      _selectedSkuId = sku.internalId;
+      if (_nameCtrl.text.trim().isEmpty) _nameCtrl.text = sku.name;
+      if (_colorCtrl.text.trim().isEmpty && sku.color.trim().isNotEmpty) {
+        _colorCtrl.text = sku.color;
+      }
+    });
+    _emitChange();
+  }
+
+  Future<void> _createSkuInline() async {
+    final shopId = effectiveShopIdFromAuth(ref.read(authSessionProvider).shopId);
+    final codeCtrl = TextEditingController();
+    final nameCtrl = TextEditingController(text: _nameCtrl.text.trim());
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(widget.l10n.clothStockSkuCreateTitle),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: codeCtrl,
+              decoration: InputDecoration(
+                labelText: widget.l10n.clothStockSkuCodeLabel,
+                border: const OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: nameCtrl,
+              decoration: InputDecoration(
+                labelText: widget.l10n.clothStockSkuNameLabel,
+                border: const OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(widget.l10n.ordersComposerPaymentCancelCta),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(widget.l10n.saveCta),
+          ),
+        ],
+      ),
+    );
+    final code = codeCtrl.text.trim();
+    final name = nameCtrl.text.trim();
+    codeCtrl.dispose();
+    nameCtrl.dispose();
+    if (ok != true || name.isEmpty) return;
+    final id = const Uuid().v4();
+    final repo = await ref.read(clothStockRepositoryProvider.future);
+    await repo.upsertSku(
+      shopId: shopId,
+      internalId: id,
+      skuCode: code.isEmpty ? id.substring(0, 8) : code,
+      name: name,
+      color: _colorCtrl.text.trim(),
+      fabricNamePresetInternalId: _namePresetId,
+      fabricColorPresetInternalId: _colorPresetId,
+    );
+    enqueueClothSkuUpsert(
+      ref,
+      internalId: id,
+      skuCode: code.isEmpty ? id.substring(0, 8) : code,
+      name: name,
+      color: _colorCtrl.text.trim(),
+      fabricNamePresetInternalId: _namePresetId,
+      fabricColorPresetInternalId: _colorPresetId,
+    );
+    if (!mounted) return;
+    setState(() {
+      _clothSourceIndex = 1;
+      _selectedSkuId = id;
+      _nameCtrl.text = name;
+    });
+    _emitChange();
+  }
+
   void _clear() {
     setState(() {
       _namePresetId = null;
       _colorPresetId = null;
       _fabricId = '';
+      _clothSourceIndex = 0;
+      _selectedSkuId = null;
+      _shortStock = false;
       _nameCtrl.clear();
       _colorCtrl.clear();
       _metersCtrl.clear();
       _priceCtrl.clear();
+      _cogsCtrl.clear();
     });
     widget.onChanged(null);
   }
@@ -210,6 +352,7 @@ class _OrderComposerFabricPanelState
   Widget build(BuildContext context) {
     final namesAsync = ref.watch(fabricNamesStreamProvider);
     final colorsAsync = ref.watch(fabricColorsStreamProvider);
+    final skusAsync = ref.watch(clothStockSkusStreamProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -225,6 +368,73 @@ class _OrderComposerFabricPanelState
             onUsePrevious: widget.onUsePreviousFabric,
             money: widget.moneyFormatter!,
           ),
+        SegmentedButton<int>(
+          segments: [
+            ButtonSegment(
+              value: 0,
+              label: Text(widget.l10n.clothSourceCustomerSupplied),
+            ),
+            ButtonSegment(
+              value: 1,
+              label: Text(widget.l10n.clothSourceShopStock),
+            ),
+          ],
+          selected: {_clothSourceIndex},
+          onSelectionChanged: (s) => _setSource(s.first),
+        ),
+        if (_isShopStock) ...[
+          const SizedBox(height: 10),
+          skusAsync.when(
+            data: (skus) {
+              if (skus.isEmpty) {
+                return OutlinedButton.icon(
+                  onPressed: _createSkuInline,
+                  icon: const Icon(Icons.add),
+                  label: Text(widget.l10n.clothStockSkuCreateCta),
+                );
+              }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  DropdownButtonFormField<String>(
+                    value: _selectedSkuId,
+                    decoration: InputDecoration(
+                      labelText: widget.l10n.clothStockSkuLabel,
+                      border: const OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                    hint: Text(widget.l10n.clothStockSkuHint),
+                    items: [
+                      for (final sku in skus)
+                        DropdownMenuItem(
+                          value: sku.internalId,
+                          child: Text(
+                            '${sku.name} (${formatMilliMeters(sku.qtyOnHandMilli)} m)',
+                          ),
+                        ),
+                    ],
+                    onChanged: (id) {
+                      if (id == null) return;
+                      final sku = skus.firstWhere((s) => s.internalId == id);
+                      _selectSku(sku);
+                    },
+                  ),
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: TextButton.icon(
+                      onPressed: _createSkuInline,
+                      icon: const Icon(Icons.add, size: 18),
+                      label: Text(widget.l10n.clothStockSkuCreateCta),
+                    ),
+                  ),
+                ],
+              );
+            },
+            loading: () => const LinearProgressIndicator(),
+            error: (e, _) => Text('$e'),
+          ),
+        ],
+        const SizedBox(height: 10),
         _presetChips(
           async: namesAsync,
           selectedId: _namePresetId,
@@ -275,11 +485,39 @@ class _OrderComposerFabricPanelState
             isDense: true,
           ),
         ),
+        if (_shortStock) ...[
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              Icon(
+                Icons.warning_amber_rounded,
+                size: 18,
+                color: Theme.of(context).colorScheme.error,
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  widget.l10n.clothStockShortWarning,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                ),
+              ),
+            ],
+          ),
+        ],
         const SizedBox(height: 10),
         PrideMoneyField(
           controller: _priceCtrl,
           labelText: widget.l10n.ordersComposerClothPriceLabel,
         ),
+        if (_isShopStock) ...[
+          const SizedBox(height: 10),
+          PrideMoneyField(
+            controller: _cogsCtrl,
+            labelText: widget.l10n.clothSaleCostLabel,
+          ),
+        ],
         const SizedBox(height: 8),
         Align(
           alignment: AlignmentDirectional.centerStart,

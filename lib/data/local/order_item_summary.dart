@@ -28,6 +28,9 @@ class OrderItemSummary {
     this.fabricColorPresetInternalId,
     this.clothMetersSnapshot = '',
     this.clothPriceAmountMinor = 0,
+    this.clothSourceIndex = 0,
+    this.clothStockSkuInternalId,
+    this.clothSaleCostAmountMinor = 0,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -57,6 +60,9 @@ class OrderItemSummary {
   final String? fabricColorPresetInternalId;
   final String clothMetersSnapshot;
   final int clothPriceAmountMinor;
+  final int clothSourceIndex;
+  final String? clothStockSkuInternalId;
+  final int clothSaleCostAmountMinor;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -76,7 +82,10 @@ class OrderItemSummary {
       fabricColorSnapshot.trim().isNotEmpty ||
       fabricIdSnapshot.trim().isNotEmpty ||
       clothMetersSnapshot.trim().isNotEmpty ||
-      clothPriceAmountMinor > 0;
+      clothPriceAmountMinor > 0 ||
+      clothSaleCostAmountMinor > 0;
+
+  bool get usesShopStockCloth => clothSourceIndex == 1;
 
   bool get hasCatalogDesign => catalogDesignNameSnapshot.trim().isNotEmpty;
 
@@ -106,6 +115,9 @@ class OrderItemSummary {
     String? fabricColorPresetInternalId,
     String? clothMetersSnapshot,
     int? clothPriceAmountMinor,
+    int? clothSourceIndex,
+    String? clothStockSkuInternalId,
+    int? clothSaleCostAmountMinor,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -145,6 +157,11 @@ class OrderItemSummary {
       clothMetersSnapshot: clothMetersSnapshot ?? this.clothMetersSnapshot,
       clothPriceAmountMinor:
           clothPriceAmountMinor ?? this.clothPriceAmountMinor,
+      clothSourceIndex: clothSourceIndex ?? this.clothSourceIndex,
+      clothStockSkuInternalId:
+          clothStockSkuInternalId ?? this.clothStockSkuInternalId,
+      clothSaleCostAmountMinor:
+          clothSaleCostAmountMinor ?? this.clothSaleCostAmountMinor,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

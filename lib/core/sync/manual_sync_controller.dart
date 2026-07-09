@@ -66,6 +66,8 @@ Future<ManualSyncUiOutcome> runManualSyncFromRef(WidgetRef ref) async {
           await ref.read(fabricPresetRepositoryProvider.future);
       final shopFinanceRepo =
           await ref.read(shopFinanceRepositoryProvider.future);
+      final clothStockRepo =
+          await ref.read(clothStockRepositoryProvider.future);
       final prefs = ref.read(sharedPreferencesProvider);
       final syncShopId = ref.read(effectiveShopIdProvider);
       final conflictStorage = ref.read(syncConflictStorageProvider);
@@ -87,6 +89,7 @@ Future<ManualSyncUiOutcome> runManualSyncFromRef(WidgetRef ref) async {
         styleCatalog: styleCatalogRepo,
         fabricPresets: fabricPresetsRepo,
         shopFinance: shopFinanceRepo,
+        clothStock: clothStockRepo,
         conflictRecorder: conflictRecorder,
       );
 
@@ -100,6 +103,7 @@ Future<ManualSyncUiOutcome> runManualSyncFromRef(WidgetRef ref) async {
           await SyncDiagnosticsStorage.recordSuccessfulSync(prefs, at);
           if (remoteChangeCount > 0) {
             refreshAllGarmentStyleCatalogProviders(ref);
+            ref.invalidate(clothStockRepositoryProvider);
           }
           return ManualSyncUiSuccess(
             pushedMutationCount: pushedMutationCount,

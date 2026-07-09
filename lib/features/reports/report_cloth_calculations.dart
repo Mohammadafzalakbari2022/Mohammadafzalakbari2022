@@ -2,6 +2,7 @@ import '../../core/calendar/date_calendar_system.dart';
 import '../../core/calendar/report_month_period.dart';
 import '../../core/formatting/digit_normalizer.dart';
 import '../../data/local/entities/garment_type.dart';
+import '../../data/local/cloth_stock_models.dart';
 import '../../data/local/order_item_summary.dart';
 import '../../data/local/order_summary.dart';
 
@@ -16,6 +17,11 @@ class ClothReportLine {
   final OrderItemSummary item;
 
   int get revenueMinor => item.clothPriceAmountMinor;
+
+  int get cogsMinor =>
+      item.usesShopStockCloth ? item.clothSaleCostAmountMinor : 0;
+
+  int get marginMinor => revenueMinor - cogsMinor;
 
   double get meters => parseClothMeters(item.clothMetersSnapshot);
 }
@@ -59,6 +65,39 @@ abstract final class ReportClothCalculations {
 
   static int sumRevenueMinor(Iterable<ClothReportLine> lines) =>
       lines.fold<int>(0, (sum, row) => sum + row.revenueMinor);
+
+  static int sumCogsMinor(Iterable<ClothReportLine> lines) =>
+      lines.fold<int>(0, (sum, row) => sum + row.cogsMinor);
+
+  static int sumMarginMinor(Iterable<ClothReportLine> lines) =>
+      lines.fold<int>(0, (sum, row) => sum + row.marginMinor);
+
+  static int sumPurchasesInMonth({
+    required List<ClothPurchaseSummary> purchases,
+    required DateTime monthStart,
+    required DateTime monthEndExclusive,
+  }) {
+    return purchases
+        .where((p) {
+          final d = p.purchaseDate;
+          return !d.isBefore(monthStart) && d.isBefore(monthEndExclusive);
+        })
+        .fold<int>(0, (sum, p) => sum + p.totalAmountMinor);
+  }
+
+  static int sumPayablesMinor({
+    required List<ClothPurchaseSummary> purchases,
+    required List<ClothPurchasePaymentSummary> payments,
+  }) {
+    var total = 0;
+    for (final p in purchases) {
+      total += purchaseBalanceMinor(p, payments);
+    }
+    return total;
+  }
+
+  static double sumStockMeters(List<ClothStockSkuSummary> skus) =>
+      skus.fold<double>(0, (sum, sku) => sum + sku.qtyOnHandMeters);
 
   static double sumMeters(Iterable<ClothReportLine> lines) =>
       lines.fold<double>(0, (sum, row) => sum + row.meters);

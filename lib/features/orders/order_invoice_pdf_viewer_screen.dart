@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 
+import '../../core/printing/invoice_pdf_validation.dart';
+
 /// In-app PDF viewer with pinch/double-tap zoom (share optional from app bar).
 class OrderInvoicePdfViewerScreen extends StatelessWidget {
   const OrderInvoicePdfViewerScreen({
@@ -12,15 +14,32 @@ class OrderInvoicePdfViewerScreen extends StatelessWidget {
     required this.title,
     required this.shareLabel,
     required this.onShare,
+    required this.invalidPdfMessage,
   });
 
   final List<int> pdfBytes;
   final String title;
   final String shareLabel;
   final VoidCallback onShare;
+  final String invalidPdfMessage;
 
   @override
   Widget build(BuildContext context) {
+    if (!isValidPdfBytes(pdfBytes)) {
+      return Scaffold(
+        appBar: AppBar(title: Text(title)),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(
+              invalidPdfMessage,
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
@@ -49,6 +68,19 @@ class OrderInvoicePdfViewerScreen extends StatelessWidget {
         ),
         initialPageFormat: PdfPageFormat.a4,
         pagesBuilder: (context, pages) {
+          if (pages.isEmpty) {
+            return ListView(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Text(
+                    invalidPdfMessage,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            );
+          }
           return ListView.builder(
             padding: const EdgeInsets.symmetric(vertical: 8),
             itemCount: pages.length,

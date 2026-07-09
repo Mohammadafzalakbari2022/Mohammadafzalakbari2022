@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -27,6 +26,7 @@ import 'auth_providers.dart';
 import 'auth_session_storage.dart';
 import 'auth_user_messages.dart';
 import 'offline_credential_storage.dart';
+import 'shop_create_consent_panel.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -50,6 +50,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   bool _busyCreate = false;
   bool _passwordVisible = false;
   bool _createOwnerPassVisible = false;
+  bool _createConsentAccepted = false;
   String? _signInError;
   String? _createError;
 
@@ -88,6 +89,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         );
     ref.read(licenseNotifierProvider).applyLicenseSnapshotMap(ok.licenseSnapshot);
     final prefs = ref.read(sharedPreferencesProvider);
+    final accessToken = ok.accessToken;
     final serverUtc = snapshotServerUtcFromLicenseJson(ok.licenseSnapshot);
     await LicenseClockGuard.onTrustedServerSnapshot(
       prefs,
@@ -138,7 +140,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       );
     }
     await _seedBundledDefaultsForShop(ok.shopId);
-    await bootstrapPushTokenRegistration(ref);
+    if (!mounted) return;
+    await bootstrapPushTokenRegistration(
+      accessToken: accessToken,
+      prefs: prefs,
+    );
+    if (!mounted) return;
     ref.invalidate(adminMeProvider);
   }
 
@@ -319,6 +326,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       );
       return;
     }
+    if (!_createConsentAccepted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.loginShopCreateConsentRequired)),
+      );
+      return;
+    }
     setState(() {
       _busyCreate = true;
       _createError = null;
@@ -372,24 +385,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 Center(
                   child: LayoutBuilder(
                     builder: (context, constraints) {
-                      final side = (MediaQuery.sizeOf(context).width * 0.55)
-                          .clamp(180.0, 240.0);
-                      return DecoratedBox(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(36),
-                          boxShadow: [
-                            BoxShadow(
-                              color: theme.colorScheme.primary.withValues(
-                                alpha: 0.18,
-                              ),
-                              blurRadius: 28,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(36),
-                          child: Image.asset(
+                      final side = (MediaQuery.sizeOf(context).width * 0.45)
+                          .clamp(140.0, 200.0);
+                      final wordmarkWidth =
+                          (MediaQuery.sizeOf(context).width * 0.72)
+                              .clamp(200.0, 320.0);
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Image.asset(
                             kLoginBrandLogoAsset,
                             width: side,
                             height: side,
@@ -400,7 +404,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               color: theme.colorScheme.primary,
                             ),
                           ),
-                        ),
+                          const SizedBox(height: 12),
+                          Image.asset(
+                            kAppBrandWordmarkAsset,
+                            width: wordmarkWidth,
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const SizedBox.shrink(),
+                          ),
+                        ],
                       );
                     },
                   ),
@@ -610,6 +622,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 labelText: l10n.loginShopCreateAddressLabel,
                                 border: const OutlineInputBorder(),
                                 alignLabelWithHint: true,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            ShopCreateConsentPanel(
+                              accepted: _createConsentAccepted,
+                              enabled: !_busyCreate && !_busy,
+                              onAcceptedChanged: (value) => setState(
+                                () => _createConsentAccepted = value ?? false,
                               ),
                             ),
                             const SizedBox(height: 16),

@@ -70,6 +70,14 @@ class OrderItemEntity {
   /// Cloth/material cost in minor currency units (0 = unset).
   int clothPriceAmountMinor = 0;
 
+  /// [ClothSource] code (0 = customer supplied, 1 = shop stock).
+  int clothSourceIndex = 0;
+
+  String? clothStockSkuInternalId;
+
+  /// Manual COGS for shop-stock cloth sales (minor currency, 0 = unset).
+  int clothSaleCostAmountMinor = 0;
+
   late DateTime createdAt;
 
   late DateTime updatedAt;

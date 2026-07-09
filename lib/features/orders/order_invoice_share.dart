@@ -1,21 +1,20 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pride_v3/core/persistence/pride_path_provider_io.dart';
 import 'package:pride_v3/core/feedback/app_feedback.dart';
 import 'package:pride_v3/core/formatting/display_order_no_format.dart';
 import 'package:pride_v3/core/printing/invoice/order_invoice_loader.dart';
 import 'package:pride_v3/core/printing/invoice_pdf.dart';
+import 'package:pride_v3/core/printing/invoice_pdf_temp_file.dart';
+import 'package:pride_v3/core/printing/invoice_pdf_validation.dart';
 import 'package:pride_v3/core/printing/invoice_share_contact.dart';
 import 'package:pride_v3/core/printing/phone_whatsapp.dart';
+import 'package:pride_v3/core/printing/share_invoice_pdf.dart';
 import 'package:pride_v3/core/printing/whatsapp_invoice_share.dart';
 import 'package:pride_v3/data/local/order_summary.dart';
 import 'package:pride_v3/data/local/payment_summary.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
-import 'package:share_plus/share_plus.dart';
 
 /// Share order invoice as PDF; saves customer contact and opens WhatsApp when possible.
 Future<void> shareOrderInvoice({
@@ -60,6 +59,10 @@ Future<void> shareOrderInvoice({
       request: request,
     );
 
+    if (!isValidPdfBytes(pdfBytes)) {
+      throw InvoicePdfGenerationException('Invalid or empty PDF bytes');
+    }
+
     final rawPhone = order.customerPhone?.trim();
     final whatsappPhone =
         rawPhone != null ? normalizePhoneForWhatsApp(rawPhone) : null;
@@ -88,12 +91,10 @@ Future<void> shareOrderInvoice({
 
     closeLoadingDialog();
 
-    var path = '';
-    if (!kIsWeb) {
-      final dir = await prideTemporaryDirectory();
-      path = '${dir.path}/$filename';
-      await File(path).writeAsBytes(pdfBytes, flush: true);
-    }
+    final path = await writeInvoicePdfToTempFile(
+      bytes: pdfBytes,
+      filename: filename,
+    );
 
     final subject = l10n.orderShareInvoiceSubject(displayNo);
     final caption = l10n.orderShareInvoiceWhatsappCaption(
@@ -117,7 +118,7 @@ Future<void> shareOrderInvoice({
           await Future<void>.delayed(const Duration(milliseconds: 300));
         }
         shared = await shareInvoicePdfToWhatsApp(
-          filePath: path,
+          filePath: path!,
           phoneDigits: whatsappPhone,
           caption: caption,
         );
@@ -125,30 +126,22 @@ Future<void> shareOrderInvoice({
     }
 
     if (!shared) {
-      if (kIsWeb) {
-        await Share.shareXFiles(
-          [
-            XFile.fromData(
-              pdfBytes,
-              mimeType: 'application/pdf',
-              name: filename,
-            ),
-          ],
-          subject: subject,
-        );
-      } else {
-        await Share.shareXFiles(
-          [
-            XFile.fromData(
-              pdfBytes,
-              mimeType: 'application/pdf',
-              name: filename,
-            ),
-          ],
-          subject: subject,
-          text: caption,
-        );
+      if (rawPhone == null || rawPhone.isEmpty) {
+        if (context.mounted) {
+          showAppFeedback(
+            context,
+            ref,
+            kind: AppFeedbackKind.info,
+            message: l10n.orderShareCustomerPhoneMissing,
+          );
+        }
       }
+      await shareInvoicePdfBytes(
+        pdfBytes: pdfBytes,
+        filename: filename,
+        subject: subject,
+        text: caption,
+      );
     }
 
     if (!context.mounted) return;

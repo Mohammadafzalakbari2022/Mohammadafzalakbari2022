@@ -27,6 +27,9 @@ class OrderItemDraft {
     this.fabricColorPresetInternalId,
     this.clothMeters = '',
     this.clothPriceAmountMinor = 0,
+    this.clothSourceIndex = 0,
+    this.clothStockSkuInternalId,
+    this.clothSaleCostAmountMinor = 0,
     this.measurementSnapshotItems = const [],
   });
 
@@ -53,6 +56,9 @@ class OrderItemDraft {
   final String? fabricColorPresetInternalId;
   final String clothMeters;
   final int clothPriceAmountMinor;
+  final int clothSourceIndex;
+  final String? clothStockSkuInternalId;
+  final int clothSaleCostAmountMinor;
   final List<OrderMeasurementSnapshotItemInput> measurementSnapshotItems;
 
   factory OrderItemDraft.empty(GarmentType type) =>
@@ -101,6 +107,9 @@ class OrderItemDraft {
     String? fabricColorPresetInternalId,
     String? clothMeters,
     int? clothPriceAmountMinor,
+    int? clothSourceIndex,
+    String? clothStockSkuInternalId,
+    int? clothSaleCostAmountMinor,
     List<OrderMeasurementSnapshotItemInput>? measurementSnapshotItems,
   }) {
     return OrderItemDraft(
@@ -134,6 +143,11 @@ class OrderItemDraft {
       clothMeters: clothMeters ?? this.clothMeters,
       clothPriceAmountMinor:
           clothPriceAmountMinor ?? this.clothPriceAmountMinor,
+      clothSourceIndex: clothSourceIndex ?? this.clothSourceIndex,
+      clothStockSkuInternalId:
+          clothStockSkuInternalId ?? this.clothStockSkuInternalId,
+      clothSaleCostAmountMinor:
+          clothSaleCostAmountMinor ?? this.clothSaleCostAmountMinor,
       measurementSnapshotItems:
           measurementSnapshotItems ?? this.measurementSnapshotItems,
     );
@@ -150,6 +164,6 @@ class OrderItemDraft {
       clothMeters.trim().isNotEmpty ||
       clothPriceAmountMinor > 0;
 
-  /// Optional save: included items may be partially filled.
-  bool get canSaveIncluded => !included;
+  /// Included items must have a price before save.
+  bool get canSaveIncluded => !included || hasRequiredPrice;
 }

@@ -169,7 +169,7 @@ describe('AppController (e2e)', () => {
       .post('/shop/users')
       .set('Authorization', `Bearer ${ownerToken}`)
       .send({ username: 'staff1', password: 'staff1pass' })
-      .expect(200);
+      .expect(201);
     const staffLogin = await request(app.getHttpServer())
       .post('/auth/login')
       .send({

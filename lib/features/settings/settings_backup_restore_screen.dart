@@ -23,6 +23,7 @@ void _invalidateAfterBackupRestore(WidgetRef ref) {
   ref.invalidate(measurementTypesAdminStreamProvider);
   ref.invalidate(styleCatalogRepositoryProvider);
   ref.invalidate(fabricPresetRepositoryProvider);
+  ref.invalidate(clothStockRepositoryProvider);
   ref.invalidate(shopFinanceRepositoryProvider);
   ref.invalidate(taskRepositoryProvider);
   refreshAllGarmentStyleCatalogProviders(ref);

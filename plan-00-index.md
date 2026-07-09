@@ -50,6 +50,7 @@ If you want a free place for optional Web builds (mostly for UI testing):
 27. `plan-28-ui-orders-composer-compact.md` (compact receipt composer: search fix, density, post-save)
 28. `plan-29-orders-composer-polish.md` (composer visibility toggles, cloth fields/l10n, edit/status/prefill polish)
 29. `plan-30-ui-responsive-shell.md` (breakpoints, NavigationRail on web/wide, tablet composer + list layouts)
+30. `plan-31-cloth-stock-and-financing.md` (cloth SKU inventory, purchases, COGS, stock movements on order save)
 
 **Agent / implementation contract:** [`AGENTS.md`](AGENTS.md) — non-negotiable rules for humans and AI when writing code in this repo (stack, offline-first, guards, l10n). Use it together with the `plan-NN-*.md` contracts.
 

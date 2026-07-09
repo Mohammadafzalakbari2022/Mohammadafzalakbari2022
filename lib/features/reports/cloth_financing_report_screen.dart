@@ -63,6 +63,10 @@ class _ClothFinancingReportScreenState
     final prevStart = subtractOneCalendarMonth(start, sys);
 
     final asyncOrders = ref.watch(ordersListStreamProvider);
+    final purchases = ref.watch(clothPurchasesStreamProvider).valueOrNull ?? [];
+    final payments =
+        ref.watch(clothPurchasePaymentsStreamProvider).valueOrNull ?? [];
+    final skus = ref.watch(clothStockSkusStreamProvider).valueOrNull ?? [];
     final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
@@ -88,6 +92,18 @@ class _ClothFinancingReportScreenState
 
           final revenueMinor =
               ReportClothCalculations.sumRevenueMinor(monthLines);
+          final cogsMinor = ReportClothCalculations.sumCogsMinor(monthLines);
+          final marginMinor = ReportClothCalculations.sumMarginMinor(monthLines);
+          final purchasesMinor = ReportClothCalculations.sumPurchasesInMonth(
+            purchases: purchases,
+            monthStart: start,
+            monthEndExclusive: end,
+          );
+          final payablesMinor = ReportClothCalculations.sumPayablesMinor(
+            purchases: purchases,
+            payments: payments,
+          );
+          final stockMeters = ReportClothCalculations.sumStockMeters(skus);
           final prevRevenueMinor =
               ReportClothCalculations.sumRevenueMinor(prevLines);
           final meters = ReportClothCalculations.sumMeters(monthLines);
@@ -164,6 +180,16 @@ class _ClothFinancingReportScreenState
                         value: reportFormatMoney(l10n, revenueMinor),
                         valueStyle: Theme.of(context).textTheme.titleLarge,
                       ),
+                      const SizedBox(height: 8),
+                      _MetricRow(
+                        label: l10n.reportsClothCogsLabel,
+                        value: reportFormatMoney(l10n, cogsMinor),
+                      ),
+                      const SizedBox(height: 8),
+                      _MetricRow(
+                        label: l10n.reportsClothMarginLabel,
+                        value: reportFormatMoney(l10n, marginMinor),
+                      ),
                       const Divider(height: 24),
                       _MetricRow(
                         label: l10n.reportsClothMetersLabel,
@@ -175,6 +201,23 @@ class _ClothFinancingReportScreenState
                       _MetricRow(
                         label: l10n.reportsClothOrdersWithClothLabel,
                         value: '$orderCount',
+                      ),
+                      const Divider(height: 24),
+                      _MetricRow(
+                        label: l10n.reportsClothPurchasesLabel,
+                        value: reportFormatMoney(l10n, purchasesMinor),
+                      ),
+                      const SizedBox(height: 8),
+                      _MetricRow(
+                        label: l10n.reportsClothPayablesLabel,
+                        value: reportFormatMoney(l10n, payablesMinor),
+                      ),
+                      const SizedBox(height: 8),
+                      _MetricRow(
+                        label: l10n.reportsClothStockSummaryLabel,
+                        value: l10n.reportsClothMetersValue(
+                          _formatMeters(stockMeters),
+                        ),
                       ),
                       SwitchListTile(
                         contentPadding: EdgeInsets.zero,

@@ -566,6 +566,66 @@ abstract class AppLocalizations {
   /// **'Shop address'**
   String get loginShopCreateAddressLabel;
 
+  /// No description provided for @loginShopCreateConsentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy & data access'**
+  String get loginShopCreateConsentTitle;
+
+  /// No description provided for @loginShopCreateConsentIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Khayat stores and syncs the following information to run your shop. Data belongs to your shop account and is not used for advertising.'**
+  String get loginShopCreateConsentIntro;
+
+  /// No description provided for @loginShopCreateConsentAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop account: shop name, shop ID, username, password (stored securely on the server), and license status'**
+  String get loginShopCreateConsentAccount;
+
+  /// No description provided for @loginShopCreateConsentCustomers.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers: names, phone numbers, addresses, and notes you enter'**
+  String get loginShopCreateConsentCustomers;
+
+  /// No description provided for @loginShopCreateConsentOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders: measurements, designs, delivery dates, status, and photos you add'**
+  String get loginShopCreateConsentOrders;
+
+  /// No description provided for @loginShopCreateConsentPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments, expenses, and financial records you enter'**
+  String get loginShopCreateConsentPayments;
+
+  /// No description provided for @loginShopCreateConsentMedia.
+  ///
+  /// In en, this message translates to:
+  /// **'Catalog images, shop logo, banner, and app settings you configure'**
+  String get loginShopCreateConsentMedia;
+
+  /// No description provided for @loginShopCreateConsentDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'On this device (optional): push notification token and crash diagnostics to improve stability'**
+  String get loginShopCreateConsentDevice;
+
+  /// No description provided for @loginShopCreateConsentCheckbox.
+  ///
+  /// In en, this message translates to:
+  /// **'I agree to the privacy policy and data use described above'**
+  String get loginShopCreateConsentCheckbox;
+
+  /// No description provided for @loginShopCreateConsentRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept the privacy policy to create your shop.'**
+  String get loginShopCreateConsentRequired;
+
   /// No description provided for @loginShopCreateCta.
   ///
   /// In en, this message translates to:
@@ -4298,7 +4358,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsComposerShowClothBlockSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Cloth name, color, meters, and price per garment'**
+  /// **'Customer cloth and shop stock sales: name, color, meters, price, and COGS per garment'**
   String get settingsComposerShowClothBlockSubtitle;
 
   /// No description provided for @settingsComposerShowMeasurementsTitle.
@@ -4358,13 +4418,13 @@ abstract class AppLocalizations {
   /// No description provided for @settingsFabricHubTitle.
   ///
   /// In en, this message translates to:
-  /// **'Customer cloth'**
+  /// **'Cloth inventory'**
   String get settingsFabricHubTitle;
 
   /// No description provided for @settingsFabricHubSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Preset cloth names and colors for orders'**
+  /// **'Stock, suppliers, purchases, and name/color presets'**
   String get settingsFabricHubSubtitle;
 
   /// No description provided for @settingsFabricNamesTitle.
@@ -7953,6 +8013,12 @@ abstract class AppLocalizations {
   /// **'Could not open invoice: {detail}'**
   String orderViewInvoicePdfFail(String detail);
 
+  /// No description provided for @orderViewInvoicePdfInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not display this invoice PDF. Please try again.'**
+  String get orderViewInvoicePdfInvalid;
+
   /// No description provided for @orderShareInvoicePdfGenerateFail.
   ///
   /// In en, this message translates to:
@@ -8006,6 +8072,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add a valid customer phone number to share the invoice on WhatsApp.'**
   String get orderShareWhatsappPhoneInvalid;
+
+  /// No description provided for @orderShareCustomerPhoneMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'This customer has no phone number. Opening the share sheet instead.'**
+  String get orderShareCustomerPhoneMissing;
 
   /// No description provided for @receiptFooterThanks.
   ///
@@ -8522,6 +8594,240 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'A screen failed to load'**
   String get errorWidgetBuildFailedTitle;
+
+  /// No description provided for @clothSourceCustomerSupplied.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer cloth'**
+  String get clothSourceCustomerSupplied;
+
+  /// No description provided for @clothSourceShopStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop stock'**
+  String get clothSourceShopStock;
+
+  /// No description provided for @clothStockSkuLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock SKU'**
+  String get clothStockSkuLabel;
+
+  /// No description provided for @clothStockSkuHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select inventory SKU'**
+  String get clothStockSkuHint;
+
+  /// No description provided for @clothStockSkuCreateCta.
+  ///
+  /// In en, this message translates to:
+  /// **'New SKU'**
+  String get clothStockSkuCreateCta;
+
+  /// No description provided for @clothStockSkuCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create stock SKU'**
+  String get clothStockSkuCreateTitle;
+
+  /// No description provided for @clothStockSkuCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'SKU code'**
+  String get clothStockSkuCodeLabel;
+
+  /// No description provided for @clothStockSkuNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get clothStockSkuNameLabel;
+
+  /// No description provided for @clothStockShortWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock will go negative after this sale'**
+  String get clothStockShortWarning;
+
+  /// No description provided for @clothSaleCostLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloth cost (COGS)'**
+  String get clothSaleCostLabel;
+
+  /// No description provided for @settingsClothStockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloth stock'**
+  String get settingsClothStockTitle;
+
+  /// No description provided for @settingsClothStockSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Inventory SKUs and on-hand meters'**
+  String get settingsClothStockSubtitle;
+
+  /// No description provided for @settingsClothSuppliersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloth suppliers'**
+  String get settingsClothSuppliersTitle;
+
+  /// No description provided for @settingsClothSuppliersSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Vendors for cloth purchases'**
+  String get settingsClothSuppliersSubtitle;
+
+  /// No description provided for @settingsClothPurchasesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloth purchases'**
+  String get settingsClothPurchasesTitle;
+
+  /// No description provided for @settingsClothPurchasesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive stock and track payables'**
+  String get settingsClothPurchasesSubtitle;
+
+  /// No description provided for @settingsClothStockEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No stock SKUs yet.'**
+  String get settingsClothStockEmpty;
+
+  /// No description provided for @settingsClothStockAddCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Add SKU'**
+  String get settingsClothStockAddCta;
+
+  /// No description provided for @settingsClothStockQtyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'On hand (m)'**
+  String get settingsClothStockQtyLabel;
+
+  /// No description provided for @settingsClothSuppliersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No suppliers yet.'**
+  String get settingsClothSuppliersEmpty;
+
+  /// No description provided for @settingsClothSupplierAddCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Add supplier'**
+  String get settingsClothSupplierAddCta;
+
+  /// No description provided for @settingsClothSupplierNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplier name'**
+  String get settingsClothSupplierNameLabel;
+
+  /// No description provided for @settingsClothSupplierPhoneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get settingsClothSupplierPhoneLabel;
+
+  /// No description provided for @settingsClothPurchasesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No purchases yet.'**
+  String get settingsClothPurchasesEmpty;
+
+  /// No description provided for @settingsClothPurchaseAddCta.
+  ///
+  /// In en, this message translates to:
+  /// **'New purchase'**
+  String get settingsClothPurchaseAddCta;
+
+  /// No description provided for @settingsClothPurchaseDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase'**
+  String get settingsClothPurchaseDetailTitle;
+
+  /// No description provided for @settingsClothPurchaseSupplierLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplier'**
+  String get settingsClothPurchaseSupplierLabel;
+
+  /// No description provided for @settingsClothPurchaseDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase date'**
+  String get settingsClothPurchaseDateLabel;
+
+  /// No description provided for @settingsClothPurchaseTotalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get settingsClothPurchaseTotalLabel;
+
+  /// No description provided for @settingsClothPurchasePaidLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get settingsClothPurchasePaidLabel;
+
+  /// No description provided for @settingsClothPurchaseBalanceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get settingsClothPurchaseBalanceLabel;
+
+  /// No description provided for @settingsClothPurchasePaymentCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Record payment'**
+  String get settingsClothPurchasePaymentCta;
+
+  /// No description provided for @settingsClothPurchaseLineQtyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Meters'**
+  String get settingsClothPurchaseLineQtyLabel;
+
+  /// No description provided for @settingsClothPurchaseLineCostLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost per meter'**
+  String get settingsClothPurchaseLineCostLabel;
+
+  /// No description provided for @reportsClothCogsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloth COGS'**
+  String get reportsClothCogsLabel;
+
+  /// No description provided for @reportsClothMarginLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloth margin'**
+  String get reportsClothMarginLabel;
+
+  /// No description provided for @reportsClothPurchasesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases'**
+  String get reportsClothPurchasesLabel;
+
+  /// No description provided for @reportsClothPayablesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplier payables'**
+  String get reportsClothPayablesLabel;
+
+  /// No description provided for @reportsClothStockSummaryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock on hand'**
+  String get reportsClothStockSummaryLabel;
 }
 
 class _AppLocalizationsDelegate

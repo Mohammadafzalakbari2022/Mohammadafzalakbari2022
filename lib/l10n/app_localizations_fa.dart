@@ -281,6 +281,45 @@ class AppLocalizationsFa extends AppLocalizations {
   String get loginShopCreateAddressLabel => 'آدرس فروشگاه';
 
   @override
+  String get loginShopCreateConsentTitle => 'حریم خصوصی و دسترسی به داده';
+
+  @override
+  String get loginShopCreateConsentIntro =>
+      'خیاط اطلاعات زیر را برای اداره فروشگاه شما ذخیره و همگام‌سازی می‌کند. داده‌ها متعلق به حساب فروشگاه شماست و برای تبلیغات استفاده نمی‌شود.';
+
+  @override
+  String get loginShopCreateConsentAccount =>
+      'حساب فروشگاه: نام فروشگاه، شناسه فروشگاه، نام کاربری، رمز عبور (به‌صورت امن در سرور) و وضعیت مجوز';
+
+  @override
+  String get loginShopCreateConsentCustomers =>
+      'مشتریان: نام، شماره تلفن، آدرس و یادداشت‌هایی که وارد می‌کنید';
+
+  @override
+  String get loginShopCreateConsentOrders =>
+      'سفارش‌ها: اندازه‌ها، طرح‌ها، تاریخ تحویل، وضعیت و عکس‌هایی که اضافه می‌کنید';
+
+  @override
+  String get loginShopCreateConsentPayments =>
+      'پرداخت‌ها، هزینه‌ها و سوابق مالی که ثبت می‌کنید';
+
+  @override
+  String get loginShopCreateConsentMedia =>
+      'عکس‌های کاتالوگ، لوگو و بنر فروشگاه و تنظیمات برنامه';
+
+  @override
+  String get loginShopCreateConsentDevice =>
+      'در این دستگاه (اختیاری): توکن اعلان و گزارش خطا برای بهبود پایداری';
+
+  @override
+  String get loginShopCreateConsentCheckbox =>
+      'با سیاست حریم خصوصی و استفاده از داده‌های فوق موافقم';
+
+  @override
+  String get loginShopCreateConsentRequired =>
+      'برای ایجاد فروشگاه، پذیرش سیاست حریم خصوصی لازم است.';
+
+  @override
   String get loginShopCreateCta => 'ایجاد فروشگاه و ورود';
 
   @override
@@ -2326,7 +2365,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get settingsComposerShowClothBlockSubtitle =>
-      'نام، رنگ، متراژ و قیمت رخت برای هر لباس';
+      'رخت مشتری و فروش از موجودی: نام، رنگ، متراژ، قیمت و بهای تمام‌شده برای هر لباس';
 
   @override
   String get settingsComposerShowMeasurementsTitle => 'اندازه‌گیری';
@@ -2360,11 +2399,11 @@ class AppLocalizationsFa extends AppLocalizations {
   String get ordersListChangeStatusTooltip => 'تغییر وضعیت';
 
   @override
-  String get settingsFabricHubTitle => 'رخت مشتری';
+  String get settingsFabricHubTitle => 'موجودی رخت';
 
   @override
   String get settingsFabricHubSubtitle =>
-      'نام و رنگ از پیش‌تعریف رخت برای سفارش‌ها';
+      'موجودی، تأمین‌کنندگان، خریدها و نام/رنگ از پیش‌تعریف';
 
   @override
   String get settingsFabricNamesTitle => 'نام‌های رخت';
@@ -4389,6 +4428,10 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String get orderViewInvoicePdfInvalid =>
+      'نمایش این فاکتور PDF ممکن نشد. لطفاً دوباره تلاش کنید.';
+
+  @override
   String get orderShareInvoicePdfGenerateFail =>
       'تولید فاکتور ممکن نشد. لطفاً با مدیر تماس بگیرید.';
 
@@ -4426,6 +4469,10 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get orderShareWhatsappPhoneInvalid =>
       'برای ارسال فاکتور در واتساپ، شمارهٔ معتبر مشتری را وارد کنید.';
+
+  @override
+  String get orderShareCustomerPhoneMissing =>
+      'این مشتری شماره تلفن ندارد. به‌جای آن، صفحهٔ اشتراک‌گذاری باز می‌شود.';
 
   @override
   String get receiptFooterThanks => 'از همکاری شما سپاسگزاریم!';
@@ -4705,4 +4752,121 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get errorWidgetBuildFailedTitle => 'بارگذاری صفحه ناموفق بود';
+
+  @override
+  String get clothSourceCustomerSupplied => 'پارچه مشتری';
+
+  @override
+  String get clothSourceShopStock => 'موجودی فروشگاه';
+
+  @override
+  String get clothStockSkuLabel => 'کد موجودی';
+
+  @override
+  String get clothStockSkuHint => 'SKU موجودی را انتخاب کنید';
+
+  @override
+  String get clothStockSkuCreateCta => 'SKU جدید';
+
+  @override
+  String get clothStockSkuCreateTitle => 'ایجاد SKU موجودی';
+
+  @override
+  String get clothStockSkuCodeLabel => 'کد SKU';
+
+  @override
+  String get clothStockSkuNameLabel => 'نام';
+
+  @override
+  String get clothStockShortWarning => 'موجودی پس از این فروش منفی می‌شود';
+
+  @override
+  String get clothSaleCostLabel => 'بهای تمام‌شده پارچه';
+
+  @override
+  String get settingsClothStockTitle => 'موجودی پارچه';
+
+  @override
+  String get settingsClothStockSubtitle => 'SKUها و متراژ موجود';
+
+  @override
+  String get settingsClothSuppliersTitle => 'تأمین‌کنندگان پارچه';
+
+  @override
+  String get settingsClothSuppliersSubtitle => 'فروشندگان خرید پارچه';
+
+  @override
+  String get settingsClothPurchasesTitle => 'خریدهای پارچه';
+
+  @override
+  String get settingsClothPurchasesSubtitle => 'دریافت موجودی و پیگیری بدهی';
+
+  @override
+  String get settingsClothStockEmpty => 'هنوز SKU موجودی ثبت نشده است.';
+
+  @override
+  String get settingsClothStockAddCta => 'افزودن SKU';
+
+  @override
+  String get settingsClothStockQtyLabel => 'موجود (متر)';
+
+  @override
+  String get settingsClothSuppliersEmpty => 'هنوز تأمین‌کننده‌ای ثبت نشده است.';
+
+  @override
+  String get settingsClothSupplierAddCta => 'افزودن تأمین‌کننده';
+
+  @override
+  String get settingsClothSupplierNameLabel => 'نام تأمین‌کننده';
+
+  @override
+  String get settingsClothSupplierPhoneLabel => 'تلفن';
+
+  @override
+  String get settingsClothPurchasesEmpty => 'هنوز خریدی ثبت نشده است.';
+
+  @override
+  String get settingsClothPurchaseAddCta => 'خرید جدید';
+
+  @override
+  String get settingsClothPurchaseDetailTitle => 'خرید';
+
+  @override
+  String get settingsClothPurchaseSupplierLabel => 'تأمین‌کننده';
+
+  @override
+  String get settingsClothPurchaseDateLabel => 'تاریخ خرید';
+
+  @override
+  String get settingsClothPurchaseTotalLabel => 'مجموع';
+
+  @override
+  String get settingsClothPurchasePaidLabel => 'پرداخت‌شده';
+
+  @override
+  String get settingsClothPurchaseBalanceLabel => 'مانده';
+
+  @override
+  String get settingsClothPurchasePaymentCta => 'ثبت پرداخت';
+
+  @override
+  String get settingsClothPurchaseLineQtyLabel => 'متر';
+
+  @override
+  String get settingsClothPurchaseLineCostLabel => 'قیمت هر متر';
+
+  @override
+  String get reportsClothCogsLabel => 'بهای تمام‌شده پارچه';
+
+  @override
+  String get reportsClothMarginLabel => 'حاشیه پارچه';
+
+  @override
+  String get reportsClothPurchasesLabel => 'خریدها';
+
+  @override
+  String get reportsClothPayablesLabel => 'بدهی تأمین‌کنندگان';
+
+  @override
+  String get reportsClothStockSummaryLabel => 'موجودی انبار';
 }

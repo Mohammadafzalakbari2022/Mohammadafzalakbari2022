@@ -29,6 +29,16 @@ import '../local/entities/style_part_entity.dart';
 import '../local/entities/shop_expense_entity.dart';
 import '../local/entities/shop_rent_entity.dart';
 import '../local/entities/shop_rent_payment_entity.dart';
+import '../local/entities/cloth_stock_sku_entity.dart';
+import '../local/entities/cloth_stock_movement_entity.dart';
+import '../local/entities/cloth_supplier_entity.dart';
+import '../local/entities/cloth_purchase_entity.dart';
+import '../local/entities/cloth_purchase_line_entity.dart';
+import '../local/entities/cloth_purchase_payment_entity.dart';
+import '../local/isar_cloth_stock_repository.dart';
+import '../local/cloth_stock_repository.dart';
+import '../local/cloth_stock_models.dart';
+import '../local/cloth_stock_service.dart';
 import '../local/entities/style_figure_entity.dart';
 import '../local/entities/style_figure_size_option_entity.dart';
 import '../local/entities/style_figure_text_option_entity.dart';
@@ -108,6 +118,12 @@ final isarProvider = FutureProvider<Isar>((ref) async {
       ShopRentEntitySchema,
       ShopRentPaymentEntitySchema,
       ShopExpenseEntitySchema,
+      ClothStockSkuEntitySchema,
+      ClothStockMovementEntitySchema,
+      ClothSupplierEntitySchema,
+      ClothPurchaseEntitySchema,
+      ClothPurchaseLineEntitySchema,
+      ClothPurchasePaymentEntitySchema,
     ],
     directory: dir.path,
   );
@@ -493,4 +509,51 @@ final shopExpensesStreamProvider =
         (ref, shopId) async* {
   final repo = await ref.watch(shopFinanceRepositoryProvider.future);
   yield* repo.watchExpenses(shopId);
+});
+
+final clothStockRepositoryProvider =
+    FutureProvider<ClothStockRepository>((ref) async {
+  final isar = await ref.watch(isarProvider.future);
+  return IsarClothStockRepository(isar);
+});
+
+final clothStockServiceProvider =
+    FutureProvider<ClothStockService>((ref) async {
+  final repo = await ref.watch(clothStockRepositoryProvider.future);
+  return ClothStockService(repo);
+});
+
+final clothStockSkusStreamProvider =
+    StreamProvider<List<ClothStockSkuSummary>>((ref) async* {
+  final repo = await ref.watch(clothStockRepositoryProvider.future);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchSkus(shopId);
+});
+
+final clothSuppliersStreamProvider =
+    StreamProvider<List<ClothSupplierSummary>>((ref) async* {
+  final repo = await ref.watch(clothStockRepositoryProvider.future);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchSuppliers(shopId);
+});
+
+final clothPurchasesStreamProvider =
+    StreamProvider<List<ClothPurchaseSummary>>((ref) async* {
+  final repo = await ref.watch(clothStockRepositoryProvider.future);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchPurchases(shopId);
+});
+
+final clothPurchaseLinesStreamProvider =
+    StreamProvider<List<ClothPurchaseLineSummary>>((ref) async* {
+  final repo = await ref.watch(clothStockRepositoryProvider.future);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchPurchaseLines(shopId);
+});
+
+final clothPurchasePaymentsStreamProvider =
+    StreamProvider<List<ClothPurchasePaymentSummary>>((ref) async* {
+  final repo = await ref.watch(clothStockRepositoryProvider.future);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchPurchasePayments(shopId);
 });

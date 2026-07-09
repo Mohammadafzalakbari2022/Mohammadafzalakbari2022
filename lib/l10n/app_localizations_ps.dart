@@ -278,6 +278,45 @@ class AppLocalizationsPs extends AppLocalizations {
   String get loginShopCreateAddressLabel => 'د هټۍ پته';
 
   @override
+  String get loginShopCreateConsentTitle => 'محرمیت او د معلوماتو لاسرسی';
+
+  @override
+  String get loginShopCreateConsentIntro =>
+      'خیاط لاندې معلومات ستاسو د هټۍ د اداره کولو لپاره زېرمه او همغږي کوي. معلومات ستاسو د هټۍ حساب ته تعلق لري او د اعلاناتو لپاره نه کارېږي.';
+
+  @override
+  String get loginShopCreateConsentAccount =>
+      'د هټۍ حساب: د هټۍ نوم، پېژند، کارن نوم، پاسورډ (په سرور کې خوندي) او د جواز حالت';
+
+  @override
+  String get loginShopCreateConsentCustomers =>
+      'پیرودونکي: نومونه، تلیفون شمېرې، پتې او یادښتونه چې تاسو داخل کوئ';
+
+  @override
+  String get loginShopCreateConsentOrders =>
+      'امرونه: اندازه‌ګیري، ډیزاینونه، د تحویلي نیټې، حالت او عکسونه چې اضافه کوئ';
+
+  @override
+  String get loginShopCreateConsentPayments =>
+      'تادیات، لګښتونه او مالي ریکارډونه چې ثبت کوئ';
+
+  @override
+  String get loginShopCreateConsentMedia =>
+      'د کتالوگ عکسونه، د هټۍ لوګو، بینر او د اپلیکیشن تنظیمات';
+
+  @override
+  String get loginShopCreateConsentDevice =>
+      'په دې وسیله (اختیاري): د خبرتیا توکن او د ستونزو راپورونه د ثبات د ښه کولو لپاره';
+
+  @override
+  String get loginShopCreateConsentCheckbox =>
+      'زه د محرمیت تګلارې او د پورته معلوماتو کارولو سره موافق یم';
+
+  @override
+  String get loginShopCreateConsentRequired =>
+      'د هټۍ د جوړولو لپاره د محرمیت تګلارې منل اړین دي.';
+
+  @override
   String get loginShopCreateCta => 'هټۍ جوړول او ننوتل';
 
   @override
@@ -2324,7 +2363,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get settingsComposerShowClothBlockSubtitle =>
-      'د هر جامې لپاره نوم، رنګ، متر او بیه';
+      'د پیرودونکي رخت او د ذخیرې پلور: د هر جامې نوم، رنګ، متر، بیه او لګښت';
 
   @override
   String get settingsComposerShowMeasurementsTitle => 'اندازې';
@@ -2358,11 +2397,11 @@ class AppLocalizationsPs extends AppLocalizations {
   String get ordersListChangeStatusTooltip => 'حالت بدل کړئ';
 
   @override
-  String get settingsFabricHubTitle => 'د پیرودونکي رخت';
+  String get settingsFabricHubTitle => 'د رخت ذخیره';
 
   @override
   String get settingsFabricHubSubtitle =>
-      'د امرونو لپاره د رخت نومونه او رنګونه';
+      'ذخیره، عرضه‌کوونکي، پیرودونه او نوم/رنګونه';
 
   @override
   String get settingsFabricNamesTitle => 'د کپړو نومونه';
@@ -4385,6 +4424,10 @@ class AppLocalizationsPs extends AppLocalizations {
   }
 
   @override
+  String get orderViewInvoicePdfInvalid =>
+      'دا PDF فاکتور نشي ښودل کیدی. بیا هڅه وکړئ.';
+
+  @override
   String get orderShareInvoicePdfGenerateFail =>
       'فاکتور نشي تولیدولی. مهرباني وکړئ له مدیر سره اړیکه ونیسئ.';
 
@@ -4422,6 +4465,10 @@ class AppLocalizationsPs extends AppLocalizations {
   @override
   String get orderShareWhatsappPhoneInvalid =>
       'د واتساپ له لارې د فاکتور لیږلو لپاره د پیرودونکي سمه شمېره ولیکئ.';
+
+  @override
+  String get orderShareCustomerPhoneMissing =>
+      'دا پیرودونکی د تلیفون شمېره نلري. د شریکولو پاڼه پرانیستل کېږي.';
 
   @override
   String get receiptFooterThanks => 'ستاسو له سوداګرۍ مننه!';
@@ -4700,4 +4747,121 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get errorWidgetBuildFailedTitle => 'پاڼه پورته نه شوه';
+
+  @override
+  String get clothSourceCustomerSupplied => 'د پیرودونکي رخت';
+
+  @override
+  String get clothSourceShopStock => 'د پلورنځي ذخیره';
+
+  @override
+  String get clothStockSkuLabel => 'د ذخیرې SKU';
+
+  @override
+  String get clothStockSkuHint => 'د ذخیرې SKU وټاکئ';
+
+  @override
+  String get clothStockSkuCreateCta => 'نوی SKU';
+
+  @override
+  String get clothStockSkuCreateTitle => 'د ذخیرې SKU جوړ کړئ';
+
+  @override
+  String get clothStockSkuCodeLabel => 'د SKU کوډ';
+
+  @override
+  String get clothStockSkuNameLabel => 'نوم';
+
+  @override
+  String get clothStockShortWarning => 'د دې پلور وروسته ذخیره منفي به شي';
+
+  @override
+  String get clothSaleCostLabel => 'د رخت لګښت (COGS)';
+
+  @override
+  String get settingsClothStockTitle => 'د رخت ذخیره';
+
+  @override
+  String get settingsClothStockSubtitle => 'SKU او موجود متر';
+
+  @override
+  String get settingsClothSuppliersTitle => 'د رخت عرضه‌کوونکي';
+
+  @override
+  String get settingsClothSuppliersSubtitle => 'د رخت پیرود عرضه‌کوونکي';
+
+  @override
+  String get settingsClothPurchasesTitle => 'د رخت پیرود';
+
+  @override
+  String get settingsClothPurchasesSubtitle => 'ذخیره ترلاسه کول او پور تعقیب';
+
+  @override
+  String get settingsClothStockEmpty => 'تر اوسه SKU نشته.';
+
+  @override
+  String get settingsClothStockAddCta => 'SKU اضافه کړئ';
+
+  @override
+  String get settingsClothStockQtyLabel => 'موجود (m)';
+
+  @override
+  String get settingsClothSuppliersEmpty => 'تر اوسه عرضه‌کوونکی نشته.';
+
+  @override
+  String get settingsClothSupplierAddCta => 'عرضه‌کوونکی اضافه کړئ';
+
+  @override
+  String get settingsClothSupplierNameLabel => 'د عرضه‌کوونکي نوم';
+
+  @override
+  String get settingsClothSupplierPhoneLabel => 'تلیفون';
+
+  @override
+  String get settingsClothPurchasesEmpty => 'تر اوسه پیرود نشته.';
+
+  @override
+  String get settingsClothPurchaseAddCta => 'نوی پیرود';
+
+  @override
+  String get settingsClothPurchaseDetailTitle => 'پیرود';
+
+  @override
+  String get settingsClothPurchaseSupplierLabel => 'عرضه‌کوونکی';
+
+  @override
+  String get settingsClothPurchaseDateLabel => 'د پیرود نېټه';
+
+  @override
+  String get settingsClothPurchaseTotalLabel => 'ټول';
+
+  @override
+  String get settingsClothPurchasePaidLabel => 'ورکړل شوی';
+
+  @override
+  String get settingsClothPurchaseBalanceLabel => 'پاتې';
+
+  @override
+  String get settingsClothPurchasePaymentCta => 'تادیه ثبت کړئ';
+
+  @override
+  String get settingsClothPurchaseLineQtyLabel => 'متر';
+
+  @override
+  String get settingsClothPurchaseLineCostLabel => 'د هر متر قیمت';
+
+  @override
+  String get reportsClothCogsLabel => 'د رخت COGS';
+
+  @override
+  String get reportsClothMarginLabel => 'د رخت حاشیه';
+
+  @override
+  String get reportsClothPurchasesLabel => 'پیرود';
+
+  @override
+  String get reportsClothPayablesLabel => 'د عرضه‌کوونکو پور';
+
+  @override
+  String get reportsClothStockSummaryLabel => 'پاتې ذخیره';
 }

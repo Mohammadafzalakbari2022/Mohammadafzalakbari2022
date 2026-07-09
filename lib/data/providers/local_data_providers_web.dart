@@ -45,6 +45,10 @@ import '../local/style_figure_size_option_summary.dart';
 import '../local/style_figure_summary.dart';
 import '../local/style_figure_text_option_summary.dart';
 import '../local/memory_shop_finance_repository.dart';
+import '../local/memory_cloth_stock_repository.dart';
+import '../local/cloth_stock_repository.dart';
+import '../local/cloth_stock_models.dart';
+import '../local/cloth_stock_service.dart';
 import '../local/shop_finance_models.dart';
 import '../local/shop_finance_repository.dart';
 
@@ -399,4 +403,50 @@ final shopExpensesStreamProvider =
         (ref, shopId) async* {
   final repo = await ref.watch(shopFinanceRepositoryProvider.future);
   yield* repo.watchExpenses(shopId);
+});
+
+final clothStockRepositoryProvider =
+    FutureProvider<ClothStockRepository>((ref) async {
+  return MemoryClothStockRepository();
+});
+
+final clothStockServiceProvider =
+    FutureProvider<ClothStockService>((ref) async {
+  final repo = await ref.watch(clothStockRepositoryProvider.future);
+  return ClothStockService(repo);
+});
+
+final clothStockSkusStreamProvider =
+    StreamProvider<List<ClothStockSkuSummary>>((ref) async* {
+  final repo = await ref.watch(clothStockRepositoryProvider.future);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchSkus(shopId);
+});
+
+final clothSuppliersStreamProvider =
+    StreamProvider<List<ClothSupplierSummary>>((ref) async* {
+  final repo = await ref.watch(clothStockRepositoryProvider.future);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchSuppliers(shopId);
+});
+
+final clothPurchasesStreamProvider =
+    StreamProvider<List<ClothPurchaseSummary>>((ref) async* {
+  final repo = await ref.watch(clothStockRepositoryProvider.future);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchPurchases(shopId);
+});
+
+final clothPurchaseLinesStreamProvider =
+    StreamProvider<List<ClothPurchaseLineSummary>>((ref) async* {
+  final repo = await ref.watch(clothStockRepositoryProvider.future);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchPurchaseLines(shopId);
+});
+
+final clothPurchasePaymentsStreamProvider =
+    StreamProvider<List<ClothPurchasePaymentSummary>>((ref) async* {
+  final repo = await ref.watch(clothStockRepositoryProvider.future);
+  final shopId = ref.watch(effectiveShopIdProvider);
+  yield* repo.watchPurchasePayments(shopId);
 });

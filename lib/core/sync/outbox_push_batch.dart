@@ -76,6 +76,20 @@ const int kSyncPushOutboxBatchLimit = 100;
       return (entityType: 'shop_expense', operation: 'upsert');
     case SyncOutboxKinds.shopExpenseDelete:
       return (entityType: 'shop_expense', operation: 'delete');
+    case SyncOutboxKinds.clothSkuUpsert:
+      return (entityType: 'cloth_sku', operation: 'upsert');
+    case SyncOutboxKinds.clothSkuDelete:
+      return (entityType: 'cloth_sku', operation: 'delete');
+    case SyncOutboxKinds.clothSupplierUpsert:
+      return (entityType: 'cloth_supplier', operation: 'upsert');
+    case SyncOutboxKinds.clothSupplierDelete:
+      return (entityType: 'cloth_supplier', operation: 'delete');
+    case SyncOutboxKinds.clothPurchaseUpsert:
+      return (entityType: 'cloth_purchase', operation: 'upsert');
+    case SyncOutboxKinds.clothPurchasePaymentAppend:
+      return (entityType: 'cloth_purchase_payment', operation: 'upsert');
+    case SyncOutboxKinds.clothMovementAppend:
+      return (entityType: 'cloth_stock_movement', operation: 'upsert');
     default:
       return null;
   }

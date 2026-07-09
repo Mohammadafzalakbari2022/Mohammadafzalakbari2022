@@ -352,7 +352,11 @@ class CustomerProfileScreen extends ConsumerWidget {
                   final history = orders
                       .where((o) => o.customerInternalId == customerId)
                       .toList()
-                    ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+                    ..sort((a, b) {
+                      final byUpdated = b.updatedAt.compareTo(a.updatedAt);
+                      if (byUpdated != 0) return byUpdated;
+                      return b.createdAt.compareTo(a.createdAt);
+                    });
 
                   return PrideCarvedSection(
                     title: l10n.customerOrderHistoryTitle,

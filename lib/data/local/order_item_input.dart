@@ -42,6 +42,9 @@ class OrderItemCreateInput {
     this.fabricColorPresetInternalId,
     this.clothMetersSnapshot = '',
     this.clothPriceAmountMinor = 0,
+    this.clothSourceIndex = 0,
+    this.clothStockSkuInternalId,
+    this.clothSaleCostAmountMinor = 0,
     this.measurementSnapshotItems,
   });
 
@@ -71,6 +74,9 @@ class OrderItemCreateInput {
   final String? fabricColorPresetInternalId;
   final String clothMetersSnapshot;
   final int clothPriceAmountMinor;
+  final int clothSourceIndex;
+  final String? clothStockSkuInternalId;
+  final int clothSaleCostAmountMinor;
   final List<OrderMeasurementSnapshotItemInput>? measurementSnapshotItems;
 }
 
@@ -171,7 +177,7 @@ void assertAtLeastOneItem(Iterable<OrderItemCreateInput> items) {
 
 void assertItemPricesValid(Iterable<OrderItemCreateInput> items) {
   for (final item in items) {
-    if (item.priceAmountMinor < 0) {
+    if (item.priceAmountMinor <= 0) {
       throw const OrderItemRepositoryException('item_price_required');
     }
     if (item.clothPriceAmountMinor < 0) {
@@ -213,6 +219,9 @@ OrderItemCreateInput orderItemCreateInputFromSummary(
     String? fabricColorPresetInternalId,
     String? clothMetersSnapshot,
     int? clothPriceAmountMinor,
+    int? clothSourceIndex,
+    String? clothStockSkuInternalId,
+    int? clothSaleCostAmountMinor,
     List<OrderMeasurementSnapshotItemInput>? measurementSnapshotItems,
 }) {
   return OrderItemCreateInput(
@@ -252,6 +261,11 @@ OrderItemCreateInput orderItemCreateInputFromSummary(
     clothMetersSnapshot: clothMetersSnapshot ?? item.clothMetersSnapshot,
     clothPriceAmountMinor:
         clothPriceAmountMinor ?? item.clothPriceAmountMinor,
+    clothSourceIndex: clothSourceIndex ?? item.clothSourceIndex,
+    clothStockSkuInternalId:
+        clothStockSkuInternalId ?? item.clothStockSkuInternalId,
+    clothSaleCostAmountMinor:
+        clothSaleCostAmountMinor ?? item.clothSaleCostAmountMinor,
     measurementSnapshotItems: measurementSnapshotItems,
   );
 }

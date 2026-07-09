@@ -99,8 +99,7 @@ class OrderComposerDraft {
     return false;
   }
 
-  /// Receipt composer save readiness: customer name is required (checked in UI);
-  /// delivery, measurements, style, fabric, and price are optional.
+  /// Receipt composer save readiness: customer and item prices are required.
   bool canSave({
     required bool customerSelected,
     required int paidMinor,
@@ -109,8 +108,12 @@ class OrderComposerDraft {
     if (!customerSelected) return false;
     if (!hasAtLeastOneItem) return false;
     if (paidMinor < 0) return false;
+    for (final type in selectedGarmentTypes) {
+      if (!items[type]!.hasRequiredPrice) return false;
+    }
     final total = totalMinor(clothBlockEnabled: clothBlockEnabled);
-    if (total > 0 && paidMinor > total) return false;
+    if (total <= 0) return false;
+    if (paidMinor > total) return false;
     return true;
   }
 
@@ -181,6 +184,11 @@ class OrderComposerDraft {
           clothMetersSnapshot: includeClothFields ? draft.clothMeters : '',
           clothPriceAmountMinor:
               includeClothFields ? draft.clothPriceAmountMinor : 0,
+          clothSourceIndex: includeClothFields ? draft.clothSourceIndex : 0,
+          clothStockSkuInternalId:
+              includeClothFields ? draft.clothStockSkuInternalId : null,
+          clothSaleCostAmountMinor:
+              includeClothFields ? draft.clothSaleCostAmountMinor : 0,
         ),
       );
     }

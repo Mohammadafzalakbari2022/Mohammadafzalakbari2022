@@ -18,6 +18,11 @@ export const SYNC_ENTITY_TYPES = [
   'shop_rent',
   'shop_rent_payment',
   'shop_expense',
+  'cloth_sku',
+  'cloth_supplier',
+  'cloth_purchase',
+  'cloth_purchase_payment',
+  'cloth_stock_movement',
 ] as const;
 
 export type SyncEntityType = (typeof SYNC_ENTITY_TYPES)[number];

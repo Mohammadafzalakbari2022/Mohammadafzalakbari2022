@@ -51,6 +51,9 @@ class ComposerGarmentIcon extends StatelessWidget {
 }
 
 String composerItemCompletionSummary(AppLocalizations l10n, OrderItemDraft draft) {
+  if (draft.included && !draft.hasRequiredPrice) {
+    return l10n.ordersComposerItemPriceRequired;
+  }
   final parts = <String>[];
   if (draft.hasMeasurements) {
     parts.add(l10n.ordersComposerMeasurementsSummary);
@@ -58,7 +61,7 @@ String composerItemCompletionSummary(AppLocalizations l10n, OrderItemDraft draft
   if (draft.hasStyle) {
     parts.add(l10n.ordersComposerProgressStyle);
   }
-  if (draft.priceAmountMinor > 0) {
+  if (draft.hasRequiredPrice) {
     parts.add(l10n.ordersComposerItemReady);
   }
   if (parts.isEmpty) {

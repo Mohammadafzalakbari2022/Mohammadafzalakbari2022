@@ -105,17 +105,18 @@ void main() {
       expect(order.totalAmountMinor, 1300);
     });
 
-    test('upsert allows zero garment price', () async {
+    test('upsert rejects zero garment price', () async {
       final orderId = await createBaseOrder(total: 500);
-      await repo.upsertOrderItem(
-        orderInternalId: orderId,
-        input: const OrderItemCreateInput(
-          garmentType: GarmentType.perahanTunban,
-          priceAmountMinor: 0,
+      await expectLater(
+        repo.upsertOrderItem(
+          orderInternalId: orderId,
+          input: const OrderItemCreateInput(
+            garmentType: GarmentType.perahanTunban,
+            priceAmountMinor: 0,
+          ),
         ),
+        throwsA(isA<OrderItemRepositoryException>()),
       );
-      final items = await repo.watchOrderItems(orderId).first;
-      expect(items.single.priceAmountMinor, 0);
     });
 
     test('duplicate garment type is rejected', () async {

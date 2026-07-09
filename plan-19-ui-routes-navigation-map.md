@@ -72,6 +72,14 @@ Dashboard panel:
 - `/app/settings/appearance-language`
 - `/app/settings/about`
 
+**Fabric & cloth stock (plan-31):**
+- `/app/settings/fabric` (hub)
+- `/app/settings/fabric/names`
+- `/app/settings/fabric/colors`
+- `/app/settings/fabric/stock` (+ `/new`, `/:skuId`)
+- `/app/settings/fabric/suppliers`
+- `/app/settings/fabric/purchases` (+ `/new`, `/:purchaseId`)
+
 Developer portal (developer only):
 - `/app/settings/developer`
 - `/app/settings/developer/codes`

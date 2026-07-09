@@ -34,6 +34,11 @@ import '../features/settings/settings_measurement_types_screen.dart';
 import '../features/settings/settings_style_screen.dart';
 import '../features/settings/settings_fabric_presets_screen.dart';
 import '../features/settings/settings_fabric_screen.dart';
+import '../features/settings/cloth/settings_cloth_stock_list_screen.dart';
+import '../features/settings/cloth/settings_cloth_suppliers_screen.dart';
+import '../features/settings/cloth/settings_cloth_purchases_list_screen.dart';
+import '../features/settings/cloth/settings_cloth_purchase_detail_screen.dart';
+import '../features/settings/cloth/settings_cloth_purchase_form_screen.dart';
 import '../features/settings/settings_composer_fields_screen.dart';
 import '../features/settings/settings_style_names_screen.dart';
 import '../features/settings/settings_style_parts_screen.dart';
@@ -338,6 +343,56 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                             const SettingsFabricPresetsScreen(
                           kind: FabricPresetListKind.colors,
                         ),
+                      ),
+                      GoRoute(
+                        path: 'stock',
+                        parentNavigatorKey: appRootNavigatorKey,
+                        builder: (context, state) =>
+                            const SettingsClothStockListScreen(),
+                        routes: [
+                          GoRoute(
+                            path: 'new',
+                            parentNavigatorKey: appRootNavigatorKey,
+                            builder: (context, state) =>
+                                const SettingsClothStockFormScreen(),
+                          ),
+                          GoRoute(
+                            path: ':skuId',
+                            parentNavigatorKey: appRootNavigatorKey,
+                            builder: (context, state) =>
+                                SettingsClothStockFormScreen(
+                              skuId: state.pathParameters['skuId'],
+                            ),
+                          ),
+                        ],
+                      ),
+                      GoRoute(
+                        path: 'suppliers',
+                        parentNavigatorKey: appRootNavigatorKey,
+                        builder: (context, state) =>
+                            const SettingsClothSuppliersScreen(),
+                      ),
+                      GoRoute(
+                        path: 'purchases',
+                        parentNavigatorKey: appRootNavigatorKey,
+                        builder: (context, state) =>
+                            const SettingsClothPurchasesListScreen(),
+                        routes: [
+                          GoRoute(
+                            path: 'new',
+                            parentNavigatorKey: appRootNavigatorKey,
+                            builder: (context, state) =>
+                                const SettingsClothPurchaseFormScreen(),
+                          ),
+                          GoRoute(
+                            path: ':purchaseId',
+                            parentNavigatorKey: appRootNavigatorKey,
+                            builder: (context, state) =>
+                                SettingsClothPurchaseDetailScreen(
+                              purchaseId: state.pathParameters['purchaseId']!,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),

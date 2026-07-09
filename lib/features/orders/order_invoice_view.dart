@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:printing/printing.dart';
-
 import '../../core/feedback/app_feedback.dart';
+import '../../core/printing/share_invoice_pdf.dart';
 import '../../core/formatting/display_order_no_format.dart';
 import '../../core/printing/invoice/order_invoice_loader.dart';
 import '../../core/printing/invoice_pdf.dart';
+import '../../core/printing/invoice_pdf_validation.dart';
 import '../../data/local/order_summary.dart';
 import '../../data/local/payment_summary.dart';
 import '../../features/orders/order_invoice_pdf_viewer_screen.dart';
@@ -54,20 +54,26 @@ Future<void> viewOrderInvoicePdf({
       request: request,
     );
 
+    if (!isValidPdfBytes(pdfBytes)) {
+      throw InvoicePdfGenerationException('Invalid or empty PDF bytes');
+    }
+
     closeLoadingDialog();
 
     if (!context.mounted) return;
 
     final displayNo = formatDisplayOrderNo(order.displayOrderNo);
+    final filename = 'invoice_${order.displayOrderNo}.pdf';
     await Navigator.of(context).push<void>(
       MaterialPageRoute<void>(
         builder: (ctx) => OrderInvoicePdfViewerScreen(
           pdfBytes: pdfBytes,
           title: l10n.orderViewInvoicePdfTitle(displayNo),
           shareLabel: l10n.orderShareInvoicePdfCta,
-          onShare: () => Printing.sharePdf(
-            bytes: pdfBytes,
-            filename: 'invoice_${order.displayOrderNo}.pdf',
+          invalidPdfMessage: l10n.orderViewInvoicePdfInvalid,
+          onShare: () => shareInvoicePdfBytes(
+            pdfBytes: pdfBytes,
+            filename: filename,
           ),
         ),
       ),

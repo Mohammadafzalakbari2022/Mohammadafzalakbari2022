@@ -283,6 +283,45 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginShopCreateAddressLabel => 'Shop address';
 
   @override
+  String get loginShopCreateConsentTitle => 'Privacy & data access';
+
+  @override
+  String get loginShopCreateConsentIntro =>
+      'Khayat stores and syncs the following information to run your shop. Data belongs to your shop account and is not used for advertising.';
+
+  @override
+  String get loginShopCreateConsentAccount =>
+      'Shop account: shop name, shop ID, username, password (stored securely on the server), and license status';
+
+  @override
+  String get loginShopCreateConsentCustomers =>
+      'Customers: names, phone numbers, addresses, and notes you enter';
+
+  @override
+  String get loginShopCreateConsentOrders =>
+      'Orders: measurements, designs, delivery dates, status, and photos you add';
+
+  @override
+  String get loginShopCreateConsentPayments =>
+      'Payments, expenses, and financial records you enter';
+
+  @override
+  String get loginShopCreateConsentMedia =>
+      'Catalog images, shop logo, banner, and app settings you configure';
+
+  @override
+  String get loginShopCreateConsentDevice =>
+      'On this device (optional): push notification token and crash diagnostics to improve stability';
+
+  @override
+  String get loginShopCreateConsentCheckbox =>
+      'I agree to the privacy policy and data use described above';
+
+  @override
+  String get loginShopCreateConsentRequired =>
+      'Accept the privacy policy to create your shop.';
+
+  @override
   String get loginShopCreateCta => 'Create shop & sign in';
 
   @override
@@ -2342,7 +2381,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsComposerShowClothBlockSubtitle =>
-      'Cloth name, color, meters, and price per garment';
+      'Customer cloth and shop stock sales: name, color, meters, price, and COGS per garment';
 
   @override
   String get settingsComposerShowMeasurementsTitle => 'Measurements';
@@ -2376,11 +2415,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ordersListChangeStatusTooltip => 'Change status';
 
   @override
-  String get settingsFabricHubTitle => 'Customer cloth';
+  String get settingsFabricHubTitle => 'Cloth inventory';
 
   @override
   String get settingsFabricHubSubtitle =>
-      'Preset cloth names and colors for orders';
+      'Stock, suppliers, purchases, and name/color presets';
 
   @override
   String get settingsFabricNamesTitle => 'Cloth names';
@@ -4422,6 +4461,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get orderViewInvoicePdfInvalid =>
+      'Could not display this invoice PDF. Please try again.';
+
+  @override
   String get orderShareInvoicePdfGenerateFail =>
       'Unable to generate invoice. Please contact your administrator.';
 
@@ -4459,6 +4502,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get orderShareWhatsappPhoneInvalid =>
       'Add a valid customer phone number to share the invoice on WhatsApp.';
+
+  @override
+  String get orderShareCustomerPhoneMissing =>
+      'This customer has no phone number. Opening the share sheet instead.';
 
   @override
   String get receiptFooterThanks => 'Thank you for your business!';
@@ -4740,4 +4787,122 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorWidgetBuildFailedTitle => 'A screen failed to load';
+
+  @override
+  String get clothSourceCustomerSupplied => 'Customer cloth';
+
+  @override
+  String get clothSourceShopStock => 'Shop stock';
+
+  @override
+  String get clothStockSkuLabel => 'Stock SKU';
+
+  @override
+  String get clothStockSkuHint => 'Select inventory SKU';
+
+  @override
+  String get clothStockSkuCreateCta => 'New SKU';
+
+  @override
+  String get clothStockSkuCreateTitle => 'Create stock SKU';
+
+  @override
+  String get clothStockSkuCodeLabel => 'SKU code';
+
+  @override
+  String get clothStockSkuNameLabel => 'Name';
+
+  @override
+  String get clothStockShortWarning => 'Stock will go negative after this sale';
+
+  @override
+  String get clothSaleCostLabel => 'Cloth cost (COGS)';
+
+  @override
+  String get settingsClothStockTitle => 'Cloth stock';
+
+  @override
+  String get settingsClothStockSubtitle => 'Inventory SKUs and on-hand meters';
+
+  @override
+  String get settingsClothSuppliersTitle => 'Cloth suppliers';
+
+  @override
+  String get settingsClothSuppliersSubtitle => 'Vendors for cloth purchases';
+
+  @override
+  String get settingsClothPurchasesTitle => 'Cloth purchases';
+
+  @override
+  String get settingsClothPurchasesSubtitle =>
+      'Receive stock and track payables';
+
+  @override
+  String get settingsClothStockEmpty => 'No stock SKUs yet.';
+
+  @override
+  String get settingsClothStockAddCta => 'Add SKU';
+
+  @override
+  String get settingsClothStockQtyLabel => 'On hand (m)';
+
+  @override
+  String get settingsClothSuppliersEmpty => 'No suppliers yet.';
+
+  @override
+  String get settingsClothSupplierAddCta => 'Add supplier';
+
+  @override
+  String get settingsClothSupplierNameLabel => 'Supplier name';
+
+  @override
+  String get settingsClothSupplierPhoneLabel => 'Phone';
+
+  @override
+  String get settingsClothPurchasesEmpty => 'No purchases yet.';
+
+  @override
+  String get settingsClothPurchaseAddCta => 'New purchase';
+
+  @override
+  String get settingsClothPurchaseDetailTitle => 'Purchase';
+
+  @override
+  String get settingsClothPurchaseSupplierLabel => 'Supplier';
+
+  @override
+  String get settingsClothPurchaseDateLabel => 'Purchase date';
+
+  @override
+  String get settingsClothPurchaseTotalLabel => 'Total';
+
+  @override
+  String get settingsClothPurchasePaidLabel => 'Paid';
+
+  @override
+  String get settingsClothPurchaseBalanceLabel => 'Balance';
+
+  @override
+  String get settingsClothPurchasePaymentCta => 'Record payment';
+
+  @override
+  String get settingsClothPurchaseLineQtyLabel => 'Meters';
+
+  @override
+  String get settingsClothPurchaseLineCostLabel => 'Cost per meter';
+
+  @override
+  String get reportsClothCogsLabel => 'Cloth COGS';
+
+  @override
+  String get reportsClothMarginLabel => 'Cloth margin';
+
+  @override
+  String get reportsClothPurchasesLabel => 'Purchases';
+
+  @override
+  String get reportsClothPayablesLabel => 'Supplier payables';
+
+  @override
+  String get reportsClothStockSummaryLabel => 'Stock on hand';
 }

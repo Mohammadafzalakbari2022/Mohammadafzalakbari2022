@@ -79,11 +79,11 @@ void main() {
           paidMinor: 0,
           clothBlockEnabled: true,
         ),
-        isTrue,
+        isFalse,
       );
     });
 
-    test('can save with zero price when customer is set', () {
+    test('cannot save with zero price when customer is set', () {
       var draft = OrderComposerDraft.initial();
       draft = draft.updateItem(
         GarmentType.perahanTunban,
@@ -91,7 +91,7 @@ void main() {
       );
       expect(
         draft.canSave(customerSelected: true, paidMinor: 0, clothBlockEnabled: true),
-        isTrue,
+        isFalse,
       );
     });
 

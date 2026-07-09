@@ -208,8 +208,24 @@ Scaffold behavior: `changes` is always an empty array until server-side history 
 - **Transitional dual-write:** new clients may send both flat fields (from first Perahan item) and `items[]` for one release window.
 - Server stores opaque JSON in `shop_sync_mutations`; no Postgres `orders` table migration required for v1 sync-log architecture.
 - **`items[]` cloth fields (plan-29):** optional `cloth_meters` (string, e.g. `"3.5"`) and `cloth_price_amount_minor` (int) per garment line. Server ingest is tolerant — extra keys are preserved in mutation JSON; no NestJS schema change required until dedicated order-item storage lands.
+- **`items[]` stock fields (plan-31):** optional `cloth_source_index` (`0` customer, `1` shop stock), `cloth_stock_sku_internal_id`, `cloth_sale_cost_amount_minor` (manual COGS). Stock movements are **client-local** ledger rows synced via `cloth_movement_append` outbox kind.
 
-### Licensing
+### Cloth stock & financing (plan-31; sync-log tolerant)
+
+Outbox kinds (client → server mutation log):
+
+| Kind | Payload highlights |
+|------|-------------------|
+| `cloth_sku_upsert` | `sku_code`, `name`, `color`, preset FKs |
+| `cloth_sku_delete` | `{}` |
+| `cloth_supplier_upsert` | `name`, `phone`, `notes` |
+| `cloth_supplier_delete` | `{}` |
+| `cloth_purchase_upsert` | `supplier_internal_id`, `purchase_date`, `lines[]` |
+| `cloth_purchase_payment_append` | `purchase_internal_id`, `amount_minor`, `paid_at` |
+| `cloth_movement_append` | `sku_internal_id`, `movement_type_index`, `qty_milli_delta`, optional order/purchase refs |
+
+Server stores opaque JSON until dedicated Postgres tables exist.
+
 - `POST /license/redeem` (activation code)
 - `GET /license/status`
 - `GET /license/billing-info` (published Hesab Pay profile; optional `?locale=`)

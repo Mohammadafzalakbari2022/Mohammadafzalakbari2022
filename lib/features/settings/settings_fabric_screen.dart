@@ -40,6 +40,39 @@ class SettingsFabricScreen extends StatelessWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push('/app/settings/fabric/colors'),
           ),
+          const Divider(height: 1),
+          ListTile(
+            leading: PrideColoredLeading(
+              icon: Icons.inventory_2_outlined,
+              color: prideSettingsIconColor(5),
+            ),
+            title: Text(l10n.settingsClothStockTitle),
+            subtitle: Text(l10n.settingsClothStockSubtitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/app/settings/fabric/stock'),
+          ),
+          const Divider(height: 1),
+          ListTile(
+            leading: PrideColoredLeading(
+              icon: Icons.local_shipping_outlined,
+              color: prideSettingsIconColor(6),
+            ),
+            title: Text(l10n.settingsClothSuppliersTitle),
+            subtitle: Text(l10n.settingsClothSuppliersSubtitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/app/settings/fabric/suppliers'),
+          ),
+          const Divider(height: 1),
+          ListTile(
+            leading: PrideColoredLeading(
+              icon: Icons.receipt_long_outlined,
+              color: prideSettingsIconColor(7),
+            ),
+            title: Text(l10n.settingsClothPurchasesTitle),
+            subtitle: Text(l10n.settingsClothPurchasesSubtitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/app/settings/fabric/purchases'),
+          ),
         ],
       ),
     );

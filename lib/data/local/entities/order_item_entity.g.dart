@@ -52,113 +52,128 @@ const OrderItemEntitySchema = CollectionSchema(
       name: r'clothPriceAmountMinor',
       type: IsarType.long,
     ),
-    r'createdAt': PropertySchema(
+    r'clothSaleCostAmountMinor': PropertySchema(
       id: 7,
+      name: r'clothSaleCostAmountMinor',
+      type: IsarType.long,
+    ),
+    r'clothSourceIndex': PropertySchema(
+      id: 8,
+      name: r'clothSourceIndex',
+      type: IsarType.long,
+    ),
+    r'clothStockSkuInternalId': PropertySchema(
+      id: 9,
+      name: r'clothStockSkuInternalId',
+      type: IsarType.string,
+    ),
+    r'createdAt': PropertySchema(
+      id: 10,
       name: r'createdAt',
       type: IsarType.dateTime,
     ),
     r'deletedAt': PropertySchema(
-      id: 8,
+      id: 11,
       name: r'deletedAt',
       type: IsarType.dateTime,
     ),
     r'fabricColorPresetInternalId': PropertySchema(
-      id: 9,
+      id: 12,
       name: r'fabricColorPresetInternalId',
       type: IsarType.string,
     ),
     r'fabricColorSnapshot': PropertySchema(
-      id: 10,
+      id: 13,
       name: r'fabricColorSnapshot',
       type: IsarType.string,
     ),
     r'fabricIdSnapshot': PropertySchema(
-      id: 11,
+      id: 14,
       name: r'fabricIdSnapshot',
       type: IsarType.string,
     ),
     r'fabricNamePresetInternalId': PropertySchema(
-      id: 12,
+      id: 15,
       name: r'fabricNamePresetInternalId',
       type: IsarType.string,
     ),
     r'fabricNameSnapshot': PropertySchema(
-      id: 13,
+      id: 16,
       name: r'fabricNameSnapshot',
       type: IsarType.string,
     ),
     r'garmentTypeIndex': PropertySchema(
-      id: 14,
+      id: 17,
       name: r'garmentTypeIndex',
       type: IsarType.long,
     ),
     r'internalId': PropertySchema(
-      id: 15,
+      id: 18,
       name: r'internalId',
       type: IsarType.string,
     ),
     r'itemNotes': PropertySchema(
-      id: 16,
+      id: 19,
       name: r'itemNotes',
       type: IsarType.string,
     ),
     r'measurementsSnapshot': PropertySchema(
-      id: 17,
+      id: 20,
       name: r'measurementsSnapshot',
       type: IsarType.string,
     ),
     r'orderInternalId': PropertySchema(
-      id: 18,
+      id: 21,
       name: r'orderInternalId',
       type: IsarType.string,
     ),
     r'priceAmountMinor': PropertySchema(
-      id: 19,
+      id: 22,
       name: r'priceAmountMinor',
       type: IsarType.long,
     ),
     r'shopId': PropertySchema(
-      id: 20,
+      id: 23,
       name: r'shopId',
       type: IsarType.string,
     ),
     r'sortOrder': PropertySchema(
-      id: 21,
+      id: 24,
       name: r'sortOrder',
       type: IsarType.long,
     ),
     r'sourceMeasurementProfileId': PropertySchema(
-      id: 22,
+      id: 25,
       name: r'sourceMeasurementProfileId',
       type: IsarType.string,
     ),
     r'sourceMeasurementProfileLabel': PropertySchema(
-      id: 23,
+      id: 26,
       name: r'sourceMeasurementProfileLabel',
       type: IsarType.string,
     ),
     r'styleName': PropertySchema(
-      id: 24,
+      id: 27,
       name: r'styleName',
       type: IsarType.string,
     ),
     r'styleNameInternalId': PropertySchema(
-      id: 25,
+      id: 28,
       name: r'styleNameInternalId',
       type: IsarType.string,
     ),
     r'styleSelectionJson': PropertySchema(
-      id: 26,
+      id: 29,
       name: r'styleSelectionJson',
       type: IsarType.string,
     ),
     r'styleSummary': PropertySchema(
-      id: 27,
+      id: 30,
       name: r'styleSummary',
       type: IsarType.string,
     ),
     r'updatedAt': PropertySchema(
-      id: 28,
+      id: 31,
       name: r'updatedAt',
       type: IsarType.dateTime,
     )
@@ -271,6 +286,12 @@ int _orderItemEntityEstimateSize(
   }
   bytesCount += 3 + object.clothMetersSnapshot.length * 3;
   {
+    final value = object.clothStockSkuInternalId;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
     final value = object.fabricColorPresetInternalId;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
@@ -322,28 +343,31 @@ void _orderItemEntitySerialize(
   writer.writeString(offsets[4], object.catalogThumbnailPathSnapshot);
   writer.writeString(offsets[5], object.clothMetersSnapshot);
   writer.writeLong(offsets[6], object.clothPriceAmountMinor);
-  writer.writeDateTime(offsets[7], object.createdAt);
-  writer.writeDateTime(offsets[8], object.deletedAt);
-  writer.writeString(offsets[9], object.fabricColorPresetInternalId);
-  writer.writeString(offsets[10], object.fabricColorSnapshot);
-  writer.writeString(offsets[11], object.fabricIdSnapshot);
-  writer.writeString(offsets[12], object.fabricNamePresetInternalId);
-  writer.writeString(offsets[13], object.fabricNameSnapshot);
-  writer.writeLong(offsets[14], object.garmentTypeIndex);
-  writer.writeString(offsets[15], object.internalId);
-  writer.writeString(offsets[16], object.itemNotes);
-  writer.writeString(offsets[17], object.measurementsSnapshot);
-  writer.writeString(offsets[18], object.orderInternalId);
-  writer.writeLong(offsets[19], object.priceAmountMinor);
-  writer.writeString(offsets[20], object.shopId);
-  writer.writeLong(offsets[21], object.sortOrder);
-  writer.writeString(offsets[22], object.sourceMeasurementProfileId);
-  writer.writeString(offsets[23], object.sourceMeasurementProfileLabel);
-  writer.writeString(offsets[24], object.styleName);
-  writer.writeString(offsets[25], object.styleNameInternalId);
-  writer.writeString(offsets[26], object.styleSelectionJson);
-  writer.writeString(offsets[27], object.styleSummary);
-  writer.writeDateTime(offsets[28], object.updatedAt);
+  writer.writeLong(offsets[7], object.clothSaleCostAmountMinor);
+  writer.writeLong(offsets[8], object.clothSourceIndex);
+  writer.writeString(offsets[9], object.clothStockSkuInternalId);
+  writer.writeDateTime(offsets[10], object.createdAt);
+  writer.writeDateTime(offsets[11], object.deletedAt);
+  writer.writeString(offsets[12], object.fabricColorPresetInternalId);
+  writer.writeString(offsets[13], object.fabricColorSnapshot);
+  writer.writeString(offsets[14], object.fabricIdSnapshot);
+  writer.writeString(offsets[15], object.fabricNamePresetInternalId);
+  writer.writeString(offsets[16], object.fabricNameSnapshot);
+  writer.writeLong(offsets[17], object.garmentTypeIndex);
+  writer.writeString(offsets[18], object.internalId);
+  writer.writeString(offsets[19], object.itemNotes);
+  writer.writeString(offsets[20], object.measurementsSnapshot);
+  writer.writeString(offsets[21], object.orderInternalId);
+  writer.writeLong(offsets[22], object.priceAmountMinor);
+  writer.writeString(offsets[23], object.shopId);
+  writer.writeLong(offsets[24], object.sortOrder);
+  writer.writeString(offsets[25], object.sourceMeasurementProfileId);
+  writer.writeString(offsets[26], object.sourceMeasurementProfileLabel);
+  writer.writeString(offsets[27], object.styleName);
+  writer.writeString(offsets[28], object.styleNameInternalId);
+  writer.writeString(offsets[29], object.styleSelectionJson);
+  writer.writeString(offsets[30], object.styleSummary);
+  writer.writeDateTime(offsets[31], object.updatedAt);
 }
 
 OrderItemEntity _orderItemEntityDeserialize(
@@ -360,29 +384,32 @@ OrderItemEntity _orderItemEntityDeserialize(
   object.catalogThumbnailPathSnapshot = reader.readStringOrNull(offsets[4]);
   object.clothMetersSnapshot = reader.readString(offsets[5]);
   object.clothPriceAmountMinor = reader.readLong(offsets[6]);
-  object.createdAt = reader.readDateTime(offsets[7]);
-  object.deletedAt = reader.readDateTimeOrNull(offsets[8]);
-  object.fabricColorPresetInternalId = reader.readStringOrNull(offsets[9]);
-  object.fabricColorSnapshot = reader.readString(offsets[10]);
-  object.fabricIdSnapshot = reader.readString(offsets[11]);
-  object.fabricNamePresetInternalId = reader.readStringOrNull(offsets[12]);
-  object.fabricNameSnapshot = reader.readString(offsets[13]);
-  object.garmentTypeIndex = reader.readLong(offsets[14]);
+  object.clothSaleCostAmountMinor = reader.readLong(offsets[7]);
+  object.clothSourceIndex = reader.readLong(offsets[8]);
+  object.clothStockSkuInternalId = reader.readStringOrNull(offsets[9]);
+  object.createdAt = reader.readDateTime(offsets[10]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[11]);
+  object.fabricColorPresetInternalId = reader.readStringOrNull(offsets[12]);
+  object.fabricColorSnapshot = reader.readString(offsets[13]);
+  object.fabricIdSnapshot = reader.readString(offsets[14]);
+  object.fabricNamePresetInternalId = reader.readStringOrNull(offsets[15]);
+  object.fabricNameSnapshot = reader.readString(offsets[16]);
+  object.garmentTypeIndex = reader.readLong(offsets[17]);
   object.id = id;
-  object.internalId = reader.readString(offsets[15]);
-  object.itemNotes = reader.readString(offsets[16]);
-  object.measurementsSnapshot = reader.readString(offsets[17]);
-  object.orderInternalId = reader.readString(offsets[18]);
-  object.priceAmountMinor = reader.readLong(offsets[19]);
-  object.shopId = reader.readString(offsets[20]);
-  object.sortOrder = reader.readLong(offsets[21]);
-  object.sourceMeasurementProfileId = reader.readStringOrNull(offsets[22]);
-  object.sourceMeasurementProfileLabel = reader.readString(offsets[23]);
-  object.styleName = reader.readString(offsets[24]);
-  object.styleNameInternalId = reader.readStringOrNull(offsets[25]);
-  object.styleSelectionJson = reader.readString(offsets[26]);
-  object.styleSummary = reader.readString(offsets[27]);
-  object.updatedAt = reader.readDateTime(offsets[28]);
+  object.internalId = reader.readString(offsets[18]);
+  object.itemNotes = reader.readString(offsets[19]);
+  object.measurementsSnapshot = reader.readString(offsets[20]);
+  object.orderInternalId = reader.readString(offsets[21]);
+  object.priceAmountMinor = reader.readLong(offsets[22]);
+  object.shopId = reader.readString(offsets[23]);
+  object.sortOrder = reader.readLong(offsets[24]);
+  object.sourceMeasurementProfileId = reader.readStringOrNull(offsets[25]);
+  object.sourceMeasurementProfileLabel = reader.readString(offsets[26]);
+  object.styleName = reader.readString(offsets[27]);
+  object.styleNameInternalId = reader.readStringOrNull(offsets[28]);
+  object.styleSelectionJson = reader.readString(offsets[29]);
+  object.styleSummary = reader.readString(offsets[30]);
+  object.updatedAt = reader.readDateTime(offsets[31]);
   return object;
 }
 
@@ -408,41 +435,41 @@ P _orderItemEntityDeserializeProp<P>(
     case 6:
       return (reader.readLong(offset)) as P;
     case 7:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 8:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 9:
       return (reader.readStringOrNull(offset)) as P;
     case 10:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTime(offset)) as P;
     case 11:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 12:
       return (reader.readStringOrNull(offset)) as P;
     case 13:
       return (reader.readString(offset)) as P;
     case 14:
-      return (reader.readLong(offset)) as P;
-    case 15:
       return (reader.readString(offset)) as P;
+    case 15:
+      return (reader.readStringOrNull(offset)) as P;
     case 16:
       return (reader.readString(offset)) as P;
     case 17:
-      return (reader.readString(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 18:
       return (reader.readString(offset)) as P;
     case 19:
-      return (reader.readLong(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 20:
       return (reader.readString(offset)) as P;
     case 21:
-      return (reader.readLong(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 22:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 23:
       return (reader.readString(offset)) as P;
     case 24:
-      return (reader.readString(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 25:
       return (reader.readStringOrNull(offset)) as P;
     case 26:
@@ -450,6 +477,12 @@ P _orderItemEntityDeserializeProp<P>(
     case 27:
       return (reader.readString(offset)) as P;
     case 28:
+      return (reader.readStringOrNull(offset)) as P;
+    case 29:
+      return (reader.readString(offset)) as P;
+    case 30:
+      return (reader.readString(offset)) as P;
+    case 31:
       return (reader.readDateTime(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1876,6 +1909,274 @@ extension OrderItemEntityQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterFilterCondition>
+      clothSaleCostAmountMinorEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'clothSaleCostAmountMinor',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterFilterCondition>
+      clothSaleCostAmountMinorGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'clothSaleCostAmountMinor',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterFilterCondition>
+      clothSaleCostAmountMinorLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'clothSaleCostAmountMinor',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterFilterCondition>
+      clothSaleCostAmountMinorBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'clothSaleCostAmountMinor',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterFilterCondition>
+      clothSourceIndexEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'clothSourceIndex',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterFilterCondition>
+      clothSourceIndexGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'clothSourceIndex',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterFilterCondition>
+      clothSourceIndexLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'clothSourceIndex',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterFilterCondition>
+      clothSourceIndexBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'clothSourceIndex',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterFilterCondition>
+      clothStockSkuInternalIdIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'clothStockSkuInternalId',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterFilterCondition>
+      clothStockSkuInternalIdIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'clothStockSkuInternalId',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterFilterCondition>
+      clothStockSkuInternalIdEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'clothStockSkuInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterFilterCondition>
+      clothStockSkuInternalIdGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'clothStockSkuInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterFilterCondition>
+      clothStockSkuInternalIdLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'clothStockSkuInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterFilterCondition>
+      clothStockSkuInternalIdBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'clothStockSkuInternalId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterFilterCondition>
+      clothStockSkuInternalIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'clothStockSkuInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterFilterCondition>
+      clothStockSkuInternalIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'clothStockSkuInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterFilterCondition>
+      clothStockSkuInternalIdContains(String value,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'clothStockSkuInternalId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterFilterCondition>
+      clothStockSkuInternalIdMatches(String pattern,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'clothStockSkuInternalId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterFilterCondition>
+      clothStockSkuInternalIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'clothStockSkuInternalId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterFilterCondition>
+      clothStockSkuInternalIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'clothStockSkuInternalId',
+        value: '',
       ));
     });
   }
@@ -4654,6 +4955,48 @@ extension OrderItemEntityQuerySortBy
   }
 
   QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterSortBy>
+      sortByClothSaleCostAmountMinor() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'clothSaleCostAmountMinor', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterSortBy>
+      sortByClothSaleCostAmountMinorDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'clothSaleCostAmountMinor', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterSortBy>
+      sortByClothSourceIndex() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'clothSourceIndex', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterSortBy>
+      sortByClothSourceIndexDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'clothSourceIndex', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterSortBy>
+      sortByClothStockSkuInternalId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'clothStockSkuInternalId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterSortBy>
+      sortByClothStockSkuInternalIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'clothStockSkuInternalId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterSortBy>
       sortByCreatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdAt', Sort.asc);
@@ -5062,6 +5405,48 @@ extension OrderItemEntityQuerySortThenBy
   }
 
   QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterSortBy>
+      thenByClothSaleCostAmountMinor() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'clothSaleCostAmountMinor', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterSortBy>
+      thenByClothSaleCostAmountMinorDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'clothSaleCostAmountMinor', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterSortBy>
+      thenByClothSourceIndex() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'clothSourceIndex', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterSortBy>
+      thenByClothSourceIndexDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'clothSourceIndex', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterSortBy>
+      thenByClothStockSkuInternalId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'clothStockSkuInternalId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterSortBy>
+      thenByClothStockSkuInternalIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'clothStockSkuInternalId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QAfterSortBy>
       thenByCreatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdAt', Sort.asc);
@@ -5439,6 +5824,28 @@ extension OrderItemEntityQueryWhereDistinct
   }
 
   QueryBuilder<OrderItemEntity, OrderItemEntity, QDistinct>
+      distinctByClothSaleCostAmountMinor() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'clothSaleCostAmountMinor');
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QDistinct>
+      distinctByClothSourceIndex() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'clothSourceIndex');
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QDistinct>
+      distinctByClothStockSkuInternalId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'clothStockSkuInternalId',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, OrderItemEntity, QDistinct>
       distinctByCreatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'createdAt');
@@ -5658,6 +6065,27 @@ extension OrderItemEntityQueryProperty
       clothPriceAmountMinorProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'clothPriceAmountMinor');
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, int, QQueryOperations>
+      clothSaleCostAmountMinorProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'clothSaleCostAmountMinor');
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, int, QQueryOperations>
+      clothSourceIndexProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'clothSourceIndex');
+    });
+  }
+
+  QueryBuilder<OrderItemEntity, String?, QQueryOperations>
+      clothStockSkuInternalIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'clothStockSkuInternalId');
     });
   }
 

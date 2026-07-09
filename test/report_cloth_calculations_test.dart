@@ -119,5 +119,25 @@ void main() {
         90000,
       );
     });
+
+    test('computes cogs and margin for shop stock lines', () {
+      final lines = [
+        ClothReportLine(
+          order: order(id: 'o1', createdAt: DateTime(2026, 6, 1)),
+          item: OrderItemSummary(
+            internalId: 'i1',
+            orderInternalId: 'o1',
+            garmentType: GarmentType.perahanTunban,
+            clothPriceAmountMinor: 10000,
+            clothSourceIndex: 1,
+            clothSaleCostAmountMinor: 6000,
+            createdAt: DateTime(2026, 6, 1),
+            updatedAt: DateTime(2026, 6, 1),
+          ),
+        ),
+      ];
+      expect(ReportClothCalculations.sumCogsMinor(lines), 6000);
+      expect(ReportClothCalculations.sumMarginMinor(lines), 4000);
+    });
   });
 }

@@ -710,7 +710,7 @@ class IsarOrderRepository implements OrderListRepository {
     required String orderInternalId,
     required OrderItemCreateInput input,
   }) async {
-    if (input.priceAmountMinor < 0 || input.clothPriceAmountMinor < 0) {
+    if (input.priceAmountMinor <= 0 || input.clothPriceAmountMinor < 0) {
       throw const OrderItemRepositoryException('item_price_required');
     }
     final order = await _isar.orderEntitys.getByInternalId(orderInternalId);

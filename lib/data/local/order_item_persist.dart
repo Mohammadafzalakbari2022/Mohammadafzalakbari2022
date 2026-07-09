@@ -77,6 +77,9 @@ OrderItemEntity buildOrderItemEntity({
     ..fabricColorPresetInternalId = input.fabricColorPresetInternalId
     ..clothMetersSnapshot = input.clothMetersSnapshot.trim()
     ..clothPriceAmountMinor = input.clothPriceAmountMinor
+    ..clothSourceIndex = input.clothSourceIndex
+    ..clothStockSkuInternalId = input.clothStockSkuInternalId
+    ..clothSaleCostAmountMinor = input.clothSaleCostAmountMinor
     ..createdAt = now
     ..updatedAt = now;
 }
@@ -252,6 +255,9 @@ Future<OrderItemEntity> upsertOrderItemInTxn({
     ..fabricColorPresetInternalId = input.fabricColorPresetInternalId
     ..clothMetersSnapshot = input.clothMetersSnapshot.trim()
     ..clothPriceAmountMinor = input.clothPriceAmountMinor
+    ..clothSourceIndex = input.clothSourceIndex
+    ..clothStockSkuInternalId = input.clothStockSkuInternalId
+    ..clothSaleCostAmountMinor = input.clothSaleCostAmountMinor
     ..sortOrder = input.sortOrder ?? input.garmentType.defaultSortOrder
     ..updatedAt = now;
   if (existing == null) {

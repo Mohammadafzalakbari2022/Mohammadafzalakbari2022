@@ -36,4 +36,11 @@ abstract final class SyncOutboxKinds {
   static const shopRentPaymentAppend = 'shop_rent_payment_append';
   static const shopExpenseUpsert = 'shop_expense_upsert';
   static const shopExpenseDelete = 'shop_expense_delete';
+  static const clothSkuUpsert = 'cloth_sku_upsert';
+  static const clothSkuDelete = 'cloth_sku_delete';
+  static const clothSupplierUpsert = 'cloth_supplier_upsert';
+  static const clothSupplierDelete = 'cloth_supplier_delete';
+  static const clothPurchaseUpsert = 'cloth_purchase_upsert';
+  static const clothPurchasePaymentAppend = 'cloth_purchase_payment_append';
+  static const clothMovementAppend = 'cloth_movement_append';
 }

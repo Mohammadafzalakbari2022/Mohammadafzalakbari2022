@@ -6,6 +6,9 @@ export default async function globalSetup(): Promise<void> {
     process.env.DATABASE_URL ??
     'postgresql://pride:pride@127.0.0.1:5433/pride_api';
   process.env.DATABASE_URL = url;
+  if (!process.env.PRIDE_LEGACY_REDEEM_CODES?.trim()) {
+    process.env.PRIDE_LEGACY_REDEEM_CODES = 'pilot-2026';
+  }
   execSync('npx prisma migrate deploy', {
     cwd: join(__dirname, '..'),
     stdio: 'inherit',

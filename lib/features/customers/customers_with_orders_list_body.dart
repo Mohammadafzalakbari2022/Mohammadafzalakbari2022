@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pride_v3/app/app_theme.dart';
 import 'package:pride_v3/app/responsive_breakpoints.dart';
 import 'package:pride_v3/core/calendar/date_calendar_notifier.dart';
+import 'package:pride_v3/core/calendar/date_calendar_system.dart';
 import 'package:pride_v3/core/formatting/app_number_format.dart';
 import 'package:pride_v3/core/widgets/compact_search_toolbar.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
@@ -12,11 +13,8 @@ import '../../auth/auth_providers.dart';
 import '../../data/local/customer_summary.dart';
 import '../../data/local/entities/order_status.dart';
 import '../../data/local/order_summary.dart';
-import '../../data/local/style/order_shape_selection_formatter.dart';
 import '../../data/providers/local_data_providers.dart';
 import '../orders/order_composer_screen.dart';
-import '../orders/order_list_tile.dart';
-import '../orders/order_payment_rules.dart';
 import '../orders/orders_list_filter.dart';
 import '../orders/orders_list_filter_provider.dart';
 import '../orders/orders_list_filter_sheet.dart';
@@ -51,7 +49,6 @@ class _CustomersWithOrdersListBodyState
     extends ConsumerState<CustomersWithOrdersListBody> {
   final _searchController = TextEditingController();
   var _customerQuery = '';
-  final _expandedCustomerIds = <String>{};
   String? _lastDeepLinkSignature;
 
   @override
@@ -112,7 +109,7 @@ class _CustomersWithOrdersListBodyState
       }
       final customerId = qp['customer'];
       if (customerId != null && customerId.isNotEmpty) {
-        setState(() => _expandedCustomerIds.add(customerId));
+        context.push('/app/customers/$customerId');
       }
       setState(() {});
     });
@@ -139,7 +136,11 @@ class _CustomersWithOrdersListBodyState
       ordersByCustomer.putIfAbsent(o.customerInternalId, () => []).add(o);
     }
     for (final list in ordersByCustomer.values) {
-      list.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+      list.sort((a, b) {
+        final byUpdated = b.updatedAt.compareTo(a.updatedAt);
+        if (byUpdated != 0) return byUpdated;
+        return b.createdAt.compareTo(a.createdAt);
+      });
     }
 
     final seenIds = <String>{};
@@ -214,14 +215,28 @@ class _CustomersWithOrdersListBodyState
     }).toList();
   }
 
-  void _toggleExpanded(String customerId) {
-    setState(() {
-      if (_expandedCustomerIds.contains(customerId)) {
-        _expandedCustomerIds.remove(customerId);
-      } else {
-        _expandedCustomerIds.add(customerId);
-      }
-    });
+  Widget _customerRow(
+    _CustomerOrdersGroup g,
+    AppLocalizations l10n,
+    String locale,
+    DateCalendarSystem calendar,
+  ) {
+    return CustomerListTile(
+      customer: g.customer,
+      l10n: l10n,
+      locale: locale,
+      calendar: calendar,
+      isSelected: false,
+      orderCount: g.orders.length,
+      unpaidMinor: g.unpaidMinor,
+      formatMoney: (minor) => _formatMoney(l10n, minor),
+      onNewOrder: () => context.go(
+        orderComposerRoute(
+          customerId: g.customer.internalId,
+        ),
+      ),
+      onTap: () => context.push('/app/customers/${g.customer.internalId}'),
+    );
   }
 
   Widget _addCustomerButton(AppLocalizations l10n) {
@@ -351,109 +366,11 @@ class _CustomersWithOrdersListBodyState
                                   const EdgeInsets.symmetric(vertical: 8),
                               itemCount: groups.length,
                               itemBuilder: (context, i) {
-                                final g = groups[i];
-                                final expanded = _expandedCustomerIds
-                                    .contains(g.customer.internalId);
-                                return Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: [
-                                    CustomerListTile(
-                                      customer: g.customer,
-                                      l10n: l10n,
-                                      locale: locale,
-                                      calendar: calendar,
-                                      isSelected: expanded,
-                                      orderCount: g.orders.length,
-                                      unpaidMinor: g.unpaidMinor,
-                                      formatMoney: (minor) =>
-                                          _formatMoney(l10n, minor),
-                                      onNewOrder: () => context.go(
-                                        orderComposerRoute(
-                                          customerId: g.customer.internalId,
-                                        ),
-                                      ),
-                                      onTap: () => _toggleExpanded(
-                                        g.customer.internalId,
-                                      ),
-                                    ),
-                                    if (expanded) ...[
-                                      if (g.orders.isEmpty)
-                                        Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                            24,
-                                            4,
-                                            16,
-                                            8,
-                                          ),
-                                          child: Text(
-                                            l10n.customersRowNoOrdersYet,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodySmall,
-                                          ),
-                                        )
-                                      else
-                                        for (final o in g.orders)
-                                          OrderListTile(
-                                            order: o,
-                                            customerDisplayNo:
-                                                g.customer.displayCustomerNo,
-                                            paidAmountMinor:
-                                                OrderPaymentRules
-                                                    .paidMinorForOrder(
-                                              orderSummaryPaidMinor:
-                                                  o.paidAmountMinor,
-                                              paidByOrderId: paidByOrderId,
-                                              orderInternalId: o.internalId,
-                                              paymentsLedgerLoaded:
-                                                  ledgerLoaded,
-                                            ),
-                                            remainingAmountMinor:
-                                                OrderPaymentRules.remainingMinor(
-                                              o.totalAmountMinor,
-                                              OrderPaymentRules.paidMinorForOrder(
-                                                orderSummaryPaidMinor:
-                                                    o.paidAmountMinor,
-                                                paidByOrderId: paidByOrderId,
-                                                orderInternalId: o.internalId,
-                                                paymentsLedgerLoaded:
-                                                    ledgerLoaded,
-                                              ),
-                                            ),
-                                            l10n: l10n,
-                                            locale: locale,
-                                            calendar: calendar,
-                                            detailed: true,
-                                            formatMoney: (minor) =>
-                                                _formatMoney(l10n, minor),
-                                            stylePreviewLine:
-                                                formatOrderShapeSelectionDisplay(
-                                              styleName: o.styleName,
-                                              styleSelectionJson:
-                                                  o.styleSelectionJson,
-                                              styleSummary: o.styleSummary,
-                                            ).compactPreview,
-                                            onTap: () => context.push(
-                                              '/app/orders/${o.internalId}',
-                                            ),
-                                            enableStatusActions: true,
-                                          ),
-                                      ListTile(
-                                        dense: true,
-                                        leading: const Icon(
-                                          Icons.person_outline,
-                                          size: 20,
-                                        ),
-                                        title: Text(
-                                          l10n.customerProfileTitle,
-                                        ),
-                                        onTap: () => context.push(
-                                          '/app/customers/${g.customer.internalId}',
-                                        ),
-                                      ),
-                                    ],
-                                  ],
+                                return _customerRow(
+                                  groups[i],
+                                  l10n,
+                                  locale,
+                                  calendar,
                                 );
                               },
                             ),
