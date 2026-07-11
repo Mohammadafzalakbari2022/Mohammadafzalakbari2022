@@ -1850,6 +1850,14 @@ class AppLocalizationsPs extends AppLocalizations {
   String get ordersComposerPaymentRequired => 'ټولې بېلې ولیکئ (اړین)';
 
   @override
+  String get ordersComposerGarmentPriceRequired =>
+      'د خوندي کولو دمخه د هر جامې بیه ولیکئ.';
+
+  @override
+  String get ordersComposerInitialPaymentRequired =>
+      'د خوندي کولو دمخه لومړنۍ تادیه ولیکئ.';
+
+  @override
   String ordersComposerPaymentSummary(
     String total,
     String paid,

@@ -3434,6 +3434,18 @@ abstract class AppLocalizations {
   /// **'Enter totals (required)'**
   String get ordersComposerPaymentRequired;
 
+  /// No description provided for @ordersComposerGarmentPriceRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a price for each garment before saving.'**
+  String get ordersComposerGarmentPriceRequired;
+
+  /// No description provided for @ordersComposerInitialPaymentRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the initial payment amount before saving.'**
+  String get ordersComposerInitialPaymentRequired;
+
   /// No description provided for @ordersComposerPaymentSummary.
   ///
   /// In en, this message translates to:

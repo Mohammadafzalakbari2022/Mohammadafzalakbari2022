@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:go_router/go_router.dart';
@@ -9,6 +10,7 @@ import 'package:pride_v3/core/widgets/app_back_button.dart';
 
 import 'package:pride_v3/l10n/app_localizations.dart';
 
+import '../core/navigation/app_exit_confirm.dart';
 import '../core/shop_finance/rent_due_checker.dart';
 
 import '../dashboard/dashboard_drawer.dart';
@@ -175,6 +177,17 @@ class _AppShellState extends ConsumerState<AppShell> {
               destinations: shellNavigationDestinations(l10n),
             ),
     );
+
+    if (!canPop && primaryTab) {
+      return PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) async {
+          if (didPop) return;
+          await handleAppExitBack(context, l10n);
+        },
+        child: scaffold,
+      );
+    }
 
     return scaffold;
   }

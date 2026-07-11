@@ -6,6 +6,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   connectivity_plus
   file_selector_windows
   isar_flutter_libs
+  pdfx
   printing
   sentry_flutter
   share_plus

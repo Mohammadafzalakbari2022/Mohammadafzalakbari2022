@@ -74,6 +74,7 @@ Future<void> viewOrderInvoicePdf({
           onShare: () => shareInvoicePdfBytes(
             pdfBytes: pdfBytes,
             filename: filename,
+            subject: l10n.orderShareInvoiceSubject(displayNo),
           ),
         ),
       ),

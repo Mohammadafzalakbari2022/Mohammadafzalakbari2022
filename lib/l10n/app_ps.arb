@@ -950,6 +950,8 @@
   },
   "ordersComposerPaymentTitle": "ورکړه",
   "ordersComposerPaymentRequired": "ټولې بېلې ولیکئ (اړین)",
+  "ordersComposerGarmentPriceRequired": "د خوندي کولو دمخه د هر جامې بیه ولیکئ.",
+  "ordersComposerInitialPaymentRequired": "د خوندي کولو دمخه لومړنۍ تادیه ولیکئ.",
   "ordersComposerPaymentSummary": "ټول {total} • ورکړل شوی {paid} • پاتې {remaining}",
   "@ordersComposerPaymentSummary": {
     "placeholders": {

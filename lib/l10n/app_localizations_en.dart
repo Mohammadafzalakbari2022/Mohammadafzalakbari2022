@@ -1867,6 +1867,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ordersComposerPaymentRequired => 'Enter totals (required)';
 
   @override
+  String get ordersComposerGarmentPriceRequired =>
+      'Enter a price for each garment before saving.';
+
+  @override
+  String get ordersComposerInitialPaymentRequired =>
+      'Enter the initial payment amount before saving.';
+
+  @override
   String ordersComposerPaymentSummary(
     String total,
     String paid,

@@ -1,12 +1,11 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:pdf/pdf.dart';
-import 'package:printing/printing.dart';
+import 'package:pdfx/pdfx.dart';
 
 import '../../core/printing/invoice_pdf_validation.dart';
 
-/// In-app PDF viewer (rasterized pages) with optional share from the app bar.
+/// In-app PDF viewer with pinch-zoom; share optional from the app bar.
 class OrderInvoicePdfViewerScreen extends StatefulWidget {
   const OrderInvoicePdfViewerScreen({
     super.key,
@@ -20,7 +19,7 @@ class OrderInvoicePdfViewerScreen extends StatefulWidget {
   final List<int> pdfBytes;
   final String title;
   final String shareLabel;
-  final VoidCallback onShare;
+  final Future<void> Function() onShare;
   final String invalidPdfMessage;
 
   @override
@@ -30,53 +29,24 @@ class OrderInvoicePdfViewerScreen extends StatefulWidget {
 
 class _OrderInvoicePdfViewerScreenState
     extends State<OrderInvoicePdfViewerScreen> {
-  final _pageImages = <MemoryImage>[];
+  PdfController? _controller;
   var _loading = true;
   Object? _error;
 
   @override
   void initState() {
     super.initState();
-    _loadPages();
+    _openDocument();
   }
 
-  Future<void> _loadPages() async {
+  Future<void> _openDocument() async {
     try {
-      final info = await Printing.info();
-      if (!info.canRaster) {
-        if (mounted) {
-          setState(() {
-            _loading = false;
-            _error = StateError('pdf_raster_unavailable');
-          });
-        }
-        return;
-      }
-
       final bytes = Uint8List.fromList(widget.pdfBytes);
-      await for (final page in Printing.raster(
-        bytes,
-        pages: null,
-        dpi: PdfPageFormat.inch * 1.5,
-      )) {
-        if (!mounted) return;
-        final png = await page.toPng();
-        if (!mounted) return;
-        setState(() {
-          _pageImages.add(MemoryImage(png));
-        });
-      }
-
       if (!mounted) return;
-      if (_pageImages.isEmpty) {
-        setState(() {
-          _loading = false;
-          _error = StateError('pdf_raster_empty');
-        });
-        return;
-      }
-
       setState(() {
+        _controller = PdfController(
+          document: PdfDocument.openData(bytes),
+        );
         _loading = false;
       });
     } on Object catch (e) {
@@ -85,6 +55,23 @@ class _OrderInvoicePdfViewerScreenState
         _loading = false;
         _error = e;
       });
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  Future<void> _share() async {
+    try {
+      await widget.onShare();
+    } on Object catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
     }
   }
 
@@ -112,7 +99,7 @@ class _OrderInvoicePdfViewerScreenState
           IconButton(
             icon: const Icon(Icons.share_outlined),
             tooltip: widget.shareLabel,
-            onPressed: widget.onShare,
+            onPressed: _share,
           ),
         ],
       ),
@@ -125,7 +112,8 @@ class _OrderInvoicePdfViewerScreenState
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (_error != null) {
+    final controller = _controller;
+    if (_error != null || controller == null) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -138,7 +126,7 @@ class _OrderInvoicePdfViewerScreenState
               ),
               const SizedBox(height: 16),
               FilledButton.icon(
-                onPressed: widget.onShare,
+                onPressed: _share,
                 icon: const Icon(Icons.share_outlined),
                 label: Text(widget.shareLabel),
               ),
@@ -148,26 +136,12 @@ class _OrderInvoicePdfViewerScreenState
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-      itemCount: _pageImages.length,
-      itemBuilder: (context, index) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6),
-          child: DecoratedBox(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(offset: Offset(0, 2), blurRadius: 4),
-              ],
-            ),
-            child: Image(
-              image: _pageImages[index],
-              fit: BoxFit.contain,
-            ),
-          ),
-        );
-      },
+    return PdfView(
+      controller: controller,
+      scrollDirection: Axis.vertical,
+      backgroundDecoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      ),
     );
   }
 }

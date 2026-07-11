@@ -103,6 +103,38 @@ void main() {
       );
     });
 
+    test('cannot save with price but zero initial payment', () {
+      var draft = OrderComposerDraft.initial();
+      draft = draft.updateItem(
+        GarmentType.perahanTunban,
+        filledItem(GarmentType.perahanTunban, price: 100000),
+      );
+      expect(
+        draft.canSave(
+          customerSelected: true,
+          paidMinor: 0,
+          clothBlockEnabled: true,
+        ),
+        isFalse,
+      );
+    });
+
+    test('can save with garment price and initial payment', () {
+      var draft = OrderComposerDraft.initial();
+      draft = draft.updateItem(
+        GarmentType.perahanTunban,
+        filledItem(GarmentType.perahanTunban, price: 100000),
+      );
+      expect(
+        draft.canSave(
+          customerSelected: true,
+          paidMinor: 50000,
+          clothBlockEnabled: true,
+        ),
+        isTrue,
+      );
+    });
+
     test('paid cannot exceed total', () {
       var draft = OrderComposerDraft.initial();
       draft = draft.updateItem(

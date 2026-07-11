@@ -950,6 +950,8 @@
   },
   "ordersComposerPaymentTitle": "پرداخت",
   "ordersComposerPaymentRequired": "جمع‌ها را وارد کنید (الزامی)",
+  "ordersComposerGarmentPriceRequired": "قبل از ذخیره، قیمت هر لباس را وارد کنید.",
+  "ordersComposerInitialPaymentRequired": "قبل از ذخیره، مبلغ پرداخت اولیه را وارد کنید.",
   "ordersComposerPaymentSummary": "جمع {total} • پرداخت {paid} • مانده {remaining}",
   "@ordersComposerPaymentSummary": {
     "placeholders": {

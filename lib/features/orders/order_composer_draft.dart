@@ -99,7 +99,7 @@ class OrderComposerDraft {
     return false;
   }
 
-  /// Receipt composer save readiness: customer and item prices are required.
+  /// Receipt composer save readiness: customer, garment prices, and initial payment.
   bool canSave({
     required bool customerSelected,
     required int paidMinor,
@@ -107,7 +107,7 @@ class OrderComposerDraft {
   }) {
     if (!customerSelected) return false;
     if (!hasAtLeastOneItem) return false;
-    if (paidMinor < 0) return false;
+    if (paidMinor <= 0) return false;
     for (final type in selectedGarmentTypes) {
       if (!items[type]!.hasRequiredPrice) return false;
     }

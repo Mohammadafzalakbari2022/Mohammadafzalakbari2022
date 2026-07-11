@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pride_v3/core/formatting/app_number_format.dart';
@@ -457,15 +456,6 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
   /// Customer must be explicitly selected before save.
   bool get _hasCustomerForSave =>
       _selectedCustomerId != null && isValidCustomerName(_selectedCustomerName);
-
-  bool _canSave(bool clothBlockEnabled) {
-    _syncItemPricesFromControllers();
-    return _draft.canSave(
-      customerSelected: _hasCustomerForSave,
-      paidMinor: _composerPaidMinor,
-      clothBlockEnabled: clothBlockEnabled,
-    );
-  }
 
   OrderItemDraft _itemDraft(GarmentType type) => _draft.items[type]!;
 
@@ -1114,12 +1104,21 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       );
       return;
     }
+    if (paidMinor <= 0) {
+      showAppFeedback(
+        context,
+        ref,
+        kind: AppFeedbackKind.error,
+        message: l10n.ordersComposerInitialPaymentRequired,
+      );
+      return;
+    }
     if (paidMinor > totalMinor) {
       showAppFeedback(
         context,
         ref,
         kind: AppFeedbackKind.error,
-        message: l10n.ordersComposerPaymentRequired,
+        message: l10n.ordersPaymentInitialExceedsTotal,
       );
       return;
     }
@@ -1357,6 +1356,55 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
   }
 
   void _onSavePressed(BuildContext context, AppLocalizations l10n) {
+    final clothBlockEnabled =
+        ref.read(composerVisibilitySettingsProvider).showClothBlock;
+    _syncItemPricesFromControllers();
+
+    for (final type in _draft.selectedGarmentTypes) {
+      if (!_draft.items[type]!.hasRequiredPrice) {
+        showAppFeedback(
+          context,
+          ref,
+          kind: AppFeedbackKind.error,
+          message: l10n.ordersComposerGarmentPriceRequired,
+        );
+        return;
+      }
+    }
+
+    final totalMinor =
+        _draft.totalMinor(clothBlockEnabled: clothBlockEnabled);
+    if (totalMinor <= 0) {
+      showAppFeedback(
+        context,
+        ref,
+        kind: AppFeedbackKind.error,
+        message: l10n.ordersComposerGarmentPriceRequired,
+      );
+      return;
+    }
+
+    var paidMinor = _composerPaidMinor;
+    if (paidMinor < 0) paidMinor = 0;
+    if (paidMinor <= 0) {
+      showAppFeedback(
+        context,
+        ref,
+        kind: AppFeedbackKind.error,
+        message: l10n.ordersComposerInitialPaymentRequired,
+      );
+      return;
+    }
+    if (paidMinor > totalMinor) {
+      showAppFeedback(
+        context,
+        ref,
+        kind: AppFeedbackKind.error,
+        message: l10n.ordersPaymentInitialExceedsTotal,
+      );
+      return;
+    }
+
     _save(context, l10n);
   }
 
@@ -1601,13 +1649,9 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
                 style: Theme.of(context).textTheme.titleSmall,
               ),
               const SizedBox(height: 8),
-              PrideOptionalPanel(
-                isEmpty: paid <= 0 && total <= 0,
-                padding: EdgeInsets.zero,
-                child: PrideMoneyField(
-                  controller: _paidController,
-                  labelText: l10n.paymentPaid,
-                ),
+              PrideMoneyField(
+                controller: _paidController,
+                labelText: l10n.ordersComposerPaidLabel,
               ),
               if (total > 0 && remaining > 0)
                 Padding(
@@ -1754,7 +1798,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
                 : () => context.pop(),
             cancelLabel: MaterialLocalizations.of(context).cancelButtonLabel,
             primary: FilledButton.icon(
-              onPressed: _canSave(clothBlockEnabled)
+              onPressed: _hasCustomerForSave && _draft.hasAtLeastOneItem
                   ? () => _onSavePressed(context, l10n)
                   : null,
               style: prideButtonStyle(context, PrideButtonVariant.add),
@@ -1766,35 +1810,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       ),
     );
 
-    if (!widget.isTabRoot) return scaffold;
-
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) async {
-        if (didPop) return;
-        final shouldExit = await showDialog<bool>(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            title: Text(l10n.appExitConfirmTitle),
-            content: Text(l10n.appExitConfirmBody),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop(false),
-                child: Text(l10n.appExitConfirmNo),
-              ),
-              FilledButton(
-                onPressed: () => Navigator.of(ctx).pop(true),
-                child: Text(l10n.appExitConfirmYes),
-              ),
-            ],
-          ),
-        );
-        if (shouldExit == true) {
-          await SystemNavigator.pop();
-        }
-      },
-      child: scaffold,
-    );
+    return scaffold;
   }
 }
 

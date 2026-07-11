@@ -1855,6 +1855,14 @@ class AppLocalizationsFa extends AppLocalizations {
   String get ordersComposerPaymentRequired => 'جمع‌ها را وارد کنید (الزامی)';
 
   @override
+  String get ordersComposerGarmentPriceRequired =>
+      'قبل از ذخیره، قیمت هر لباس را وارد کنید.';
+
+  @override
+  String get ordersComposerInitialPaymentRequired =>
+      'قبل از ذخیره، مبلغ پرداخت اولیه را وارد کنید.';
+
+  @override
   String ordersComposerPaymentSummary(
     String total,
     String paid,

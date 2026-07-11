@@ -834,6 +834,8 @@
   },
   "ordersComposerPaymentTitle": "Payment",
   "ordersComposerPaymentRequired": "Enter totals (required)",
+  "ordersComposerGarmentPriceRequired": "Enter a price for each garment before saving.",
+  "ordersComposerInitialPaymentRequired": "Enter the initial payment amount before saving.",
   "ordersComposerPaymentSummary": "Total {total} • Paid {paid} • Remaining {remaining}",
   "@ordersComposerPaymentSummary": {
     "placeholders": {
