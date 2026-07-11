@@ -50,7 +50,7 @@ class PrideBootstrapMaterialHost extends StatelessWidget {
   }
 }
 
-/// Paints on the first Flutter frame — no l10n, no assets, no async deps.
+/// Paints on the first Flutter frame — brand logo + spinner (cold-start glimpse).
 class PrideBootstrapLoadingView extends StatelessWidget {
   const PrideBootstrapLoadingView({super.key});
 
@@ -59,15 +59,25 @@ class PrideBootstrapLoadingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const ColoredBox(
+    return ColoredBox(
       color: _surface,
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.storefront_rounded, size: 88, color: _primary),
-            SizedBox(height: 28),
-            SizedBox(
+            Image.asset(
+              kLoginBrandLogoAsset,
+              width: 96,
+              height: 96,
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) => const Icon(
+                Icons.storefront_rounded,
+                size: 88,
+                color: _primary,
+              ),
+            ),
+            const SizedBox(height: 28),
+            const SizedBox(
               width: 36,
               height: 36,
               child: CircularProgressIndicator(

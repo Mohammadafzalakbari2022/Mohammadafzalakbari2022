@@ -6,8 +6,8 @@ import 'package:printing/printing.dart';
 
 import '../../core/printing/invoice_pdf_validation.dart';
 
-/// In-app PDF viewer with pinch/double-tap zoom (share optional from app bar).
-class OrderInvoicePdfViewerScreen extends StatelessWidget {
+/// In-app PDF viewer (rasterized pages) with optional share from the app bar.
+class OrderInvoicePdfViewerScreen extends StatefulWidget {
   const OrderInvoicePdfViewerScreen({
     super.key,
     required this.pdfBytes,
@@ -24,15 +24,80 @@ class OrderInvoicePdfViewerScreen extends StatelessWidget {
   final String invalidPdfMessage;
 
   @override
+  State<OrderInvoicePdfViewerScreen> createState() =>
+      _OrderInvoicePdfViewerScreenState();
+}
+
+class _OrderInvoicePdfViewerScreenState
+    extends State<OrderInvoicePdfViewerScreen> {
+  final _pageImages = <MemoryImage>[];
+  var _loading = true;
+  Object? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPages();
+  }
+
+  Future<void> _loadPages() async {
+    try {
+      final info = await Printing.info();
+      if (!info.canRaster) {
+        if (mounted) {
+          setState(() {
+            _loading = false;
+            _error = StateError('pdf_raster_unavailable');
+          });
+        }
+        return;
+      }
+
+      final bytes = Uint8List.fromList(widget.pdfBytes);
+      await for (final page in Printing.raster(
+        bytes,
+        pages: null,
+        dpi: PdfPageFormat.inch * 1.5,
+      )) {
+        if (!mounted) return;
+        final png = await page.toPng();
+        if (!mounted) return;
+        setState(() {
+          _pageImages.add(MemoryImage(png));
+        });
+      }
+
+      if (!mounted) return;
+      if (_pageImages.isEmpty) {
+        setState(() {
+          _loading = false;
+          _error = StateError('pdf_raster_empty');
+        });
+        return;
+      }
+
+      setState(() {
+        _loading = false;
+      });
+    } on Object catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _loading = false;
+        _error = e;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (!isValidPdfBytes(pdfBytes)) {
+    if (!isValidPdfBytes(widget.pdfBytes)) {
       return Scaffold(
-        appBar: AppBar(title: Text(title)),
+        appBar: AppBar(title: Text(widget.title)),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: Text(
-              invalidPdfMessage,
+              widget.invalidPdfMessage,
               textAlign: TextAlign.center,
             ),
           ),
@@ -42,119 +107,67 @@ class OrderInvoicePdfViewerScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: Text(widget.title),
         actions: [
           IconButton(
             icon: const Icon(Icons.share_outlined),
-            tooltip: shareLabel,
-            onPressed: onShare,
+            tooltip: widget.shareLabel,
+            onPressed: widget.onShare,
           ),
         ],
       ),
-      body: PdfPreview.builder(
-        build: (format) async => Uint8List.fromList(pdfBytes),
-        allowPrinting: false,
-        allowSharing: false,
-        canChangeOrientation: false,
-        canChangePageFormat: false,
-        canDebug: false,
-        useActions: false,
-        dynamicLayout: false,
-        pdfPreviewPageDecoration: const BoxDecoration(
-          color: Colors.white,
-        ),
-        scrollViewDecoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        ),
-        initialPageFormat: PdfPageFormat.a4,
-        pagesBuilder: (context, pages) {
-          if (pages.isEmpty) {
-            return ListView(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Text(
-                    invalidPdfMessage,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ],
-            );
-          }
-          return ListView.builder(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            itemCount: pages.length,
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                child: _InvoicePdfZoomPage(pageData: pages[index]),
-              );
-            },
-          );
-        },
-      ),
+      body: _buildBody(context),
     );
   }
-}
 
-class _InvoicePdfZoomPage extends StatefulWidget {
-  const _InvoicePdfZoomPage({required this.pageData});
-
-  final PdfPreviewPageData pageData;
-
-  @override
-  State<_InvoicePdfZoomPage> createState() => _InvoicePdfZoomPageState();
-}
-
-class _InvoicePdfZoomPageState extends State<_InvoicePdfZoomPage> {
-  final _transformController = TransformationController();
-  static const double _doubleTapScale = 2.5;
-
-  @override
-  void dispose() {
-    _transformController.dispose();
-    super.dispose();
-  }
-
-  void _handleDoubleTap(TapDownDetails details) {
-    final matrix = _transformController.value;
-    if (matrix.getMaxScaleOnAxis() > 1.01) {
-      _transformController.value = Matrix4.identity();
-      return;
+  Widget _buildBody(BuildContext context) {
+    if (_loading) {
+      return const Center(child: CircularProgressIndicator());
     }
 
-    final offset = details.localPosition;
-    final dx = -offset.dx * (_doubleTapScale - 1);
-    final dy = -offset.dy * (_doubleTapScale - 1);
-    _transformController.value = Matrix4.identity()
-      ..translate(dx, dy)
-      ..scale(_doubleTapScale);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onDoubleTapDown: _handleDoubleTap,
-      child: InteractiveViewer(
-        transformationController: _transformController,
-        minScale: 0.5,
-        maxScale: 6,
-        child: DecoratedBox(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(offset: Offset(0, 2), blurRadius: 4),
+    if (_error != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                widget.invalidPdfMessage,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              FilledButton.icon(
+                onPressed: widget.onShare,
+                icon: const Icon(Icons.share_outlined),
+                label: Text(widget.shareLabel),
+              ),
             ],
           ),
-          child: AspectRatio(
-            aspectRatio: widget.pageData.aspectRatio,
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+      itemCount: _pageImages.length,
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: DecoratedBox(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(offset: Offset(0, 2), blurRadius: 4),
+              ],
+            ),
             child: Image(
-              image: widget.pageData.image,
+              image: _pageImages[index],
               fit: BoxFit.contain,
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

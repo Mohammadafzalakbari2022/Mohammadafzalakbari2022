@@ -16,6 +16,32 @@ import 'package:pride_v3/data/local/order_summary.dart';
 import 'package:pride_v3/data/local/payment_summary.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
+/// When WhatsApp is not possible, ask whether to use the generic share sheet.
+Future<bool> _confirmShareWithoutWhatsapp(
+  BuildContext context,
+  AppLocalizations l10n, {
+  required String body,
+}) async {
+  final choice = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text(l10n.orderShareWhatsappNoPhoneTitle),
+      content: Text(body),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(ctx).pop(false),
+          child: Text(l10n.orderShareWhatsappNoPhoneCancel),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(ctx).pop(true),
+          child: Text(l10n.orderShareWhatsappNoPhoneShareOther),
+        ),
+      ],
+    ),
+  );
+  return choice ?? false;
+}
+
 /// Share order invoice as PDF; saves customer contact and opens WhatsApp when possible.
 Future<void> shareOrderInvoice({
   required BuildContext context,
@@ -103,38 +129,47 @@ Future<void> shareOrderInvoice({
     );
 
     var shared = false;
-    if (!kIsWeb && rawPhone != null && rawPhone.isNotEmpty) {
+    var usedGenericShare = false;
+    if (!kIsWeb &&
+        path != null &&
+        rawPhone != null &&
+        rawPhone.isNotEmpty) {
       if (whatsappPhone == null) {
-        if (context.mounted) {
-          showAppFeedback(
-            context,
-            ref,
-            kind: AppFeedbackKind.info,
-            message: l10n.orderShareWhatsappPhoneInvalid,
-          );
-        }
+        if (!context.mounted) return;
+        final proceed = await _confirmShareWithoutWhatsapp(
+          context,
+          l10n,
+          body: l10n.orderShareWhatsappPhoneInvalid,
+        );
+        if (!proceed || !context.mounted) return;
+        await shareInvoicePdfBytes(
+          pdfBytes: pdfBytes,
+          filename: filename,
+          subject: subject,
+          text: caption,
+        );
+        usedGenericShare = true;
       } else {
         if (contactSaved == true) {
           await Future<void>.delayed(const Duration(milliseconds: 300));
         }
         shared = await shareInvoicePdfToWhatsApp(
-          filePath: path!,
+          filePath: path,
           phoneDigits: whatsappPhone,
           caption: caption,
         );
       }
     }
 
-    if (!shared) {
+    if (!shared && !usedGenericShare) {
       if (rawPhone == null || rawPhone.isEmpty) {
-        if (context.mounted) {
-          showAppFeedback(
-            context,
-            ref,
-            kind: AppFeedbackKind.info,
-            message: l10n.orderShareCustomerPhoneMissing,
-          );
-        }
+        if (!context.mounted) return;
+        final proceed = await _confirmShareWithoutWhatsapp(
+          context,
+          l10n,
+          body: l10n.orderShareWhatsappNoPhoneBody,
+        );
+        if (!proceed || !context.mounted) return;
       }
       await shareInvoicePdfBytes(
         pdfBytes: pdfBytes,
@@ -142,6 +177,7 @@ Future<void> shareOrderInvoice({
         subject: subject,
         text: caption,
       );
+      usedGenericShare = true;
     }
 
     if (!context.mounted) return;
@@ -169,7 +205,7 @@ Future<void> shareOrderInvoice({
         kind: AppFeedbackKind.success,
         message: l10n.orderShareWhatsappOpened,
       );
-    } else if (!shared && context.mounted) {
+    } else if (usedGenericShare && context.mounted) {
       showAppFeedback(
         context,
         ref,

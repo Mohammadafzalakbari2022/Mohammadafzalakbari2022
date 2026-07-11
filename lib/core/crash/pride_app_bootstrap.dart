@@ -13,6 +13,7 @@ import 'sentry_bootstrap.dart';
 Future<void> bootstrapPrideApp(void Function() runAppNow) async {
   await runWithOptionalSentry(() async {
     WidgetsFlutterBinding.ensureInitialized();
+    _configureImageCacheLimits();
     PrideErrorCollector.installEarlyHooks();
     ErrorWidget.builder = prideBuildFatalErrorWidget;
     runZonedGuarded(
@@ -26,6 +27,12 @@ Future<void> bootstrapPrideApp(void Function() runAppNow) async {
       },
     );
   });
+}
+
+void _configureImageCacheLimits() {
+  final cache = PaintingBinding.instance.imageCache;
+  cache.maximumSize = 150;
+  cache.maximumSizeBytes = 48 << 20;
 }
 
 Future<void> _deferredStartupSideEffects() async {

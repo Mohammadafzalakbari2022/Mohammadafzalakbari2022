@@ -7,7 +7,7 @@ class ComposerVisibilitySettings {
     this.showStyleName = true,
     this.showCatalogPicker = true,
     this.showStyleShapes = true,
-    this.showClothBlock = true,
+    this.showClothBlock = false,
   });
 
   final bool showMeasurementsBlock;
@@ -53,7 +53,7 @@ ComposerVisibilitySettings readComposerVisibilitySettings(
     showCatalogPicker:
         prefs.getBool(_composerVisKey(id, 'catalog')) ?? true,
     showStyleShapes: prefs.getBool(_composerVisKey(id, 'style_shapes')) ?? true,
-    showClothBlock: prefs.getBool(_composerVisKey(id, 'cloth')) ?? true,
+    showClothBlock: prefs.getBool(_composerVisKey(id, 'cloth')) ?? false,
   );
 }
 

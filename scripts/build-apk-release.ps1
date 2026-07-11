@@ -1,4 +1,4 @@
-# Release APK with stacked dart-define-from-file. Output: build\app\outputs\flutter-apk\Pride.apk
+# Release APK with stacked dart-define-from-file. Output: build\app\outputs\flutter-apk\Khayat.apk
 # Usage:
 #   .\scripts\build-apk-release.ps1
 #   .\scripts\build-apk-release.ps1 -Environment staging
@@ -23,7 +23,7 @@ try {
     if ($LASTEXITCODE -ne 0) {
         throw "flutter build apk failed (exit $LASTEXITCODE). Do not install an old APK from build\app\outputs\flutter-apk\."
     }
-    $apk = "build\app\outputs\flutter-apk\Pride.apk"
+    $apk = "build\app\outputs\flutter-apk\Khayat.apk"
     $fallback = "build\app\outputs\flutter-apk\app-release.apk"
     if (-not (Test-Path $fallback)) {
         throw "APK not found: $fallback"

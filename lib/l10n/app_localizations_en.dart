@@ -232,9 +232,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginFieldRequired => 'Required';
 
   @override
-  String get loginDevContinue => 'Continue without account (dev)';
-
-  @override
   String get loginApiHint =>
       'Sign in with your shop ID, username, and password.';
 
@@ -4505,7 +4502,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get orderShareCustomerPhoneMissing =>
-      'This customer has no phone number. Opening the share sheet instead.';
+      'This customer has no phone or WhatsApp number. WhatsApp sharing is not available.';
+
+  @override
+  String get orderShareWhatsappNoPhoneTitle => 'No phone number';
+
+  @override
+  String get orderShareWhatsappNoPhoneBody =>
+      'This customer has no phone or WhatsApp number on file. Add a phone number in the customer profile to share on WhatsApp, or share the invoice PDF using another app.';
+
+  @override
+  String get orderShareWhatsappNoPhoneShareOther => 'Share PDF another way';
+
+  @override
+  String get orderShareWhatsappNoPhoneCancel => 'Cancel';
+
+  @override
+  String get appExitConfirmTitle => 'Close app?';
+
+  @override
+  String get appExitConfirmBody => 'Do you want to exit خیاط?';
+
+  @override
+  String get appExitConfirmYes => 'Close app';
+
+  @override
+  String get appExitConfirmNo => 'Stay';
 
   @override
   String get receiptFooterThanks => 'Thank you for your business!';

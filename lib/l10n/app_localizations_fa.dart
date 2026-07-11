@@ -231,9 +231,6 @@ class AppLocalizationsFa extends AppLocalizations {
   String get loginFieldRequired => 'الزامی';
 
   @override
-  String get loginDevContinue => 'ادامه بدون حساب (توسعه)';
-
-  @override
   String get loginApiHint => 'با شناسه فروشگاه، نام کاربری و رمز وارد شوید.';
 
   @override
@@ -4472,7 +4469,32 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get orderShareCustomerPhoneMissing =>
-      'این مشتری شماره تلفن ندارد. به‌جای آن، صفحهٔ اشتراک‌گذاری باز می‌شود.';
+      'این مشتری شماره تلفن یا واتساپ ندارد. اشتراک در واتساپ ممکن نیست.';
+
+  @override
+  String get orderShareWhatsappNoPhoneTitle => 'شماره تلفن نیست';
+
+  @override
+  String get orderShareWhatsappNoPhoneBody =>
+      'برای این مشتری شماره تلفن یا واتساپ ثبت نشده است. برای ارسال در واتساپ شماره را در پروفایل مشتری اضافه کنید، یا فاکتور PDF را با برنامهٔ دیگر بفرستید.';
+
+  @override
+  String get orderShareWhatsappNoPhoneShareOther => 'اشتراک PDF با روش دیگر';
+
+  @override
+  String get orderShareWhatsappNoPhoneCancel => 'لغو';
+
+  @override
+  String get appExitConfirmTitle => 'بستن برنامه؟';
+
+  @override
+  String get appExitConfirmBody => 'آیا می‌خواهید از خیاط خارج شوید؟';
+
+  @override
+  String get appExitConfirmYes => 'بستن برنامه';
+
+  @override
+  String get appExitConfirmNo => 'ماندن';
 
   @override
   String get receiptFooterThanks => 'از همکاری شما سپاسگزاریم!';

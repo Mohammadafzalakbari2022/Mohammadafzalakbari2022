@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:go_router/go_router.dart';
@@ -177,27 +175,6 @@ class _AppShellState extends ConsumerState<AppShell> {
               destinations: shellNavigationDestinations(l10n),
             ),
     );
-
-    if (isDesktop) {
-      return CallbackShortcuts(
-        bindings: {
-          const SingleActivator(LogicalKeyboardKey.digit1):
-              () => _onShellTabSelected(0),
-          const SingleActivator(LogicalKeyboardKey.digit2):
-              () => _onShellTabSelected(1),
-          const SingleActivator(LogicalKeyboardKey.digit3):
-              () => _onShellTabSelected(2),
-          const SingleActivator(LogicalKeyboardKey.digit4):
-              () => _onShellTabSelected(3),
-          const SingleActivator(LogicalKeyboardKey.digit5):
-              () => _onShellTabSelected(4),
-        },
-        child: Focus(
-          autofocus: true,
-          child: scaffold,
-        ),
-      );
-    }
 
     return scaffold;
   }

@@ -5,12 +5,18 @@ import 'package:pride_v3/core/persistence/pride_path_provider_io.dart';
 
 import '../../../data/local/style/style_figure_image_ref.dart';
 
+int? _styleFigureCachePx(double? size) {
+  if (size == null) return null;
+  return (size * 3).round().clamp(48, 512);
+}
+
 Widget buildStyleFigureImage({
   required String imageRef,
   double? size,
   BoxFit fit = BoxFit.contain,
 }) {
   final iconSize = (size ?? 48) * 0.5;
+  final cachePx = _styleFigureCachePx(size);
   final asset = StyleFigureImageRef.assetPathFromRef(imageRef);
   if (asset != null) {
     return Image.asset(
@@ -18,6 +24,8 @@ Widget buildStyleFigureImage({
       width: size,
       height: size,
       fit: fit,
+      cacheWidth: cachePx,
+      cacheHeight: cachePx,
       errorBuilder: (_, _, _) =>
           Icon(Icons.image_not_supported_outlined, size: iconSize),
     );
@@ -36,6 +44,8 @@ Widget buildStyleFigureImage({
           width: size,
           height: size,
           fit: fit,
+          cacheWidth: cachePx,
+          cacheHeight: cachePx,
           errorBuilder: (_, _, _) =>
               Icon(Icons.broken_image_outlined, size: iconSize),
         );

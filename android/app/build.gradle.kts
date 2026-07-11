@@ -56,8 +56,8 @@ android {
                 // Local QA only — create android/key.properties for Play Store uploads.
                 signingConfigs.getByName("debug")
             }
-            isMinifyEnabled = false
-            isShrinkResources = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
@@ -76,8 +76,8 @@ android.applicationVariants.configureEach {
         val output = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
         val variantName = name
         output.outputFileName = when {
-            variantName.contains("release", ignoreCase = true) -> "Pride.apk"
-            else -> "Pride-$variantName.apk"
+            variantName.contains("release", ignoreCase = true) -> "Khayat.apk"
+            else -> "Khayat-$variantName.apk"
         }
     }
 }

@@ -12,7 +12,6 @@ import 'package:pride_v3/core/calendar/date_calendar_system.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 
 import 'package:pride_v3/app/app_theme.dart';
-import 'package:pride_v3/core/widgets/customer_id_badge.dart';
 import 'package:pride_v3/core/widgets/pride_action_buttons.dart';
 import 'package:pride_v3/core/widgets/pride_carved_section.dart';
 import 'package:pride_v3/core/feedback/app_feedback.dart';
@@ -20,8 +19,6 @@ import 'package:pride_v3/core/feedback/app_feedback.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../auth/auth_providers.dart';
-import '../../data/local/customer_display_no.dart';
-import '../../data/local/customer_summary.dart';
 import '../../data/local/dev_shop_constants.dart';
 import '../../data/local/measurement_profile_formatting.dart';
 import '../../data/local/order_summary.dart';
@@ -30,7 +27,6 @@ import '../../data/local/sync_outbox_kinds.dart';
 import '../../data/local/entities/order_status.dart';
 import '../../data/providers/local_data_providers.dart';
 import '../../licensing/license_providers.dart';
-import '../../core/printing/thermal_print_order.dart';
 import '../../security/delete_by_typing_name.dart';
 import '../../shell/shell_sync_providers.dart';
 import '../catalog/catalog_item_image.dart';
@@ -38,7 +34,6 @@ import 'order_composer_screen.dart';
 import 'order_detail_field_tile.dart';
 import 'order_detail_hero_card.dart';
 import 'order_detail_share_actions.dart';
-import 'order_invoice_share.dart';
 import 'order_payment_sheet.dart';
 import 'order_status_label.dart';
 import 'order_customer_fabric_panel.dart';
@@ -241,15 +236,6 @@ class OrderDetailScreen extends ConsumerWidget {
           );
         }
         final o = found;
-        final customers = ref.watch(customersListStreamProvider).valueOrNull ??
-            const <CustomerSummary>[];
-        CustomerSummary? linkedCustomer;
-        for (final c in customers) {
-          if (c.internalId == o.customerInternalId) {
-            linkedCustomer = c;
-            break;
-          }
-        }
         final snapshotAsync =
             ref.watch(orderMeasurementSnapshotProvider(orderId));
         final editBlockedByLicense = ref.watch(licenseEditingBlockedProvider);
@@ -274,16 +260,9 @@ class OrderDetailScreen extends ConsumerWidget {
               icon: const Icon(Icons.close),
               onPressed: () => context.pop(),
             ),
-            title: linkedCustomer != null &&
-                    parseStoredDisplayCustomerNo(
-                      linkedCustomer.displayCustomerNo,
-                    ) >
-                        0
-                ? CustomerIdBadge(
-                    storedCustomerNo: linkedCustomer.displayCustomerNo,
-                    compact: true,
-                  )
-                : Text(o.customerName),
+            title: Text(
+              displayOrderNumberLabel(l10n, o.displayOrderNo),
+            ),
             actions: [
               if (!editBlockedByLicense)
                 TextButton.icon(
@@ -307,51 +286,6 @@ class OrderDetailScreen extends ConsumerWidget {
                     ),
                   ],
                 ),
-              IconButton(
-                icon: const Icon(Icons.share_outlined),
-                tooltip: l10n.orderShareInvoiceTooltip,
-                onPressed: () => shareOrderInvoice(
-                  context: context,
-                  ref: ref,
-                  l10n: l10n,
-                  order: o,
-                  payments: asyncPayments.asData?.value ?? const [],
-                  deliveryDateText: AppCalendarFormat.mediumDate(
-                    l10n,
-                    calendar,
-                    o.deliveryDate,
-                    locale,
-                  ),
-                  statusText: orderStatusLabel(o.status, l10n),
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.print_outlined),
-                tooltip: l10n.orderPrintReceiptTooltip,
-                onPressed: () => printThermalOrderReceipt(
-                  context: context,
-                  ref: ref,
-                  l10n: l10n,
-                  order: o,
-                  payments: asyncPayments.asData?.value ?? const [],
-                  deliveryDateText: AppCalendarFormat.mediumDate(
-                    l10n,
-                    calendar,
-                    o.deliveryDate,
-                    locale,
-                  ),
-                  statusText: orderStatusLabel(o.status, l10n),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: Center(
-                  child: Chip(
-                    label: Text(orderStatusLabel(o.status, l10n)),
-                    visualDensity: VisualDensity.compact,
-                  ),
-                ),
-              ),
             ],
           ),
           body: ListView(

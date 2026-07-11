@@ -11,6 +11,7 @@ import 'package:pride_v3/core/persistence/sync_cursor_storage.dart';
 import 'package:pride_v3/core/persistence/sync_diagnostics_storage.dart';
 import 'package:pride_v3/core/push/push_token_bootstrap.dart';
 import 'package:pride_v3/data/local/seed_bundled_defaults.dart';
+import 'package:pride_v3/features/settings/settings_providers.dart';
 import 'package:pride_v3/shell/shell_sync_providers.dart';
 import 'package:pride_v3/l10n/app_localizations.dart';
 import 'package:pride_v3/licensing/license_clock_guard.dart';
@@ -359,10 +360,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
+  String _localeLabel(AppLocalizations l10n, Locale locale) {
+    return switch (locale.languageCode) {
+      'en' => l10n.languageEnglish,
+      'fa' => l10n.languageDari,
+      'ps' => l10n.languagePashto,
+      _ => locale.toLanguageTag(),
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
+    final localeOverride = ref.watch(localeOverrideProvider);
+    final locales = AppLocalizations.supportedLocales;
 
     return Scaffold(
       body: SafeArea(
@@ -381,19 +393,56 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 16),
+                Align(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<Locale>(
+                      value: localeOverride,
+                      isDense: true,
+                      icon: const Icon(Icons.language_outlined),
+                      items: [
+                        for (final locale in locales)
+                          DropdownMenuItem<Locale>(
+                            value: locale,
+                            child: Text(_localeLabel(l10n, locale)),
+                          ),
+                      ],
+                      onChanged: (_busy || _busyCreate)
+                          ? null
+                          : (v) async {
+                              if (v == null) return;
+                              ref.read(localeOverrideProvider.notifier).state =
+                                  v;
+                              await persistLocaleOverride(
+                                ref.read(sharedPreferencesProvider),
+                                v,
+                              );
+                            },
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
                 Center(
                   child: LayoutBuilder(
                     builder: (context, constraints) {
-                      final side = (MediaQuery.sizeOf(context).width * 0.45)
-                          .clamp(140.0, 200.0);
-                      final wordmarkWidth =
-                          (MediaQuery.sizeOf(context).width * 0.72)
-                              .clamp(200.0, 320.0);
-                      return Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Image.asset(
+                      final side = (MediaQuery.sizeOf(context).width * 0.55)
+                          .clamp(180.0, 240.0);
+                      return DecoratedBox(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(36),
+                          boxShadow: [
+                            BoxShadow(
+                              color: theme.colorScheme.primary.withValues(
+                                alpha: 0.18,
+                              ),
+                              blurRadius: 28,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(36),
+                          child: Image.asset(
                             kLoginBrandLogoAsset,
                             width: side,
                             height: side,
@@ -404,15 +453,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               color: theme.colorScheme.primary,
                             ),
                           ),
-                          const SizedBox(height: 12),
-                          Image.asset(
-                            kAppBrandWordmarkAsset,
-                            width: wordmarkWidth,
-                            fit: BoxFit.contain,
-                            errorBuilder: (context, error, stackTrace) =>
-                                const SizedBox.shrink(),
-                          ),
-                        ],
+                        ),
                       );
                     },
                   ),

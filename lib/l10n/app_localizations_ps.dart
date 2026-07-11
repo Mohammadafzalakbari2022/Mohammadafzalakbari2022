@@ -228,9 +228,6 @@ class AppLocalizationsPs extends AppLocalizations {
   String get loginFieldRequired => 'اړین';
 
   @override
-  String get loginDevContinue => 'پرته له حساب دوام (پراختیا)';
-
-  @override
   String get loginApiHint => 'د هټۍ پېژند، کارن نوم او پاسورډ سره ننوځئ.';
 
   @override
@@ -4468,7 +4465,32 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get orderShareCustomerPhoneMissing =>
-      'دا پیرودونکی د تلیفون شمېره نلري. د شریکولو پاڼه پرانیستل کېږي.';
+      'دا پیرودونکی د تلیفون یا واتساپ شمېره نلري. په واتساپ کې شریکول نشي کیدی.';
+
+  @override
+  String get orderShareWhatsappNoPhoneTitle => 'د تلیفون شمېره نشته';
+
+  @override
+  String get orderShareWhatsappNoPhoneBody =>
+      'د دې پیرودونکي لپاره د تلیفون یا واتساپ شمېره ثبت نه ده. د واتساپ لپاره شمېره په پروفایل کې اضافه کړئ، یا فاکتور PDF په بله لارې شریک کړئ.';
+
+  @override
+  String get orderShareWhatsappNoPhoneShareOther => 'PDF بله لارې شریک کړئ';
+
+  @override
+  String get orderShareWhatsappNoPhoneCancel => 'لغوه';
+
+  @override
+  String get appExitConfirmTitle => 'اپ بند کړئ؟';
+
+  @override
+  String get appExitConfirmBody => 'ایا غواړئ له خیاط څخه ووځئ؟';
+
+  @override
+  String get appExitConfirmYes => 'اپ بند کړئ';
+
+  @override
+  String get appExitConfirmNo => 'پاتې شئ';
 
   @override
   String get receiptFooterThanks => 'ستاسو له سوداګرۍ مننه!';

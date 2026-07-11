@@ -476,12 +476,6 @@ abstract class AppLocalizations {
   /// **'Required'**
   String get loginFieldRequired;
 
-  /// No description provided for @loginDevContinue.
-  ///
-  /// In en, this message translates to:
-  /// **'Continue without account (dev)'**
-  String get loginDevContinue;
-
   /// No description provided for @loginApiHint.
   ///
   /// In en, this message translates to:
@@ -8076,8 +8070,56 @@ abstract class AppLocalizations {
   /// No description provided for @orderShareCustomerPhoneMissing.
   ///
   /// In en, this message translates to:
-  /// **'This customer has no phone number. Opening the share sheet instead.'**
+  /// **'This customer has no phone or WhatsApp number. WhatsApp sharing is not available.'**
   String get orderShareCustomerPhoneMissing;
+
+  /// No description provided for @orderShareWhatsappNoPhoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No phone number'**
+  String get orderShareWhatsappNoPhoneTitle;
+
+  /// No description provided for @orderShareWhatsappNoPhoneBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This customer has no phone or WhatsApp number on file. Add a phone number in the customer profile to share on WhatsApp, or share the invoice PDF using another app.'**
+  String get orderShareWhatsappNoPhoneBody;
+
+  /// No description provided for @orderShareWhatsappNoPhoneShareOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Share PDF another way'**
+  String get orderShareWhatsappNoPhoneShareOther;
+
+  /// No description provided for @orderShareWhatsappNoPhoneCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get orderShareWhatsappNoPhoneCancel;
+
+  /// No description provided for @appExitConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Close app?'**
+  String get appExitConfirmTitle;
+
+  /// No description provided for @appExitConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to exit خیاط?'**
+  String get appExitConfirmBody;
+
+  /// No description provided for @appExitConfirmYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Close app'**
+  String get appExitConfirmYes;
+
+  /// No description provided for @appExitConfirmNo.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay'**
+  String get appExitConfirmNo;
 
   /// No description provided for @receiptFooterThanks.
   ///

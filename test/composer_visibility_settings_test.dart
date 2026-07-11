@@ -38,5 +38,14 @@ void main() {
       );
       expect(settings.showAnyStyleSection, isFalse);
     });
+
+    test('cloth block is off by default for new shops', () async {
+      const settings = ComposerVisibilitySettings();
+      expect(settings.showClothBlock, isFalse);
+
+      final prefs = await SharedPreferences.getInstance();
+      final loaded = readComposerVisibilitySettings(prefs, 'new-shop');
+      expect(loaded.showClothBlock, isFalse);
+    });
   });
 }

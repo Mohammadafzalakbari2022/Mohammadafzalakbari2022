@@ -34,9 +34,17 @@ migrate_working_dir/
 /Pride-android.apk
 /Khayat-android.apk
 /Khayat-release.aab
+/Khayat-windows-x64/
 /Khayat-windows-x64.zip
 /Khayat-windows.msix
 *.msix
+
+# Reference-only design/icon source packs (runtime assets live under assets/)
+/khayat_dari_clean_needle_icon_pack/
+/pride_full_platform_icon_pack/
+/cataloge_images/
+/waistcoat_waskat_shapes_collection_dari_text/
+/khayat_design_system_export/
 
 # Store-folder release binaries (markdown/listings in those folders stay tracked)
 play store ready files/*.apk

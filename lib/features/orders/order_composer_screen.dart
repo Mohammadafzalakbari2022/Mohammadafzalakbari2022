@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pride_v3/core/formatting/app_number_format.dart';
@@ -1726,7 +1727,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       paymentsLedgerLoaded: paymentsLedgerLoaded,
       clothBlockEnabled: clothBlockEnabled,
     );
-    return Scaffold(
+    final scaffold = Scaffold(
       appBar: AppBar(
         leading: widget.isTabRoot
             ? null
@@ -1736,46 +1737,13 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
           _editingOrderId != null ? l10n.ordersEditTitle : l10n.ordersNewTitle,
         ),
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final padding = prideComposerScrollPadding(context);
-          if (!prideIsTabletOrWider(constraints.maxWidth)) {
-            return ListView(
-              padding: padding,
-              children: [
-                ...sections.meta,
-                ...sections.garments,
-                ...sections.footer,
-              ],
-            );
-          }
-          return SingleChildScrollView(
-            padding: padding,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      ...sections.meta,
-                      ...sections.footer,
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  flex: 3,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: sections.garments,
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
+      body: ListView(
+        padding: prideComposerScrollPadding(context),
+        children: [
+          ...sections.meta,
+          ...sections.garments,
+          ...sections.footer,
+        ],
       ),
       bottomNavigationBar: ListenableBuilder(
         listenable: _composerFormListenable,
@@ -1796,6 +1764,36 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
           );
         },
       ),
+    );
+
+    if (!widget.isTabRoot) return scaffold;
+
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        final shouldExit = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text(l10n.appExitConfirmTitle),
+            content: Text(l10n.appExitConfirmBody),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(false),
+                child: Text(l10n.appExitConfirmNo),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.of(ctx).pop(true),
+                child: Text(l10n.appExitConfirmYes),
+              ),
+            ],
+          ),
+        );
+        if (shouldExit == true) {
+          await SystemNavigator.pop();
+        }
+      },
+      child: scaffold,
     );
   }
 }
