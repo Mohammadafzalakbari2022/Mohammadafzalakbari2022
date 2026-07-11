@@ -31,7 +31,8 @@ you replace it manually.
 ### Option A — Blueprint + Supabase Postgres (recommended)
 
 1. **Supabase:** create a project → **Project Settings → Database**. Copy the **URI**
-   (current project ref: `qfelipxkfnedqbojutlz` — **TailorPro**, region `aws-1-ap-southeast-1`).
+   (current project ref: `uplksiwbfmktlssnnxcs` — **Khayat / Afghan Pride**,
+   URL `https://uplksiwbfmktlssnnxcs.supabase.co`, region `aws-1-ap-southeast-1`).
    - **Runtime (Render / API):** pooler port **6543** with `?pgbouncer=true&sslmode=require`
    - **Migrations (local `prisma migrate deploy`):** pooler port **5432** with `?sslmode=require`
    URL-encode special characters in the password (e.g. `@` → `%40`).
@@ -153,11 +154,11 @@ Set for **Production** (and Preview if you want staging previews):
 
 URL-encode special characters in database passwords (e.g. `@` → `%40`).
 
-Example Supabase URLs (replace password; project ref `qfelipxkfnedqbojutlz` — **TailorPro**):
+Example Supabase URLs (replace password; project ref `uplksiwbfmktlssnnxcs` — **Khayat / Afghan Pride**):
 
 ```text
-DATABASE_URL=postgresql://postgres.qfelipxkfnedqbojutlz:YOUR_PASSWORD@aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true&sslmode=require
-DIRECT_DATABASE_URL=postgresql://postgres.qfelipxkfnedqbojutlz:YOUR_PASSWORD@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres?sslmode=require
+DATABASE_URL=postgresql://postgres.uplksiwbfmktlssnnxcs:YOUR_PASSWORD@aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true&sslmode=require
+DIRECT_DATABASE_URL=postgresql://postgres.uplksiwbfmktlssnnxcs:YOUR_PASSWORD@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres?sslmode=require
 ```
 
 ### Build and migrations

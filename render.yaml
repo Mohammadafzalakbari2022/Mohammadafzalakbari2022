@@ -18,7 +18,7 @@ services:
     buildCommand: npm install --include=dev && npm run build
     # Needs DATABASE_URL (runtime pooler 6543) and DIRECT_DATABASE_URL (migrations 5432).
     # On Render, use Supabase **pooler** URI for runtime
-    # (project ref qfelipxkfnedqbojutlz — TailorPro — port 6543 + ?pgbouncer=true&sslmode=require).
+    # (project ref uplksiwbfmktlssnnxcs — Khayat — port 6543 + ?pgbouncer=true&sslmode=require).
     # Prisma migrate deploy uses DIRECT_DATABASE_URL on port 5432 (same host, no pgbouncer param).
     preDeployCommand: npx prisma migrate deploy
     startCommand: npm run start:prod

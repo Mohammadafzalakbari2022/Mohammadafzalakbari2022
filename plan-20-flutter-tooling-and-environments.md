@@ -19,7 +19,8 @@ Flow: build and integrate in **dev**, then point builds at **staging** for QA, t
 
 - **Dart defines** (or Flutter flavors) mapping:
   - `API_BASE_URL` — REST API root (e.g. `https://api-dev.example.com`)
-  - `SUPABASE_URL` / `SUPABASE_ANON_KEY` — public client keys only (never service role in app)
+  - `SUPABASE_URL` / `SUPABASE_ANON_KEY` — public client keys only (never service role in app).
+    Production Khayat project: `https://uplksiwbfmktlssnnxcs.supabase.co` (ref `uplksiwbfmktlssnnxcs`).
 
 **Flutter wiring:** `API_BASE_URL` is read at compile time in `lib/core/api/pride_api_config.dart`. **Settings → Sync & diagnostics** can call `GET {API_BASE_URL}/health` (see `lib/core/api/pride_api_health.dart`) to verify the server is reachable before full sync is implemented (plan-04).
 
