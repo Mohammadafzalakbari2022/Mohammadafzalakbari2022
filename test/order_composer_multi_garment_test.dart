@@ -253,6 +253,56 @@ void main() {
     });
   });
 
+  group('firstOrderComposerSaveValidationIssue', () {
+    test('returns customerRequired when customer missing', () {
+      final draft = OrderComposerDraft.initial();
+      expect(
+        firstOrderComposerSaveValidationIssue(
+          draft: draft,
+          customerSelected: false,
+          paidMinor: 50000,
+          clothBlockEnabled: true,
+        ),
+        OrderComposerSaveValidationIssue.customerRequired,
+      );
+    });
+
+    test('returns initialPaymentRequired for new orders with zero payment', () {
+      var draft = OrderComposerDraft.initial();
+      draft = draft.updateItem(
+        GarmentType.perahanTunban,
+        filledItem(GarmentType.perahanTunban, price: 100000),
+      );
+      expect(
+        firstOrderComposerSaveValidationIssue(
+          draft: draft,
+          customerSelected: true,
+          paidMinor: 0,
+          clothBlockEnabled: true,
+        ),
+        OrderComposerSaveValidationIssue.initialPaymentRequired,
+      );
+    });
+
+    test('allows zero payment when editing existing order', () {
+      var draft = OrderComposerDraft.initial();
+      draft = draft.updateItem(
+        GarmentType.perahanTunban,
+        filledItem(GarmentType.perahanTunban, price: 100000),
+      );
+      expect(
+        firstOrderComposerSaveValidationIssue(
+          draft: draft,
+          customerSelected: true,
+          paidMinor: 0,
+          clothBlockEnabled: true,
+          requireInitialPayment: false,
+        ),
+        isNull,
+      );
+    });
+  });
+
   group('paymentBreakdownFromDraft', () {
     test('builds one line per selected item', () {
       final draft = OrderComposerDraft.initial()

@@ -298,6 +298,12 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
 
   final _paidController = TextEditingController();
 
+  final _scrollController = ScrollController();
+  final _customerSectionKey = GlobalKey();
+  final _paymentSectionKey = GlobalKey();
+  var _highlightCustomerError = false;
+  var _highlightPaymentError = false;
+
   DateTime? _deliveryDate;
 
   final _formRevision = ValueNotifier<int>(0);
@@ -320,6 +326,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
   @override
   void initState() {
     super.initState();
+    _paidController.addListener(_onPaidFieldChanged);
     if (widget.initialCustomerId != null &&
         widget.initialCustomerId!.trim().isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -479,12 +486,67 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
 
   @override
   void dispose() {
+    _paidController.removeListener(_onPaidFieldChanged);
+    _scrollController.dispose();
     _paidController.dispose();
     _formRevision.dispose();
     for (final c in _itemPriceControllers.values) {
       c.dispose();
     }
     super.dispose();
+  }
+
+  void _onPaidFieldChanged() {
+    if (_highlightPaymentError && mounted) {
+      setState(() => _highlightPaymentError = false);
+    }
+  }
+
+  void _clearCustomerValidationHighlight() {
+    if (_highlightCustomerError && mounted) {
+      setState(() => _highlightCustomerError = false);
+    }
+  }
+
+  String _saveValidationMessage(
+    AppLocalizations l10n,
+    OrderComposerSaveValidationIssue issue,
+  ) {
+    return switch (issue) {
+      OrderComposerSaveValidationIssue.customerRequired =>
+        l10n.ordersComposerSelectCustomerFirstBody,
+      OrderComposerSaveValidationIssue.noItems => l10n.ordersComposerNoItemsError,
+      OrderComposerSaveValidationIssue.garmentPriceRequired =>
+        l10n.ordersComposerGarmentPriceRequired,
+      OrderComposerSaveValidationIssue.totalRequired =>
+        l10n.ordersComposerGarmentPriceRequired,
+      OrderComposerSaveValidationIssue.initialPaymentRequired =>
+        l10n.ordersComposerInitialPaymentRequired,
+      OrderComposerSaveValidationIssue.paymentExceedsTotal =>
+        l10n.ordersPaymentInitialExceedsTotal,
+    };
+  }
+
+  void _scrollToValidationIssue(OrderComposerSaveValidationIssue issue) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final GlobalKey? sectionKey = switch (issue) {
+        OrderComposerSaveValidationIssue.customerRequired => _customerSectionKey,
+        OrderComposerSaveValidationIssue.initialPaymentRequired =>
+          _paymentSectionKey,
+        OrderComposerSaveValidationIssue.paymentExceedsTotal =>
+          _paymentSectionKey,
+        _ => null,
+      };
+      final target = sectionKey?.currentContext;
+      if (target == null) return;
+      Scrollable.ensureVisible(
+        target,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        alignment: 0.08,
+      );
+    });
   }
 
   void _syncItemPricesFromControllers() {
@@ -566,6 +628,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
   }
 
   void _applyCustomer(CustomerSummary c) {
+    _clearCustomerValidationHighlight();
     setState(() {
       _referenceOrderOverrideId = null;
       _lastPrefilledReferenceId = null;
@@ -624,6 +687,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       ),
     );
     if (!mounted || result == null) return;
+    _clearCustomerValidationHighlight();
     setState(() {
       _referenceOrderOverrideId = null;
       _lastPrefilledReferenceId = null;
@@ -1422,42 +1486,38 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
         ref.read(composerVisibilitySettingsProvider).showClothBlock;
     _syncItemPricesFromControllers();
 
-    for (final type in _draft.selectedGarmentTypes) {
-      if (!_draft.items[type]!.hasRequiredPrice) {
-        showAppFeedback(
-          context,
-          ref,
-          kind: AppFeedbackKind.error,
-          message: l10n.ordersComposerGarmentPriceRequired,
-        );
-        return;
-      }
-    }
-
-    final totalMinor =
-        _draft.totalMinor(clothBlockEnabled: clothBlockEnabled);
-    if (totalMinor <= 0) {
-      showAppFeedback(
-        context,
-        ref,
-        kind: AppFeedbackKind.error,
-        message: l10n.ordersComposerGarmentPriceRequired,
-      );
-      return;
-    }
-
     var paidMinor = _composerPaidMinor;
     if (paidMinor < 0) paidMinor = 0;
-    if (paidMinor > totalMinor) {
+
+    final issue = firstOrderComposerSaveValidationIssue(
+      draft: _draft,
+      customerSelected: _hasCustomerForSave,
+      paidMinor: paidMinor,
+      clothBlockEnabled: clothBlockEnabled,
+      requireInitialPayment: _editingOrderId == null,
+    );
+    if (issue != null) {
+      setState(() {
+        _highlightCustomerError =
+            issue == OrderComposerSaveValidationIssue.customerRequired;
+        _highlightPaymentError =
+            issue == OrderComposerSaveValidationIssue.initialPaymentRequired ||
+            issue == OrderComposerSaveValidationIssue.paymentExceedsTotal;
+      });
       showAppFeedback(
         context,
         ref,
         kind: AppFeedbackKind.error,
-        message: l10n.ordersPaymentInitialExceedsTotal,
+        message: _saveValidationMessage(l10n, issue),
       );
+      _scrollToValidationIssue(issue);
       return;
     }
 
+    setState(() {
+      _highlightCustomerError = false;
+      _highlightPaymentError = false;
+    });
     _save(context, l10n);
   }
 
@@ -1494,14 +1554,18 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     required bool clothBlockEnabled,
   }) {
     final meta = <Widget>[
-      _ComposerCustomerSearchSection(
-        l10n: l10n,
-        selectedCustomerId: _selectedCustomerId,
-        selectedCustomerLabel: _selectedCustomerLabel,
-        onClearCustomer: _clearSelectedCustomer,
-        onSearchCustomer: () =>
-            _pickCustomerFromList(customersForSearch, l10n),
-        onAddCustomer: () => _openNewCustomerForOrder(),
+      KeyedSubtree(
+        key: _customerSectionKey,
+        child: _ComposerCustomerSearchSection(
+          l10n: l10n,
+          selectedCustomerId: _selectedCustomerId,
+          selectedCustomerLabel: _selectedCustomerLabel,
+          showError: _highlightCustomerError,
+          onClearCustomer: _clearSelectedCustomer,
+          onSearchCustomer: () =>
+              _pickCustomerFromList(customersForSearch, l10n),
+          onAddCustomer: () => _openNewCustomerForOrder(),
+        ),
       ),
       if (_selectedCustomerId != null) ...[
         Builder(
@@ -1662,62 +1726,80 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
         ),
       ),
       const SizedBox(height: _kComposerSectionGap),
-      ListenableBuilder(
-        listenable: _paymentFieldsListenable,
-        builder: (context, _) {
-          final total = _composerTotalMinor(clothBlockEnabled);
-          final paid = _composerPaidMinor;
-          final remaining = OrderPaymentRules.remainingMinor(total, paid);
-          final clothLines =
-              _draft.clothPaymentLines(clothBlockEnabled: clothBlockEnabled);
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              for (final type in _draft.selectedGarmentTypes) ...[
-                PrideMoneyField(
-                  controller: _itemPriceControllers[type]!,
-                  labelText: l10n.ordersComposerGarmentPriceLabel(
-                    composerGarmentLabel(l10n, type),
-                  ),
-                ),
-                const SizedBox(height: 8),
-              ],
-              for (final line in clothLines) ...[
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  dense: true,
-                  title: Text(
-                    l10n.ordersComposerClothPriceLineLabel(
-                      composerGarmentLabel(l10n, line.type),
+      KeyedSubtree(
+        key: _paymentSectionKey,
+        child: ListenableBuilder(
+          listenable: _paymentFieldsListenable,
+          builder: (context, _) {
+            final total = _composerTotalMinor(clothBlockEnabled);
+            final paid = _composerPaidMinor;
+            final remaining = OrderPaymentRules.remainingMinor(total, paid);
+            final clothLines =
+                _draft.clothPaymentLines(clothBlockEnabled: clothBlockEnabled);
+            final scheme = Theme.of(context).colorScheme;
+            final paymentBorder = _highlightPaymentError
+                ? Border.all(color: scheme.error, width: 1.5)
+                : null;
+            return DecoratedBox(
+              decoration: BoxDecoration(
+                border: paymentBorder,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Padding(
+                padding: paymentBorder == null
+                    ? EdgeInsets.zero
+                    : const EdgeInsets.all(8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (final type in _draft.selectedGarmentTypes) ...[
+                      PrideMoneyField(
+                        controller: _itemPriceControllers[type]!,
+                        labelText: l10n.ordersComposerGarmentPriceLabel(
+                          composerGarmentLabel(l10n, type),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                    for (final line in clothLines) ...[
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        dense: true,
+                        title: Text(
+                          l10n.ordersComposerClothPriceLineLabel(
+                            composerGarmentLabel(l10n, line.type),
+                          ),
+                        ),
+                        trailing: Text(
+                          _money(l10n, line.amountMinor),
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
+                      ),
+                    ],
+                    if (clothLines.isNotEmpty) const SizedBox(height: 4),
+                    Text(
+                      '${l10n.paymentTotal}: ${_money(l10n, total)}',
+                      style: Theme.of(context).textTheme.titleSmall,
                     ),
-                  ),
-                  trailing: Text(
-                    _money(l10n, line.amountMinor),
-                    style: Theme.of(context).textTheme.titleSmall,
-                  ),
+                    const SizedBox(height: 8),
+                    PrideMoneyField(
+                      controller: _paidController,
+                      labelText: l10n.ordersComposerPaidLabel,
+                    ),
+                    if (total > 0 && remaining > 0)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text(
+                          '${l10n.ordersComposerStillOwedLabel}: ${_money(l10n, remaining)}',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ),
+                  ],
                 ),
-              ],
-              if (clothLines.isNotEmpty) const SizedBox(height: 4),
-              Text(
-                '${l10n.paymentTotal}: ${_money(l10n, total)}',
-                style: Theme.of(context).textTheme.titleSmall,
               ),
-              const SizedBox(height: 8),
-              PrideMoneyField(
-                controller: _paidController,
-                labelText: l10n.ordersComposerPaidLabel,
-              ),
-              if (total > 0 && remaining > 0)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Text(
-                    '${l10n.ordersComposerStillOwedLabel}: ${_money(l10n, remaining)}',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                ),
-            ],
-          );
-        },
+            );
+          },
+        ),
       ),
       const SizedBox(height: _kComposerSectionGap),
       if (_selectedCustomerId != null && !widget.isTabRoot)
@@ -1836,6 +1918,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
         ),
       ),
       body: ListView(
+        controller: _scrollController,
         padding: prideComposerScrollPadding(context),
         children: [
           ...sections.meta,
@@ -1852,9 +1935,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
                 : () => context.pop(),
             cancelLabel: MaterialLocalizations.of(context).cancelButtonLabel,
             primary: FilledButton.icon(
-              onPressed: _hasCustomerForSave && _draft.hasAtLeastOneItem
-                  ? () => _onSavePressed(context, l10n)
-                  : null,
+              onPressed: () => _onSavePressed(context, l10n),
               style: prideButtonStyle(context, PrideButtonVariant.add),
               icon: const Icon(Icons.check),
               label: Text(l10n.ordersComposerSaveCta),
@@ -1874,6 +1955,7 @@ class _ComposerCustomerSearchSection extends StatelessWidget {
     required this.l10n,
     required this.selectedCustomerId,
     required this.selectedCustomerLabel,
+    required this.showError,
     required this.onClearCustomer,
     required this.onSearchCustomer,
     required this.onAddCustomer,
@@ -1882,6 +1964,7 @@ class _ComposerCustomerSearchSection extends StatelessWidget {
   final AppLocalizations l10n;
   final String? selectedCustomerId;
   final String? selectedCustomerLabel;
+  final bool showError;
   final VoidCallback onClearCustomer;
   final VoidCallback onSearchCustomer;
   final VoidCallback onAddCustomer;
@@ -1903,27 +1986,46 @@ class _ComposerCustomerSearchSection extends StatelessWidget {
     }
 
     final scheme = Theme.of(context).colorScheme;
-    return Row(
+    final labelColor =
+        showError ? scheme.error : scheme.onSurfaceVariant;
+    final content = Row(
       children: [
         Expanded(
           child: Text(
             l10n.ordersComposerCustomerRequired,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: scheme.onSurfaceVariant,
+                  color: labelColor,
+                  fontWeight: showError ? FontWeight.w600 : null,
                 ),
           ),
         ),
         IconButton(
           tooltip: l10n.customersSearchHint,
           onPressed: onSearchCustomer,
-          icon: const Icon(Icons.search),
+          icon: Icon(Icons.search, color: showError ? scheme.error : null),
         ),
         IconButton(
           tooltip: l10n.customersAddCta,
           onPressed: onAddCustomer,
-          icon: const Icon(Icons.person_add_outlined),
+          icon: Icon(
+            Icons.person_add_outlined,
+            color: showError ? scheme.error : null,
+          ),
         ),
       ],
+    );
+
+    if (!showError) return content;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border.all(color: scheme.error, width: 1.5),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: content,
+      ),
     );
   }
 }

@@ -104,17 +104,16 @@ class OrderComposerDraft {
     required bool customerSelected,
     required int paidMinor,
     required bool clothBlockEnabled,
+    bool requireInitialPayment = true,
   }) {
-    if (!customerSelected) return false;
-    if (!hasAtLeastOneItem) return false;
-    if (paidMinor <= 0) return false;
-    for (final type in selectedGarmentTypes) {
-      if (!items[type]!.hasRequiredPrice) return false;
-    }
-    final total = totalMinor(clothBlockEnabled: clothBlockEnabled);
-    if (total <= 0) return false;
-    if (paidMinor > total) return false;
-    return true;
+    return firstOrderComposerSaveValidationIssue(
+          draft: this,
+          customerSelected: customerSelected,
+          paidMinor: paidMinor,
+          clothBlockEnabled: clothBlockEnabled,
+          requireInitialPayment: requireInitialPayment,
+        ) ==
+        null;
   }
 
   OrderComposerDraft toggleGarment(GarmentType type, bool included) {
@@ -210,6 +209,47 @@ class OrderComposerDraft {
 
   bool showPreviousReferenceForGarment(GarmentType type) =>
       items[type]?.included == true;
+}
+
+/// First blocking validation issue when saving from the order composer.
+enum OrderComposerSaveValidationIssue {
+  customerRequired,
+  noItems,
+  garmentPriceRequired,
+  totalRequired,
+  initialPaymentRequired,
+  paymentExceedsTotal,
+}
+
+OrderComposerSaveValidationIssue? firstOrderComposerSaveValidationIssue({
+  required OrderComposerDraft draft,
+  required bool customerSelected,
+  required int paidMinor,
+  required bool clothBlockEnabled,
+  bool requireInitialPayment = true,
+}) {
+  if (!customerSelected) {
+    return OrderComposerSaveValidationIssue.customerRequired;
+  }
+  if (!draft.hasAtLeastOneItem) {
+    return OrderComposerSaveValidationIssue.noItems;
+  }
+  for (final type in draft.selectedGarmentTypes) {
+    if (!draft.items[type]!.hasRequiredPrice) {
+      return OrderComposerSaveValidationIssue.garmentPriceRequired;
+    }
+  }
+  final total = draft.totalMinor(clothBlockEnabled: clothBlockEnabled);
+  if (total <= 0) {
+    return OrderComposerSaveValidationIssue.totalRequired;
+  }
+  if (requireInitialPayment && paidMinor <= 0) {
+    return OrderComposerSaveValidationIssue.initialPaymentRequired;
+  }
+  if (paidMinor > total) {
+    return OrderComposerSaveValidationIssue.paymentExceedsTotal;
+  }
+  return null;
 }
 
 /// One line in the payment breakdown sheet.
