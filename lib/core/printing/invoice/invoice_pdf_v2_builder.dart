@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
+import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../../../data/local/order_measurement_snapshot_view.dart';
@@ -134,7 +135,11 @@ Future<Uint8List> buildOrderInvoicePdfFromDocument({
     paymentCount: payments.length,
   );
 
-  final doc = pw.Document(theme: InvoicePdfFonts.themeFor(fonts));
+  final doc = pw.Document(
+    theme: InvoicePdfFonts.themeFor(fonts),
+    compress: false,
+    version: PdfVersion.pdf_1_4,
+  );
 
   doc.addPage(
     pw.MultiPage(

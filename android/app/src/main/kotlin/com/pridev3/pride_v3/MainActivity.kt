@@ -2,6 +2,10 @@ package com.pridev3.pride_v3
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.pdf.PdfRenderer
+import android.os.ParcelFileDescriptor
 import android.media.AudioManager
 import android.media.ToneGenerator
 import android.net.Uri
@@ -151,6 +155,31 @@ class MainActivity : FlutterActivity() {
                     else -> result.notImplemented()
                 }
             }
+
+        MethodChannel(messenger, "com.pridev3.pride_v3/invoice_pdf")
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "rasterPages" -> {
+                        val path = call.argument<String>("path")
+                        val scale = call.argument<Double>("scale") ?: 2.0
+                        if (path.isNullOrBlank()) {
+                            result.error("invalid_args", "path required", null)
+                            return@setMethodCallHandler
+                        }
+                        Thread {
+                            try {
+                                val pages = rasterPdfPages(path, scale)
+                                runOnUiThread { result.success(pages) }
+                            } catch (ex: Exception) {
+                                runOnUiThread {
+                                    result.error("raster_failed", ex.message, null)
+                                }
+                            }
+                        }.start()
+                    }
+                    else -> result.notImplemented()
+                }
+            }
     }
 
     override fun onDestroy() {
@@ -237,6 +266,38 @@ class MainActivity : FlutterActivity() {
             else -> ToneGenerator.TONE_PROP_BEEP to 90
         }
         tg.startTone(tone, durationMs)
+    }
+
+    private fun rasterPdfPages(path: String, scale: Double): List<ByteArray> {
+        val file = File(path)
+        if (!file.exists()) {
+            throw IllegalArgumentException("PDF file not found")
+        }
+        val pfd = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
+        val renderer = PdfRenderer(pfd)
+        val pages = mutableListOf<ByteArray>()
+        try {
+            for (i in 0 until renderer.pageCount) {
+                val page = renderer.openPage(i)
+                val width = (page.width * scale).toInt().coerceAtLeast(1)
+                val height = (page.height * scale).toInt().coerceAtLeast(1)
+                val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                bitmap.eraseColor(Color.WHITE)
+                page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                val stream = ByteArrayOutputStream()
+                bitmap.compress(Bitmap.CompressFormat.PNG, 92, stream)
+                pages.add(stream.toByteArray())
+                bitmap.recycle()
+                page.close()
+            }
+        } finally {
+            renderer.close()
+            pfd.close()
+        }
+        if (pages.isEmpty()) {
+            throw IllegalStateException("PDF has no pages")
+        }
+        return pages
     }
 
     private fun sharePdfToWhatsApp(

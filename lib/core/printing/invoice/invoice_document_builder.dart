@@ -120,16 +120,16 @@ List<InvoicePdfGarmentInput> _resolveGarmentInputs({
     ];
   }
 
-  if (order.items.length == 1) {
-    final item = order.sortedItems.first;
+  if (order.items.isNotEmpty) {
     return [
-      InvoicePdfGarmentInput(
-        garmentLabel: composerGarmentLabel(l10n, item.garmentType),
-        item: item,
-        measurementSnap: measurementSnap,
-        styleSnap: styleSnap,
-        catalogFigures: catalogFigures,
-      ),
+      for (final item in order.sortedItems)
+        InvoicePdfGarmentInput(
+          garmentLabel: composerGarmentLabel(l10n, item.garmentType),
+          item: item,
+          measurementSnap: measurementSnap,
+          styleSnap: styleSnap,
+          catalogFigures: catalogFigures,
+        ),
     ];
   }
 

@@ -50,13 +50,15 @@ List<InvoiceDocumentShape> invoiceDocumentShapesFromSnapshot({
 
     final name = pdfSanitizeLabel(figure.figureNameSnapshot);
     final note = pdfSanitizeLabel(figure.noteSnapshot);
-    final hasSelection = rows.isNotEmpty || note.isNotEmpty;
-    if (!hasSelection) continue;
+    final imageRef = figure.imageRefSnapshot.trim();
+    final hasDetails = rows.isNotEmpty || note.isNotEmpty;
+    final hasFigure = name.isNotEmpty || imageRef.isNotEmpty;
+    if (!hasDetails && !hasFigure) continue;
 
     shapes.add(
       InvoiceDocumentShape(
         shapeName: name.isNotEmpty ? name : pdfSanitizeLabel(labels.shape),
-        imageRef: figure.imageRefSnapshot.trim(),
+        imageRef: imageRef,
         detailRows: rows,
         note: note,
       ),

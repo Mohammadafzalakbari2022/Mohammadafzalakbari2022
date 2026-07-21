@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pride_v3/core/formatting/app_number_format.dart';
-import 'package:pride_v3/app/app_theme.dart';
 import 'package:pride_v3/core/feedback/app_feedback.dart';
 import 'package:pride_v3/core/formatting/digit_normalizer.dart';
 import 'package:pride_v3/core/widgets/pride_modal_bottom_sheet.dart';
@@ -375,7 +374,7 @@ class _OrderPaymentSavedSheetState extends ConsumerState<_OrderPaymentSavedSheet
   }
 
   void _ensureDepositControllers(List<PaymentSummary> sorted) {
-    final ids = sorted.map((p) => p.internalId).toList();
+    final ids = sorted.map((p) => p.internalId).toSet();
     for (final id in _depositCtrls.keys.toList()) {
       if (!ids.contains(id)) {
         _depositCtrls[id]!.dispose();
@@ -383,8 +382,7 @@ class _OrderPaymentSavedSheetState extends ConsumerState<_OrderPaymentSavedSheet
         _depositBaselines.remove(id);
       }
     }
-    for (var i = 0; i < sorted.length; i++) {
-      final p = sorted[i];
+    for (final p in sorted) {
       _depositBaselines[p.internalId] = p.amountMinor;
       final existing = _depositCtrls[p.internalId];
       if (existing == null) {
@@ -395,6 +393,16 @@ class _OrderPaymentSavedSheetState extends ConsumerState<_OrderPaymentSavedSheet
         existing.text = p.amountMinor.toString();
       }
     }
+  }
+
+  TextEditingController _depositCtrlFor(PaymentSummary payment) {
+    final existing = _depositCtrls[payment.internalId];
+    if (existing != null) return existing;
+    final c = TextEditingController(text: payment.amountMinor.toString());
+    c.addListener(_onFieldChanged);
+    _depositCtrls[payment.internalId] = c;
+    _depositBaselines[payment.internalId] = payment.amountMinor;
+    return c;
   }
 
   String _syncKey(OrderSummary o, List<PaymentSummary> sorted) {
@@ -541,13 +549,13 @@ class _OrderPaymentSavedSheetState extends ConsumerState<_OrderPaymentSavedSheet
       ),
     );
     if (!mounted) return;
-    _nextCtrl.clear();
     showAppFeedback(
       context,
       ref,
       kind: AppFeedbackKind.success,
       message: l10n.paymentAdded,
     );
+    Navigator.pop(context);
   }
 
   Future<void> _saveEdit(OrderSummary o, List<PaymentSummary> sorted) async {
@@ -737,7 +745,7 @@ class _OrderPaymentSavedSheetState extends ConsumerState<_OrderPaymentSavedSheet
               for (var i = 0; i < sorted.length; i++) ...[
                 if (i > 0) const SizedBox(height: 12),
                 PrideMoneyField(
-                  controller: _depositCtrls[sorted[i].internalId]!,
+                  controller: _depositCtrlFor(sorted[i]),
                   signed: _editing,
                   enabled: _editing,
                   labelText: l10n.ordersPaymentDepositLabel(i + 1),
@@ -789,23 +797,49 @@ class _OrderPaymentSavedSheetState extends ConsumerState<_OrderPaymentSavedSheet
                       ),
                     ],
                   )
-                : Row(
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      if (canRecord)
-                        FilledButton(
-                          style: prideLedgerTonalButtonStyle(context),
-                          onPressed: () => _recordNextPayment(order),
-                          child: Text(l10n.ordersPaymentRecordCta),
+                      if (canRecord) ...[
+                        SizedBox(
+                          height: 52,
+                          child: FilledButton.icon(
+                            onPressed: () => _recordNextPayment(order),
+                            icon: const Icon(Icons.payments_outlined, size: 22),
+                            label: Text(
+                              l10n.ordersPaymentRecordCta,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.w700),
+                            ),
+                          ),
                         ),
-                      const Spacer(),
-                      FilledButton.icon(
-                        style: prideButtonStyle(
-                          context,
-                          PrideButtonVariant.edit,
+                        const SizedBox(height: 12),
+                      ],
+                      Align(
+                        alignment: AlignmentDirectional.center,
+                        child: TextButton.icon(
+                          onPressed: () => _startEdit(l10n),
+                          icon: Icon(
+                            Icons.edit_outlined,
+                            size: 16,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurfaceVariant,
+                          ),
+                          label: Text(
+                            l10n.editCta,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
+                                ),
+                          ),
                         ),
-                        onPressed: () => _startEdit(l10n),
-                        icon: const Icon(Icons.edit_outlined),
-                        label: Text(l10n.editCta),
                       ),
                     ],
                   ),

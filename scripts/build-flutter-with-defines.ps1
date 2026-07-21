@@ -64,6 +64,10 @@ if ($isWindowsBuild -and [string]::IsNullOrWhiteSpace($sentryDsn)) {
     $env:SENTRY_NATIVE_BACKEND = "none"
     Write-Host "PRIDE_SENTRY_DSN is empty: SENTRY_NATIVE_BACKEND=none for Windows native build."
 }
+if ($isWindowsBuild) {
+    # CMake 4+ rejects legacy pdfium/pdfx DownloadProject scripts without this.
+    $env:CMAKE_POLICY_VERSION_MINIMUM = "3.5"
+}
 
 Push-Location $root
 try {

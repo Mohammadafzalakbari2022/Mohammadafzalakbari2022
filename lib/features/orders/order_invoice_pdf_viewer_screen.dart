@@ -1,14 +1,15 @@
-import 'dart:typed_data';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:pdfx/pdfx.dart';
+import 'package:printing/printing.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
-import '../../core/printing/invoice_pdf_validation.dart';
+import '../../core/printing/invoice_pdf_preview_data.dart';
 
-/// In-app PDF viewer with pinch-zoom; share optional from the app bar.
+/// In-app invoice preview (Android: native page images; desktop/web: WebView or PdfPreview).
 class OrderInvoicePdfViewerScreen extends StatefulWidget {
   const OrderInvoicePdfViewerScreen({
     super.key,
+    required this.preview,
     required this.pdfBytes,
     required this.title,
     required this.shareLabel,
@@ -16,7 +17,8 @@ class OrderInvoicePdfViewerScreen extends StatefulWidget {
     required this.invalidPdfMessage,
   });
 
-  final List<int> pdfBytes;
+  final InvoicePdfPreviewData preview;
+  final Uint8List pdfBytes;
   final String title;
   final String shareLabel;
   final Future<void> Function() onShare;
@@ -27,41 +29,70 @@ class OrderInvoicePdfViewerScreen extends StatefulWidget {
       _OrderInvoicePdfViewerScreenState();
 }
 
-class _OrderInvoicePdfViewerScreenState
-    extends State<OrderInvoicePdfViewerScreen> {
-  PdfController? _controller;
-  var _loading = true;
-  Object? _error;
+class _OrderInvoicePdfViewerScreenState extends State<OrderInvoicePdfViewerScreen> {
+  WebViewController? _webController;
+  var _webLoading = true;
+  Object? _webError;
 
   @override
   void initState() {
     super.initState();
-    _openDocument();
+    if (!kIsWeb && widget.preview.usesWebView) {
+      _initWebView();
+    } else if (!widget.preview.usesPageImages && !kIsWeb) {
+      _webLoading = false;
+      _webError = StateError('Invoice preview payload is empty');
+    } else if (kIsWeb) {
+      _webLoading = false;
+    }
   }
 
-  Future<void> _openDocument() async {
+  Future<void> _initWebView() async {
+    final preview = widget.preview;
     try {
-      final bytes = Uint8List.fromList(widget.pdfBytes);
+      final controller = WebViewController();
+      if (!kIsWeb) {
+        controller
+          ..setJavaScriptMode(JavaScriptMode.unrestricted)
+          ..setBackgroundColor(const Color(0xFF525659))
+          ..setNavigationDelegate(
+            NavigationDelegate(
+              onPageFinished: (_) {
+                if (!mounted) return;
+                setState(() => _webLoading = false);
+              },
+              onWebResourceError: (details) {
+                if (!mounted) return;
+                setState(() {
+                  _webLoading = false;
+                  _webError = details.description;
+                });
+              },
+            ),
+          );
+      }
+
+      final fileUrl = preview.webFileUrl;
+      if (fileUrl != null && fileUrl.isNotEmpty) {
+        await controller.loadRequest(Uri.parse(fileUrl));
+      } else {
+        await controller.loadHtmlString(preview.webHtml!);
+      }
+
       if (!mounted) return;
       setState(() {
-        _controller = PdfController(
-          document: PdfDocument.openData(bytes),
-        );
-        _loading = false;
+        _webController = controller;
+        if (kIsWeb) {
+          _webLoading = false;
+        }
       });
     } on Object catch (e) {
       if (!mounted) return;
       setState(() {
-        _loading = false;
-        _error = e;
+        _webLoading = false;
+        _webError = e;
       });
     }
-  }
-
-  @override
-  void dispose() {
-    _controller?.dispose();
-    super.dispose();
   }
 
   Future<void> _share() async {
@@ -77,21 +108,6 @@ class _OrderInvoicePdfViewerScreenState
 
   @override
   Widget build(BuildContext context) {
-    if (!isValidPdfBytes(widget.pdfBytes)) {
-      return Scaffold(
-        appBar: AppBar(title: Text(widget.title)),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Text(
-              widget.invalidPdfMessage,
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ),
-      );
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -103,44 +119,77 @@ class _OrderInvoicePdfViewerScreenState
           ),
         ],
       ),
-      body: _buildBody(context),
+      body: _buildBody(),
     );
   }
 
-  Widget _buildBody(BuildContext context) {
-    if (_loading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    final controller = _controller;
-    if (_error != null || controller == null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                widget.invalidPdfMessage,
-                textAlign: TextAlign.center,
+  Widget _buildBody() {
+    if (widget.preview.usesPageImages) {
+      final pages = widget.preview.pageImages!;
+      return ListView.builder(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        itemCount: pages.length,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
+            child: Card(
+              clipBehavior: Clip.antiAlias,
+              child: InteractiveViewer(
+                minScale: 0.75,
+                maxScale: 4,
+                child: Image.memory(
+                  pages[index],
+                  fit: BoxFit.contain,
+                  filterQuality: FilterQuality.medium,
+                ),
               ),
-              const SizedBox(height: 16),
-              FilledButton.icon(
-                onPressed: _share,
-                icon: const Icon(Icons.share_outlined),
-                label: Text(widget.shareLabel),
-              ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       );
     }
 
-    return PdfView(
-      controller: controller,
-      scrollDirection: Axis.vertical,
-      backgroundDecoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+    if (kIsWeb) {
+      return PdfPreview(
+        canChangeOrientation: false,
+        canChangePageFormat: false,
+        canDebug: false,
+        allowPrinting: false,
+        allowSharing: false,
+        build: (_) async => widget.pdfBytes,
+      );
+    }
+
+    if (_webError != null) {
+      return _errorBody();
+    }
+
+    if (_webLoading || _webController == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    return WebViewWidget(controller: _webController!);
+  }
+
+  Widget _errorBody() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              widget.invalidPdfMessage,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              onPressed: _share,
+              icon: const Icon(Icons.share_outlined),
+              label: Text(widget.shareLabel),
+            ),
+          ],
+        ),
       ),
     );
   }

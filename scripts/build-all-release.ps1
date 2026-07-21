@@ -56,8 +56,12 @@ try {
         throw "Windows build output not found at $winRelease"
     }
     $exe = Join-Path $winRelease "pride_v3.exe"
-    if (-not (Test-Path $exe) -or (Get-Item $exe).Length -lt 1MB) {
-        throw "Windows release exe missing or too small ($exe)"
+    $flutterDll = Join-Path $winRelease "flutter_windows.dll"
+    if (-not (Test-Path $exe)) {
+        throw "Windows release exe missing ($exe)"
+    }
+    if (-not (Test-Path $flutterDll) -or (Get-Item $flutterDll).Length -lt 1MB) {
+        throw "Windows release folder incomplete ($winRelease)"
     }
 
     $zipPath = Join-Path $Root "Khayat-windows-x64.zip"

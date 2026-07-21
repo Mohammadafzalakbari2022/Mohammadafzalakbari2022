@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -321,7 +322,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     }
   }
 
-  void _populateFromOrder(OrderSummary order) {
+  Future<void> _populateFromOrder(OrderSummary order) async {
     _editingOrderId = order.internalId;
     _editingStatus = order.status;
     _deliveryDate = order.deliveryDate;
@@ -346,7 +347,16 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       _selectedCustomerLabel = order.customerName;
     }
     _clearItemDrafts();
-    for (final item in orderItemsForComposerEdit(order)) {
+    final items = orderItemsForComposerEdit(order);
+    final measurementItemsByGarment = <GarmentType, List<OrderMeasurementSnapshotItemInput>>{};
+    for (final item in items) {
+      final copy = await _loadMeasurementCopyForItem(order, item);
+      if (copy != null && copy.items.isNotEmpty) {
+        measurementItemsByGarment[item.garmentType] = copy.items;
+      }
+    }
+    if (!mounted) return;
+    for (final item in items) {
       final type = item.garmentType;
       _draft = _draft.toggleGarment(type, true);
       _styleSelections[type] =
@@ -363,6 +373,8 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
           measurementsSnapshot: item.measurementsSnapshot,
           sourceMeasurementProfileId: item.sourceMeasurementProfileId,
           sourceMeasurementProfileLabel: item.sourceMeasurementProfileLabel,
+          measurementSnapshotItems:
+              measurementItemsByGarment[type] ?? const [],
           styleName: item.styleName,
           styleNameInternalId: item.styleNameInternalId,
           styleSelectionJson: item.styleSelectionJson,
@@ -394,6 +406,31 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     }
   }
 
+  Future<ReferenceMeasurementsCopy?> _loadMeasurementCopyForItem(
+    OrderSummary order,
+    OrderItemSummary item,
+  ) async {
+    if (item.internalId.trim().isNotEmpty) {
+      final key = OrderItemSnapshotKey(
+        orderInternalId: order.internalId,
+        orderItemInternalId: item.internalId,
+      );
+      var snap = ref.read(orderItemMeasurementSnapshotProvider(key)).valueOrNull;
+      snap ??= await ref.read(orderItemMeasurementSnapshotProvider(key).future);
+      return buildItemMeasurementsCopy(item, snap);
+    }
+    if (item.garmentType == GarmentType.perahanTunban) {
+      var snap = ref
+          .read(orderMeasurementSnapshotProvider(order.internalId))
+          .valueOrNull;
+      snap ??= await ref.read(
+        orderMeasurementSnapshotProvider(order.internalId).future,
+      );
+      return buildMeasurementsCopy(order, snap);
+    }
+    return null;
+  }
+
   void _attemptOrderEditPrefill() {
     if (_orderEditPrefillApplied || !mounted) return;
     final orderId = widget.initialOrderId?.trim();
@@ -406,7 +443,9 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     final order = _orderFromStream(orderId);
     _orderEditPrefillApplied = true;
     if (order != null) {
-      setState(() => _populateFromOrder(order));
+      unawaited(_populateFromOrder(order).then((_) {
+        if (mounted) setState(() {});
+      }));
     }
   }
 
@@ -1104,15 +1143,6 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       );
       return;
     }
-    if (paidMinor <= 0) {
-      showAppFeedback(
-        context,
-        ref,
-        kind: AppFeedbackKind.error,
-        message: l10n.ordersComposerInitialPaymentRequired,
-      );
-      return;
-    }
     if (paidMinor > totalMinor) {
       showAppFeedback(
         context,
@@ -1386,15 +1416,6 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
 
     var paidMinor = _composerPaidMinor;
     if (paidMinor < 0) paidMinor = 0;
-    if (paidMinor <= 0) {
-      showAppFeedback(
-        context,
-        ref,
-        kind: AppFeedbackKind.error,
-        message: l10n.ordersComposerInitialPaymentRequired,
-      );
-      return;
-    }
     if (paidMinor > totalMinor) {
       showAppFeedback(
         context,

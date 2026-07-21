@@ -72,31 +72,32 @@ Future<OrderInvoicePdfRequest> prepareOrderInvoicePdfRequest({
   );
 
   final garmentInputs = <InvoicePdfGarmentInput>[];
-  if (order.items.length > 1) {
-    for (final item in order.sortedItems) {
-      final snapKey = OrderItemSnapshotKey(
-        orderInternalId: order.internalId,
-        orderItemInternalId: item.internalId,
-      );
-      final mSnap = ref
-          .read(orderItemMeasurementSnapshotProvider(snapKey))
-          .valueOrNull;
-      final sSnap =
-          ref.read(orderItemStyleSnapshotProvider(snapKey)).valueOrNull;
-      final figures = ref
-              .read(styleFiguresForGarmentProvider(item.garmentType))
-              .valueOrNull ??
-          const [];
-      garmentInputs.add(
-        InvoicePdfGarmentInput(
-          garmentLabel: composerGarmentLabel(l10n, item.garmentType),
-          item: item,
-          measurementSnap: mSnap,
-          styleSnap: sSnap,
-          catalogFigures: figures,
-        ),
-      );
-    }
+  for (final item in order.sortedItems) {
+    final snapKey = OrderItemSnapshotKey(
+      orderInternalId: order.internalId,
+      orderItemInternalId: item.internalId,
+    );
+    var mSnap = ref
+        .read(orderItemMeasurementSnapshotProvider(snapKey))
+        .valueOrNull;
+    mSnap ??=
+        await ref.read(orderItemMeasurementSnapshotProvider(snapKey).future);
+    var sSnap =
+        ref.read(orderItemStyleSnapshotProvider(snapKey)).valueOrNull;
+    sSnap ??= await ref.read(orderItemStyleSnapshotProvider(snapKey).future);
+    final figures = ref
+            .read(styleFiguresForGarmentProvider(item.garmentType))
+            .valueOrNull ??
+        const [];
+    garmentInputs.add(
+      InvoicePdfGarmentInput(
+        garmentLabel: composerGarmentLabel(l10n, item.garmentType),
+        item: item,
+        measurementSnap: mSnap,
+        styleSnap: sSnap,
+        catalogFigures: figures,
+      ),
+    );
   }
 
   final customerDisplayNo =
@@ -123,11 +124,16 @@ Future<Uint8List> loadOrderInvoicePdfBytesFromRef({
   required WidgetRef ref,
   required OrderInvoicePdfRequest request,
 }) async {
-  final styleSnap =
+  var styleSnap =
       ref.read(orderStyleSnapshotProvider(request.order.internalId)).valueOrNull;
-  final measurementSnap = ref
+  styleSnap ??= await ref
+      .read(orderStyleSnapshotProvider(request.order.internalId).future);
+  var measurementSnap = ref
       .read(orderMeasurementSnapshotProvider(request.order.internalId))
       .valueOrNull;
+  measurementSnap ??= await ref.read(
+    orderMeasurementSnapshotProvider(request.order.internalId).future,
+  );
   final catalogFigures =
       ref.read(styleAllFiguresStreamProvider).valueOrNull ?? const [];
 
@@ -155,11 +161,16 @@ Future<InvoiceDocumentModel> loadInvoiceDocumentFromRef({
   required OrderInvoicePdfRequest request,
   int wrapChars = 56,
 }) async {
-  final styleSnap =
+  var styleSnap =
       ref.read(orderStyleSnapshotProvider(request.order.internalId)).valueOrNull;
-  final measurementSnap = ref
+  styleSnap ??= await ref
+      .read(orderStyleSnapshotProvider(request.order.internalId).future);
+  var measurementSnap = ref
       .read(orderMeasurementSnapshotProvider(request.order.internalId))
       .valueOrNull;
+  measurementSnap ??= await ref.read(
+    orderMeasurementSnapshotProvider(request.order.internalId).future,
+  );
   final catalogFigures =
       ref.read(styleAllFiguresStreamProvider).valueOrNull ?? const [];
 

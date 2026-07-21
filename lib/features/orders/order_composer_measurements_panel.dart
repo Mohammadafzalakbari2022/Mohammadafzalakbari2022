@@ -58,6 +58,7 @@ class _OrderComposerMeasurementsPanelState
   late Map<String, TextEditingController> _byTypeId;
   String? _profileId;
   String _profileLabel = '';
+  var _initialEmitDone = false;
 
   @override
   void initState() {
@@ -212,6 +213,14 @@ class _OrderComposerMeasurementsPanelState
       data: (types) {
         if (types.isEmpty) {
           return const SizedBox.shrink();
+        }
+        if (!_initialEmitDone &&
+            (widget.initialItems.isNotEmpty ||
+                widget.initialSnapshotText.trim().isNotEmpty)) {
+          _initialEmitDone = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) _emitChange();
+          });
         }
         final sorted = [...types]..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
         return Column(

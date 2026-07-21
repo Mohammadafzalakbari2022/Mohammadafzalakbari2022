@@ -178,7 +178,7 @@ class _AppShellState extends ConsumerState<AppShell> {
             ),
     );
 
-    if (!canPop && primaryTab) {
+    if (primaryTab) {
       return PopScope(
         canPop: false,
         onPopInvokedWithResult: (didPop, result) async {

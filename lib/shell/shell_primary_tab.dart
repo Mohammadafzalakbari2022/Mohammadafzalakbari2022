@@ -1,5 +1,6 @@
-/// Bottom-nav destinations only (exact paths).
+/// Bottom-nav destinations only (path without query/fragment).
 bool shellPathIsPrimaryTab(String path) {
+  final basePath = Uri.tryParse(path)?.path ?? path;
   const tabs = <String>{
     '/app/orders',
     '/app/customers',
@@ -7,5 +8,5 @@ bool shellPathIsPrimaryTab(String path) {
     '/app/reports',
     '/app/settings',
   };
-  return tabs.contains(path);
+  return tabs.contains(basePath);
 }
