@@ -16,6 +16,8 @@ import 'order_composer_item_card.dart';
 import 'order_composer_measurements_panel.dart';
 import 'order_composer_style_sheet.dart';
 
+typedef OrderItemDraftUpdater = OrderItemDraft Function(OrderItemDraft current);
+
 /// Always-expanded per-garment receipt block (measurements, style, cloth).
 class OrderComposerReceiptGarmentBlock extends ConsumerWidget {
   const OrderComposerReceiptGarmentBlock({
@@ -24,8 +26,9 @@ class OrderComposerReceiptGarmentBlock extends ConsumerWidget {
     required this.garmentType,
     required this.draft,
     required this.styleSelection,
-    required this.onDraftChanged,
+    required this.onDraftUpdate,
     required this.onStyleSelectionChanged,
+    this.measurementsPanelKey,
     this.referenceOrder,
     this.referenceItem,
     this.onUsePreviousMeasurements,
@@ -42,8 +45,9 @@ class OrderComposerReceiptGarmentBlock extends ConsumerWidget {
   final GarmentType garmentType;
   final OrderItemDraft draft;
   final StyleOrderSelection styleSelection;
-  final ValueChanged<OrderItemDraft> onDraftChanged;
+  final ValueChanged<OrderItemDraftUpdater> onDraftUpdate;
   final ValueChanged<StyleOrderSelection> onStyleSelectionChanged;
+  final GlobalKey<OrderComposerMeasurementsPanelState>? measurementsPanelKey;
   final OrderSummary? referenceOrder;
   final OrderItemSummary? referenceItem;
   final VoidCallback? onUsePreviousMeasurements;
@@ -79,6 +83,7 @@ class OrderComposerReceiptGarmentBlock extends ConsumerWidget {
           const SizedBox(height: 8),
           if (showMeasurements)
             OrderComposerMeasurementsPanel(
+              key: measurementsPanelKey,
               l10n: l10n,
               shopId: shopId,
               customerId: customerId,
@@ -92,8 +97,8 @@ class OrderComposerReceiptGarmentBlock extends ConsumerWidget {
               onUsePreviousMeasurements: onUsePreviousMeasurements,
               moneyFormatter: moneyFormatter,
               onChanged: (result) {
-                onDraftChanged(
-                  draft.copyWith(
+                onDraftUpdate(
+                  (current) => current.copyWith(
                     measurementsSnapshot: result.measurementsSnapshot,
                     measurementSnapshotItems: result.measurementSnapshotItems,
                     sourceMeasurementProfileId:
@@ -133,8 +138,8 @@ class OrderComposerReceiptGarmentBlock extends ConsumerWidget {
               onChanged: (result) {
                 if (result == null) return;
                 onStyleSelectionChanged(result.selection);
-                onDraftChanged(
-                  draft.copyWith(
+                onDraftUpdate(
+                  (current) => current.copyWith(
                     styleName: result.mainStyleName,
                     styleNameInternalId: result.styleNameInternalId,
                     styleSelectionJson: result.selection.toJsonString(),
@@ -170,8 +175,8 @@ class OrderComposerReceiptGarmentBlock extends ConsumerWidget {
               initialFabricSummary: draft.fabricName,
               onChanged: (result) {
                 if (result == null) {
-                  onDraftChanged(
-                    draft.copyWith(
+                  onDraftUpdate(
+                    (current) => current.copyWith(
                       fabricName: '',
                       fabricColor: '',
                       fabricId: '',
@@ -184,8 +189,8 @@ class OrderComposerReceiptGarmentBlock extends ConsumerWidget {
                   );
                   return;
                 }
-                onDraftChanged(
-                  draft.copyWith(
+                onDraftUpdate(
+                  (current) => current.copyWith(
                     fabricName: result.fabricName,
                     fabricColor: result.fabricColor,
                     fabricId: result.fabricId,

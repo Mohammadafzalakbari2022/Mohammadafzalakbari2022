@@ -50,6 +50,8 @@ import 'order_composer_draft.dart';
 import 'order_composer_receipt_garment_block.dart';
 import 'order_composer_item_card.dart';
 import 'order_composer_reference.dart';
+import 'order_composer_measurements_panel.dart';
+import 'order_composer_measurements_result.dart';
 import 'order_invoice_share.dart';
 import 'order_invoice_view.dart';
 import 'package:pride_v3/core/formatting/digit_normalizer.dart';
@@ -148,7 +150,9 @@ OrderItemCreateInput mergeComposerEditInput(
       clothSourceIndex: draft.clothSourceIndex,
       clothStockSkuInternalId: draft.clothStockSkuInternalId,
       clothSaleCostAmountMinor: draft.clothSaleCostAmountMinor,
-      measurementSnapshotItems: draft.measurementSnapshotItems,
+      measurementSnapshotItems: normalizedMeasurementSnapshotItems(
+        draft.measurementSnapshotItems,
+      ),
     );
   }
   return OrderItemCreateInput(
@@ -178,7 +182,9 @@ OrderItemCreateInput mergeComposerEditInput(
     clothSourceIndex: draft.clothSourceIndex,
     clothStockSkuInternalId: draft.clothStockSkuInternalId,
     clothSaleCostAmountMinor: draft.clothSaleCostAmountMinor,
-    measurementSnapshotItems: draft.measurementSnapshotItems,
+    measurementSnapshotItems: normalizedMeasurementSnapshotItems(
+      draft.measurementSnapshotItems,
+    ),
   );
 }
 
@@ -282,6 +288,12 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
   final Map<GarmentType, bool> _itemCardExpanded = {
     GarmentType.perahanTunban: true,
     GarmentType.waistcoat: false,
+  };
+
+  final Map<GarmentType, GlobalKey<OrderComposerMeasurementsPanelState>>
+      _measurementPanelKeys = {
+    GarmentType.perahanTunban: GlobalKey<OrderComposerMeasurementsPanelState>(),
+    GarmentType.waistcoat: GlobalKey<OrderComposerMeasurementsPanelState>(),
   };
 
   final _paidController = TextEditingController();
@@ -482,6 +494,25 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
       draft = draft.updateItemPrice(type, minor);
     }
     _draft = draft;
+  }
+
+  void _flushMeasurementsBeforeSave() {
+    if (!ref.read(composerVisibilitySettingsProvider).showMeasurementsBlock) {
+      return;
+    }
+    for (final type in _draft.selectedGarmentTypes) {
+      final result = _measurementPanelKeys[type]?.currentState?.readCurrentResult();
+      if (result == null) continue;
+      _draft = _draft.updateItem(
+        type,
+        _itemDraft(type).copyWith(
+          measurementsSnapshot: result.measurementsSnapshot,
+          measurementSnapshotItems: result.measurementSnapshotItems,
+          sourceMeasurementProfileId: result.sourceMeasurementProfileId,
+          sourceMeasurementProfileLabel: result.sourceMeasurementProfileLabel,
+        ),
+      );
+    }
   }
 
   int _composerTotalMinor(bool clothBlockEnabled) {
@@ -1129,6 +1160,7 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
     }
 
     _syncItemPricesFromControllers();
+    _flushMeasurementsBeforeSave();
     final clothBlockEnabled =
         ref.read(composerVisibilitySettingsProvider).showClothBlock;
     final totalMinor = _draft.totalMinor(clothBlockEnabled: clothBlockEnabled);
@@ -1559,13 +1591,14 @@ class _OrderComposerScreenState extends ConsumerState<OrderComposerScreen> {
               draft: itemDraft,
               styleSelection: _styleSelections[type] ??
                   const StyleOrderSelection.empty(),
+              measurementsPanelKey: _measurementPanelKeys[type],
               customerId: _selectedCustomerId,
               measurementProfiles: measurementProfiles,
               referenceOrder: referenceOrder,
               referenceItem: refItem,
               moneyFormatter: _money,
-              onDraftChanged: (next) {
-                _draft = _draft.updateItem(type, next);
+              onDraftUpdate: (update) {
+                _draft = _draft.updateItem(type, update(_itemDraft(type)));
                 _notifyFormRevision();
               },
               onStyleSelectionChanged: (selection) {

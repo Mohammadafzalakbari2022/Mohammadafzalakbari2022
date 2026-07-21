@@ -1,8 +1,8 @@
 import '../../data/local/entities/garment_type.dart';
 import '../../data/local/order_item_draft.dart';
 import '../../data/local/order_item_input.dart';
-import '../../data/local/order_measurement_snapshot_item_input.dart';
 import '../../data/local/style/style_order_selection.dart';
+import 'order_composer_measurements_result.dart';
 
 /// Item-aware new-order composer state (pure logic; testable).
 class OrderComposerDraft {
@@ -158,11 +158,8 @@ class OrderComposerDraft {
           measurementsSnapshot: draft.measurementsSnapshot,
           sourceMeasurementProfileId: draft.sourceMeasurementProfileId,
           sourceMeasurementProfileLabel: draft.sourceMeasurementProfileLabel,
-          measurementSnapshotItems: draft.measurementSnapshotItems.isEmpty
-              ? null
-              : List<OrderMeasurementSnapshotItemInput>.of(
-                  draft.measurementSnapshotItems,
-                ),
+          measurementSnapshotItems:
+              normalizedMeasurementSnapshotItems(draft.measurementSnapshotItems),
           styleName: draft.styleName,
           styleNameInternalId: draft.styleNameInternalId,
           styleSelectionJson: selection.toJsonString(),
